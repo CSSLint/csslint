@@ -5,7 +5,7 @@
 CSSLint.addRule({
 
     //rule information
-    name: "float",
+    name: "floats",
     desc: "This rule tests if the float property is used too many times",
     
     //initialization

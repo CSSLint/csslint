@@ -4,7 +4,7 @@
 CSSLint.addRule({
 
     //rule information
-    name: "error",
+    name: "errors",
     desc: "This rule looks for recoverable syntax errors.",
     
     //initialization

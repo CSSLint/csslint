@@ -10,47 +10,47 @@
 <body>
     <h1>CSSLint Demo</h1>
     <textarea rows="10" cols="40" id="input">
-    @charset "UTF-8"; 
-    
-    @import url("booya.css") print,screen;
-    @import "whatup.css" screen;
-    @import "wicked.css";
-    
-    @namespace "http://www.w3.org/1999/xhtml";
-    @namespace svg "http://www.w3.org/2000/svg";
-    
+@charset "UTF-8"; 
+
+@import url("booya.css") print,screen;
+@import "whatup.css" screen;
+@import "wicked.css";
+
+@namespace "http://www.w3.org/1999/xhtml";
+@namespace svg "http://www.w3.org/2000/svg";
+
+li.inline {
+  background: url("something.png");
+  display: inline;
+  padding-left: 3px;
+  padding-right: 7px;
+  border-right: 1px dotted #066;
+}
+
+li.last {
+  display: inline;
+  padding-left: 3px !important;
+  padding-right: 3px;
+  border-right: 0px;
+} 
+
+@media print {
     li.inline {
-      background: url("something.png");
-      display: inline;
-      padding-left: 3px;
-      padding-right: 7px;
-      border-right: 1px dotted #066;
+      color: black;
     }
-    
-    li.last {
-      display: inline;
-      padding-left: 3px !important;
-      padding-right: 3px;
-      border-right: 0px;
-    } 
-    
-    @media print {
-        li.inline {
-          color: black;
-        }
-    }
-    
-    @page {
-      margin: 10%;
-      counter-increment: page;
-    
-      @top-center {
-        font-family: sans-serif;
-        font-weight: bold;
-        font-size: 2em;
-        content: counter(page);
-      }
-    }
+}
+
+@page {
+  margin: 10%;
+  counter-increment: page;
+
+  @top-center {
+    font-family: sans-serif;
+    font-weight: bold;
+    font-size: 2em;
+    content: counter(page);
+  }
+}
     </textarea>
     <input type="button" id="lint-btn" value="Run CSSLint">
     <p>(You may want to keep the CSS kinda small, this could take a while.)</p>
