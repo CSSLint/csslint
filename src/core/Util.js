@@ -22,3 +22,21 @@ function mix(reciever, supplier){
     return prop;
 }
 
+/*
+ * Polyfill for array indexOf() method.
+ * @param {Array} values The array to search.
+ * @param {Variant} value The value to search for.
+ * @return {int} The index of the value if found, -1 if not.
+ */
+function indexOf(values, value){
+    if (values.indexOf){
+        return values.indexOf(value);
+    } else {
+        for (var i=0, len=values.length; i < len; i++){
+            if (values[i] === value){
+                return i;
+            }
+        }
+        return -1;
+    }
+}

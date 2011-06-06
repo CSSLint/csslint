@@ -1,3 +1,7 @@
+/*
+ * Rule: You shouldn't use more than 10 floats. If you do, there's probably
+ * room for some abstraction.
+ */
 CSSLint.addRule({
 
     //rule information

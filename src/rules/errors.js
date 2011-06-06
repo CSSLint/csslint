@@ -1,8 +1,11 @@
+/*
+ * Rule: There should be no syntax errors. (Duh.)
+ */
 CSSLint.addRule({
 
     //rule information
     name: "error",
-    desc: "This rule looks for recoverable syntax errors",
+    desc: "This rule looks for recoverable syntax errors.",
     
     //initialization
     init: function(parser, reporter){

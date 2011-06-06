@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>CSS Parser Demo</title>
-    <script type="text/javascript" src="../build/csslint-www.js"></script>
+    <title>CSSLint Demo</title>
+    <script type="text/javascript" src="../build/csslint.js"></script>
     <style type="text/css">
         .error { color: red; }
     </style>
@@ -64,6 +64,8 @@
             event = event || window.event;
             var target = event.target || event.srcElement,
                 results, messages, i, len;
+            
+            document.getElementById("output").innerHTML = "";
             
             if (target.id == "lint-btn"){
                 results = CSSLint.verify(document.getElementById("input").value);

@@ -10,33 +10,31 @@
     <property name="lib.dir" value="./lib" />
     
     <!-- output filenames -->
-    <property name="www.build.file" value="csslint-www.js"/>
+    <property name="core.build.file" value="csslint.js"/>
     <property name="node.build.file" value="csslint-node.js"/>
     <property name="rhino.build.file" value="csslint-rhino.js"/>
     
-    <loadfile property="license.text" srcfile="LICENSE" />
-    
-    
-    <!-- build the WWW library -->
-    <target name="build.www">
-    
-        <concat destfile="${build.dir}/${www.build.file}"  fixlastline="true">
+    <loadfile property="license.text" srcfile="LICENSE" />    
+
+    <!-- build the core library -->
+    <target name="build.core">    
+        <concat destfile="${build.dir}/${core.build.file}"  fixlastline="true">
             <header trimleading="yes">/* 
             ${license.text}
             */
-            (function(){
+            var CSSLint = (function(){
             </header>
             <fileset dir="${lib.dir}" includes="*.js" />
             <filelist dir="${src.dir}/core" files="CSSLint.js" />
             <fileset dir="${src.dir}/core" includes="*.js" excludes="CSSLint.js"/>
             <fileset dir="${src.dir}/rules" includes="*.js" />
-            <fileset dir="${src.dir}/www" includes="*.js" />
             <footer trimleading="yes">
+                return CSSLint;
             })();
             </footer>
-        </concat>
-        
-    </target>
+            
+        </concat>        
+    </target>   
     
     <!-- build the Node.js library -->
     <target name="build.node">
@@ -59,29 +57,10 @@
         
     </target>
     
-    <!-- build the Rhino library -->
-    <target name="build.rhino">
-    
-        <concat destfile="${build.dir}/${rhino.build.file}"  fixlastline="true">
-            <header trimleading="yes">/* 
-            ${license.text}
-            */
-            var CSSLint = (function(){
-            </header>
-            <fileset dir="${lib.dir}" includes="*.js" />
-            <filelist dir="${src.dir}/core" files="CSSLint.js" />
-            <fileset dir="${src.dir}/core" includes="*.js" excludes="CSSLint.js"/>
-            <fileset dir="${src.dir}/rules" includes="*.js" />
-            <fileset dir="${src.dir}/rhino" includes="*.js" />
-            <footer trimleading="yes">
-            })();
-            </footer>
-        </concat>
-        
-    </target>    
+ 
     
     
     <!-- Build all files -->
-    <target name="all" depends="build.www,build.node,build.rhino"/>
+    <target name="all" depends="build.core,build.node"/>
 
 </project>
