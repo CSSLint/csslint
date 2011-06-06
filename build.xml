@@ -1,0 +1,87 @@
+<project name="csslint" default="all">
+
+    <!-- the directories containing the source files -->
+    <property name="src.dir" value="./src" />
+    
+    <!-- the directories and files to output to -->
+    <property name="build.dir" value="./build" />
+    
+    <!-- the directory containing library files -->
+    <property name="lib.dir" value="./lib" />
+    
+    <!-- output filenames -->
+    <property name="www.build.file" value="csslint-www.js"/>
+    <property name="node.build.file" value="csslint-node.js"/>
+    <property name="rhino.build.file" value="csslint-rhino.js"/>
+    
+    <loadfile property="license.text" srcfile="LICENSE" />
+    
+    
+    <!-- build the WWW library -->
+    <target name="build.www">
+    
+        <concat destfile="${build.dir}/${www.build.file}"  fixlastline="true">
+            <header trimleading="yes">/* 
+            ${license.text}
+            */
+            (function(){
+            </header>
+            <fileset dir="${lib.dir}" includes="*.js" />
+            <filelist dir="${src.dir}/core" files="CSSLint.js" />
+            <fileset dir="${src.dir}/core" includes="*.js" excludes="CSSLint.js"/>
+            <fileset dir="${src.dir}/rules" includes="*.js" />
+            <fileset dir="${src.dir}/www" includes="*.js" />
+            <footer trimleading="yes">
+            })();
+            </footer>
+        </concat>
+        
+    </target>
+    
+    <!-- build the Node.js library -->
+    <target name="build.node">
+    
+        <concat destfile="${build.dir}/${node.build.file}"  fixlastline="true">
+            <header trimleading="yes">/* 
+            ${license.text}
+            */
+            (function(){
+            </header>
+            <fileset dir="${lib.dir}" includes="*.js" />
+            <filelist dir="${src.dir}/core" files="CSSLint.js" />
+            <fileset dir="${src.dir}/core" includes="*.js" excludes="CSSLint.js"/>
+            <fileset dir="${src.dir}/rules" includes="*.js" />
+            <fileset dir="${src.dir}/node" includes="*.js" />
+            <footer trimleading="yes">
+            })();
+            </footer>
+        </concat>
+        
+    </target>
+    
+    <!-- build the Rhino library -->
+    <target name="build.rhino">
+    
+        <concat destfile="${build.dir}/${rhino.build.file}"  fixlastline="true">
+            <header trimleading="yes">/* 
+            ${license.text}
+            */
+            var CSSLint = (function(){
+            </header>
+            <fileset dir="${lib.dir}" includes="*.js" />
+            <filelist dir="${src.dir}/core" files="CSSLint.js" />
+            <fileset dir="${src.dir}/core" includes="*.js" excludes="CSSLint.js"/>
+            <fileset dir="${src.dir}/rules" includes="*.js" />
+            <fileset dir="${src.dir}/rhino" includes="*.js" />
+            <footer trimleading="yes">
+            })();
+            </footer>
+        </concat>
+        
+    </target>    
+    
+    
+    <!-- Build all files -->
+    <target name="all" depends="build.www,build.node,build.rhino"/>
+
+</project>
