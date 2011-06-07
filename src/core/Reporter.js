@@ -42,15 +42,17 @@ Reporter.prototype = {
      * @param {String} message The message to store.
      * @param {int} line The line number.
      * @param {int} col The column number.
+     * @param {Object} rule The rule this message relates to.
      * @method error
      */
-    error: function(message, line, col){
+    error: function(message, line, col, rule){
         this.messages.push({
             type    : "error",
             line    : line,
             col     : col,
             message : message,
-            evidence: this.lines[line-1]
+            evidence: this.lines[line-1],
+            rule    : rule
         });
     },
     
@@ -59,6 +61,7 @@ Reporter.prototype = {
      * @param {String} message The message to store.
      * @param {int} line The line number.
      * @param {int} col The column number.
+     * @param {Object} rule The rule this message relates to.
      * @method warn
      */
     warn: function(message, line, col){
@@ -67,7 +70,8 @@ Reporter.prototype = {
             line    : line,
             col     : col,
             message : message,
-            evidence: this.lines[line-1]
+            evidence: this.lines[line-1],
+            rule    : rule
         });
     },
     
@@ -76,6 +80,7 @@ Reporter.prototype = {
      * @param {String} message The message to store.
      * @param {int} line The line number.
      * @param {int} col The column number.
+     * @param {Object} rule The rule this message relates to.
      * @method info
      */
     info: function(message, line, col){
@@ -84,33 +89,38 @@ Reporter.prototype = {
             line    : line,
             col     : col,
             message : message,
-            evidence: this.lines[line-1]
+            evidence: this.lines[line-1],
+            rule    : rule
         });
     },
     
     /**
      * Report some rollup error information.
      * @param {String} message The message to store.
+     * @param {Object} rule The rule this message relates to.
      * @method rollupError
      */
-    rollupError: function(message){
+    rollupError: function(message, rule){
         this.messages.push({
             type    : "error",
             rollup  : true,
-            message : message            
+            message : message,
+            rule    : rule
         });
     },
     
     /**
      * Report some rollup warning information.
      * @param {String} message The message to store.
+     * @param {Object} rule The rule this message relates to.
      * @method rollupWarn
      */
-    rollupWarn: function(message){
+    rollupWarn: function(message, rule){
         this.messages.push({
             type    : "warn",
             rollup  : true,
-            message : message            
+            message : message,
+            rule    : rule
         });
     },
     

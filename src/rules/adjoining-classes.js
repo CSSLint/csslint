@@ -4,7 +4,7 @@
 CSSLint.addRule({
 
     //rule information
-    name: "adjoining-classes",
+    name: "Adjoining Classes",
     desc: "Don't use adjoining classes.",
     
     //initialization
@@ -30,7 +30,7 @@ CSSLint.addRule({
                                 classCount++;                                
                             }
                             if (classCount > 1){
-                                reporter.warn("Don't use adjoining selectors.", part.line, part.col);
+                                reporter.warn("Don't use adjoining selectors.", part.line, part.col, this);
                             }
                         }
                     }                    

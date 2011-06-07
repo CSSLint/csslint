@@ -4,12 +4,13 @@
  */
  
 /*
- * Note: not sure what to do about font sizes that are close in size.
+ * Note: not sure what to do about font sizes that are close in size. Just pixels. 
+ * Also, check for too close pixel sizes and point out at the end.
  */
 CSSLint.addRule({
 
     //rule information
-    name: "font-sizes",
+    name: "Font Sizes",
     desc: "Checks the number of font-size declarations versus the number of unique font sizes",
     
     //initialization
@@ -44,7 +45,7 @@ CSSLint.addRule({
         parser.addListener("endstylesheet", function(event){
             reporter.stat("font-sizes", count);
             if (count >= 10){
-                reporter.rollupWarn("Too many font-size declarations (" + count + "), abstraction needed.");
+                reporter.rollupWarn("Too many font-size declarations (" + count + "), abstraction needed.", this);
             }
         }); 
     }

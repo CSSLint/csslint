@@ -4,7 +4,7 @@
 CSSLint.addRule({
 
     //rule information
-    name: "ids",
+    name: "IDs",
     desc: "Selectors should not contain IDs.",
     
     //initialization
@@ -26,7 +26,7 @@ CSSLint.addRule({
                         for (k=0; k < part.modifiers.length; k++){
                             modifier = part.modifiers[k];
                             if (modifier.type == "id"){
-                                reporter.warn("Don't use IDs in selectors (" + part + ")", modifier.line, modifier.col);
+                                reporter.warn("Don't use IDs in selectors (" + part + ")", modifier.line, modifier.col, this);
                             }
                         }
                     }                    

@@ -4,7 +4,7 @@
 CSSLint.addRule({
 
     //rule information
-    name: "font-faces",
+    name: "Font Faces",
     desc: "Too many different web fonts in the same stylesheet.",
     
     //initialization
@@ -19,7 +19,7 @@ CSSLint.addRule({
 
         parser.addListener("endstylesheet", function(event){
             if (count > 5){
-                reporter.rollupWarn("Too many @font-face declarations (" + count + ")");
+                reporter.rollupWarn("Too many @font-face declarations (" + count + ")", this);
             }
         });        
     }

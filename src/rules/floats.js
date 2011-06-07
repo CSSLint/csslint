@@ -5,7 +5,7 @@
 CSSLint.addRule({
 
     //rule information
-    name: "floats",
+    name: "Floats",
     desc: "This rule tests if the float property is used too many times",
     
     //initialization
@@ -24,7 +24,7 @@ CSSLint.addRule({
         parser.addListener("endstylesheet", function(event){
             reporter.stat("floats", count);
             if (count >= 10){
-                reporter.rollupWarn("Too many floats (" + count + "), abstraction needed.");
+                reporter.rollupWarn("Too many floats (" + count + "), abstraction needed.", this);
             }
         }); 
     }
