@@ -6,7 +6,9 @@
 
 var fs      = require("fs"),
     path    = require("path"),
-    CSSLint = require("csslint-node").CSSLint;
+    CSSLint = require("./lib/csslint-node").CSSLint,
+    options = {},
+    stdout  = process.stdout;
     
 //-----------------------------------------------------------------------------
 // Helper Functions
@@ -30,7 +32,7 @@ function getFiles(dir){
             
             if (file[0] == ".") {
                 return;
-            } else if (stat.isFile() && /\.js$/.test(file)){
+            } else if (stat.isFile() && /\.css$/.test(file)){
                 files.push(path);
             } else if (stat.isDirectory()){
                 traverse(file, stack);
@@ -77,7 +79,7 @@ while(arg){
     arg = args.shift();
 }
 
-if (options.help){
+if (options.help || process.argv.length == 2){
     outputHelp();
     process.exit(0);
 }
@@ -92,15 +94,16 @@ files = files.map(function(filename){
 //-----------------------------------------------------------------------------
 
 files.forEach(function(filepath){
-    var text    = fs.readFileSync(filepath),
+    var text    = fs.readFileSync(filepath,"utf-8"),
         filename= path.basename(filepath),
         result  = CSSLint.verify(text),
         messages= result.messages;
         
     if (messages.length){
     
-        stdout.write("There are " + messages.length + " errors and warnings.");
+        stdout.write("csslint: There are " + messages.length + " errors and warnings in " + filename + ".\n");
     
+    //rollups at the bottom
         messages.sort(function(a, b){
             if (a.rollup){
                 return -1;
@@ -111,21 +114,21 @@ files.forEach(function(filepath){
             }
         });
         
-        messages.forEach(function(message){
-            stdout.write(filename + ":");
+        messages.forEach(function(message,i){
+            stdout.write("\n" + filename + ":\n");
             if (message.rollup){
-                stdout.write(message);
+                stdout.write((i+1) + ": " + message.type + "\n");
+                stdout.write(message.message + "\n");
             } else {
-                stdout.write(message);        
+                stdout.write((i+1) + ": " + message.type + " at line " + message.line + ", col " + message.line + "\n");   
+                stdout.write(message.message + "\n");
+                stdout.write(message.evidence + "\n");
             }
         });
         
-        while(i < len){
-
-            i++;
-        }
     } else {
-        stdout.write(filename + ": No problems found.";
+        stdout.write("csslint: No problems found in " + filename + ".\n");
     }
-
 });
+
+

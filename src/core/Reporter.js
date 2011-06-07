@@ -4,8 +4,10 @@
  * An instance of Report is used to report results of the
  * verification back to the main API.
  * @class Reporter
+ * @constructor
+ * @param {String[]} lines The text lines of the source.
  */
-function Reporter(){
+function Reporter(lines){
 
     /**
      * List of messages being reported.
@@ -20,7 +22,14 @@ function Reporter(){
      * @type String[]
      */
     this.stats = [];   
-
+    
+    /**
+     * Lines of code being reported on. Used to provide contextual information
+     * for messages.
+     * @property lines
+     * @type String[]
+     */
+    this.lines = lines;
 }
 
 Reporter.prototype = {
@@ -40,7 +49,8 @@ Reporter.prototype = {
             type    : "error",
             line    : line,
             col     : col,
-            message : message            
+            message : message,
+            evidence: this.lines[line-1]
         });
     },
     
@@ -56,7 +66,8 @@ Reporter.prototype = {
             type    : "warning",
             line    : line,
             col     : col,
-            message : message            
+            message : message,
+            evidence: this.lines[line-1]
         });
     },
     
@@ -72,7 +83,8 @@ Reporter.prototype = {
             type    : "info",
             line    : line,
             col     : col,
-            message : message            
+            message : message,
+            evidence: this.lines[line-1]
         });
     },
     

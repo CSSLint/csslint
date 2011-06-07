@@ -1,0 +1,43 @@
+@charset "UTF-8"; 
+
+@import url("booya.css") print,screen;
+@import "whatup.css" screen;
+@import "wicked.css";
+
+@namespace "http://www.w3.org/1999/xhtml";
+@namespace svg "http://www.w3.org/2000/svg";
+
+li.inline #foo {
+  background: url("something.png");
+  display: inline;
+  padding-left: 3px;
+  padding-right: 7px;
+  border-right: 1px dotted #066;
+}
+
+li.last.first {
+  display: inline;
+  padding-left: 3px !important;
+  padding-right: 3px;
+  border-right: 0px;
+} 
+
+@media print {
+    li.inline {
+      color: black;
+    }
+
+
+@charset "UTF-8"; 
+
+@page {
+  margin: 10%;
+  counter-increment: page;
+
+  @top-center {
+    font-family: sans-serif;
+    font-weight: bold;
+    font-size: 2em;
+    content: counter(page);
+  }
+}

@@ -2,9 +2,11 @@
 
     <!-- the directories containing the source files -->
     <property name="src.dir" value="./src" />
+    <property name="npm.dir" value="./npm" />
     
     <!-- the directories and files to output to -->
     <property name="build.dir" value="./build" />
+    <property name="build.npm.dir" value="${build.dir}/npm" />
     
     <!-- the directory containing library files -->
     <property name="lib.dir" value="./lib" />
@@ -14,7 +16,12 @@
     <property name="node.build.file" value="csslint-node.js"/>
     <property name="rhino.build.file" value="csslint-rhino.js"/>
     
-    <loadfile property="license.text" srcfile="LICENSE" />    
+    <loadfile property="license.text" srcfile="LICENSE" />   
+
+    <!-- clean -->
+    <target name="clean">
+        <delete dir="${build.dir}" />
+    </target>
 
     <!-- build the core library -->
     <target name="build.core">    
@@ -36,31 +43,32 @@
         </concat>        
     </target>   
     
-    <!-- build the Node.js library -->
+    <!-- build the Node.js package -->
     <target name="build.node">
     
         <concat destfile="${build.dir}/${node.build.file}"  fixlastline="true">
             <header trimleading="yes">/* 
             ${license.text}
             */
-            (function(){
             </header>
             <fileset dir="${lib.dir}" includes="*.js" />
             <filelist dir="${src.dir}/core" files="CSSLint.js" />
             <fileset dir="${src.dir}/core" includes="*.js" excludes="CSSLint.js"/>
             <fileset dir="${src.dir}/rules" includes="*.js" />
-            <fileset dir="${src.dir}/node" includes="*.js" />
             <footer trimleading="yes">
-            })();
+            exports.CSSLint = CSSLint;
             </footer>
-        </concat>
+       </concat>
         
+       <mkdir dir="${build.npm.dir}"/>
+       <mkdir dir="${build.npm.dir}/lib"/>
+       <copy file="${npm.dir}/package.json" todir="${build.npm.dir}"/>
+       <copy file="${src.dir}/node/cli.js" todir="${build.npm.dir}"/>
+       <copy file="${build.dir}/${node.build.file}" todir="${build.npm.dir}/lib"/>
+       
     </target>
     
- 
-    
-    
     <!-- Build all files -->
-    <target name="all" depends="build.core,build.node"/>
+    <target name="all" depends="clean,build.core,build.node"/>
 
 </project>

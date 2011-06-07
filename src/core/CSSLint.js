@@ -46,9 +46,14 @@ var CSSLint = (function(){
     
         var i       = 0,
             len     = rules.length,
-            reporter = new Reporter(),
+            reporter,
+            lines,
             parser = new parserlib.css.Parser({ starHack: true, ieFilters: true, 
                                                 underscoreHack: true, strict: false });
+
+        lines = text.split(/\n\r?/g);
+        reporter = new Reporter(lines);
+												
         while (i < len){
             rules[i++].init(parser, reporter);
         }
