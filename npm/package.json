@@ -1,0 +1,30 @@
+{
+    "name": "csslint",
+    "version": "0.1.0",
+    "description": "CSSLint",
+    "author": "Nicholas C. Zakas <nicholas.c.zakas@nczonline.net>",
+    "os": ["darwin", "linux"],
+    "contributors": [
+        "Nicole Sullivan <nicole@stubbornella.org"
+    ],
+    "engines": {
+        "node" : ">=0.2.0"
+    },
+    "directories": {
+        "lib" : "lib"
+    },
+    "main": "./lib/csslint-node.js",
+    "bin": {
+        "csslint": "./cli.js" 
+    },
+    "licenses":[
+        {
+            "type" : "BSD",
+            "url" : "http://www.freebsd.org/copyright/freebsd-license.html"
+        }
+    ],
+    "repository": {
+        "type":"git",
+        "url":"http://github.com/nzakas/csslint.git"
+    }
+}
