@@ -64,7 +64,7 @@ Reporter.prototype = {
      * @param {Object} rule The rule this message relates to.
      * @method warn
      */
-    warn: function(message, line, col){
+    warn: function(message, line, col, rule){
         this.messages.push({
             type    : "warning",
             line    : line,
@@ -83,7 +83,7 @@ Reporter.prototype = {
      * @param {Object} rule The rule this message relates to.
      * @method info
      */
-    info: function(message, line, col){
+    info: function(message, line, col, rule){
         this.messages.push({
             type    : "info",
             line    : line,
