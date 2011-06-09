@@ -2,7 +2,7 @@
     "name": "csslint",
     "version": "0.1.0",
     "description": "CSSLint",
-    "author": "Nicholas C. Zakas <nicholas.c.zakas@nczonline.net>",
+    "author": "Nicholas C. Zakas <ncz@stubbornella.org>",
     "os": ["darwin", "linux"],
     "contributors": [
         "Nicole Sullivan <nicole@stubbornella.org"
