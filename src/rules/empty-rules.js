@@ -4,6 +4,7 @@
 CSSLint.addRule({
 
     //rule information
+    id: "empty-rules",
     name: "Empty Rules",
     desc: "Rules without any properties specified should be removed.",
     

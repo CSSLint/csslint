@@ -10,6 +10,7 @@
 CSSLint.addRule({
 
     //rule information
+    id: "font-sizes",
     name: "Font Sizes",
     desc: "Checks the number of font-size declarations versus the number of unique font sizes",
     

@@ -4,6 +4,7 @@
 CSSLint.addRule({
 
     //rule information
+    id: "rules-count",
     name: "Rules Count",
     desc: "Track how many rules there are.",
     

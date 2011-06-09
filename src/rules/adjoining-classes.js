@@ -4,6 +4,7 @@
 CSSLint.addRule({
 
     //rule information
+    id: "adjoining-classes",
     name: "Adjoining Classes",
     desc: "Don't use adjoining classes.",
     

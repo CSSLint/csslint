@@ -4,6 +4,7 @@
 CSSLint.addRule({
 
     //rule information
+    id: "font-faces",
     name: "Font Faces",
     desc: "Too many different web fonts in the same stylesheet.",
     
