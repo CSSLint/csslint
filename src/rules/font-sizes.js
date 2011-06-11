@@ -13,11 +13,12 @@ CSSLint.addRule({
     id: "font-sizes",
     name: "Font Sizes",
     desc: "Checks the number of font-size declarations versus the number of unique font sizes",
+    browsers: "All",
     
     //initialization
     init: function(parser, reporter){
-    
-        var count = 0,
+        var rule = this,    
+            count = 0,
             data = {
                 values: [],
                 valuesPx: [],
@@ -46,7 +47,7 @@ CSSLint.addRule({
         parser.addListener("endstylesheet", function(event){
             reporter.stat("font-sizes", count);
             if (count >= 10){
-                reporter.rollupWarn("Too many font-size declarations (" + count + "), abstraction needed.", this);
+                reporter.rollupWarn("Too many font-size declarations (" + count + "), abstraction needed.", rule);
             }
         }); 
     }

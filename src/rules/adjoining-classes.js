@@ -7,10 +7,11 @@ CSSLint.addRule({
     id: "adjoining-classes",
     name: "Adjoining Classes",
     desc: "Don't use adjoining classes.",
+    browsers: "IE6, IE7",
     
     //initialization
     init: function(parser, reporter){
-    
+        var rule = this;
         parser.addListener("startrule", function(event){
             var selectors = event.selectors,
                 selector,
@@ -31,7 +32,7 @@ CSSLint.addRule({
                                 classCount++;                                
                             }
                             if (classCount > 1){
-                                reporter.warn("Don't use adjoining selectors.", part.line, part.col, this);
+                                reporter.warn("Don't use adjoining selectors.", part.line, part.col, rule);
                             }
                         }
                     }                    

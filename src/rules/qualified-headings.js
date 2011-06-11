@@ -7,9 +7,11 @@ CSSLint.addRule({
     id: "qualified-headings",
     name: "Qualified Headings",
     desc: "Headings should not be qualified (namespaced).",
+    browsers: "All",
     
     //initialization
     init: function(parser, reporter){
+        var rule = this;
     
         parser.addListener("startrule", function(event){
             var selectors = event.selectors,
@@ -25,7 +27,7 @@ CSSLint.addRule({
                     part = selector.parts[j];
                     if (part instanceof parserlib.css.SelectorPart){
                         if (part.elementName && /h[1-6]/.test(part.elementName.toString()) && j > 0){
-                            reporter.warn("Heading (" + part.elementName + ") should not be qualified.", part.line, part.col, this);
+                            reporter.warn("Heading (" + part.elementName + ") should not be qualified.", part.line, part.col, rule);
                         }
                     }                    
                 }
