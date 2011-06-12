@@ -14,6 +14,7 @@
     <!-- output filenames -->
     <property name="core.build.file" value="csslint.js"/>
     <property name="node.build.file" value="csslint-node.js"/>
+    <property name="worker.build.file" value="csslint-worker.js"/>
     <property name="rhino.build.file" value="csslint-rhino.js"/>
     
     <loadfile property="license.text" srcfile="LICENSE" />   
@@ -43,6 +44,22 @@
         </concat>        
     </target>   
     
+    <!-- build the web worker library -->
+    <target name="build.worker">    
+        <concat destfile="${build.dir}/${worker.build.file}"  fixlastline="true">
+            <header trimleading="yes">/* 
+            ${license.text}
+            */
+            </header>
+            <fileset dir="${lib.dir}" includes="*.js" />
+            <filelist dir="${src.dir}/core" files="CSSLint.js" />
+            <fileset dir="${src.dir}/core" includes="*.js" excludes="CSSLint.js"/>
+            <fileset dir="${src.dir}/rules" includes="*.js" />            
+            <fileset dir="${src.dir}/worker" includes="*.js" />            
+        </concat>        
+    </target>   
+    
+    
     <!-- build the Node.js package -->
     <target name="build.node">
     
@@ -69,6 +86,6 @@
     </target>
     
     <!-- Build all files -->
-    <target name="all" depends="clean,build.core,build.node"/>
+    <target name="all" depends="clean,build.core,build.worker,build.node"/>
 
 </project>
