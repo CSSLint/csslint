@@ -71,3 +71,7 @@ Heading elements (`h1`-`h6`) should have exactly one rule on a site. CSSLint war
 ### Be careful using width: 100%
 
 Using `width: 100%` on an element whose parent element has padding will result in the child stretching outside of the parent's bounding box. It's generally not a good idea to use `width: 100%`. Instead, use `width: auto` or `display: block`.
+
+### Zero values don't need units
+
+An easy way to save bytes in CSS is not include units when a value is 0. For instance, `0px` and `0` are the exact same measurement, so leave off the units and save!
