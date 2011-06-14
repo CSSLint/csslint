@@ -5,8 +5,8 @@
 CSSLint.addRule({
 
     //rule information
-    id: "zero-units",
-    name: "Zero Units",
+    id: "vendor-prefix",
+    name: "Vendor Prefix",
     desc: "When using a vendor-prefixed property, make sure to include the standard one.",
     browsers: "All",
     
