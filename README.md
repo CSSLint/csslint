@@ -75,3 +75,14 @@ Using `width: 100%` on an element whose parent element has padding will result i
 ### Zero values don't need units
 
 An easy way to save bytes in CSS is not include units when a value is 0. For instance, `0px` and `0` are the exact same measurement, so leave off the units and save!
+
+### Vendor prefixed properties should also have the standard
+
+When using vendor-prefixed properties such as `-moz-border-radius`, make sure to also include the standard property. The standard property should preferably come after the vendor-prefixed one, such as:
+
+```css
+.foo {
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+```
