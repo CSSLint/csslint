@@ -86,3 +86,7 @@ When using vendor-prefixed properties such as `-moz-border-radius`, make sure to
     border-radius: 5px;
 }
 ```
+
+### CSS gradients require all browser prefixes
+
+Right now, there is no standard CSS gradient implementation, which means using CSS gradients in a cross-browser way requires using many different vendor-prefixed versions. CSSLint warns when a rule with a CSS gradient doesn't have gradients for all supporting browsers. 

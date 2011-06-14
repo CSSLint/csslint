@@ -83,9 +83,9 @@ li.last {
             var target = event.target || event.srcElement,
                 results, messages, i, len;
             
-            document.getElementById("output").innerHTML = "";
             
             if (target.id == "lint-btn"){
+                document.getElementById("output").innerHTML = "";                       
                 results = CSSLint.verify(document.getElementById("input").value);
                 messages = results.messages;
                 for (i=0, len=messages.length; i < len; i++){
