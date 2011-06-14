@@ -90,3 +90,7 @@ When using vendor-prefixed properties such as `-moz-border-radius`, make sure to
 ### CSS gradients require all browser prefixes
 
 Right now, there is no standard CSS gradient implementation, which means using CSS gradients in a cross-browser way requires using many different vendor-prefixed versions. CSSLint warns when a rule with a CSS gradient doesn't have gradients for all supporting browsers. 
+
+### Avoid selectors that look like regular expressions
+
+CSS3 adds complex attribute selectors such as `~=` that are slow. When using attribute selectors, don't use the complex equality operators to avoid performance penalties.
