@@ -1,5 +1,5 @@
 /*
- * Rule: When using a vendor-prefixed property or value, make sure to
+ * Rule: When using a vendor-prefixed property, make sure to
  * include the standard one.
  */
 CSSLint.addRule({
@@ -7,7 +7,7 @@ CSSLint.addRule({
     //rule information
     id: "zero-units",
     name: "Zero Units",
-    desc: "When using a vendor-prefixed property or value, make sure to include the standard one.",
+    desc: "When using a vendor-prefixed property, make sure to include the standard one.",
     browsers: "All",
     
     //initialization
@@ -30,20 +30,13 @@ CSSLint.addRule({
                 properties[name] = [];
             }    
             
-            properties[name].push({ name: event.property, value : event.value });
-            
-            while(i < len){
-                if (parts[i].units && parts[i].value === 0){
-                    reporter.warn("Values of 0 shouldn't have units specified.", parts[i].line, parts[i].col, rule);
-                }
-                i++;
-            }
-            
+            properties[name].push({ name: event.property, value : event.value });             
         });
         
         parser.addListener("endrule", function(event){
             var prop,
                 i, len,
+                standard,
                 needsStandard = [];
             
             for (prop in properties){
@@ -54,7 +47,14 @@ CSSLint.addRule({
             
             for (i=0, len=needsStandard.length; i < len; i++){
                 if (!properties[needsStandard[i].needed]){
-                    reporter.warn("Missing standard property '" + needsStandard[i].needed + "' to go along with '" + needsStandard[i].actual + "'.", event.selectors[0].line, event.selectors[0].col, rule); 
+                
+                    //special case for Mozilla's border radius
+                    if (/\-moz\-border\-radius\-(.+)/.test(needsStandard[i].actual)){
+                        standard = "border-" + RegExp.$1.replace(/(left|right)/, "-$1") + "-radius";
+                    } else {
+                        standard = needsStandard[i].needed; 
+                    }
+                    reporter.warn("Missing standard property '" + standard + "' to go along with '" + needsStandard[i].actual + "'.", event.selectors[0].line, event.selectors[0].col, rule); 
                 }            
             }
 
