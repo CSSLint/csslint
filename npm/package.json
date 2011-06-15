@@ -2,10 +2,10 @@
     "name": "csslint",
     "version": "0.1.0",
     "description": "CSSLint",
-    "author": "Nicholas C. Zakas <ncz@stubbornella.org>",
+    "author": "Nicholas C. Zakas",
     "os": ["darwin", "linux"],
     "contributors": [
-        "Nicole Sullivan <nicole@stubbornella.org"
+        "Nicole Sullivan"
     ],
     "engines": {
         "node" : ">=0.2.0"
@@ -25,6 +25,6 @@
     ],
     "repository": {
         "type":"git",
-        "url":"http://github.com/nzakas/csslint.git"
+        "url":"http://github.com/stubbornella/csslint.git"
     }
 }
