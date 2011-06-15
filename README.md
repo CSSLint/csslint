@@ -94,3 +94,7 @@ Right now, there is no standard CSS gradient implementation, which means using C
 ### Avoid selectors that look like regular expressions
 
 CSS3 adds complex attribute selectors such as `~=` that are slow. When using attribute selectors, don't use the complex equality operators to avoid performance penalties.
+
+### Beware of broken box models
+
+Borders and padding add space outside of an element's content. Setting `width` or `height` along with borders and padding is usually a mistake because you won't get the visual result you're looking for. CSSLint warns when a rule uses `width` or `height` in addition to padding and/or border.
