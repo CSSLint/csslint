@@ -26,12 +26,12 @@ CSSLint.addRule({
                 "margin-left": 1,
                 "margin-right": 1,
                 "margin-bottom": 1,
-                "margin-padding": 1,                
+                "margin-top": 1,                
                 padding: 1,
                 "padding-left": 1,
                 "padding-right": 1,
                 "padding-bottom": 1,
-                "padding-padding": 1,                
+                "padding-top": 1,                
                 "vertical-align": 1
             },
             properties;

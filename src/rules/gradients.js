@@ -4,8 +4,8 @@
 CSSLint.addRule({
 
     //rule information
-    id: "zero-units",
-    name: "Zero Units",
+    id: "gradients",
+    name: "Gradients",
     desc: "When using a vendor-prefixed gradient, make sure to use them all.",
     browsers: "All",
     

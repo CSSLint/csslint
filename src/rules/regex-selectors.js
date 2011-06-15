@@ -18,7 +18,6 @@ CSSLint.addRule({
                 selector,
                 part,
                 modifier,
-                classCount,
                 i, j, k;
                 
             for (i=0; i < selectors.length; i++){
@@ -26,7 +25,6 @@ CSSLint.addRule({
                 for (j=0; j < selector.parts.length; j++){  
                     part = selector.parts[j];
                     if (part instanceof parserlib.css.SelectorPart){
-                        classCount = 0;
                         for (k=0; k < part.modifiers.length; k++){
                             modifier = part.modifiers[k];
                             if (modifier.type == "attribute"){
@@ -34,9 +32,7 @@ CSSLint.addRule({
                                     reporter.warn("Attribute selectors with " + RegExp.$1 + " are slow!", modifier.line, modifier.col, rule);
                                 }                               
                             }
-                            if (classCount > 1){
-                                reporter.warn("Don't use adjoining selectors.", part.line, part.col, rule);
-                            }
+
                         }
                     }                    
                 }

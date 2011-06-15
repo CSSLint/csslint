@@ -19,7 +19,7 @@ CSSLint.addRule({
                 value = event.value;
                 
             if (name == "width" && value == "100%"){
-                reporter.warn("Elements with  a width of 100% may not appear as you expect inside of other elements.", name.line, name.col, rule);
+                reporter.warn("Elements with a width of 100% may not appear as you expect inside of other elements.", name.line, name.col, rule);
             }
         });        
     }

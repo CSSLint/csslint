@@ -117,7 +117,7 @@ Reporter.prototype = {
      */
     rollupWarn: function(message, rule){
         this.messages.push({
-            type    : "warn",
+            type    : "warning",
             rollup  : true,
             message : message,
             rule    : rule

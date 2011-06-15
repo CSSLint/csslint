@@ -22,6 +22,7 @@ var CSSLint = (function(){
      */
     api.addRule = function(rule){
         rules.push(rule);
+        rules[rule.id] = rule;
     };
     
     /**
@@ -39,10 +40,12 @@ var CSSLint = (function(){
     /**
      * Starts the verification process for the given CSS text.
      * @param {String} text The CSS text to verify.
+     * @param {Object} options (Optional) List of rules to apply. If null, then
+     *      all rules are used.
      * @return {Object} Results of the verification.
      * @method verify
      */
-    api.verify = function(text){
+    api.verify = function(text, options){
     
         var i       = 0,
             len     = rules.length,
@@ -53,9 +56,19 @@ var CSSLint = (function(){
 
         lines = text.split(/\n\r?/g);
         reporter = new Reporter(lines);
-												
-        while (i < len){
-            rules[i++].init(parser, reporter);
+        
+        if (!options){												
+            while (i < len){
+                rules[i++].init(parser, reporter);
+            }
+        } else {
+            for (i in options){
+                if(options.hasOwnProperty(i)){
+                    if (rules[i]){
+                        rules[i].init(parser, reporter);
+                    }
+                }
+            }
         }
         
         //capture most horrible error type

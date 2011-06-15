@@ -3,6 +3,7 @@
     <!-- the directories containing the source files -->
     <property name="src.dir" value="./src" />
     <property name="npm.dir" value="./npm" />
+    <property name="tests.dir" value="./tests" />
     
     <!-- the directories and files to output to -->
     <property name="build.dir" value="./build" />
@@ -15,7 +16,7 @@
     <property name="core.build.file" value="csslint.js"/>
     <property name="node.build.file" value="csslint-node.js"/>
     <property name="worker.build.file" value="csslint-worker.js"/>
-    <property name="rhino.build.file" value="csslint-rhino.js"/>
+    <property name="tests.build.file" value="csslint-tests.js"/>
     
     <loadfile property="license.text" srcfile="LICENSE" />   
 
@@ -85,7 +86,16 @@
        
     </target>
     
+    <!-- build the tests into a single file -->
+    <target name="build.tests">    
+        <concat destfile="${build.dir}/${tests.build.file}"  fixlastline="true">
+            <fileset dir="${tests.dir}/rules" includes="*.js" />           
+        </concat>        
+    </target>   
+    
+    
+    
     <!-- Build all files -->
-    <target name="all" depends="clean,build.core,build.worker,build.node"/>
+    <target name="all" depends="clean,build.core,build.worker,build.node,build.tests"/>
 
 </project>

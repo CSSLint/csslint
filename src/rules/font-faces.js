@@ -21,7 +21,7 @@ CSSLint.addRule({
 
         parser.addListener("endstylesheet", function(event){
             if (count > 5){
-                reporter.rollupWarn("Too many @font-face declarations (" + count + ")", rule);
+                reporter.rollupWarn("Too many @font-face declarations (" + count + ").", rule);
             }
         });        
     }
