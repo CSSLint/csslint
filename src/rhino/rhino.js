@@ -13,8 +13,13 @@
     if (results && results.messages && results.messages.length > 0) {
         for (i = 0, len = results.messages.length; i < len; ++i) {
             cur = results.messages[i];
-            print(cur["type"] + " at line " + cur["line"] + " character " + cur["col"] + ": " + cur["rule"]["desc"]);
-            print(cur["evidence"] + "\n");
+            if(cur["rollup"]) {
+                print(cur["type"] + ": " + cur["message"]);
+            }
+            else {
+                print(cur["type"] + " at line " + cur["line"] + " character " + cur["col"] + ": " + cur["message"]);
+                print(cur["evidence"] + "\n");
+            }
         }
     }
     else {
