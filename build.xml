@@ -17,6 +17,7 @@
     <property name="node.build.file" value="csslint-node.js"/>
     <property name="worker.build.file" value="csslint-worker.js"/>
     <property name="tests.build.file" value="csslint-tests.js"/>
+    <property name="rhino.build.file" value="csslint-rhino.js"/>
     
     <loadfile property="license.text" srcfile="LICENSE" />   
 
@@ -92,10 +93,19 @@
             <fileset dir="${tests.dir}/rules" includes="*.js" />           
         </concat>        
     </target>   
+
+
+    <!-- build for rhino CLI integration -->
+    <target name="build.rhino" depends="build.core">
+        <concat destfile="${build.dir}/${rhino.build.file}" fixlastline="true">
+            <filelist dir="${build.dir}" files="${core.build.file}" />
+            <filelist dir="${src.dir}/rhino" files="rhino.js" />
+        </concat>
+    </target>
     
     
     
     <!-- Build all files -->
-    <target name="all" depends="clean,build.core,build.worker,build.node,build.tests"/>
+    <target name="all" depends="clean,build.core,build.worker,build.node,build.tests,build.rhino"/>
 
 </project>
