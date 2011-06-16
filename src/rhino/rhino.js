@@ -1,5 +1,5 @@
 (function(a) {
-    var input, results;
+    var input, results, i, len, cur;
     if (!a[0]) {
         print("Usage: csslint-rhino.js file.css"); 
         quit(1);
