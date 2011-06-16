@@ -36,6 +36,10 @@ Even though you can define any group of properties together in a CSS rule, some 
 
 Removed the ignored or problematic properties decreases file size and improves performance.
 
+### Avoid using to many !important declarations
+
+Using `!important` overides any cascaded rule and may lead to specificity war. CSSLint checks if you've used `!important`, and if so, displays a warning. If there's at least 10 `!important` declaration in your code CSSLint displays an error.
+
 ### Don't use too many floats
 
 Using `float` for layout isn't a great idea, but sometimes you have to. CSSLint simply checks to see if you've used `float` more than 10 times, and if so, displays a warning. Using this many floats usually means you need some sort of abstraction to achieve the layout.
