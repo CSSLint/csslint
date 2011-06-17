@@ -105,10 +105,10 @@ files.forEach(function(filepath){
     
     //rollups at the bottom
         messages.sort(function(a, b){
-            if (a.rollup){
-                return -1;
-            } else if (b.rollup){
+            if (a.rollup && !b.rollup){
                 return 1;
+            } else if (!a.rollup && b.rollup){
+                return -1;
             } else {
                 return 0;
             }
@@ -120,7 +120,7 @@ files.forEach(function(filepath){
                 stdout.write((i+1) + ": " + message.type + "\n");
                 stdout.write(message.message + "\n");
             } else {
-                stdout.write((i+1) + ": " + message.type + " at line " + message.line + ", col " + message.line + "\n");   
+                stdout.write((i+1) + ": " + message.type + " at line " + message.line + ", col " + message.col + "\n");   
                 stdout.write(message.message + "\n");
                 stdout.write(message.evidence + "\n");
             }
