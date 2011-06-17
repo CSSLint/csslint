@@ -7,7 +7,7 @@
 
         name: "!important; Errors",
 
-        "10 !important declarations should result in a warning": function(){
+        "!important declarations should result in a warning": function(){
             var result = CSSLint.verify("h1 { color:#fff !important; }", { "important": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
