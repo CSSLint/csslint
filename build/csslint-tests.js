@@ -798,6 +798,11 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
          "Defining one rule for h1 should not result in a warning": function(){
             var result = CSSLint.verify("h1 { color: red;}", { "unique-headings": 1 });
             Assert.areEqual(0, result.messages.length);
+        },
+        
+        "Defining multiple rules that contain h1 should not result in a warning": function(){
+            var result = CSSLint.verify("h2 a, h2 a:active, h2 a:hover, h2 a:visited, h2 a:link { color: red;}", { "unique-headings": 1 });
+            Assert.areEqual(0, result.messages.length);        
         }
         
     }));     

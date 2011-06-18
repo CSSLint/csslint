@@ -31,18 +31,14 @@ CSSLint.addRule({
                 
             for (i=0; i < selectors.length; i++){
                 selector = selectors[i];
+                part = selector.parts[selector.parts.length-1];
 
-                for (j=0; j < selector.parts.length; j++){  
-                    part = selector.parts[j];
-                    if (part instanceof parserlib.css.SelectorPart){
-                        if (part.elementName && /(h[1-6])/.test(part.elementName.toString())){                       
-                            headings[RegExp.$1]++;
-                            if (headings[RegExp.$1] > 1) {
-                                reporter.warn("Heading (" + part.elementName + ") has already been defined.", part.line, part.col, rule);
-                            }
-                        }
-                    }                    
-                }
+                if (part.elementName && /(h[1-6])/.test(part.elementName.toString())){                       
+                    headings[RegExp.$1]++;
+                    if (headings[RegExp.$1] > 1) {
+                        reporter.warn("Heading (" + part.elementName + ") has already been defined.", part.line, part.col, rule);
+                    }
+                }         
             }
         });     
     }
