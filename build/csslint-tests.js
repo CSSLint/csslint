@@ -832,7 +832,28 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
         "Using width: 100px should not result in a warning": function(){
             var result = CSSLint.verify("h1 { width: 100px; }", { "width-100": 1 });
             Assert.areEqual(0, result.messages.length);
-        }      
+        },
+
+        "Using width: 100% and box-sizing should not result in a warning": function(){
+            var result = CSSLint.verify("h1 { width: 100%; box-sizing: content-box; }", { "width-100": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+        
+        "Using width: 100% and -moz-box-sizing should not result in a warning": function(){
+            var result = CSSLint.verify("h1 { width: 100%; -moz-box-sizing: content-box; }", { "width-100": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+        
+        "Using width: 100% and -webkit-box-sizing should not result in a warning": function(){
+            var result = CSSLint.verify("h1 { width: 100%; -webkit-box-sizing: content-box; }", { "width-100": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+        
+        "Using width: 100% and -ms-box-sizing should not result in a warning": function(){
+            var result = CSSLint.verify("h1 { width: 100%; -ms-box-sizing: content-box; }", { "width-100": 1 });
+            Assert.areEqual(0, result.messages.length);
+        }        
+        
     }));     
 
 })();

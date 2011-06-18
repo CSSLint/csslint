@@ -10397,16 +10397,31 @@ CSSLint.addRule({
     
     //initialization
     init: function(parser, reporter){
-        var rule = this;
+        var rule = this,
+            width100,
+            boxsizing;
+            
+        parser.addListener("startrule", function(event){
+            width100 = null;
+            boxsizing = false;
+        });
 
         parser.addListener("property", function(event){
-            var name = event.property,
+            var name = event.property.text.toLowerCase(),
                 value = event.value;
                 
             if (name == "width" && value == "100%"){
-                reporter.warn("Elements with a width of 100% may not appear as you expect inside of other elements.", name.line, name.col, rule);
+                width100 = event.property;
+            } else if (name == "box-sizing" || /\-(?:webkit|ms|moz)\-box-sizing/.test(name)){  //means you know what you're doing
+                boxsizing = true;
             }
         });        
+        
+        parser.addListener("endrule", function(event){
+            if (width100 && !boxsizing){
+                reporter.warn("Elements with a width of 100% may not appear as you expect inside of other elements.", width100.line, width100.col, rule);            
+            }
+        });
     }
 
 });
