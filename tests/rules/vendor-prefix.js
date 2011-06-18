@@ -26,8 +26,13 @@
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Standard property 'border-radius' should come after vendor-prefixed property '-moz-border-radius'.", result.messages[0].message);
+        },
+        
+        "Using -moz-border-radius-bottomleft with border-bottom-left-radius should not result in a warning.": function(){
+            var result = CSSLint.verify("h1 { -webkit-border-bottom-left-radius: 4px; border-bottom-left-radius: 4px;  }", { "vendor-prefix": 1 });
+            Assert.areEqual(0, result.messages.length);
         }
-                
+    
     }));     
 
 })();

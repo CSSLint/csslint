@@ -10329,7 +10329,7 @@ CSSLint.addRule({
         });
             
         parser.addListener("property", function(event){
-            var name = event.property,
+            var name = event.property.text.toLowerCase(),
                 parts = event.value.parts,
                 i = 0, 
                 len = parts.length,
@@ -10367,11 +10367,11 @@ CSSLint.addRule({
                     standard = needed; 
                 }
 
-                if (!properties[needed]){               
+                if (!properties[standard]){               
                     reporter.warn("Missing standard property '" + standard + "' to go along with '" + actual + "'.", event.selectors[0].line, event.selectors[0].col, rule); 
                 } else {
                     //make sure standard property is last
-                    if (properties[needed][0].pos < properties[actual][0].pos){
+                    if (properties[standard][0].pos < properties[actual][0].pos){
                         reporter.warn("Standard property '" + standard + "' should come after vendor-prefixed property '" + actual + "'.", event.selectors[0].line, event.selectors[0].col, rule); 
                     }
                 }
