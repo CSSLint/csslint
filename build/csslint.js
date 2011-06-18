@@ -9636,33 +9636,39 @@ CSSLint.addRule({
     //initialization
     init: function(parser, reporter){
         var rule = this,
-            propertiesToCheck = {
+            widthProperties = {
                 border: 1,
                 "border-left": 1,
-                "border-right": 1,
+                "border-right": 1,              
+                padding: 1,
+                "padding-left": 1,
+                "padding-right": 1           
+            },
+            heightProperties = {
+                border: 1,
                 "border-bottom": 1,
                 "border-top": 1,                
                 padding: 1,
-                "padding-left": 1,
-                "padding-right": 1,
                 "padding-bottom": 1,
-                "padding-top": 1                
+                "padding-top": 1               
             },
             properties;
             
         parser.addListener("startrule", function(event){
-            properties = {            
+            properties = {                
             };
         });
     
         parser.addListener("property", function(event){
-            var name = event.property;
+            var name = event.property.text.toLowerCase();
             
-            if (propertiesToCheck[name]){
-                properties[name] = { line: name.line, col: name.col };
+            if (heightProperties[name] || widthProperties){
+                if (event.value != "0"){
+                    properties[name] = { line: name.line, col: name.col };
+                }
             } else {
                 if (name == "width" || name == "height"){
-                    properties._flagProperty = name.text;
+                    properties[name] = 1;
                 }
             }
             
@@ -9670,13 +9676,22 @@ CSSLint.addRule({
         
         parser.addListener("endrule", function(event){
             var prop;
-            if (properties._flagProperty){
-                for (prop in propertiesToCheck){
-                    if (propertiesToCheck.hasOwnProperty(prop) && properties[prop]){
-                        reporter.warn("Broken box model: using " + properties._flagProperty + " with " + prop + ".", properties[prop].line, properties[prop].col, rule);
+            if (properties["height"]){
+                for (prop in heightProperties){
+                    if (heightProperties.hasOwnProperty(prop) && properties[prop]){
+                        reporter.warn("Broken box model: using height with " + prop + ".", properties[prop].line, properties[prop].col, rule);
                     }
-                }
+                }            
             }
+            
+            if (properties["width"]){
+                for (prop in widthProperties){
+                    if (widthProperties.hasOwnProperty(prop) && properties[prop]){
+                        reporter.warn("Broken box model: using width with " + prop + ".", properties[prop].line, properties[prop].col, rule);
+                    }
+                }    
+            }
+
         });
     }
 
