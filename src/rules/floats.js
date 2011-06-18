@@ -17,7 +17,8 @@ CSSLint.addRule({
     
         //count how many times "float" is used
         parser.addListener("property", function(event){
-            if (event.property == "float"){
+            if (event.property.text.toLowerCase() == "float" && 
+                    event.value.text.toLowerCase() != "none"){
                 count++;
             }
         });

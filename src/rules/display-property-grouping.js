@@ -19,7 +19,7 @@ CSSLint.addRule({
    
         var propertiesToCheck = {
                 display: 1,
-                "float": 1,
+                "float": "none",
                 height: 1,
                 width: 1,
                 margin: 1,
@@ -101,7 +101,9 @@ CSSLint.addRule({
         
         function reportProperty(name, display){
             if (properties[name]){
-                reporter.warn(name + " can't be used with display: " + display + ".", properties[name].line, properties[name].col, rule);
+                if (!(typeof propertiesToCheck[name] == "string") || properties[name].value.toLowerCase() != propertiesToCheck[name]){
+                    reporter.warn(name + " can't be used with display: " + display + ".", properties[name].line, properties[name].col, rule);
+                }
             }            
         }
     }

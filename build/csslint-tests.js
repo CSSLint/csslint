@@ -239,6 +239,16 @@
             Assert.areEqual("float can't be used with display: inline.", result.messages[0].message);
         },
         
+        "Float:none with inline-block should not result in a warning": function(){
+            var result = CSSLint.verify(".foo { float: none; display: inline-block; }", { "display-property-grouping": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+        
+        "Float:none with inline should result not in a warning": function(){
+            var result = CSSLint.verify(".foo { float: none; display: inline; }", { "display-property-grouping": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+        
         "Height with inline should result in a warning": function(){
             var result = CSSLint.verify(".foo { height: 100px; display: inline; }", { "display-property-grouping": 1 });
             Assert.areEqual(1, result.messages.length);
@@ -412,7 +422,17 @@
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("float can't be used with display: table-cell.", result.messages[0].message);
-        }
+        },
+        
+        "Float:none with table-row should not result in a warning": function(){
+            var result = CSSLint.verify(".foo { float: none; display: table-row; }", { "display-property-grouping": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },   
+        
+        "Float:none with table-cell should not result in a warning": function(){
+            var result = CSSLint.verify(".foo { float: none; display: table-cell; }", { "display-property-grouping": 1 });
+            Assert.areEqual(0, result.messages.length);
+        }        
         
     }));     
 
@@ -481,6 +501,11 @@
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Too many floats (11), abstraction needed.", result.messages[0].message);
+        },
+
+        "float: none should not count and therefore should not result in a warning": function(){
+            var result = CSSLint.verify(".foo { float: none; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; }", { "floats": 1 });
+            Assert.areEqual(0, result.messages.length);
         }        
     }));     
 
