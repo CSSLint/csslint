@@ -56,14 +56,22 @@ function outputHelp(){
     ].join("\n") + "\n\n");
 }
 
+//filter messages by type
+function pluckByType(messages, type){
+    return messages.filter(function(message) {
+        return message.type === type;
+    });
+}
+
 //-----------------------------------------------------------------------------
 // Process command line
 //-----------------------------------------------------------------------------
 
-var args    = process.argv.slice(2),  
-    arg     = args.shift(),     
-    files   = [];  
-    
+var args     = process.argv.slice(2),
+    arg      = args.shift(),
+    files    = [],
+    exitCode = 0;
+
 while(arg){
     if (arg.indexOf("--") == 0){
         options[arg.substring(2)] = true;
@@ -97,13 +105,17 @@ files.forEach(function(filepath){
     var text    = fs.readFileSync(filepath,"utf-8"),
         filename= path.basename(filepath),
         result  = CSSLint.verify(text),
-        messages= result.messages;
+        messages= result.messages,
+        errors,
+        warnings;
         
     if (messages.length){
-    
-        stdout.write("csslint: There are " + messages.length + " errors and warnings in " + filename + ".\n");
-    
-    //rollups at the bottom
+        errors = pluckByType(messages, 'error');
+        warnings = pluckByType(messages, 'warning');
+
+        stdout.write("csslint: There are " + errors.length +  " errors and " + warnings.length  +  " warnings in " + filename + ".\n");
+
+        //rollups at the bottom
         messages.sort(function(a, b){
             if (a.rollup && !b.rollup){
                 return 1;
@@ -125,10 +137,15 @@ files.forEach(function(filepath){
                 stdout.write(message.evidence + "\n");
             }
         });
-        
+
+        if(errors.length > 0) {
+            exitCode = 1;
+        }
+
     } else {
         stdout.write("csslint: No problems found in " + filename + ".\n");
     }
 });
 
+process.exit(exitCode);
 

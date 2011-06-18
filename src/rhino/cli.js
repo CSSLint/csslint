@@ -1,7 +1,8 @@
 importPackage(java.io);
 
 (function (argsArray) {
-    var files = [];
+    var files    = [],
+        exitCode = 0;
 
     if (argsArray.length === 0) {
         print("Usage: csslint-rhino.js [file|dir]*");
@@ -27,6 +28,12 @@ importPackage(java.io);
         return files;
     };
 
+    var pluckByType = function(messages, type) {
+        return messages.filter(function(message) {
+            return message.type == type;
+        });
+    }
+
     argsArray.forEach(function (arg) {
         var curFile = new File(arg);
 
@@ -50,10 +57,16 @@ importPackage(java.io);
         }
 
         var result = CSSLint.verify(input);
-        var messages = result.messages || [];
+        var messages = result.messages || [],
+            errors,
+            warnings;
 
         if (messages.length > 0) {
-            print("\n\n\ncsslint: There are " + messages.length + " errors and warnings in " + filename + ".");
+            warnings = pluckByType(messages, 'warning');
+            errors  = pluckByType(messages, 'error');
+
+
+            print("\n\n\ncsslint: There are " + errors.length +  " errors and " + warnings.length  +  " warnings in " + filename + ".");
 
             messages.sort(function (a, b) {
                 if (a.rollup && !b.rollup) {
@@ -76,9 +89,16 @@ importPackage(java.io);
                     print(message.evidence);
                 }
             });
+
+            if(errors.length > 0) {
+                exitCode = 1;
+            }
+
         } else {
             print("csslint: No problems found in " + filename);
         }
     });
+
+    quit(exitCode);
 
 })(Array.prototype.slice.call(arguments));
