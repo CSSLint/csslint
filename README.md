@@ -102,3 +102,15 @@ CSS3 adds complex attribute selectors such as `~=` that are slow. When using att
 ### Beware of broken box models
 
 Borders and padding add space outside of an element's content. Setting `width` or `height` along with borders and padding is usually a mistake because you won't get the visual result you're looking for. CSSLint warns when a rule uses `width` or `height` in addition to padding and/or border.
+
+## Contributors
+
+### Creators
+
+1. Nicole Sullivan, http://www.stubbornella.org
+1. Nicholas C. Zakas, http://www.nczonline.net
+
+### Contributors
+
+1. Samori Gorse (Rules)
+1. Eitan Konigsburg (Rhino CLI)
