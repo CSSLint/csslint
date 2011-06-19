@@ -12,7 +12,7 @@ By default, CSSLint shows any parsing errors. Parsing errors usually mean you mi
 
 ### Don't use adjoining classes
 
-Adjoining classes look like `.foo.bar`. While technically allowed in CSS, these aren't handled properly by Internet Explorer 7 and earlier.
+Adjoining classes look like `.foo.bar`. While technically allowed in CSS, these aren't handled properly by Internet Explorer 6 and earlier.
 
 ### Remove empty rules
 
