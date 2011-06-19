@@ -15,7 +15,7 @@
     },
     "main": "./lib/csslint-node.js",
     "bin": {
-        "csslint": "./cli.js" 
+        "csslint": "./cli.js"
     },
     "licenses":[
         {
