@@ -32,7 +32,7 @@ importPackage(java.io);
         return messages.filter(function(message) {
             return message.type == type;
         });
-    }
+    };
 
     argsArray.forEach(function (arg) {
         var curFile = new File(arg);
