@@ -9586,7 +9586,7 @@ CSSLint.addRule({
     id: "adjoining-classes",
     name: "Adjoining Classes",
     desc: "Don't use adjoining classes.",
-    browsers: "IE6, IE7",
+    browsers: "IE6",
     
     //initialization
     init: function(parser, reporter){
