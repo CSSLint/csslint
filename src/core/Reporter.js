@@ -1,5 +1,3 @@
-
-
 /**
  * An instance of Report is used to report results of the
  * verification back to the main API.
@@ -15,14 +13,14 @@ function Reporter(lines){
      * @type String[]
      */
     this.messages = [];
-    
+
     /**
      * List of statistics being reported.
      * @property stats
      * @type String[]
      */
-    this.stats = [];   
-    
+    this.stats = [];
+
     /**
      * Lines of code being reported on. Used to provide contextual information
      * for messages.
@@ -36,7 +34,7 @@ Reporter.prototype = {
 
     //restore constructor
     constructor: Reporter,
-    
+
     /**
      * Report an error.
      * @param {String} message The message to store.
@@ -55,7 +53,7 @@ Reporter.prototype = {
             rule    : rule
         });
     },
-    
+
     /**
      * Report an warning.
      * @param {String} message The message to store.
@@ -74,7 +72,7 @@ Reporter.prototype = {
             rule    : rule
         });
     },
-    
+
     /**
      * Report some informational text.
      * @param {String} message The message to store.
@@ -93,7 +91,7 @@ Reporter.prototype = {
             rule    : rule
         });
     },
-    
+
     /**
      * Report some rollup error information.
      * @param {String} message The message to store.
@@ -108,7 +106,7 @@ Reporter.prototype = {
             rule    : rule
         });
     },
-    
+
     /**
      * Report some rollup warning information.
      * @param {String} message The message to store.
@@ -123,7 +121,7 @@ Reporter.prototype = {
             rule    : rule
         });
     },
-    
+
     /**
      * Report a statistic.
      * @param {String} name The name of the stat to store.
