@@ -112,5 +112,5 @@ Borders and padding add space outside of an element's content. Setting `width` o
 
 ### Contributors
 
-1. Samori Gorse (Rules, Non-zero Exit Code for CLI)
+1. Samori Gorse, https://twitter.com/shinuza (Rules, Non-zero Exit Code for CLI)
 1. Eitan Konigsburg, https://twitter.com/eitanmk (Rhino CLI)

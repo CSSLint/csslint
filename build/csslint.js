@@ -4736,6 +4736,7 @@ Tokens              :Tokens
 })();
 
 
+
 /**
  * YUI Test Framework
  * @module yuitest
@@ -9297,6 +9298,7 @@ YUITest.PageManager = YUITest.Util.mix(new YUITest.EventTarget(), {
         return new TestRunner();
 
     }();
+
 /**
  * Main CSSLint object.
  * @class CSSLint
@@ -9389,6 +9391,7 @@ var CSSLint = (function(){
     return api;
 
 })();
+
 /**
  * An instance of Report is used to report results of the
  * verification back to the main API.
@@ -9523,6 +9526,7 @@ Reporter.prototype = {
         this.stats[name] = value;
     }
 };
+
 /*
  * Utility functions that make life easier.
  */
@@ -9868,7 +9872,7 @@ CSSLint.addRule({
 
         //count how many times "float" is used
         parser.addListener("property", function(event){
-            if (event.property.text.toLowerCase() == "float" && 
+            if (event.property.text.toLowerCase() == "float" &&
                     event.value.text.toLowerCase() != "none"){
                 count++;
             }
@@ -9880,7 +9884,7 @@ CSSLint.addRule({
             if (count >= 10){
                 reporter.rollupWarn("Too many floats (" + count + "), abstraction needed.", rule);
             }
-        }); 
+        });
     }
 
 });
@@ -9933,7 +9937,7 @@ CSSLint.addRule({
         //check for use of "font-size"
         parser.addListener("property", function(event){
             if (event.property == "font-size"){
-                count++; 
+                count++;
             }
         });
 
@@ -9943,7 +9947,7 @@ CSSLint.addRule({
             if (count >= 10){
                 reporter.rollupWarn("Too many font-size declarations (" + count + "), abstraction needed.", rule);
             }
-        }); 
+        });
     }
 
 });
@@ -10034,7 +10038,7 @@ CSSLint.addRule({
                 selector = selectors[i];
                 idCount = 0;
 
-                for (j=0; j < selector.parts.length; j++){  
+                for (j=0; j < selector.parts.length; j++){
                     part = selector.parts[j];
                     if (part instanceof parserlib.css.SelectorPart){
                         for (k=0; k < part.modifiers.length; k++){

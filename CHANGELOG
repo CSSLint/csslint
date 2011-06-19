@@ -4,6 +4,7 @@ Next (not yet released)
 * Changed description of adjoining classes to be unsupported in IE6 (fixes #11)
 * Made license comment important in build files (fixes #46)
 * Code cleanup (pull #70)
+* Cleanup of whitespace (pull #74)
 
 June 18, 2011 - v0.2.0
 
