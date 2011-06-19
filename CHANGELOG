@@ -1,3 +1,7 @@
+Next (not yet released)
+
+* Rhino and Node CLIs both exit with code 1 when there are errors
+
 June 18, 2011 - v0.2.0
 
 * Make sure headings are counted correctly (fixes #25)

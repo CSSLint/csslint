@@ -1,4 +1,4 @@
-/* 
+/*!
 CSSLint
 Copyright (c) 2011 Nicole Sullivan and Nicholas C. Zakas. All rights reserved.
 
