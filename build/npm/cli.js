@@ -9,15 +9,15 @@ var fs      = require("fs"),
     CSSLint = require("./lib/csslint-node").CSSLint,
     options = {},
     stdout  = process.stdout;
-    
+
 //-----------------------------------------------------------------------------
 // Helper Functions
 //-----------------------------------------------------------------------------
-    
+
 //get all files in a directory
 function getFiles(dir){
     var files = [];
-    
+
     try {
         fs.statSync(dir);
     } catch (ex){
@@ -40,7 +40,7 @@ function getFiles(dir){
         });
         stack.pop();
     }
-    
+
     traverse(dir, []);
 
     return files;
@@ -108,7 +108,7 @@ files.forEach(function(filepath){
         messages= result.messages,
         errors,
         warnings;
-        
+
     if (messages.length){
         errors = pluckByType(messages, 'error');
         warnings = pluckByType(messages, 'warning');
@@ -125,7 +125,7 @@ files.forEach(function(filepath){
                 return 0;
             }
         });
-        
+
         messages.forEach(function(message,i){
             stdout.write("\n" + filename + ":\n");
             if (message.rollup){

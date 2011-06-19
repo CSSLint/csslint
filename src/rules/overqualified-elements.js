@@ -8,7 +8,7 @@ CSSLint.addRule({
     name: "Overqualified Elements",
     desc: "Don't use classes or IDs with elements (a.foo or a#foo).",
     browsers: "All",
-    
+
     //initialization
     init: function(parser, reporter){
         var rule = this;
@@ -18,11 +18,11 @@ CSSLint.addRule({
                 part,
                 modifier,
                 i, j, k;
-                
+
             for (i=0; i < selectors.length; i++){
                 selector = selectors[i];
 
-                for (j=0; j < selector.parts.length; j++){  
+                for (j=0; j < selector.parts.length; j++){
                     part = selector.parts[j];
                     if (part instanceof parserlib.css.SelectorPart){
                         if (part.elementName){
@@ -34,10 +34,10 @@ CSSLint.addRule({
                             }
 
                         }
-                    }                    
+                    }
                 }
             }
-        });     
+        });
     }
 
 });

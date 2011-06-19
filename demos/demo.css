@@ -1,4 +1,4 @@
-@charset "UTF-8"; 
+@charset "UTF-8";
 
 @import url("booya.css") print,screen;
 @import "whatup.css" screen;
@@ -20,7 +20,7 @@ li.last.first {
   padding-left: 3px !important;
   padding-right: 3px;
   border-right: 0px;
-} 
+}
 
 @media print {
     li.inline {

@@ -9,14 +9,14 @@ CSSLint.addRule({
     name: "Width 100%",
     desc: "Be careful when using width: 100% on elements.",
     browsers: "All",
-    
+
     //initialization
     init: function(parser, reporter){
         var rule = this,
             width100,
             boxsizing;
-            
-        parser.addListener("startrule", function(event){
+
+        parser.addListener("startrule", function(){
             width100 = null;
             boxsizing = false;
         });
@@ -24,17 +24,17 @@ CSSLint.addRule({
         parser.addListener("property", function(event){
             var name = event.property.text.toLowerCase(),
                 value = event.value;
-                
+
             if (name == "width" && value == "100%"){
                 width100 = event.property;
             } else if (name == "box-sizing" || /\-(?:webkit|ms|moz)\-box-sizing/.test(name)){  //means you know what you're doing
                 boxsizing = true;
             }
-        });        
+        });
         
-        parser.addListener("endrule", function(event){
+        parser.addListener("endrule", function(){
             if (width100 && !boxsizing){
-                reporter.warn("Elements with a width of 100% may not appear as you expect inside of other elements.", width100.line, width100.col, rule);            
+                reporter.warn("Elements with a width of 100% may not appear as you expect inside of other elements.", width100.line, width100.col, rule);
             }
         });
     }

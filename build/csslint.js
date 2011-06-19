@@ -4736,7 +4736,6 @@ Tokens              :Tokens
 })();
 
 
-
 /**
  * YUI Test Framework
  * @module yuitest
@@ -9298,7 +9297,6 @@ YUITest.PageManager = YUITest.Util.mix(new YUITest.EventTarget(), {
         return new TestRunner();
 
     }();
-
 /**
  * Main CSSLint object.
  * @class CSSLint
@@ -9391,7 +9389,6 @@ var CSSLint = (function(){
     return api;
 
 })();
-
 /**
  * An instance of Report is used to report results of the
  * verification back to the main API.
@@ -9526,7 +9523,6 @@ Reporter.prototype = {
         this.stats[name] = value;
     }
 };
-
 /*
  * Utility functions that make life easier.
  */
@@ -9579,7 +9575,7 @@ CSSLint.addRule({
     name: "Adjoining Classes",
     desc: "Don't use adjoining classes.",
     browsers: "IE6",
-    
+
     //initialization
     init: function(parser, reporter){
         var rule = this;
@@ -9590,26 +9586,26 @@ CSSLint.addRule({
                 modifier,
                 classCount,
                 i, j, k;
-                
+
             for (i=0; i < selectors.length; i++){
                 selector = selectors[i];
-                for (j=0; j < selector.parts.length; j++){  
+                for (j=0; j < selector.parts.length; j++){
                     part = selector.parts[j];
                     if (part instanceof parserlib.css.SelectorPart){
                         classCount = 0;
                         for (k=0; k < part.modifiers.length; k++){
                             modifier = part.modifiers[k];
                             if (modifier.type == "class"){
-                                classCount++;                                
+                                classCount++;
                             }
                             if (classCount > 1){
                                 reporter.warn("Don't use adjoining classes.", part.line, part.col, rule);
                             }
                         }
-                    }                    
+                    }
                 }
             }
-        });     
+        });
     }
 
 });
@@ -9623,33 +9619,33 @@ CSSLint.addRule({
     name: "Box Model",
     desc: "Don't use width or height when using padding or border.",
     browsers: "All",
-    
+
     //initialization
     init: function(parser, reporter){
         var rule = this,
             widthProperties = {
                 border: 1,
                 "border-left": 1,
-                "border-right": 1,              
+                "border-right": 1,
                 padding: 1,
                 "padding-left": 1,
-                "padding-right": 1           
+                "padding-right": 1
             },
             heightProperties = {
                 border: 1,
                 "border-bottom": 1,
-                "border-top": 1,                
+                "border-top": 1,
                 padding: 1,
                 "padding-bottom": 1,
-                "padding-top": 1               
+                "padding-top": 1
             },
             properties;
-            
-        parser.addListener("startrule", function(event){
-            properties = {                
+
+        parser.addListener("startrule", function(){
+            properties = {
             };
         });
-    
+
         parser.addListener("property", function(event){
             var name = event.property.text.toLowerCase();
             
@@ -9664,23 +9660,23 @@ CSSLint.addRule({
             }
             
         });
-        
-        parser.addListener("endrule", function(event){
+
+        parser.addListener("endrule", function(){
             var prop;
             if (properties["height"]){
                 for (prop in heightProperties){
                     if (heightProperties.hasOwnProperty(prop) && properties[prop]){
                         reporter.warn("Broken box model: using height with " + prop + ".", properties[prop].line, properties[prop].col, rule);
                     }
-                }            
+                }
             }
-            
+
             if (properties["width"]){
                 for (prop in widthProperties){
                     if (widthProperties.hasOwnProperty(prop) && properties[prop]){
                         reporter.warn("Broken box model: using width with " + prop + ".", properties[prop].line, properties[prop].col, rule);
                     }
-                }    
+                }
             }
 
         });
@@ -9701,11 +9697,11 @@ CSSLint.addRule({
     name: "Display Property Grouping",
     desc: "Certain properties shouldn't be used with certain display property values.",
     browsers: "All",
-    
+
     //initialization
     init: function(parser, reporter){
         var rule = this;
-   
+
         var propertiesToCheck = {
                 display: 1,
                 "float": "none",
@@ -9715,34 +9711,34 @@ CSSLint.addRule({
                 "margin-left": 1,
                 "margin-right": 1,
                 "margin-bottom": 1,
-                "margin-top": 1,                
+                "margin-top": 1,
                 padding: 1,
                 "padding-left": 1,
                 "padding-right": 1,
                 "padding-bottom": 1,
-                "padding-top": 1,                
+                "padding-top": 1,
                 "vertical-align": 1
             },
             properties;
-    
-        parser.addListener("startrule", function(event){
-            properties = {};            
-        });     
+
+        parser.addListener("startrule", function(){
+            properties = {};
+        });
 
         parser.addListener("property", function(event){
             var name = event.property;
-            
+
             if (propertiesToCheck[name]){
                 properties[name] = { value: event.value.text, line: name.line, col: name.col };
-            }        
-        });     
-        
-        parser.addListener("endrule", function(event){
-        
+            }
+        });
+
+        parser.addListener("endrule", function(){
+
             var display = properties.display ? properties.display.value : null;
             if (display){
                 switch(display){
-             
+
                     case "inline":
                         //height, width, margin, padding, float should not be used with inline
                         reportProperty("height", display);
@@ -9759,17 +9755,17 @@ CSSLint.addRule({
                         reportProperty("padding-bottom", display);                
                         reportProperty("float", display);
                         break;
-                        
+
                     case "block":
                         //vertical-align should not be used with block
                         reportProperty("vertical-align", display);
                         break;
-                        
+
                     case "inline-block":
                         //float should not be used with inline-block
                         reportProperty("float", display);
                         break;
-                        
+
                     default:
                         //margin, float should not be used with table
                         if (display.indexOf("table-") == 0){
@@ -9778,22 +9774,22 @@ CSSLint.addRule({
                             reportProperty("margin-right", display);
                             reportProperty("margin-top", display);
                             reportProperty("margin-bottom", display);
-                            reportProperty("float", display);                        
+                            reportProperty("float", display);
                         }
-                        
-                        //otherwise do nothing            
+
+                        //otherwise do nothing
                 }
             }
           
-        });     
-        
-        
+        });
+
+
         function reportProperty(name, display){
             if (properties[name]){
                 if (!(typeof propertiesToCheck[name] == "string") || properties[name].value.toLowerCase() != propertiesToCheck[name]){
                     reporter.warn(name + " can't be used with display: " + display + ".", properties[name].line, properties[name].col, rule);
                 }
-            }            
+            }
         }
     }
 
@@ -9808,26 +9804,26 @@ CSSLint.addRule({
     name: "Empty Rules",
     desc: "Rules without any properties specified should be removed.",
     browsers: "All",
-    
+
     //initialization
     init: function(parser, reporter){
         var rule = this,
-            count = 0;    
-        
-        parser.addListener("startrule", function(event){
+            count = 0;
+
+        parser.addListener("startrule", function(){
             count=0;
         });
-        
-        parser.addListener("property", function(event){
+
+        parser.addListener("property", function(){
             count++;
         });
-        
+
         parser.addListener("endrule", function(event){
             var selectors = event.selectors;
             if (count == 0){
                 reporter.warn("Rule is empty.", selectors[0].line, selectors[0].col, rule);
             }
-        });        
+        });
     }
 
 });
@@ -9841,11 +9837,11 @@ CSSLint.addRule({
     name: "Parsing Errors",
     desc: "This rule looks for recoverable syntax errors.",
     browsers: "All",
-    
+
     //initialization
     init: function(parser, reporter){
         var rule = this;
-    
+
         parser.addListener("error", function(event){
             reporter.error(event.message, event.line, event.col, rule);
         });
@@ -9864,12 +9860,12 @@ CSSLint.addRule({
     name: "Floats",
     desc: "This rule tests if the float property is used too many times",
     browsers: "All",
-    
+
     //initialization
     init: function(parser, reporter){
         var rule = this;
         var count = 0;
-    
+
         //count how many times "float" is used
         parser.addListener("property", function(event){
             if (event.property.text.toLowerCase() == "float" && 
@@ -9877,9 +9873,9 @@ CSSLint.addRule({
                 count++;
             }
         });
-        
+
         //report the results
-        parser.addListener("endstylesheet", function(event){
+        parser.addListener("endstylesheet", function(){
             reporter.stat("floats", count);
             if (count >= 10){
                 reporter.rollupWarn("Too many floats (" + count + "), abstraction needed.", rule);
@@ -9898,22 +9894,22 @@ CSSLint.addRule({
     name: "Font Faces",
     desc: "Too many different web fonts in the same stylesheet.",
     browsers: "All",
-    
+
     //initialization
     init: function(parser, reporter){
         var rule = this,
             count = 0;
-    
-        
-        parser.addListener("startfontface", function(event){
+
+
+        parser.addListener("startfontface", function(){
             count++;
         });
 
-        parser.addListener("endstylesheet", function(event){
+        parser.addListener("endstylesheet", function(){
             if (count > 5){
                 reporter.rollupWarn("Too many @font-face declarations (" + count + ").", rule);
             }
-        });        
+        });
     }
 
 });
@@ -9928,22 +9924,21 @@ CSSLint.addRule({
     name: "Font Sizes",
     desc: "Checks the number of font-size declarations.",
     browsers: "All",
-    
+
     //initialization
     init: function(parser, reporter){
-        var rule = this,    
+        var rule = this,
             count = 0;
-    
+
         //check for use of "font-size"
         parser.addListener("property", function(event){
-            var part = event.value.parts[0];
             if (event.property == "font-size"){
                 count++; 
             }
         });
-        
+
         //report the results
-        parser.addListener("endstylesheet", function(event){
+        parser.addListener("endstylesheet", function(){
             reporter.stat("font-sizes", count);
             if (count >= 10){
                 reporter.rollupWarn("Too many font-size declarations (" + count + "), abstraction needed.", rule);
@@ -9962,13 +9957,13 @@ CSSLint.addRule({
     name: "Gradients",
     desc: "When using a vendor-prefixed gradient, make sure to use them all.",
     browsers: "All",
-    
+
     //initialization
     init: function(parser, reporter){
         var rule = this,
             gradients;
-            
-        parser.addListener("startrule", function(event){
+
+        parser.addListener("startrule", function(){
             gradients = {
                 moz: 0,
                 webkit: 0,
@@ -9976,37 +9971,37 @@ CSSLint.addRule({
                 o: 0
             };
         });
-            
+
         parser.addListener("property", function(event){
-            
+
             if (/\-(moz|ms|o|webkit)(?:\-(?:linear|radial))\-gradient/.test(event.value)){
                 gradients[RegExp.$1] = 1;
             }
-            
+
         });
-        
+
         parser.addListener("endrule", function(event){
             var missing = [];
-            
+
             if (!gradients.moz){
                 missing.push("Firefox 3.6+");
             }
-            
+
             if (!gradients.webkit){
                 missing.push("Webkit (Safari, Chrome)");
             }
-            
+
             if (!gradients.ms){
                 missing.push("Internet Explorer 10+");
             }
-            
+
             if (!gradients.o){
                 missing.push("Opera 11.1+");
             }
-                        
+
             if (missing.length && missing.length < 4){            
                 reporter.warn("Missing vendor-prefixed CSS gradients for " + missing.join(", ") + ".", event.selectors[0].line, event.selectors[0].col, rule); 
-            }            
+            }
 
         });
 
@@ -10023,7 +10018,7 @@ CSSLint.addRule({
     name: "IDs",
     desc: "Selectors should not contain IDs.",
     browsers: "All",
-    
+
     //initialization
     init: function(parser, reporter){
         var rule = this;
@@ -10034,7 +10029,7 @@ CSSLint.addRule({
                 modifier,
                 idCount,
                 i, j, k;
-                
+
             for (i=0; i < selectors.length; i++){
                 selector = selectors[i];
                 idCount = 0;
@@ -10048,17 +10043,17 @@ CSSLint.addRule({
                                 idCount++;
                             }
                         }
-                    }                    
+                    }
                 }
-                
-                if (idCount == 1){
-                    reporter.warn("Don't use IDs in selectors.", selector.line, selector.col, rule);            
-                } else if (idCount > 1){
-                    reporter.warn(idCount + " IDs in the selector, really?", selector.line, selector.col, rule);            
-                }
-            }            
 
-        });     
+                if (idCount == 1){
+                    reporter.warn("Don't use IDs in selectors.", selector.line, selector.col, rule);
+                } else if (idCount > 1){
+                    reporter.warn(idCount + " IDs in the selector, really?", selector.line, selector.col, rule);
+                }
+            }
+
+        });
     }
 
 });
@@ -10090,7 +10085,7 @@ CSSLint.addRule({
         });
 
         //report the results
-        parser.addListener("endstylesheet", function(event){
+        parser.addListener("endstylesheet", function(){
             reporter.stat("important", count);
             if (count >= 10){
                 reporter.rollupError("Too many !important declarations (" + count + "), be careful with rule specificity", rule);
@@ -10109,7 +10104,7 @@ CSSLint.addRule({
     name: "Overqualified Elements",
     desc: "Don't use classes or IDs with elements (a.foo or a#foo).",
     browsers: "All",
-    
+
     //initialization
     init: function(parser, reporter){
         var rule = this;
@@ -10119,11 +10114,11 @@ CSSLint.addRule({
                 part,
                 modifier,
                 i, j, k;
-                
+
             for (i=0; i < selectors.length; i++){
                 selector = selectors[i];
 
-                for (j=0; j < selector.parts.length; j++){  
+                for (j=0; j < selector.parts.length; j++){
                     part = selector.parts[j];
                     if (part instanceof parserlib.css.SelectorPart){
                         if (part.elementName){
@@ -10135,10 +10130,10 @@ CSSLint.addRule({
                             }
 
                         }
-                    }                    
+                    }
                 }
             }
-        });     
+        });
     }
 
 });
@@ -10152,31 +10147,30 @@ CSSLint.addRule({
     name: "Qualified Headings",
     desc: "Headings should not be qualified (namespaced).",
     browsers: "All",
-    
+
     //initialization
     init: function(parser, reporter){
         var rule = this;
-    
+
         parser.addListener("startrule", function(event){
             var selectors = event.selectors,
                 selector,
                 part,
-                modifier,
-                i, j, k;
-                
+                i, j;
+
             for (i=0; i < selectors.length; i++){
                 selector = selectors[i];
 
-                for (j=0; j < selector.parts.length; j++){  
+                for (j=0; j < selector.parts.length; j++){
                     part = selector.parts[j];
                     if (part instanceof parserlib.css.SelectorPart){
                         if (part.elementName && /h[1-6]/.test(part.elementName.toString()) && j > 0){
                             reporter.warn("Heading (" + part.elementName + ") should not be qualified.", part.line, part.col, rule);
                         }
-                    }                    
+                    }
                 }
             }
-        });     
+        });
     }
 
 });
@@ -10190,21 +10184,21 @@ CSSLint.addRule({
     name: "Regex Selectors",
     desc: "Selectors that look like regular expressions are slow and should be avoided.",
     browsers: "All",
-    
+
     //initialization
     init: function(parser, reporter){
         var rule = this;
-        
+
         parser.addListener("startrule", function(event){
             var selectors = event.selectors,
                 selector,
                 part,
                 modifier,
                 i, j, k;
-                
+
             for (i=0; i < selectors.length; i++){
                 selector = selectors[i];
-                for (j=0; j < selector.parts.length; j++){  
+                for (j=0; j < selector.parts.length; j++){
                     part = selector.parts[j];
                     if (part instanceof parserlib.css.SelectorPart){
                         for (k=0; k < part.modifiers.length; k++){
@@ -10212,14 +10206,14 @@ CSSLint.addRule({
                             if (modifier.type == "attribute"){
                                 if (/([\~\|\^\$\*]=)/.test(modifier)){
                                     reporter.warn("Attribute selectors with " + RegExp.$1 + " are slow!", modifier.line, modifier.col, rule);
-                                }                               
+                                }
                             }
 
                         }
-                    }                    
+                    }
                 }
             }
-        });     
+        });
     }
 
 });
@@ -10233,20 +10227,20 @@ CSSLint.addRule({
     name: "Rules Count",
     desc: "Track how many rules there are.",
     browsers: "All",
-    
+
     //initialization
     init: function(parser, reporter){
         var rule = this,
             count = 0;
-    
+
         //count each rule
-        parser.addListener("startrule", function(event){
+        parser.addListener("startrule", function(){
             count++;
         });
-        
-        parser.addListener("endstylesheet", function(event){
+
+        parser.addListener("endstylesheet", function(){
             reporter.stat("rule-count", count);
-        });        
+        });
     }
 
 });
@@ -10260,11 +10254,11 @@ CSSLint.addRule({
     name: "Unique Headings",
     desc: "Headings should be defined only once.",
     browsers: "All",
-    
+
     //initialization
     init: function(parser, reporter){
         var rule = this;
-    
+
         var headings =  {
                 h1: 0,
                 h2: 0,
@@ -10273,26 +10267,25 @@ CSSLint.addRule({
                 h5: 0,
                 h6: 0
             };
-    
+
         parser.addListener("startrule", function(event){
             var selectors = event.selectors,
                 selector,
                 part,
-                modifier,
-                i, j, k;
-                
+                i;
+
             for (i=0; i < selectors.length; i++){
                 selector = selectors[i];
                 part = selector.parts[selector.parts.length-1];
 
-                if (part.elementName && /(h[1-6])/.test(part.elementName.toString())){                       
+                if (part.elementName && /(h[1-6])/.test(part.elementName.toString())){
                     headings[RegExp.$1]++;
                     if (headings[RegExp.$1] > 1) {
                         reporter.warn("Heading (" + part.elementName + ") has already been defined.", part.line, part.col, rule);
                     }
-                }         
+                }
             }
-        });     
+        });
     }
 
 });
@@ -10307,32 +10300,28 @@ CSSLint.addRule({
     name: "Vendor Prefix",
     desc: "When using a vendor-prefixed property, make sure to include the standard one.",
     browsers: "All",
-    
+
     //initialization
     init: function(parser, reporter){
         var rule = this,
             properties,
             num;
-            
-        parser.addListener("startrule", function(event){
+
+        parser.addListener("startrule", function(){
             properties = {};
             num=1;
         });
-            
+
         parser.addListener("property", function(event){
-            var name = event.property.text.toLowerCase(),
-                parts = event.value.parts,
-                i = 0, 
-                len = parts.length,
-                j;
-                
+            var name = event.property.text.toLowerCase();
+
             if (!properties[name]){
                 properties[name] = [];
-            }    
-            
-            properties[name].push({ name: event.property, value : event.value, pos:num++ });             
+            }
+
+            properties[name].push({ name: event.property, value : event.value, pos:num++ });
         });
-        
+
         parser.addListener("endrule", function(event){
             var prop,
                 i, len,
@@ -10340,13 +10329,13 @@ CSSLint.addRule({
                 needed,
                 actual,
                 needsStandard = [];
-            
+
             for (prop in properties){
                 if (/(\-(?:ms|moz|webkit|o)\-)/.test(prop)){
                     needsStandard.push({ actual: prop, needed: prop.substring(RegExp.$1.length)});
                 }
             }
-            
+
             for (i=0, len=needsStandard.length; i < len; i++){
                 needed = needsStandard[i].needed;
                 actual = needsStandard[i].actual;
@@ -10359,11 +10348,11 @@ CSSLint.addRule({
                 }
 
                 if (!properties[standard]){               
-                    reporter.warn("Missing standard property '" + standard + "' to go along with '" + actual + "'.", event.selectors[0].line, event.selectors[0].col, rule); 
+                    reporter.warn("Missing standard property '" + standard + "' to go along with '" + actual + "'.", event.selectors[0].line, event.selectors[0].col, rule);
                 } else {
                     //make sure standard property is last
                     if (properties[standard][0].pos < properties[actual][0].pos){
-                        reporter.warn("Standard property '" + standard + "' should come after vendor-prefixed property '" + actual + "'.", event.selectors[0].line, event.selectors[0].col, rule); 
+                        reporter.warn("Standard property '" + standard + "' should come after vendor-prefixed property '" + actual + "'.", event.selectors[0].line, event.selectors[0].col, rule);
                     }
                 }
             }
@@ -10384,14 +10373,14 @@ CSSLint.addRule({
     name: "Width 100%",
     desc: "Be careful when using width: 100% on elements.",
     browsers: "All",
-    
+
     //initialization
     init: function(parser, reporter){
         var rule = this,
             width100,
             boxsizing;
-            
-        parser.addListener("startrule", function(event){
+
+        parser.addListener("startrule", function(){
             width100 = null;
             boxsizing = false;
         });
@@ -10399,17 +10388,17 @@ CSSLint.addRule({
         parser.addListener("property", function(event){
             var name = event.property.text.toLowerCase(),
                 value = event.value;
-                
+
             if (name == "width" && value == "100%"){
                 width100 = event.property;
             } else if (name == "box-sizing" || /\-(?:webkit|ms|moz)\-box-sizing/.test(name)){  //means you know what you're doing
                 boxsizing = true;
             }
-        });        
+        });
         
-        parser.addListener("endrule", function(event){
+        parser.addListener("endrule", function(){
             if (width100 && !boxsizing){
-                reporter.warn("Elements with a width of 100% may not appear as you expect inside of other elements.", width100.line, width100.col, rule);            
+                reporter.warn("Elements with a width of 100% may not appear as you expect inside of other elements.", width100.line, width100.col, rule);
             }
         });
     }
@@ -10425,25 +10414,24 @@ CSSLint.addRule({
     name: "Zero Units",
     desc: "You don't need to specify units when a value is 0.",
     browsers: "All",
-    
+
     //initialization
     init: function(parser, reporter){
         var rule = this;
-    
+
         //count how many times "float" is used
         parser.addListener("property", function(event){
             var parts = event.value.parts,
                 i = 0, 
-                len = parts.length,
-                j;
-                
+                len = parts.length;
+
             while(i < len){
                 if ((parts[i].units || parts[i].type == "percentage") && parts[i].value === 0){
                     reporter.warn("Values of 0 shouldn't have units specified.", parts[i].line, parts[i].col, rule);
                 }
                 i++;
             }
-            
+
         });
 
     }

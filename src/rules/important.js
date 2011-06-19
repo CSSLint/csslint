@@ -26,7 +26,7 @@ CSSLint.addRule({
         });
 
         //report the results
-        parser.addListener("endstylesheet", function(event){
+        parser.addListener("endstylesheet", function(){
             reporter.stat("important", count);
             if (count >= 10){
                 reporter.rollupError("Too many !important declarations (" + count + "), be careful with rule specificity", rule);
