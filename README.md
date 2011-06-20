@@ -12,7 +12,7 @@ By default, CSSLint shows any parsing errors. Parsing errors usually mean you mi
 
 ### Don't use adjoining classes
 
-Adjoining classes look like `.foo.bar`. While technically allowed in CSS, these aren't handled properly by Internet Explorer 7 and earlier.
+Adjoining classes look like `.foo.bar`. While technically allowed in CSS, these aren't handled properly by Internet Explorer 6 and earlier.
 
 ### Remove empty rules
 
@@ -35,6 +35,10 @@ Even though you can define any group of properties together in a CSS rule, some 
 * `display: table-*` should not use `margin` (and all variants) or `float`.
 
 Removed the ignored or problematic properties decreases file size and improves performance.
+
+### Avoid using to many !important declarations
+
+Using `!important` overides any cascaded rule and may lead to specificity war. CSSLint checks if you've used `!important`, and if so, displays a warning. If there's at least 10 `!important` declaration in your code CSSLint displays an error.
 
 ### Don't use too many floats
 
@@ -71,3 +75,42 @@ Heading elements (`h1`-`h6`) should have exactly one rule on a site. CSSLint war
 ### Be careful using width: 100%
 
 Using `width: 100%` on an element whose parent element has padding will result in the child stretching outside of the parent's bounding box. It's generally not a good idea to use `width: 100%`. Instead, use `width: auto` or `display: block`.
+
+### Zero values don't need units
+
+An easy way to save bytes in CSS is not include units when a value is 0. For instance, `0px` and `0` are the exact same measurement, so leave off the units and save!
+
+### Vendor prefixed properties should also have the standard
+
+When using vendor-prefixed properties such as `-moz-border-radius`, make sure to also include the standard property. The standard property should preferably come after the vendor-prefixed one, such as:
+
+```css
+.foo {
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+```
+
+### CSS gradients require all browser prefixes
+
+Right now, there is no standard CSS gradient implementation, which means using CSS gradients in a cross-browser way requires using many different vendor-prefixed versions. CSSLint warns when a rule with a CSS gradient doesn't have gradients for all supporting browsers. 
+
+### Avoid selectors that look like regular expressions
+
+CSS3 adds complex attribute selectors such as `~=` that are slow. When using attribute selectors, don't use the complex equality operators to avoid performance penalties.
+
+### Beware of broken box models
+
+Borders and padding add space outside of an element's content. Setting `width` or `height` along with borders and padding is usually a mistake because you won't get the visual result you're looking for. CSSLint warns when a rule uses `width` or `height` in addition to padding and/or border.
+
+## Contributors
+
+### Creators
+
+1. Nicole Sullivan, http://www.stubbornella.org
+1. Nicholas C. Zakas, http://www.nczonline.net
+
+### Contributors
+
+1. Samori Gorse, https://twitter.com/shinuza (Rules, Non-zero Exit Code for CLI)
+1. Eitan Konigsburg, https://twitter.com/eitanmk (Rhino CLI)

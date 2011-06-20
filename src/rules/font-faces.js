@@ -8,22 +8,22 @@ CSSLint.addRule({
     name: "Font Faces",
     desc: "Too many different web fonts in the same stylesheet.",
     browsers: "All",
-    
+
     //initialization
     init: function(parser, reporter){
         var rule = this,
             count = 0;
-    
-        
-        parser.addListener("startfontface", function(event){
+
+
+        parser.addListener("startfontface", function(){
             count++;
         });
 
-        parser.addListener("endstylesheet", function(event){
+        parser.addListener("endstylesheet", function(){
             if (count > 5){
-                reporter.rollupWarn("Too many @font-face declarations (" + count + ")", rule);
+                reporter.rollupWarn("Too many @font-face declarations (" + count + ").", rule);
             }
-        });        
+        });
     }
 
 });

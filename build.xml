@@ -3,6 +3,7 @@
     <!-- the directories containing the source files -->
     <property name="src.dir" value="./src" />
     <property name="npm.dir" value="./npm" />
+    <property name="tests.dir" value="./tests" />
     
     <!-- the directories and files to output to -->
     <property name="build.dir" value="./build" />
@@ -15,6 +16,7 @@
     <property name="core.build.file" value="csslint.js"/>
     <property name="node.build.file" value="csslint-node.js"/>
     <property name="worker.build.file" value="csslint-worker.js"/>
+    <property name="tests.build.file" value="csslint-tests.js"/>
     <property name="rhino.build.file" value="csslint-rhino.js"/>
     
     <loadfile property="license.text" srcfile="LICENSE" />   
@@ -27,7 +29,7 @@
     <!-- build the core library -->
     <target name="build.core">    
         <concat destfile="${build.dir}/${core.build.file}"  fixlastline="true">
-            <header trimleading="yes">/* 
+            <header trimleading="yes">/*! 
             ${license.text}
             */
             var CSSLint = (function(){
@@ -47,7 +49,7 @@
     <!-- build the web worker library -->
     <target name="build.worker">    
         <concat destfile="${build.dir}/${worker.build.file}"  fixlastline="true">
-            <header trimleading="yes">/* 
+            <header trimleading="yes">/*!
             ${license.text}
             */
             </header>
@@ -64,7 +66,7 @@
     <target name="build.node">
     
         <concat destfile="${build.dir}/${node.build.file}"  fixlastline="true">
-            <header trimleading="yes">/* 
+            <header trimleading="yes">/*!
             ${license.text}
             */
             </header>
@@ -85,7 +87,25 @@
        
     </target>
     
+    <!-- build the tests into a single file -->
+    <target name="build.tests">    
+        <concat destfile="${build.dir}/${tests.build.file}"  fixlastline="true">
+            <fileset dir="${tests.dir}/rules" includes="*.js" />           
+        </concat>        
+    </target>   
+
+
+    <!-- build for rhino CLI integration -->
+    <target name="build.rhino" depends="build.core">
+        <concat destfile="${build.dir}/${rhino.build.file}" fixlastline="true">
+            <filelist dir="${build.dir}" files="${core.build.file}" />
+            <filelist dir="${src.dir}/rhino" files="cli.js" />
+        </concat>
+    </target>
+    
+    
+    
     <!-- Build all files -->
-    <target name="all" depends="clean,build.core,build.worker,build.node"/>
+    <target name="all" depends="clean,build.core,build.worker,build.node,build.tests,build.rhino"/>
 
 </project>

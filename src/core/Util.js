@@ -12,13 +12,13 @@
  */
 function mix(reciever, supplier){
     var prop;
-    
+
     for (prop in supplier){
         if (supplier.hasOwnProperty(prop)){
             receiver[prop] = supplier[prop];
         }
     }
-    
+
     return prop;
 }
 
