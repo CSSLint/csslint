@@ -29,3 +29,10 @@ CSSLint.addRule({
     }
 
 });
+
+/*
+ * Tests: 
+ * .foo{text-indent: 0;}
+ * .foo{text-indent: -100;}
+ * .foo{text-indent: 5px;}
+ */
