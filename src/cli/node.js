@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /*
  * CSSLint Node.js Command Line Interface
  */
@@ -56,21 +54,13 @@ function outputHelp(){
     ].join("\n") + "\n\n");
 }
 
-//filter messages by type
-function pluckByType(messages, type){
-    return messages.filter(function(message) {
-        return message.type === type;
-    });
-}
-
 //-----------------------------------------------------------------------------
 // Process command line
 //-----------------------------------------------------------------------------
 
 var args     = process.argv.slice(2),
     arg      = args.shift(),
-    files    = [],
-    exitCode = 0;
+    files    = [];
 
 while(arg){
     if (arg.indexOf("--") == 0){
@@ -97,55 +87,7 @@ files = files.map(function(filename){
     return path.join(process.cwd(), filename);
 });
 
-//-----------------------------------------------------------------------------
-// Loop over files
-//-----------------------------------------------------------------------------
-
-files.forEach(function(filepath){
-    var text    = fs.readFileSync(filepath,"utf-8"),
-        filename= path.basename(filepath),
-        result  = CSSLint.verify(text),
-        messages= result.messages,
-        errors,
-        warnings;
-
-    if (messages.length){
-        errors = pluckByType(messages, 'error');
-        warnings = pluckByType(messages, 'warning');
-
-        stdout.write("csslint: There are " + errors.length +  " errors and " + warnings.length  +  " warnings in " + filename + ".\n");
-
-        //rollups at the bottom
-        messages.sort(function(a, b){
-            if (a.rollup && !b.rollup){
-                return 1;
-            } else if (!a.rollup && b.rollup){
-                return -1;
-            } else {
-                return 0;
-            }
-        });
-
-        messages.forEach(function(message,i){
-            stdout.write("\n" + filename + ":\n");
-            if (message.rollup){
-                stdout.write((i+1) + ": " + message.type + "\n");
-                stdout.write(message.message + "\n");
-            } else {
-                stdout.write((i+1) + ": " + message.type + " at line " + message.line + ", col " + message.col + "\n");   
-                stdout.write(message.message + "\n");
-                stdout.write(message.evidence + "\n");
-            }
-        });
-
-        if(errors.length > 0) {
-            exitCode = 1;
-        }
-
-    } else {
-        stdout.write("csslint: No problems found in " + filename + ".\n");
-    }
-});
-
+//process files, get the exit code
+var exitCode = Math.max.apply(null, files.map(processFile));
 process.exit(exitCode);
 
