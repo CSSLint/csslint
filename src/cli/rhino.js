@@ -46,5 +46,5 @@ argsArray.forEach(function (arg) {
     }
 });
 
-var exitCode = Math.max.apply(null, files.map(processFile));
-quit(exitCode);
+var exitCode = files.some(processFile);
+quit(Number(exitCode));

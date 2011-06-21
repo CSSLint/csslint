@@ -1,21 +1,15 @@
 //print for rhino and nodejs
-var print = (function() {
-    if(!("print" in this)) {
-        return this.console.log;
-    }
-    return this.print;
-})();
+if(typeof print == "undefined") {
+    var print = console.log;
+}
 
-//read for rhino and nodejs
-var read = (function() {
-    if(!("readFile" in this)) {
-        return function(filepath) {
-            var fs = require("fs");
-            return fs.readFileSync(filepath, "utf-8");
-        }
+//readFile for rhino and nodejs
+if(typeof readFile == "undefined") {
+    var readFile = function(filepath) {
+        var fs = require("fs");
+        return fs.readFileSync(filepath, "utf-8");
     }
-    return this.readFile;
-})();
+}
 
 //filter messages by type
 var pluckByType = function(messages, type){
@@ -26,13 +20,14 @@ var pluckByType = function(messages, type){
 
 //process a list of files, return 1 if one or more error occurred
 var processFile = function(filename) {
-    var input = read(filename),
+    var input = readFile(filename),
         result = CSSLint.verify(input),
-        messages = result.messages || [];
+        messages = result.messages || [],
+        exitCode = 0;
 
     if (!input) {
         print("csslint: Could not read file data in " + filename + ". Is the file empty?");
-        return 0;
+        exitCode = 1;
     }
 
     if (messages.length > 0) {
@@ -41,13 +36,13 @@ var processFile = function(filename) {
         reportMessages(messages, warnings, errors, filename);
 
         if(errors.length > 0 ) {
-            return 1;
+            exitCode = 1;
         }
 
     } else {
         print("csslint: No problems found in " + filename);
-        return 0;
     }
+    return exitCode;
 };
 
 //display messages

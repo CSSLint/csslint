@@ -88,6 +88,5 @@ files = files.map(function(filename){
 });
 
 //process files, get the exit code
-var exitCode = Math.max.apply(null, files.map(processFile));
-process.exit(exitCode);
-
+var exitCode = files.some(processFile)
+process.exit(Number(exitCode));
