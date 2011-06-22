@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 22-June-2011 03:40:31 */
+/* Build time: 22-June-2011 04:35:14 */
 /*!
 Parser-Lib
 Copyright (c) 2009-2011 Nicholas C. Zakas. All rights reserved.
@@ -10445,8 +10445,21 @@ CSSLint.addRule({
 //message indicates to start linting
 self.onmessage = function(event){
 
-    var text    = event.data,
-        results = CSSLint.verify(text);
+    var data    = event.data,
+        message,
+        text,
+        ruleset,
+        results;
+
+    try {
+        message = JSON.parse(data);
+        text = message.text;
+        ruleset = message.ruleset;
+    } catch (ex){
+        text = data;
+    }
+        
+    results = CSSLint.verify(text, ruleset);
 
     //Not all browsers support structured clone, so JSON stringify results
     self.postMessage(JSON.stringify(results));
