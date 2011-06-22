@@ -103,6 +103,17 @@ CSS3 adds complex attribute selectors such as `~=` that are slow. When using att
 
 Borders and padding add space outside of an element's content. Setting `width` or `height` along with borders and padding is usually a mistake because you won't get the visual result you're looking for. CSSLint warns when a rule uses `width` or `height` in addition to padding and/or border.
 
+## Editor integration
+
+### [Vim](http://www.vim.org/)
+
+```vim
+au FileType css setl makeprg=csslint\ %
+au FileType css setl errorformat=%-Icsslint:%m,%A%f:,%C%\\d%\\+:\ %t%\\w%\\+\ at\ line\ %l\\,\ col\ %c,%-G%m%[{};\\,],%C%m,%Z
+```
+
+Add the above to your [vimrc](http://vimdoc.sourceforge.net/htmldoc/starting.html#vimrc). See [:h quickfix.txt](http://vimdoc.sourceforge.net/htmldoc/quickfix.html) for mor info.
+
 ## Contributors
 
 ### Creators
