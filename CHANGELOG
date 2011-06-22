@@ -7,6 +7,7 @@ Next (not yet released)
 * Cleanup of whitespace (pull #74)
 * Standardization of CLI interface (pull #81)
 * Switched display-property-grouping to allow padding, margin-left, and margin-right for display: inline (fixes #3)
+* Changed messaging for float rule (fixes #26)
 
 June 18, 2011 - v0.2.0
 

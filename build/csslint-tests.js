@@ -474,7 +474,7 @@
             var result = CSSLint.verify(".foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; }", { "floats": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Too many floats (10), abstraction needed.", result.messages[0].message);
+            Assert.areEqual("Too many floats (10), you're probably using them for layout. Consider using a grid system instead.", result.messages[0].message);
         },
 
         "9 floats should not result in a warning": function(){
@@ -486,7 +486,7 @@
             var result = CSSLint.verify(".foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; }", { "floats": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Too many floats (11), abstraction needed.", result.messages[0].message);
+            Assert.areEqual("Too many floats (11), you're probably using them for layout. Consider using a grid system instead.", result.messages[0].message);
         },
 
         "float: none should not count and therefore should not result in a warning": function(){

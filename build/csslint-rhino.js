@@ -9876,7 +9876,7 @@ CSSLint.addRule({
         parser.addListener("endstylesheet", function(){
             reporter.stat("floats", count);
             if (count >= 10){
-                reporter.rollupWarn("Too many floats (" + count + "), abstraction needed.", rule);
+                reporter.rollupWarn("Too many floats (" + count + "), you're probably using them for layout. Consider using a grid system instead.", rule);
             }
         });
     }
