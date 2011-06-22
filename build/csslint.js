@@ -9654,8 +9654,8 @@ CSSLint.addRule({
         parser.addListener("property", function(event){
             var name = event.property.text.toLowerCase();
             
-            if (heightProperties[name] || widthProperties){
-                if (event.value != "0"){
+            if (heightProperties[name] || widthProperties[name]){
+                if (!/^0\S*$/.test(event.value) && !(name == "border" && event.value == "none")){
                     properties[name] = { line: name.line, col: name.col };
                 }
             } else {
