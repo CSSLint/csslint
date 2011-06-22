@@ -21,6 +21,13 @@
     
     <loadfile property="license.text" srcfile="LICENSE" />   
 
+    <!-- get a timestamp -->
+    <tstamp>
+      <format property="RIGHT_NOW"
+              pattern="d-MMMM-yyyy hh:mm:ss"
+              locale="en,US"/>
+    </tstamp>
+    
     <!-- clean -->
     <target name="clean">
         <delete dir="${build.dir}" />
@@ -32,6 +39,7 @@
             <header trimleading="yes">/*! 
             ${license.text}
             */
+            /* Build time: ${RIGHT_NOW} */
             var CSSLint = (function(){
             </header>
             <fileset dir="${lib.dir}" includes="*.js" />
@@ -52,6 +60,7 @@
             <header trimleading="yes">/*!
             ${license.text}
             */
+            /* Build time: ${RIGHT_NOW} */
             </header>
             <fileset dir="${lib.dir}" includes="*.js" />
             <filelist dir="${src.dir}/core" files="CSSLint.js" />
@@ -69,6 +78,7 @@
             <header trimleading="yes">/*!
             ${license.text}
             */
+            /* Build time: ${RIGHT_NOW} */
             </header>
             <fileset dir="${lib.dir}" includes="*.js" />
             <filelist dir="${src.dir}/core" files="CSSLint.js" />
@@ -97,16 +107,13 @@
         </concat>        
     </target>   
 
-
     <!-- build for rhino CLI integration -->
     <target name="build.rhino" depends="build.core">
         <concat destfile="${build.dir}/${rhino.build.file}" fixlastline="true">
             <filelist dir="${build.dir}" files="${core.build.file}" />
             <filelist dir="${src.dir}/cli" files="util.js,rhino.js" />
         </concat>
-    </target>
-    
-    
+    </target>    
     
     <!-- Build all files -->
     <target name="all" depends="clean,build.core,build.worker,build.node,build.tests,build.rhino"/>
