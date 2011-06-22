@@ -82,7 +82,10 @@
        <mkdir dir="${build.npm.dir}"/>
        <mkdir dir="${build.npm.dir}/lib"/>
        <copy file="${npm.dir}/package.json" todir="${build.npm.dir}"/>
-       <copy file="${src.dir}/node/cli.js" todir="${build.npm.dir}"/>
+       <concat destfile="${build.npm.dir}/cli.js" fixlastline="true">
+           <header trimleading="yes">#!/usr/bin/env node</header>
+           <filelist dir="${src.dir}/cli" files="util.js,node.js" />
+       </concat>
        <copy file="${build.dir}/${node.build.file}" todir="${build.npm.dir}/lib"/>
        
     </target>
@@ -99,7 +102,7 @@
     <target name="build.rhino" depends="build.core">
         <concat destfile="${build.dir}/${rhino.build.file}" fixlastline="true">
             <filelist dir="${build.dir}" files="${core.build.file}" />
-            <filelist dir="${src.dir}/rhino" files="cli.js" />
+            <filelist dir="${src.dir}/cli" files="util.js,rhino.js" />
         </concat>
     </target>
     
