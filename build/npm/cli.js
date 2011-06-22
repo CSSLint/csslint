@@ -1,5 +1,4 @@
-#!/usr/bin/env node
-//print for rhino and nodejs
+#!/usr/bin/env node//print for rhino and nodejs
 if(typeof print == "undefined") {
     var print = console.log;
 }
@@ -165,3 +164,4 @@ files = files.map(function(filename){
 //process files, get the exit code
 var exitCode = files.some(processFile)
 process.exit(Number(exitCode));
+

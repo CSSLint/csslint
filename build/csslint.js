@@ -4736,6 +4736,7 @@ Tokens              :Tokens
 })();
 
 
+
 /**
  * YUI Test Framework
  * @module yuitest
@@ -9297,6 +9298,7 @@ YUITest.PageManager = YUITest.Util.mix(new YUITest.EventTarget(), {
         return new TestRunner();
 
     }();
+
 /**
  * Main CSSLint object.
  * @class CSSLint
@@ -9390,6 +9392,7 @@ var CSSLint = (function(){
     return api;
 
 })();
+
 /**
  * An instance of Report is used to report results of the
  * verification back to the main API.
@@ -9524,6 +9527,7 @@ Reporter.prototype = {
         this.stats[name] = value;
     }
 };
+
 /*
  * Utility functions that make life easier.
  */
@@ -9687,7 +9691,7 @@ CSSLint.addRule({
 /*
  * Rule: Certain properties don't play well with certain display values. 
  * - float should not be used with inline-block
- * - height, width, margin, padding, float should not be used with inline
+ * - height, width, margin-top, margin-bottom, float should not be used with inline
  * - vertical-align should not be used with block
  * - margin, float should not be used with table-*
  */
@@ -9727,10 +9731,10 @@ CSSLint.addRule({
         });
 
         parser.addListener("property", function(event){
-            var name = event.property;
+            var name = event.property.text.toLowerCase();
 
             if (propertiesToCheck[name]){
-                properties[name] = { value: event.value.text, line: name.line, col: name.col };
+                properties[name] = { value: event.value.text, line: name.line, col: name.col };                    
             }
         });
 
@@ -9741,19 +9745,12 @@ CSSLint.addRule({
                 switch(display){
 
                     case "inline":
-                        //height, width, margin, padding, float should not be used with inline
+                        //height, width, margin-top, margin-bottom, float should not be used with inline
                         reportProperty("height", display);
                         reportProperty("width", display);
                         reportProperty("margin", display);
-                        reportProperty("margin-left", display);
-                        reportProperty("margin-right", display);
                         reportProperty("margin-top", display);
-                        reportProperty("margin-bottom", display);
-                        reportProperty("padding", display);
-                        reportProperty("padding-left", display);
-                        reportProperty("padding-right", display);
-                        reportProperty("padding-top", display);
-                        reportProperty("padding-bottom", display);                
+                        reportProperty("margin-bottom", display);              
                         reportProperty("float", display);
                         break;
 

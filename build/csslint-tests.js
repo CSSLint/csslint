@@ -22,6 +22,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -208,6 +209,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -219,7 +221,7 @@
 
 /*
  * - float should not be used with inline-block
- * - height, width, margin, padding, float should not be used with inline
+ * - height, width, margin-top, margin-bottom, float should not be used with inline
  * - vertical-align should not be used with block
  * - margin, float should not be used with table-*
 */
@@ -268,18 +270,14 @@
             Assert.areEqual("margin can't be used with display: inline.", result.messages[0].message);
         },
 
-        "Margin-left with inline should result in a warning": function(){
+        "Margin-left with inline should not result in a warning": function(){
             var result = CSSLint.verify(".foo { margin-left: 100px; display: inline; }", { "display-property-grouping": 1 });
-            Assert.areEqual(1, result.messages.length);
-            Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("margin-left can't be used with display: inline.", result.messages[0].message);
+            Assert.areEqual(0, result.messages.length);
         },
 
-        "Margin-right with inline should result in a warning": function(){
+        "Margin-right with inline should not result in a warning": function(){
             var result = CSSLint.verify(".foo { margin-right: 100px; display: inline; }", { "display-property-grouping": 1 });
-            Assert.areEqual(1, result.messages.length);
-            Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("margin-right can't be used with display: inline.", result.messages[0].message);
+            Assert.areEqual(0, result.messages.length);
         },
 
         "Margin-top with inline should result in a warning": function(){
@@ -296,39 +294,29 @@
             Assert.areEqual("margin-bottom can't be used with display: inline.", result.messages[0].message);
         },
 
-        "Padding with inline should result in a warning": function(){
+        "Padding with inline should not result in a warning": function(){
             var result = CSSLint.verify(".foo { padding: 100px; display: inline; }", { "display-property-grouping": 1 });
-            Assert.areEqual(1, result.messages.length);
-            Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("padding can't be used with display: inline.", result.messages[0].message);
+            Assert.areEqual(0, result.messages.length);
         },
 
-        "Padding-left with inline should result in a warning": function(){
+        "Padding-left with inline should not result in a warning": function(){
             var result = CSSLint.verify(".foo { padding-left: 100px; display: inline; }", { "display-property-grouping": 1 });
-            Assert.areEqual(1, result.messages.length);
-            Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("padding-left can't be used with display: inline.", result.messages[0].message);
+            Assert.areEqual(0, result.messages.length);
         },
 
-        "Padding-right with inline should result in a warning": function(){
+        "Padding-right with inline should not result in a warning": function(){
             var result = CSSLint.verify(".foo { padding-right: 100px; display: inline; }", { "display-property-grouping": 1 });
-            Assert.areEqual(1, result.messages.length);
-            Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("padding-right can't be used with display: inline.", result.messages[0].message);
+            Assert.areEqual(0, result.messages.length);
         },
 
-        "Padding-top with inline should result in a warning": function(){
+        "Padding-top with inline should not result in a warning": function(){
             var result = CSSLint.verify(".foo { padding-top: 100px; display: inline; }", { "display-property-grouping": 1 });
-            Assert.areEqual(1, result.messages.length);
-            Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("padding-top can't be used with display: inline.", result.messages[0].message);
+            Assert.areEqual(0, result.messages.length);
         },
 
         "Padding-bottom with inline should result in a warning": function(){
             var result = CSSLint.verify(".foo { padding-bottom: 100px; display: inline; }", { "display-property-grouping": 1 });
-            Assert.areEqual(1, result.messages.length);
-            Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("padding-bottom can't be used with display: inline.", result.messages[0].message);
+            Assert.areEqual(0, result.messages.length);
         }, 
 
         "Vertical-align with block should result in a warning": function(){
@@ -435,6 +423,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -453,6 +442,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -470,6 +460,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -505,6 +496,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -533,6 +525,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -563,6 +556,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -614,6 +608,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -639,6 +634,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -666,6 +662,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -692,6 +689,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -711,6 +709,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -763,6 +762,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -792,6 +792,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -830,6 +831,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -874,6 +876,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -911,3 +914,4 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
