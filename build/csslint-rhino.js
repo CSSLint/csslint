@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 23-June-2011 03:38:52 */
+/* Build time: 23-June-2011 03:41:42 */
 var CSSLint = (function(){
 /*!
 Parser-Lib
@@ -9666,7 +9666,7 @@ CSSLint.addRule({
             
             if (heightProperties[name] || widthProperties[name]){
                 if (!/^0\S*$/.test(event.value) && !(name == "border" && event.value == "none")){
-                    properties[name] = { line: name.line, col: name.col };
+                    properties[name] = { line: event.property.line, col: event.property.col };
                 }
             } else {
                 if (name == "width" || name == "height"){
