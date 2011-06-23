@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 23-June-2011 03:14:15 */
+/* Build time: 23-June-2011 03:20:57 */
 var CSSLint = (function(){
 /*!
 Parser-Lib
@@ -10058,6 +10058,28 @@ CSSLint.addRule({
             }
 
         });
+    }
+
+});
+/*
+ * Rule: Don't use @import, use <link> instead.
+ */
+CSSLint.addRule({
+
+    //rule information
+    id: "import",
+    name: "@import",
+    desc: "Don't use @import, use <link> instead.",
+    browsers: "IE6",
+
+    //initialization
+    init: function(parser, reporter){
+        var rule = this;
+        
+        parser.addListener("import", function(event){        
+            reporter.warn("@import prevents parallel downloads, use <link> instead.", event.uri.line, event.uri.col, rule);
+        });
+
     }
 
 });
