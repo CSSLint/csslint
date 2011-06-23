@@ -884,7 +884,8 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 (function(){
 
     /*global YUITest, CSSLint*/
-    var Assert = YUITest.Assert;
+    //Commented out pending further review
+    /*var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
 
@@ -922,7 +923,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             Assert.areEqual(0, result.messages.length);
         }
 
-    }));
+    }));*/
 
 })();
 
@@ -933,7 +934,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 
     YUITest.TestRunner.add(new YUITest.TestCase({
 
-        name: "width: 100%; Errors",
+        name: "Zero Units Errors",
 
         "Using 0px should result in one warning": function(){
             var result = CSSLint.verify("h1 { left: 0px; }", { "zero-units": 1 });

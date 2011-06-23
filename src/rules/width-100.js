@@ -2,7 +2,8 @@
  * Rule: If an element has a width of 100%, be careful when placing within
  * an element that has padding. It may look strange.
  */
-CSSLint.addRule({
+//Commented out pending further review.
+/*CSSLint.addRule({
 
     //rule information
     id: "width-100",
@@ -39,4 +40,4 @@ CSSLint.addRule({
         });
     }
 
-});
+});*/

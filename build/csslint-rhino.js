@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 23-June-2011 03:20:57 */
+/* Build time: 23-June-2011 03:25:41 */
 var CSSLint = (function(){
 /*!
 Parser-Lib
@@ -10411,7 +10411,8 @@ CSSLint.addRule({
  * Rule: If an element has a width of 100%, be careful when placing within
  * an element that has padding. It may look strange.
  */
-CSSLint.addRule({
+//Commented out pending further review.
+/*CSSLint.addRule({
 
     //rule information
     id: "width-100",
@@ -10448,7 +10449,7 @@ CSSLint.addRule({
         });
     }
 
-});
+});*/
 /*
  * Rule: You don't need to specify units when a value is 0.
  */

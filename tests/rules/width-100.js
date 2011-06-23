@@ -1,7 +1,8 @@
 (function(){
 
     /*global YUITest, CSSLint*/
-    var Assert = YUITest.Assert;
+    //Commented out pending further review
+    /*var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
 
@@ -39,6 +40,6 @@
             Assert.areEqual(0, result.messages.length);
         }
 
-    }));
+    }));*/
 
 })();
