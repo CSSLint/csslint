@@ -8,6 +8,8 @@ var CSSLint = (function(){
 
     var rules   = [],
         api     = new parserlib.util.EventTarget();
+        
+    api.version = "@VERSION@";
 
     //-------------------------------------------------------------------------
     // Rule Management
@@ -38,12 +40,12 @@ var CSSLint = (function(){
     /**
      * Starts the verification process for the given CSS text.
      * @param {String} text The CSS text to verify.
-     * @param {Object} options (Optional) List of rules to apply. If null, then
+     * @param {Object} ruleset (Optional) List of rules to apply. If null, then
      *      all rules are used.
      * @return {Object} Results of the verification.
      * @method verify
      */
-    api.verify = function(text, options){
+    api.verify = function(text, ruleset){
 
         var i       = 0,
             len     = rules.length,
@@ -55,13 +57,14 @@ var CSSLint = (function(){
         lines = text.split(/\n\r?/g);
         reporter = new Reporter(lines);
 
-        if (!options){
+        if (!ruleset){
             while (i < len){
                 rules[i++].init(parser, reporter);
             }
         } else {
-            for (i in options){
-                if(options.hasOwnProperty(i)){
+            ruleset.errors = 1;       //always report parsing errors
+            for (i in ruleset){
+                if(ruleset.hasOwnProperty(i)){
                     if (rules[i]){
                         rules[i].init(parser, reporter);
                     }

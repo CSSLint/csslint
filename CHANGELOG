@@ -5,6 +5,12 @@ Next (not yet released)
 * Made license comment important in build files (fixes #46)
 * Code cleanup (pull #70)
 * Cleanup of whitespace (pull #74)
+* Standardization of CLI interface (pull #81)
+* Switched display-property-grouping to allow padding, margin-left, and margin-right for display: inline (fixes #3)
+* Changed messaging for float rule (fixes #26)
+* border:none with width/height is okay (fixes #45)
+* Updated web worker to accept JSON-encoded input
+* Allow turning on/off rules in web interface and CLIs (fixes #77)
 
 June 18, 2011 - v0.2.0
 

@@ -147,6 +147,16 @@
             Assert.areEqual("Broken box model: using height with border.", result.messages[0].message);
         },
 
+        "Using height and border: none should not result in a warning": function(){
+            var result = CSSLint.verify(".foo { height: 100px; border: none; }", { "box-model": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using height and border: 0 should not result in a warning": function(){
+            var result = CSSLint.verify(".foo { height: 100px; border: 0; }", { "box-model": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
         "Using height and border-left should not result in a warning": function(){
             var result = CSSLint.verify(".foo { height: 100px; border-left: 10px; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
@@ -174,6 +184,11 @@
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Broken box model: using height with border-bottom.", result.messages[0].message);
+        },
+
+        "Using height when border-bottom is zero should not result in a warning": function(){
+            var result = CSSLint.verify(".foo { height: 100px; border-bottom: 0px; }", { "box-model": 1 });
+            Assert.areEqual(0, result.messages.length);
         },
 
         "Using height when border-bottom is zero should not result in a warning": function(){
