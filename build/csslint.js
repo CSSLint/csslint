@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 23-June-2011 03:25:41 */
+/* Build time: 23-June-2011 03:38:52 */
 var CSSLint = (function(){
 /*!
 Parser-Lib
@@ -46,7 +46,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 22-June-2011 03:37:31 */
+/* Build time: 23-June-2011 03:36:49 */
 var parserlib = {};
 (function(){
 
@@ -944,7 +944,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 22-June-2011 03:37:31 */
+/* Build time: 23-June-2011 03:36:49 */
 (function(){
 var EventTarget = parserlib.util.EventTarget,
 TokenStreamBase = parserlib.util.TokenStreamBase,
@@ -1557,10 +1557,12 @@ Parser.prototype = function(){
                 var tokenStream = this._tokenStream,
                     tt,
                     uri,
+                    importToken,
                     mediaList   = [];
                 
                 //read import symbol
                 tokenStream.mustMatch(Tokens.IMPORT_SYM);
+                importToken = tokenStream.token();
                 this._readWhitespace();
                 
                 tokenStream.mustMatch([Tokens.STRING, Tokens.URI]);
@@ -1580,7 +1582,9 @@ Parser.prototype = function(){
                     this.fire({
                         type:   "import",
                         uri:    uri,
-                        media:  mediaList                
+                        media:  mediaList,
+                        line:   importToken.startLine,
+                        col:    importToken.startCol
                     });
                 }
         
@@ -10070,14 +10074,14 @@ CSSLint.addRule({
     id: "import",
     name: "@import",
     desc: "Don't use @import, use <link> instead.",
-    browsers: "IE6",
+    browsers: "All",
 
     //initialization
     init: function(parser, reporter){
         var rule = this;
         
         parser.addListener("import", function(event){        
-            reporter.warn("@import prevents parallel downloads, use <link> instead.", event.uri.line, event.uri.col, rule);
+            reporter.warn("@import prevents parallel downloads, use <link> instead.", event.line, event.col, rule);
         });
 
     }
