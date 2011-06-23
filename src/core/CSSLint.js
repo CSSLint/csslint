@@ -8,6 +8,8 @@ var CSSLint = (function(){
 
     var rules   = [],
         api     = new parserlib.util.EventTarget();
+        
+    api.version = "@VERSION@";
 
     //-------------------------------------------------------------------------
     // Rule Management

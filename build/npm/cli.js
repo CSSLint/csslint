@@ -18,10 +18,24 @@ var pluckByType = function(messages, type){
     });
 };
 
+function gatherRules(options){
+    var ruleset;
+    
+    if (options.rules){
+        ruleset = {};
+        options.rules.split(",").forEach(function(value){
+            ruleset[value] = 1;
+        });
+    }
+    
+    return ruleset;
+    
+}
+
 //process a list of files, return 1 if one or more error occurred
-var processFile = function(filename) {
+var processFile = function(filename, options) {
     var input = readFile(filename),
-        result = CSSLint.verify(input),
+        result = CSSLint.verify(input, gatherRules(options)),
         messages = result.messages || [],
         exitCode = 0;
 
@@ -72,6 +86,19 @@ var reportMessages = function(messages, warnings, errors, filename) {
         }
     });
 };
+
+
+//output CLI help screen
+function outputHelp(){
+    print([
+        "\nUsage: csslint-rhino.js [options]* [file|dir]*",
+        " ",
+        "Global Options",
+        "  --help                 Displays this information.",
+        "  --rules=<rule[,rule]+> Indicate which rules to include.",
+        "  --version              Outputs the current version number."
+    ].join("\n") + "\n\n");
+}
 /*
  * CSSLint Node.js Command Line Interface
  */
@@ -118,29 +145,25 @@ function getFiles(dir){
     return files;
 }
 
-//output CLI help screen
-function outputHelp(){
-    stdout.write([
-        "\nUsage: csslint [file|dir]*",
-        " ",
-        "Global Options",
-        "  --help              Displays this information."
-    ].join("\n") + "\n\n");
-}
-
 //-----------------------------------------------------------------------------
 // Process command line
 //-----------------------------------------------------------------------------
 
 var args     = process.argv.slice(2),
+    argName,
     arg      = args.shift(),
     files    = [];
 
 while(arg){
     if (arg.indexOf("--") == 0){
-        options[arg.substring(2)] = true;
-    } else {
+        argName = arg.substring(2);
+        options[argName] = true;
         
+        if (argName.indexOf("rules=") > -1){
+            options.rules = argName.substring(argName.indexOf("=") + 1);
+        }
+    } else {
+                
         //see if it's a directory or a file
         if (fs.statSync(arg).isDirectory()){
             files = files.concat(getFiles(arg));
@@ -151,8 +174,13 @@ while(arg){
     arg = args.shift();
 }
 
-if (options.help || process.argv.length == 2){
+if (options.help || arguments.length == 0){
     outputHelp();
+    process.exit(0);
+}
+
+if (options.version){
+    print("v" + CSSLint.version);
     process.exit(0);
 }
 
@@ -161,7 +189,15 @@ files = files.map(function(filename){
     return path.join(process.cwd(), filename);
 });
 
-//process files, get the exit code
-var exitCode = files.some(processFile)
+var exitCode = 0;
+if (!files.length) {
+    print("No files specified.");
+    exitCode = 1;
+} else {
+    exitCode = files.some(function(file){
+        processFile(file,options);
+    });
+}
 process.exit(Number(exitCode));
+
 

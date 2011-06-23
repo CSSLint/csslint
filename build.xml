@@ -1,5 +1,8 @@
 <project name="csslint" default="all">
 
+    <!-- version number -->
+    <property name="csslint.version" value="0.2.0" />
+
     <!-- the directories containing the source files -->
     <property name="src.dir" value="./src" />
     <property name="npm.dir" value="./npm" />
@@ -114,6 +117,13 @@
             <filelist dir="${src.dir}/cli" files="util.js,rhino.js" />
         </concat>
     </target>    
+    
+    <!-- Update version number in files -->
+    <target name="release" depends="all">
+        <replaceregexp match="@VERSION@" replace="${csslint.version}" flags="g" byline="true">
+            <fileset dir="${build.dir}" includes="**/*.js"/>
+        </replaceregexp>    
+    </target>
     
     <!-- Build all files -->
     <target name="all" depends="clean,build.core,build.worker,build.node,build.tests,build.rhino"/>

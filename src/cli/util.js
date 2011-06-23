@@ -18,10 +18,24 @@ var pluckByType = function(messages, type){
     });
 };
 
+function gatherRules(options){
+    var ruleset;
+    
+    if (options.rules){
+        ruleset = {};
+        options.rules.split(",").forEach(function(value){
+            ruleset[value] = 1;
+        });
+    }
+    
+    return ruleset;
+    
+}
+
 //process a list of files, return 1 if one or more error occurred
-var processFile = function(filename) {
+var processFile = function(filename, options) {
     var input = readFile(filename),
-        result = CSSLint.verify(input),
+        result = CSSLint.verify(input, gatherRules(options)),
         messages = result.messages || [],
         exitCode = 0;
 
@@ -72,3 +86,16 @@ var reportMessages = function(messages, warnings, errors, filename) {
         }
     });
 };
+
+
+//output CLI help screen
+function outputHelp(){
+    print([
+        "\nUsage: csslint-rhino.js [options]* [file|dir]*",
+        " ",
+        "Global Options",
+        "  --help                 Displays this information.",
+        "  --rules=<rule[,rule]+> Indicate which rules to include.",
+        "  --version              Outputs the current version number."
+    ].join("\n") + "\n\n");
+}

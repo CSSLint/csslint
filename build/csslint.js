@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 22-June-2011 04:35:14 */
+/* Build time: 22-June-2011 05:24:39 */
 var CSSLint = (function(){
 /*!
 Parser-Lib
@@ -9313,6 +9313,8 @@ var CSSLint = (function(){
 
     var rules   = [],
         api     = new parserlib.util.EventTarget();
+        
+    api.version = "@VERSION@";
 
     //-------------------------------------------------------------------------
     // Rule Management

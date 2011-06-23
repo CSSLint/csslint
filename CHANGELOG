@@ -9,6 +9,8 @@ Next (not yet released)
 * Switched display-property-grouping to allow padding, margin-left, and margin-right for display: inline (fixes #3)
 * Changed messaging for float rule (fixes #26)
 * border:none with width/height is okay (fixes #45)
+* Updated web worker to accept JSON-encoded input
+* Allow turning on/off rules in web interface and CLIs (fixes #77)
 
 June 18, 2011 - v0.2.0
 

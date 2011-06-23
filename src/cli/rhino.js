@@ -4,15 +4,11 @@
 
 importPackage(java.io);
 
-var argsArray = Array.prototype.slice.call(arguments),
-    files    = [];
+//-----------------------------------------------------------------------------
+// Helper Functions
+//-----------------------------------------------------------------------------
 
-if (argsArray.length === 0) {
-    print("Usage: csslint-rhino.js [file|dir]*");
-    quit(1);
-}
-
-var getFiles  = function (dir) {
+function getFiles(dir) {
     var files = [];
 
     var traverse = function (dir) {
@@ -31,20 +27,55 @@ var getFiles  = function (dir) {
     return files;
 };
 
-argsArray.forEach(function (arg) {
-    var curFile = new File(arg);
+//-----------------------------------------------------------------------------
+// Process command line
+//-----------------------------------------------------------------------------
 
-    if (!curFile.exists()) {
-        print("File or directory '" + arg + "' not found.");
-        return;
-    }
+var args     = Array.prototype.slice.call(arguments),
+    argName,
+    arg      = args.shift(),
+    options  = {},
+    files    = [];
 
-    if (curFile.isDirectory()) {
-        files = files.concat(getFiles(curFile));
+while(arg){
+    if (arg.indexOf("--") == 0){
+        argName = arg.substring(2);
+        options[argName] = true;
+        
+        if (argName.indexOf("rules=") > -1){
+            options.rules = argName.substring(argName.indexOf("=") + 1);
+        }
     } else {
-        files.push(arg);
+        
+        var curFile = new File(arg);
+        
+        //see if it's a directory or a file
+        if (curFile.isDirectory()){
+            files = files.concat(getFiles(arg));
+        } else {
+            files.push(arg);
+        }
     }
-});
+    arg = args.shift();
+}
 
-var exitCode = files.some(processFile);
+if (options.help || arguments.length == 0){
+    outputHelp();
+    quit(0);
+}
+
+if (options.version){
+    print("v" + CSSLint.version);
+    quit(0);
+}
+
+var exitCode = 0;
+if (!files.length) {
+    print("No files specified.");
+    exitCode = 1;
+} else {
+    exitCode = files.some(function(file){
+        processFile(file,options);
+    });
+}
 quit(Number(exitCode));
