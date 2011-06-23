@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 22-June-2011 05:24:39 */
+/* Build time: 23-June-2011 03:14:15 */
 var CSSLint = (function(){
 /*!
 Parser-Lib
@@ -10111,7 +10111,9 @@ CSSLint.addRule({
 
     //initialization
     init: function(parser, reporter){
-        var rule = this;
+        var rule = this,
+            classes = {};
+            
         parser.addListener("startrule", function(event){
             var selectors = event.selectors,
                 selector,
@@ -10125,18 +10127,35 @@ CSSLint.addRule({
                 for (j=0; j < selector.parts.length; j++){
                     part = selector.parts[j];
                     if (part instanceof parserlib.css.SelectorPart){
-                        if (part.elementName){
-                            for (k=0; k < part.modifiers.length; k++){
-                                modifier = part.modifiers[k];
-                                if (modifier.type == "class" || modifier.type == "id"){
-                                    reporter.warn("Element (" + part + ") is overqualified, just use " + modifier + " without element name.", part.line, part.col, rule);
+                        for (k=0; k < part.modifiers.length; k++){
+                            modifier = part.modifiers[k];
+                            if (part.elementName && modifier.type == "id"){
+                                reporter.warn("Element (" + part + ") is overqualified, just use " + modifier + " without element name.", part.line, part.col, rule);
+                            } else if (modifier.type == "class"){
+                                
+                                if (!classes[modifier]){
+                                    classes[modifier] = [];
                                 }
+                                classes[modifier].push({ modifier: modifier, part: part });
                             }
-
                         }
                     }
                 }
             }
+        });
+        
+        parser.addListener("endstylesheet", function(){
+        
+            var prop;
+            for (prop in classes){
+                if (classes.hasOwnProperty(prop)){
+                
+                    //one use means that this is overqualified
+                    if (classes[prop].length == 1 && classes[prop][0].part.elementName){
+                        reporter.warn("Element (" + classes[prop][0].part + ") is overqualified, just use " + classes[prop][0].modifier + " without element name.", classes[prop][0].part.line, classes[prop][0].part.col, rule);
+                    }
+                }
+            }        
         });
     }
 
