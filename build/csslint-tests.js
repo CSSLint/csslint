@@ -172,6 +172,16 @@
             Assert.areEqual("Broken box model: using height with border.", result.messages[0].message);
         },
 
+        "Using height and border: none should not result in a warning": function(){
+            var result = CSSLint.verify(".foo { height: 100px; border: none; }", { "box-model": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using height and border: 0 should not result in a warning": function(){
+            var result = CSSLint.verify(".foo { height: 100px; border: 0; }", { "box-model": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
         "Using height and border-left should not result in a warning": function(){
             var result = CSSLint.verify(".foo { height: 100px; border-left: 10px; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
@@ -202,6 +212,11 @@
         },
 
         "Using height when border-bottom is zero should not result in a warning": function(){
+            var result = CSSLint.verify(".foo { height: 100px; border-bottom: 0px; }", { "box-model": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using height when border-bottom is zero should not result in a warning": function(){
             var result = CSSLint.verify(".foo { height: 100px; border-bottom: 0; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
         }
@@ -221,7 +236,7 @@
 
 /*
  * - float should not be used with inline-block
- * - height, width, margin, padding, float should not be used with inline
+ * - height, width, margin-top, margin-bottom, float should not be used with inline
  * - vertical-align should not be used with block
  * - margin, float should not be used with table-*
 */
@@ -270,18 +285,14 @@
             Assert.areEqual("margin can't be used with display: inline.", result.messages[0].message);
         },
 
-        "Margin-left with inline should result in a warning": function(){
+        "Margin-left with inline should not result in a warning": function(){
             var result = CSSLint.verify(".foo { margin-left: 100px; display: inline; }", { "display-property-grouping": 1 });
-            Assert.areEqual(1, result.messages.length);
-            Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("margin-left can't be used with display: inline.", result.messages[0].message);
+            Assert.areEqual(0, result.messages.length);
         },
 
-        "Margin-right with inline should result in a warning": function(){
+        "Margin-right with inline should not result in a warning": function(){
             var result = CSSLint.verify(".foo { margin-right: 100px; display: inline; }", { "display-property-grouping": 1 });
-            Assert.areEqual(1, result.messages.length);
-            Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("margin-right can't be used with display: inline.", result.messages[0].message);
+            Assert.areEqual(0, result.messages.length);
         },
 
         "Margin-top with inline should result in a warning": function(){
@@ -298,39 +309,29 @@
             Assert.areEqual("margin-bottom can't be used with display: inline.", result.messages[0].message);
         },
 
-        "Padding with inline should result in a warning": function(){
+        "Padding with inline should not result in a warning": function(){
             var result = CSSLint.verify(".foo { padding: 100px; display: inline; }", { "display-property-grouping": 1 });
-            Assert.areEqual(1, result.messages.length);
-            Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("padding can't be used with display: inline.", result.messages[0].message);
+            Assert.areEqual(0, result.messages.length);
         },
 
-        "Padding-left with inline should result in a warning": function(){
+        "Padding-left with inline should not result in a warning": function(){
             var result = CSSLint.verify(".foo { padding-left: 100px; display: inline; }", { "display-property-grouping": 1 });
-            Assert.areEqual(1, result.messages.length);
-            Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("padding-left can't be used with display: inline.", result.messages[0].message);
+            Assert.areEqual(0, result.messages.length);
         },
 
-        "Padding-right with inline should result in a warning": function(){
+        "Padding-right with inline should not result in a warning": function(){
             var result = CSSLint.verify(".foo { padding-right: 100px; display: inline; }", { "display-property-grouping": 1 });
-            Assert.areEqual(1, result.messages.length);
-            Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("padding-right can't be used with display: inline.", result.messages[0].message);
+            Assert.areEqual(0, result.messages.length);
         },
 
-        "Padding-top with inline should result in a warning": function(){
+        "Padding-top with inline should not result in a warning": function(){
             var result = CSSLint.verify(".foo { padding-top: 100px; display: inline; }", { "display-property-grouping": 1 });
-            Assert.areEqual(1, result.messages.length);
-            Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("padding-top can't be used with display: inline.", result.messages[0].message);
+            Assert.areEqual(0, result.messages.length);
         },
 
         "Padding-bottom with inline should result in a warning": function(){
             var result = CSSLint.verify(".foo { padding-bottom: 100px; display: inline; }", { "display-property-grouping": 1 });
-            Assert.areEqual(1, result.messages.length);
-            Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("padding-bottom can't be used with display: inline.", result.messages[0].message);
+            Assert.areEqual(0, result.messages.length);
         }, 
 
         "Vertical-align with block should result in a warning": function(){
@@ -488,7 +489,7 @@
             var result = CSSLint.verify(".foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; }", { "floats": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Too many floats (10), abstraction needed.", result.messages[0].message);
+            Assert.areEqual("Too many floats (10), you're probably using them for layout. Consider using a grid system instead.", result.messages[0].message);
         },
 
         "9 floats should not result in a warning": function(){
@@ -500,7 +501,7 @@
             var result = CSSLint.verify(".foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; } .foo { float: left; }", { "floats": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Too many floats (11), abstraction needed.", result.messages[0].message);
+            Assert.areEqual("Too many floats (11), you're probably using them for layout. Consider using a grid system instead.", result.messages[0].message);
         },
 
         "float: none should not count and therefore should not result in a warning": function(){
