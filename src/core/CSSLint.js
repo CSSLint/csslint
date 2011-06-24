@@ -6,8 +6,9 @@
  */
 var CSSLint = (function(){
 
-    var rules   = [],
-        api     = new parserlib.util.EventTarget();
+    var rules      = [],
+        formatters = [],
+        api        = new parserlib.util.EventTarget();
         
     api.version = "@VERSION@";
 
@@ -31,6 +32,20 @@ var CSSLint = (function(){
      */
     api.clearRules = function(){
         rules = [];
+    };
+
+    //-------------------------------------------------------------------------
+    // Formatter Management
+    //-------------------------------------------------------------------------
+
+    /**
+     * Adds a new formatter to the engine.
+     * @param {Object} formatter The formatter to add.
+     * @method addFormatter
+     */
+    api.addFormatter = function(formatter) {
+        formatters.push(formatter);
+        formatters[formatter.id] = formatter;
     };
 
     //-------------------------------------------------------------------------
@@ -85,6 +100,10 @@ var CSSLint = (function(){
         };
     };
 
+    api.format = function(results, filename, formatId) {
+		var output = formatters[formatId].init(results.messages, filename);
+		// console.log(output);
+    }
 
     //-------------------------------------------------------------------------
     // Publish the API

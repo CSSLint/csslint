@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 23-June-2011 03:44:41 */
+/* Build time: 23-June-2011 10:40:56 */
 /*!
 Parser-Lib
 Copyright (c) 2009-2011 Nicholas C. Zakas. All rights reserved.
@@ -4743,7 +4743,6 @@ Tokens              :Tokens
 };
 })();
 
-
 /**
  * YUI Test Framework
  * @module yuitest
@@ -9305,7 +9304,6 @@ YUITest.PageManager = YUITest.Util.mix(new YUITest.EventTarget(), {
         return new TestRunner();
 
     }();
-
 /**
  * Main CSSLint object.
  * @class CSSLint
@@ -9314,8 +9312,9 @@ YUITest.PageManager = YUITest.Util.mix(new YUITest.EventTarget(), {
  */
 var CSSLint = (function(){
 
-    var rules   = [],
-        api     = new parserlib.util.EventTarget();
+    var rules      = [],
+        formatters = [],
+        api        = new parserlib.util.EventTarget();
         
     api.version = "@VERSION@";
 
@@ -9339,6 +9338,20 @@ var CSSLint = (function(){
      */
     api.clearRules = function(){
         rules = [];
+    };
+
+    //-------------------------------------------------------------------------
+    // Formatter Management
+    //-------------------------------------------------------------------------
+
+    /**
+     * Adds a new formatter to the engine.
+     * @param {Object} formatter The formatter to add.
+     * @method addFormatter
+     */
+    api.addFormatter = function(formatter) {
+        formatters.push(formatter);
+        formatters[formatter.id] = formatter;
     };
 
     //-------------------------------------------------------------------------
@@ -9393,6 +9406,10 @@ var CSSLint = (function(){
         };
     };
 
+    api.format = function(results, filename, formatId) {
+		var output = formatters[formatId].init(results.messages, filename);
+		// console.log(output);
+    }
 
     //-------------------------------------------------------------------------
     // Publish the API
@@ -9401,7 +9418,6 @@ var CSSLint = (function(){
     return api;
 
 })();
-
 /**
  * An instance of Report is used to report results of the
  * verification back to the main API.
@@ -9536,7 +9552,6 @@ Reporter.prototype = {
         this.stats[name] = value;
     }
 };
-
 /*
  * Utility functions that make life easier.
  */
@@ -10065,28 +10080,6 @@ CSSLint.addRule({
 
 });
 /*
- * Rule: Don't use @import, use <link> instead.
- */
-CSSLint.addRule({
-
-    //rule information
-    id: "import",
-    name: "@import",
-    desc: "Don't use @import, use <link> instead.",
-    browsers: "All",
-
-    //initialization
-    init: function(parser, reporter){
-        var rule = this;
-        
-        parser.addListener("import", function(event){        
-            reporter.warn("@import prevents parallel downloads, use <link> instead.", event.line, event.col, rule);
-        });
-
-    }
-
-});
-/*
  * Rule: Make sure !important is not overused, this could lead to specificity
  * war. Display a warning on !important declarations, an error if it's
  * used more at least 10 times.
@@ -10485,6 +10478,42 @@ CSSLint.addRule({
 
     }
 
+});
+
+CSSLint.addFormatter({
+    //format information
+    id: "text",
+    name: "Plain Text",
+
+    init: function(messages, filename) {
+	    // output = "\n\ncsslint: There are " + errors.length +  " errors and " + warnings.length  +  " warnings in " + filename + ".";
+		output = "\n\n";
+
+	    //rollups at the bottom
+	    messages.sort(function (a, b){
+	        if (a.rollup && !b.rollup){
+	            return 1;
+	        } else if (!a.rollup && b.rollup){
+	            return -1;
+	        } else {
+	            return 0;
+	        }
+	    });
+
+	    messages.forEach(function (message, i) {
+	        output = output + "\n" + filename;
+	        if (message.rollup) {
+	            output += "\n" + (i+1) + ": " + message.type;
+				output += "\n" + message.message;
+	        } else {
+	            output += "\n" + (i+1) + ": " + message.type + " at line " + message.line + ", col " + message.col;
+	            output += "\n" + message.message;
+	            output += "\n" + message.evidence;
+	        }
+	    });
+	
+		return output;
+    }
 });
 /*
  * Web worker for CSSLint
