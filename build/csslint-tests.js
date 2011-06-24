@@ -657,6 +657,25 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 
     YUITest.TestRunner.add(new YUITest.TestCase({
 
+        name: "Import Rule Errors",
+        
+        "Using @import should result in a warning": function(){
+            var result = CSSLint.verify("@import url('foo.css');", { "import": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("@import prevents parallel downloads, use <link> instead.", result.messages[0].message);
+        }
+    }));
+
+})();
+
+(function(){
+
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
         name: "!important; Errors",
 
         "!important declarations should result in a warning": function(){
@@ -694,11 +713,26 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             Assert.areEqual("Element (li#foo) is overqualified, just use #foo without element name.", result.messages[0].message);
         },
 
+        "Using a class without an element should not result in a warning": function(){
+            var result = CSSLint.verify(".foo { float: left;}", { "overqualified-elements": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+        
         "Using a class with an element should result in one warning": function(){
             var result = CSSLint.verify("li.foo { float: left;}", { "overqualified-elements": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Element (li.foo) is overqualified, just use .foo without element name.", result.messages[0].message);
+        },
+        
+        "Using a class with two different elements should not result in a warning": function(){
+            var result = CSSLint.verify("li.foo { float: left;} p.foo { float: right; }", { "overqualified-elements": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using a class with an element and without should not result in a warning": function(){
+            var result = CSSLint.verify("li.foo { float: left;} .foo { float: right; }", { "overqualified-elements": 1 });
+            Assert.areEqual(0, result.messages.length);
         }
 
     }));
@@ -850,7 +884,8 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 (function(){
 
     /*global YUITest, CSSLint*/
-    var Assert = YUITest.Assert;
+    //Commented out pending further review
+    /*var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
 
@@ -888,7 +923,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             Assert.areEqual(0, result.messages.length);
         }
 
-    }));
+    }));*/
 
 })();
 
@@ -899,7 +934,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 
     YUITest.TestRunner.add(new YUITest.TestCase({
 
-        name: "width: 100%; Errors",
+        name: "Zero Units Errors",
 
         "Using 0px should result in one warning": function(){
             var result = CSSLint.verify("h1 { left: 0px; }", { "zero-units": 1 });

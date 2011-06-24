@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 22-June-2011 05:24:39 */
+/* Build time: 23-June-2011 03:44:41 */
 var CSSLint = (function(){
 /*!
 Parser-Lib
@@ -46,7 +46,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 22-June-2011 03:37:31 */
+/* Build time: 23-June-2011 03:36:49 */
 var parserlib = {};
 (function(){
 
@@ -944,7 +944,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 22-June-2011 03:37:31 */
+/* Build time: 23-June-2011 03:36:49 */
 (function(){
 var EventTarget = parserlib.util.EventTarget,
 TokenStreamBase = parserlib.util.TokenStreamBase,
@@ -1557,10 +1557,12 @@ Parser.prototype = function(){
                 var tokenStream = this._tokenStream,
                     tt,
                     uri,
+                    importToken,
                     mediaList   = [];
                 
                 //read import symbol
                 tokenStream.mustMatch(Tokens.IMPORT_SYM);
+                importToken = tokenStream.token();
                 this._readWhitespace();
                 
                 tokenStream.mustMatch([Tokens.STRING, Tokens.URI]);
@@ -1580,7 +1582,9 @@ Parser.prototype = function(){
                     this.fire({
                         type:   "import",
                         uri:    uri,
-                        media:  mediaList                
+                        media:  mediaList,
+                        line:   importToken.startLine,
+                        col:    importToken.startCol
                     });
                 }
         
@@ -9662,7 +9666,7 @@ CSSLint.addRule({
             
             if (heightProperties[name] || widthProperties[name]){
                 if (!/^0\S*$/.test(event.value) && !(name == "border" && event.value == "none")){
-                    properties[name] = { line: name.line, col: name.col };
+                    properties[name] = { line: event.property.line, col: event.property.col };
                 }
             } else {
                 if (name == "width" || name == "height"){
@@ -9740,7 +9744,7 @@ CSSLint.addRule({
             var name = event.property.text.toLowerCase();
 
             if (propertiesToCheck[name]){
-                properties[name] = { value: event.value.text, line: name.line, col: name.col };                    
+                properties[name] = { value: event.value.text, line: event.property.line, col: event.property.col };                    
             }
         });
 
@@ -10062,6 +10066,28 @@ CSSLint.addRule({
 
 });
 /*
+ * Rule: Don't use @import, use <link> instead.
+ */
+CSSLint.addRule({
+
+    //rule information
+    id: "import",
+    name: "@import",
+    desc: "Don't use @import, use <link> instead.",
+    browsers: "All",
+
+    //initialization
+    init: function(parser, reporter){
+        var rule = this;
+        
+        parser.addListener("import", function(event){        
+            reporter.warn("@import prevents parallel downloads, use <link> instead.", event.line, event.col, rule);
+        });
+
+    }
+
+});
+/*
  * Rule: Make sure !important is not overused, this could lead to specificity
  * war. Display a warning on !important declarations, an error if it's
  * used more at least 10 times.
@@ -10111,7 +10137,9 @@ CSSLint.addRule({
 
     //initialization
     init: function(parser, reporter){
-        var rule = this;
+        var rule = this,
+            classes = {};
+            
         parser.addListener("startrule", function(event){
             var selectors = event.selectors,
                 selector,
@@ -10125,18 +10153,35 @@ CSSLint.addRule({
                 for (j=0; j < selector.parts.length; j++){
                     part = selector.parts[j];
                     if (part instanceof parserlib.css.SelectorPart){
-                        if (part.elementName){
-                            for (k=0; k < part.modifiers.length; k++){
-                                modifier = part.modifiers[k];
-                                if (modifier.type == "class" || modifier.type == "id"){
-                                    reporter.warn("Element (" + part + ") is overqualified, just use " + modifier + " without element name.", part.line, part.col, rule);
+                        for (k=0; k < part.modifiers.length; k++){
+                            modifier = part.modifiers[k];
+                            if (part.elementName && modifier.type == "id"){
+                                reporter.warn("Element (" + part + ") is overqualified, just use " + modifier + " without element name.", part.line, part.col, rule);
+                            } else if (modifier.type == "class"){
+                                
+                                if (!classes[modifier]){
+                                    classes[modifier] = [];
                                 }
+                                classes[modifier].push({ modifier: modifier, part: part });
                             }
-
                         }
                     }
                 }
             }
+        });
+        
+        parser.addListener("endstylesheet", function(){
+        
+            var prop;
+            for (prop in classes){
+                if (classes.hasOwnProperty(prop)){
+                
+                    //one use means that this is overqualified
+                    if (classes[prop].length == 1 && classes[prop][0].part.elementName){
+                        reporter.warn("Element (" + classes[prop][0].part + ") is overqualified, just use " + classes[prop][0].modifier + " without element name.", classes[prop][0].part.line, classes[prop][0].part.col, rule);
+                    }
+                }
+            }        
         });
     }
 
@@ -10370,7 +10415,8 @@ CSSLint.addRule({
  * Rule: If an element has a width of 100%, be careful when placing within
  * an element that has padding. It may look strange.
  */
-CSSLint.addRule({
+//Commented out pending further review.
+/*CSSLint.addRule({
 
     //rule information
     id: "width-100",
@@ -10407,7 +10453,7 @@ CSSLint.addRule({
         });
     }
 
-});
+});*/
 /*
  * Rule: You don't need to specify units when a value is 0.
  */

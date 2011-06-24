@@ -5,7 +5,7 @@
 
     YUITest.TestRunner.add(new YUITest.TestCase({
 
-        name: "width: 100%; Errors",
+        name: "Zero Units Errors",
 
         "Using 0px should result in one warning": function(){
             var result = CSSLint.verify("h1 { left: 0px; }", { "zero-units": 1 });
