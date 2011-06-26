@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Build time: 26-June-2011 10:55:08 */
+/* Build time: 26-June-2011 03:42:58 */
 //print for rhino and nodejs
 if(typeof print == "undefined") {
     var print = console.log;
@@ -65,6 +65,17 @@ var processFile = function(filename, options) {
 var reportMessages = function(messages, warnings, errors, filename) {
     print("\n\ncsslint: There are " + errors.length +  " errors and " + warnings.length  +  " warnings in " + filename + ".");
 
+    var pos = filename.lastIndexOf("/"),
+        shortFilename = filename;
+        
+    if (pos == -1){
+        pos = filename.lastIndexOf("\\");       
+    }
+    if (pos > -1){
+        shortFilename = filename.substring(pos+1);
+    }
+    
+
     //rollups at the bottom
     messages.sort(function (a, b){
         if (a.rollup && !b.rollup){
@@ -77,7 +88,7 @@ var reportMessages = function(messages, warnings, errors, filename) {
     });
 
     messages.forEach(function (message, i) {
-        print("\n" + filename);
+        print("\n" + shortFilename + ":");
         if (message.rollup) {
             print("" + (i+1) + ": " + message.type);
             print(message.message);

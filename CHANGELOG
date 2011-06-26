@@ -1,6 +1,14 @@
 Next (not yet released)
 * n/a
 
+June 25, 2011 - v0.3.2
+
+* Fixed regression in output format for CLI (fixes #87)
+
+June 25, 2011 - v0.3.1
+
+* Fixed EOL issue for Node.js CLI
+
 June 25, 2011 - v0.3.0
 
 * Rhino and Node CLIs both exit with code 1 when there are errors (pull #72)

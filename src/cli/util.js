@@ -63,6 +63,17 @@ var processFile = function(filename, options) {
 var reportMessages = function(messages, warnings, errors, filename) {
     print("\n\ncsslint: There are " + errors.length +  " errors and " + warnings.length  +  " warnings in " + filename + ".");
 
+    var pos = filename.lastIndexOf("/"),
+        shortFilename = filename;
+        
+    if (pos == -1){
+        pos = filename.lastIndexOf("\\");       
+    }
+    if (pos > -1){
+        shortFilename = filename.substring(pos+1);
+    }
+    
+
     //rollups at the bottom
     messages.sort(function (a, b){
         if (a.rollup && !b.rollup){
@@ -75,7 +86,7 @@ var reportMessages = function(messages, warnings, errors, filename) {
     });
 
     messages.forEach(function (message, i) {
-        print("\n" + filename);
+        print("\n" + shortFilename + ":");
         if (message.rollup) {
             print("" + (i+1) + ": " + message.type);
             print(message.message);
