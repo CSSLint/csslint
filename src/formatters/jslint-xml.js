@@ -7,9 +7,12 @@ CSSLint.addFormatter({
         var messages = results.messages,
             output = ["<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<jslint>"];
 
-		var escapeDoubleQuotes = function(str) {
-		    return str.replace(/\"/g, "'");
-	    };
+        var escapeDoubleQuotes = function(str) {
+            if (!str || str.constructor !== String) {
+                return "";
+            }
+            return str.replace(/\"/g, "'");
+        };
 
         if (messages.length > 0) {
             //rollups at the bottom
