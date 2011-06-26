@@ -6,6 +6,11 @@ CSSLint.addFormatter({
     init: function(results, filename) {
         var messages = results.messages,
             output = ["<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<jslint>"];
+
+		var escapeDoubleQuotes = function(str) {
+		    return str.replace(/\"/g, "'");
+	    };
+
         if (messages.length > 0) {
             //rollups at the bottom
             messages.sort(function (a, b){
@@ -21,10 +26,10 @@ CSSLint.addFormatter({
             output.push("  <file name=\""+filename+"\">");
             messages.forEach(function (message, i) {
                 if (message.rollup) {
-                    output.push("    <issue reason=\"" + message.message + "\" evidence=\"" + message.evidence + "\"/>");
+                    output.push("    <issue reason=\"" + escapeDoubleQuotes(message.message) + "\" evidence=\"" + escapeDoubleQuotes(message.evidence) + "\"/>");
                 } else {
                     output.push("    <issue line=\"" + message.line + "\" char=\"" + message.col + "\"" +
-                        " reason=\"" + message.message + "\" evidence=\"" + message.evidence + "\"/>");
+                        " reason=\"" + escapeDoubleQuotes(message.message) + "\" evidence=\"" + escapeDoubleQuotes(message.evidence) + "\"/>");
                 }
             });
             output.push("  </file>");

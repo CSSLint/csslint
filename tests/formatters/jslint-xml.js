@@ -14,7 +14,7 @@
         },
 
         "File with problems should list them": function(){
-            var result = { messages: [ 
+            var result = { messages: [
                      { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] },
                      { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] }
                 ], stats: [] },
@@ -23,8 +23,19 @@
                 error2 = "\n    <issue line=\"2\" char=\"1\" reason=\"BOGUS\" evidence=\"ALSO BOGUS\"/>",
                 expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<jslint>" + file + error1 + error2 + "\n  </file>\n</jslint>";
             Assert.areEqual(expected, CSSLint.format(result, "FILE", "jslint-xml"));
+        },
+
+        "Formatter should escape double quotes": function() {
+            var doubleQuotedEvidence = 'sneaky, "sneaky"',
+                result = { messages: [
+                     { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] },
+                     { type: "error", line: 2, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] }
+                ], stats: [] },
+                file = "\n  <file name=\"FILE\">",
+                error1 = "\n    <issue line=\"1\" char=\"1\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky'\"/>",
+                error2 = "\n    <issue line=\"2\" char=\"1\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky'\"/>",
+                expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<jslint>" + file + error1 + error2 + "\n  </file>\n</jslint>";
+            Assert.areEqual(expected, CSSLint.format(result, "FILE", "jslint-xml"));
         }
-
     }));
-
 })();
