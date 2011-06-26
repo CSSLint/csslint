@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 25-June-2011 07:20:29 */
+/* Build time: 26-June-2011 10:55:08 */
 /*!
 Parser-Lib
 Copyright (c) 2009-2011 Nicholas C. Zakas. All rights reserved.
@@ -4756,7 +4756,7 @@ Tokens              :Tokens
  */
 
 var YUITest = {
-    version: "0.3.0"
+    version: "0.3.1"
 };
 
 
@@ -9317,7 +9317,7 @@ var CSSLint = (function(){
     var rules   = [],
         api     = new parserlib.util.EventTarget();
         
-    api.version = "0.3.0";
+    api.version = "0.3.1";
 
     //-------------------------------------------------------------------------
     // Rule Management
