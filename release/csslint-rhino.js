@@ -4757,7 +4757,7 @@ Tokens              :Tokens
  */
 
 var YUITest = {
-    version: "@VERSION@"
+    version: "0.3.0"
 };
 
 
@@ -9318,7 +9318,7 @@ var CSSLint = (function(){
     var rules   = [],
         api     = new parserlib.util.EventTarget();
         
-    api.version = "@VERSION@";
+    api.version = "0.3.0";
 
     //-------------------------------------------------------------------------
     // Rule Management

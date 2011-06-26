@@ -1,7 +1,7 @@
 <project name="csslint" default="all">
 
     <!-- version number -->
-    <property name="csslint.version" value="0.2.0" />
+    <property name="csslint.version" value="0.3.0" />
 
     <!-- the directories containing the source files -->
     <property name="src.dir" value="./src" />
@@ -10,6 +10,7 @@
     
     <!-- the directories and files to output to -->
     <property name="build.dir" value="./build" />
+    <property name="release.dir" value="./release" />
     <property name="build.npm.dir" value="${build.dir}/npm" />
     
     <!-- the directory containing library files -->
@@ -34,6 +35,7 @@
     <!-- clean -->
     <target name="clean">
         <delete dir="${build.dir}" />
+        <delete dir="${release.dir}" />
     </target>
 
     <!-- build the core library -->
@@ -120,8 +122,12 @@
     
     <!-- Update version number in files -->
     <target name="release" depends="all">
+        <mkdir dir="${release.dir}"/>
+        <copy todir="${release.dir}">
+            <fileset dir="${build.dir}" includes="**/*" />
+        </copy>
         <replaceregexp match="@VERSION@" replace="${csslint.version}" flags="g" byline="true">
-            <fileset dir="${build.dir}" includes="**/*.js"/>
+            <fileset dir="${release.dir}" includes="**/*"/>
         </replaceregexp>    
     </target>
     
