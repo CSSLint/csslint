@@ -29,7 +29,6 @@ function gatherRules(options){
     }
     
     return ruleset;
-    
 }
 
 //process a list of files, return 1 if one or more error occurred
@@ -41,11 +40,12 @@ var processFile = function(filename, options) {
         exitCode = 0;
 
     if (!input) {
+        //FIXME: this will break non-text formats
         print("csslint: Could not read file data in " + filename + ". Is the file empty?");
         exitCode = 1;
     }
 
-	print(CSSLint.format(result, formatId));
+    print(CSSLint.format(result, filename, formatId));
 
     if (messages.length > 0 && pluckByType(messages, 'error').length > 0) {
         exitCode = 1;

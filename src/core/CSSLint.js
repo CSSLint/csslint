@@ -44,7 +44,7 @@ var CSSLint = (function(){
      * @method addFormatter
      */
     api.addFormatter = function(formatter) {
-        formatters.push(formatter);
+        // formatters.push(formatter);
         formatters[formatter.id] = formatter;
     };
 
@@ -101,8 +101,7 @@ var CSSLint = (function(){
     };
 
     api.format = function(results, filename, formatId) {
-		var output = formatters[formatId].init(results.messages, filename);
-		// console.log(output);
+        return formatters[formatId].init(results, filename);
     }
 
     //-------------------------------------------------------------------------

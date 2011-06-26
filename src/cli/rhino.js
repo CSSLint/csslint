@@ -44,9 +44,10 @@ while(arg){
         
         if (argName.indexOf("rules=") > -1){
             options.rules = argName.substring(argName.indexOf("=") + 1);
+        } else if (argName.indexOf("format=") > -1) {
+            options.format = argName.substring(argName.indexOf("=") + 1);
         }
     } else {
-        
         var curFile = new File(arg);
         
         //see if it's a directory or a file
@@ -74,6 +75,7 @@ if (!files.length) {
     print("No files specified.");
     exitCode = 1;
 } else {
+    //FIXME: This needs to be refactored to take format into account
     exitCode = files.some(function(file){
         processFile(file,options);
     });
