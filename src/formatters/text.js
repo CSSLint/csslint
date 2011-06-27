@@ -10,6 +10,15 @@ CSSLint.addFormatter({
         }
         
         output = "\n\ncsslint: There are " + messages.length  +  " problems in " + filename + ".";
+        var pos = filename.lastIndexOf("/"),
+            shortFilename = filename;
+
+        if (pos == -1){
+            pos = filename.lastIndexOf("\\");       
+        }
+        if (pos > -1){
+            shortFilename = filename.substring(pos+1);
+        }
 
         //rollups at the bottom
         messages.sort(function (a, b){
@@ -23,7 +32,7 @@ CSSLint.addFormatter({
         });
 
         messages.forEach(function (message, i) {
-            output = output + "\n" + filename;
+            output = output + "\n" + shortFilename;
             if (message.rollup) {
                 output += "\n" + (i+1) + ": " + message.type;
                 output += "\n" + message.message;
