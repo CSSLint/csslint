@@ -21,11 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-<<<<<<< HEAD
-/* Build time: 23-June-2011 10:40:56 */
-=======
 /* Build time: 26-June-2011 03:42:58 */
->>>>>>> 388ad2d07e60818a7e5f637037d92fccf3a73922
 var CSSLint = (function(){
 /*!
 Parser-Lib
@@ -10610,8 +10606,6 @@ var processFile = function(filename, options) {
     return exitCode;
 };
 
-<<<<<<< HEAD
-=======
 //display messages
 var reportMessages = function(messages, warnings, errors, filename) {
     print("\n\ncsslint: There are " + errors.length +  " errors and " + warnings.length  +  " warnings in " + filename + ".");
@@ -10651,8 +10645,6 @@ var reportMessages = function(messages, warnings, errors, filename) {
     });
 };
 
-
->>>>>>> 388ad2d07e60818a7e5f637037d92fccf3a73922
 //output CLI help screen
 function outputHelp(){
     print([
