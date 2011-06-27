@@ -36,7 +36,7 @@ Even though you can define any group of properties together in a CSS rule, some 
 
 Removed the ignored or problematic properties decreases file size and improves performance.
 
-### Avoid using to many !important declarations
+### Avoid using too many !important declarations
 
 Using `!important` overides any cascaded rule and may lead to specificity war. CSSLint checks if you've used `!important`, and if so, displays a warning. If there's at least 10 `!important` declaration in your code CSSLint displays an error.
 
@@ -102,6 +102,10 @@ CSS3 adds complex attribute selectors such as `~=` that are slow. When using att
 ### Beware of broken box models
 
 Borders and padding add space outside of an element's content. Setting `width` or `height` along with borders and padding is usually a mistake because you won't get the visual result you're looking for. CSSLint warns when a rule uses `width` or `height` in addition to padding and/or border.
+
+### Avoid @import
+
+The `@import` command shouldn't be used because it prevent parallel downloads in some browsers (see http://www.stevesouders.com/blog/2009/04/09/dont-use-import/).
 
 ## Contributors
 

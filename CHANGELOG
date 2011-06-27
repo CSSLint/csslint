@@ -1,4 +1,15 @@
 Next (not yet released)
+* n/a
+
+June 25, 2011 - v0.3.2
+
+* Fixed regression in output format for CLI (fixes #87)
+
+June 25, 2011 - v0.3.1
+
+* Fixed EOL issue for Node.js CLI
+
+June 25, 2011 - v0.3.0
 
 * Rhino and Node CLIs both exit with code 1 when there are errors (pull #72)
 * Changed description of adjoining classes to be unsupported in IE6 (fixes #11)
@@ -11,6 +22,8 @@ Next (not yet released)
 * border:none with width/height is okay (fixes #45)
 * Updated web worker to accept JSON-encoded input
 * Allow turning on/off rules in web interface and CLIs (fixes #77)
+* Introduced release directory that will hold official release version
+* Build directory will be removed in next release
 
 June 18, 2011 - v0.2.0
 

@@ -1,8 +1,5 @@
 #!/usr/bin/env node
-<<<<<<< HEAD
-=======
 /* Build time: 26-June-2011 03:42:58 */
->>>>>>> 388ad2d07e60818a7e5f637037d92fccf3a73922
 //print for rhino and nodejs
 if(typeof print == "undefined") {
     var print = console.log;
@@ -41,7 +38,6 @@ function gatherRules(options){
 var processFile = function(filename, options) {
     var input = readFile(filename),
         result = CSSLint.verify(input, gatherRules(options)),
-        formatId = options.format || 'text',
         messages = result.messages || [],
         exitCode = 0;
 
@@ -50,16 +46,21 @@ var processFile = function(filename, options) {
         exitCode = 1;
     }
 
-	print(CSSLint.format(result, formatId));
+    if (messages.length > 0) {
+        var warnings = pluckByType(messages, 'warning');
+        var errors  = pluckByType(messages, 'error');
+        reportMessages(messages, warnings, errors, filename);
 
-    if (messages.length > 0 && pluckByType(messages, 'error').length > 0) {
-        exitCode = 1;
+        if(errors.length > 0 ) {
+            exitCode = 1;
+        }
+
+    } else {
+        print("csslint: No problems found in " + filename);
     }
     return exitCode;
 };
 
-<<<<<<< HEAD
-=======
 //display messages
 var reportMessages = function(messages, warnings, errors, filename) {
     print("\n\ncsslint: There are " + errors.length +  " errors and " + warnings.length  +  " warnings in " + filename + ".");
@@ -100,7 +101,6 @@ var reportMessages = function(messages, warnings, errors, filename) {
 };
 
 
->>>>>>> 388ad2d07e60818a7e5f637037d92fccf3a73922
 //output CLI help screen
 function outputHelp(){
     print([
@@ -109,7 +109,6 @@ function outputHelp(){
         "Global Options",
         "  --help                 Displays this information.",
         "  --rules=<rule[,rule]+> Indicate which rules to include.",
-        "  --format=<format>      Indicate which format to use for output.",
         "  --version              Outputs the current version number."
     ].join("\n") + "\n\n");
 }
@@ -213,4 +212,5 @@ if (!files.length) {
     });
 }
 process.exit(Number(exitCode));
+
 

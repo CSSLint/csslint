@@ -1,4 +1,4 @@
-/*!
+/*! 
 CSSLint
 Copyright (c) 2011 Nicole Sullivan and Nicholas C. Zakas. All rights reserved.
 
@@ -21,11 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-<<<<<<< HEAD
-/* Build time: 23-June-2011 10:40:56 */
-=======
 /* Build time: 26-June-2011 03:42:58 */
->>>>>>> 388ad2d07e60818a7e5f637037d92fccf3a73922
+var CSSLint = (function(){
 /*!
 Parser-Lib
 Copyright (c) 2009-2011 Nicholas C. Zakas. All rights reserved.
@@ -4747,6 +4744,7 @@ Tokens              :Tokens
 };
 })();
 
+
 /**
  * YUI Test Framework
  * @module yuitest
@@ -4759,7 +4757,7 @@ Tokens              :Tokens
  */
 
 var YUITest = {
-    version: "@VERSION@"
+    version: "0.3.2"
 };
 
 
@@ -9308,6 +9306,7 @@ YUITest.PageManager = YUITest.Util.mix(new YUITest.EventTarget(), {
         return new TestRunner();
 
     }();
+
 /**
  * Main CSSLint object.
  * @class CSSLint
@@ -9316,11 +9315,10 @@ YUITest.PageManager = YUITest.Util.mix(new YUITest.EventTarget(), {
  */
 var CSSLint = (function(){
 
-    var rules      = [],
-        formatters = [],
-        api        = new parserlib.util.EventTarget();
+    var rules   = [],
+        api     = new parserlib.util.EventTarget();
         
-    api.version = "@VERSION@";
+    api.version = "0.3.2";
 
     //-------------------------------------------------------------------------
     // Rule Management
@@ -9342,20 +9340,6 @@ var CSSLint = (function(){
      */
     api.clearRules = function(){
         rules = [];
-    };
-
-    //-------------------------------------------------------------------------
-    // Formatter Management
-    //-------------------------------------------------------------------------
-
-    /**
-     * Adds a new formatter to the engine.
-     * @param {Object} formatter The formatter to add.
-     * @method addFormatter
-     */
-    api.addFormatter = function(formatter) {
-        formatters.push(formatter);
-        formatters[formatter.id] = formatter;
     };
 
     //-------------------------------------------------------------------------
@@ -9410,10 +9394,6 @@ var CSSLint = (function(){
         };
     };
 
-    api.format = function(results, filename, formatId) {
-		var output = formatters[formatId].init(results.messages, filename);
-		// console.log(output);
-    }
 
     //-------------------------------------------------------------------------
     // Publish the API
@@ -9422,6 +9402,7 @@ var CSSLint = (function(){
     return api;
 
 })();
+
 /**
  * An instance of Report is used to report results of the
  * verification back to the main API.
@@ -9556,6 +9537,7 @@ Reporter.prototype = {
         this.stats[name] = value;
     }
 };
+
 /*
  * Utility functions that make life easier.
  */
@@ -10084,6 +10066,28 @@ CSSLint.addRule({
 
 });
 /*
+ * Rule: Don't use @import, use <link> instead.
+ */
+CSSLint.addRule({
+
+    //rule information
+    id: "import",
+    name: "@import",
+    desc: "Don't use @import, use <link> instead.",
+    browsers: "All",
+
+    //initialization
+    init: function(parser, reporter){
+        var rule = this;
+        
+        parser.addListener("import", function(event){        
+            reporter.warn("@import prevents parallel downloads, use <link> instead.", event.line, event.col, rule);
+        });
+
+    }
+
+});
+/*
  * Rule: Make sure !important is not overused, this could lead to specificity
  * war. Display a warning on !important declarations, an error if it's
  * used more at least 10 times.
@@ -10516,40 +10520,200 @@ CSSLint.addRule({
 
 });
 
-CSSLint.addFormatter({
-    //format information
-    id: "text",
-    name: "Plain Text",
+return CSSLint;
+})();
 
-    init: function(messages, filename) {
-	    // output = "\n\ncsslint: There are " + errors.length +  " errors and " + warnings.length  +  " warnings in " + filename + ".";
-		output = "\n\n";
+//print for rhino and nodejs
+if(typeof print == "undefined") {
+    var print = console.log;
+}
 
-	    //rollups at the bottom
-	    messages.sort(function (a, b){
-	        if (a.rollup && !b.rollup){
-	            return 1;
-	        } else if (!a.rollup && b.rollup){
-	            return -1;
-	        } else {
-	            return 0;
-	        }
-	    });
-
-	    messages.forEach(function (message, i) {
-	        output = output + "\n" + filename;
-	        if (message.rollup) {
-	            output += "\n" + (i+1) + ": " + message.type;
-				output += "\n" + message.message;
-	        } else {
-	            output += "\n" + (i+1) + ": " + message.type + " at line " + message.line + ", col " + message.col;
-	            output += "\n" + message.message;
-	            output += "\n" + message.evidence;
-	        }
-	    });
-	
-		return output;
+//readFile for rhino and nodejs
+if(typeof readFile == "undefined") {
+    var readFile = function(filepath) {
+        var fs = require("fs");
+        return fs.readFileSync(filepath, "utf-8");
     }
-});
+}
 
-exports.CSSLint = CSSLint;
+//filter messages by type
+var pluckByType = function(messages, type){
+    return messages.filter(function(message) {
+        return message.type === type;
+    });
+};
+
+function gatherRules(options){
+    var ruleset;
+    
+    if (options.rules){
+        ruleset = {};
+        options.rules.split(",").forEach(function(value){
+            ruleset[value] = 1;
+        });
+    }
+    
+    return ruleset;
+    
+}
+
+//process a list of files, return 1 if one or more error occurred
+var processFile = function(filename, options) {
+    var input = readFile(filename),
+        result = CSSLint.verify(input, gatherRules(options)),
+        messages = result.messages || [],
+        exitCode = 0;
+
+    if (!input) {
+        print("csslint: Could not read file data in " + filename + ". Is the file empty?");
+        exitCode = 1;
+    }
+
+    if (messages.length > 0) {
+        var warnings = pluckByType(messages, 'warning');
+        var errors  = pluckByType(messages, 'error');
+        reportMessages(messages, warnings, errors, filename);
+
+        if(errors.length > 0 ) {
+            exitCode = 1;
+        }
+
+    } else {
+        print("csslint: No problems found in " + filename);
+    }
+    return exitCode;
+};
+
+//display messages
+var reportMessages = function(messages, warnings, errors, filename) {
+    print("\n\ncsslint: There are " + errors.length +  " errors and " + warnings.length  +  " warnings in " + filename + ".");
+
+    var pos = filename.lastIndexOf("/"),
+        shortFilename = filename;
+        
+    if (pos == -1){
+        pos = filename.lastIndexOf("\\");       
+    }
+    if (pos > -1){
+        shortFilename = filename.substring(pos+1);
+    }
+    
+
+    //rollups at the bottom
+    messages.sort(function (a, b){
+        if (a.rollup && !b.rollup){
+            return 1;
+        } else if (!a.rollup && b.rollup){
+            return -1;
+        } else {
+            return 0;
+        }
+    });
+
+    messages.forEach(function (message, i) {
+        print("\n" + shortFilename + ":");
+        if (message.rollup) {
+            print("" + (i+1) + ": " + message.type);
+            print(message.message);
+        } else {
+            print("" + (i+1) + ": " + message.type + " at line " + message.line + ", col " + message.col);
+            print(message.message);
+            print(message.evidence);
+        }
+    });
+};
+
+
+//output CLI help screen
+function outputHelp(){
+    print([
+        "\nUsage: csslint-rhino.js [options]* [file|dir]*",
+        " ",
+        "Global Options",
+        "  --help                 Displays this information.",
+        "  --rules=<rule[,rule]+> Indicate which rules to include.",
+        "  --version              Outputs the current version number."
+    ].join("\n") + "\n\n");
+}
+/*
+ * CSSLint Rhino Command Line Interface
+ */
+
+importPackage(java.io);
+
+//-----------------------------------------------------------------------------
+// Helper Functions
+//-----------------------------------------------------------------------------
+
+function getFiles(dir) {
+    var files = [];
+
+    var traverse = function (dir) {
+        var dirList = dir.listFiles();
+        dirList.forEach(function (file) {
+            if (/\.css$/.test(file)) {
+                files.push(file);
+            } else if (file.isDirectory()) {
+                traverse(file);
+            }
+        });
+    };
+
+    traverse(dir);
+
+    return files;
+};
+
+//-----------------------------------------------------------------------------
+// Process command line
+//-----------------------------------------------------------------------------
+
+var args     = Array.prototype.slice.call(arguments),
+    argName,
+    arg      = args.shift(),
+    options  = {},
+    files    = [];
+
+while(arg){
+    if (arg.indexOf("--") == 0){
+        argName = arg.substring(2);
+        options[argName] = true;
+        
+        if (argName.indexOf("rules=") > -1){
+            options.rules = argName.substring(argName.indexOf("=") + 1);
+        }
+    } else {
+        
+        var curFile = new File(arg);
+        
+        //see if it's a directory or a file
+        if (curFile.isDirectory()){
+            files = files.concat(getFiles(arg));
+        } else {
+            files.push(arg);
+        }
+    }
+    arg = args.shift();
+}
+
+if (options.help || arguments.length == 0){
+    outputHelp();
+    quit(0);
+}
+
+if (options.version){
+    print("v" + CSSLint.version);
+    quit(0);
+}
+
+var exitCode = 0;
+if (!files.length) {
+    print("No files specified.");
+    exitCode = 1;
+} else {
+    exitCode = files.some(function(file){
+        processFile(file,options);
+    });
+}
+quit(Number(exitCode));
+

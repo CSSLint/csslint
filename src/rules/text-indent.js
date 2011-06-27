@@ -5,7 +5,8 @@
 /*
  * Should we be checking for rtl/ltr?
  */
-CSSLint.addRule({
+//Commented out due to lack of tests
+/*CSSLint.addRule({
 
     //rule information
     id: "text-indent",
@@ -28,4 +29,4 @@ CSSLint.addRule({
         });
     }
 
-});
+});*/
