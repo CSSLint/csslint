@@ -38,6 +38,7 @@ function gatherRules(options){
 var processFile = function(filename, options) {
     var input = readFile(filename),
         result = CSSLint.verify(input, gatherRules(options)),
+        formatId = options.format || 'text',
         messages = result.messages || [],
         exitCode = 0;
 
@@ -46,17 +47,10 @@ var processFile = function(filename, options) {
         exitCode = 1;
     }
 
-    if (messages.length > 0) {
-        var warnings = pluckByType(messages, 'warning');
-        var errors  = pluckByType(messages, 'error');
-        reportMessages(messages, warnings, errors, filename);
+	print(CSSLint.format(result, formatId));
 
-        if(errors.length > 0 ) {
-            exitCode = 1;
-        }
-
-    } else {
-        print("csslint: No problems found in " + filename);
+    if (messages.length > 0 && pluckByType(messages, 'error').length > 0) {
+        exitCode = 1;
     }
     return exitCode;
 };
@@ -100,7 +94,6 @@ var reportMessages = function(messages, warnings, errors, filename) {
     });
 };
 
-
 //output CLI help screen
 function outputHelp(){
     print([
@@ -109,6 +102,7 @@ function outputHelp(){
         "Global Options",
         "  --help                 Displays this information.",
         "  --rules=<rule[,rule]+> Indicate which rules to include.",
+        "  --format=<format>      Indicate which format to use for output.",
         "  --version              Outputs the current version number."
     ].join("\n") + "\n\n");
 }
@@ -212,5 +206,4 @@ if (!files.length) {
     });
 }
 process.exit(Number(exitCode));
-
 
