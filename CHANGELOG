@@ -1,5 +1,5 @@
 Next (not yet released)
-* n/a
+* Make sure that url() with spaces before the URI works (fixes #94)
 
 June 25, 2011 - v0.3.2
 

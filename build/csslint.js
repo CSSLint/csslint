@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 26-June-2011 03:42:58 */
+/* Build time: 28-June-2011 08:56:00 */
 var CSSLint = (function(){
 /*!
 Parser-Lib
@@ -46,7 +46,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 23-June-2011 03:36:49 */
+/* Build time: 28-June-2011 08:44:54 */
 var parserlib = {};
 (function(){
 
@@ -944,7 +944,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 23-June-2011 03:36:49 */
+/* Build time: 28-June-2011 08:44:54 */
 (function(){
 var EventTarget = parserlib.util.EventTarget,
 TokenStreamBase = parserlib.util.TokenStreamBase,
@@ -4448,6 +4448,12 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
             c       = reader.peek();
             
         reader.mark();
+        
+        //skip whitespace before
+        while(c && isWhitespace(c)){
+            reader.read();
+            c = reader.peek();
+        }
             
         //it's a string
         if (c == "'" || c == "\""){
@@ -4457,7 +4463,13 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
         }
         
         c = reader.peek();
-        
+
+        //skip whitespace after
+        while(c && isWhitespace(c)){
+            reader.read();
+            c = reader.peek();
+        }
+            
         //if there was no inner value or the next character isn't closing paren, it's not a URI
         if (inner == "" || c != ")"){
             uri = first;

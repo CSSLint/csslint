@@ -12,9 +12,15 @@
     <property name="build.dir" value="./build" />
     <property name="release.dir" value="./release" />
     <property name="build.npm.dir" value="${build.dir}/npm" />
-    
+
     <!-- the directory containing library files -->
-    <property name="lib.dir" value="./lib" />
+    <property name="lib.dir" value="./lib" />    
+    
+    <!-- external resources -->
+    <property name="parser.url" value="https://raw.github.com/nzakas/parser-lib/master/build/parserlib.js"/>
+    
+    <!-- library filenames -->
+    <property name="parser.file" value="parserlib.js" />
     
     <!-- output filenames -->
     <property name="core.build.file" value="csslint.js"/>
@@ -23,6 +29,7 @@
     <property name="tests.build.file" value="csslint-tests.js"/>
     <property name="rhino.build.file" value="csslint-rhino.js"/>
     
+    <!-- embeddable license -->
     <loadfile property="license.text" srcfile="LICENSE" />   
 
     <!-- get a timestamp -->
@@ -124,7 +131,7 @@
         </concat>
     </target>    
     
-    <!-- Update version number in files -->
+    <!-- Create a release with version number embedded -->
     <target name="release" depends="all">
         <mkdir dir="${release.dir}"/>
         <copy todir="${release.dir}">
@@ -133,6 +140,11 @@
         <replaceregexp match="@VERSION@" replace="${csslint.version}" flags="g" byline="true">
             <fileset dir="${release.dir}" includes="**/*"/>
         </replaceregexp>    
+    </target>
+    
+    <!-- Update CSS parser with the latest -->
+    <target name="update-parser">
+        <get src="${parser.url}" dest="${lib.dir}/${parser.file}" />
     </target>
     
     <!-- Build all files -->
