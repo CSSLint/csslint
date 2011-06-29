@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 28-June-2011 08:56:00 */
+/* Build time: 28-June-2011 09:14:32 */
 var CSSLint = (function(){
 /*!
 Parser-Lib
@@ -46,7 +46,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 28-June-2011 08:44:54 */
+/* Build time: 28-June-2011 09:12:00 */
 var parserlib = {};
 (function(){
 
@@ -944,7 +944,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 28-June-2011 08:44:54 */
+/* Build time: 28-June-2011 09:12:00 */
 (function(){
 var EventTarget = parserlib.util.EventTarget,
 TokenStreamBase = parserlib.util.TokenStreamBase,
@@ -1527,8 +1527,16 @@ Parser.prototype = function(){
             },
             
             _charset: function(emit){
-                var tokenStream = this._tokenStream;
+                var tokenStream = this._tokenStream,
+                    charset,
+                    token,
+                    line,
+                    col;
+                    
                 if (tokenStream.match(Tokens.CHARSET_SYM)){
+                    line = tokenStream.token().startLine;
+                    col = tokenStream.token().startCol;
+                
                     this._readWhitespace();
                     tokenStream.mustMatch(Tokens.STRING);
                     
@@ -1541,7 +1549,9 @@ Parser.prototype = function(){
                     if (emit !== false){
                         this.fire({ 
                             type:   "charset",
-                            charset:charset
+                            charset:charset,
+                            line:   line,
+                            col:    col
                         });
                     }
                 }            
@@ -1597,11 +1607,15 @@ Parser.prototype = function(){
                  */    
             
                 var tokenStream = this._tokenStream,
+                    line,
+                    col,
                     prefix,
                     uri;
                 
                 //read import symbol
                 tokenStream.mustMatch(Tokens.NAMESPACE_SYM);
+                line = tokenStream.token().startLine;
+                col = tokenStream.token().startCol;
                 this._readWhitespace();
                 
                 //it's a namespace prefix - no _namespace_prefix() method because it's just an IDENT
@@ -1628,7 +1642,9 @@ Parser.prototype = function(){
                     this.fire({
                         type:   "namespace",
                         prefix: prefix,
-                        uri:    uri
+                        uri:    uri,
+                        line:   line,
+                        col:    col
                     });
                 }
         
@@ -1641,10 +1657,15 @@ Parser.prototype = function(){
                  *   ;
                  */
                 var tokenStream     = this._tokenStream,
+                    line,
+                    col,
                     mediaList;//       = [];
                 
                 //look for @media
                 tokenStream.mustMatch(Tokens.MEDIA_SYM);
+                line = tokenStream.token().startLine;
+                col = tokenStream.token().startCol;
+                
                 this._readWhitespace();               
 
                 mediaList = this._media_query_list();
@@ -1654,7 +1675,9 @@ Parser.prototype = function(){
                 
                 this.fire({
                     type:   "startmedia",
-                    media:  mediaList
+                    media:  mediaList,
+                    line:   line,
+                    col:    col
                 });
                 
                 while(this._ruleset()){}
@@ -1664,7 +1687,9 @@ Parser.prototype = function(){
         
                 this.fire({
                     type:   "endmedia",
-                    media:  mediaList
+                    media:  mediaList,
+                    line:   line,
+                    col:    col
                 });
             },                           
         
@@ -1683,7 +1708,7 @@ Parser.prototype = function(){
                 this._readWhitespace();
                 
                 if (tokenStream.peek() == Tokens.IDENT){
-                    mediaList.push(this._media_query())
+                    mediaList.push(this._media_query());
                 }
                 
                 while(tokenStream.match(Tokens.COMMA)){
@@ -1824,11 +1849,16 @@ Parser.prototype = function(){
                  *    ;
                  */            
                 var tokenStream = this._tokenStream,
+                    line,
+                    col,
                     identifier  = null,
                     pseudoPage  = null;
                 
                 //look for @page
                 tokenStream.mustMatch(Tokens.PAGE_SYM);
+                line = tokenStream.token().startLine;
+                col = tokenStream.token().startCol;
+                
                 this._readWhitespace();
                 
                 if (tokenStream.match(Tokens.IDENT)){
@@ -1850,7 +1880,9 @@ Parser.prototype = function(){
                 this.fire({
                     type:   "startpage",
                     id:     identifier,
-                    pseudo: pseudoPage
+                    pseudo: pseudoPage,
+                    line:   line,
+                    col:    col
                 });                   
 
                 this._readDeclarations(true, true);                
@@ -1858,7 +1890,9 @@ Parser.prototype = function(){
                 this.fire({
                     type:   "endpage",
                     id:     identifier,
-                    pseudo: pseudoPage
+                    pseudo: pseudoPage,
+                    line:   line,
+                    col:    col
                 });             
             
             },
@@ -1871,19 +1905,28 @@ Parser.prototype = function(){
                  *    ;
                  */
                 var tokenStream = this._tokenStream,
+                    line,
+                    col,
                     marginSym   = this._margin_sym();
 
                 if (marginSym){
+                    line = tokenStream.token().startLine;
+                    col = tokenStream.token().startCol;
+                
                     this.fire({
                         type: "startpagemargin",
-                        margin: marginSym
+                        margin: marginSym,
+                        line:   line,
+                        col:    col
                     });    
                     
                     this._readDeclarations(true);
 
                     this.fire({
                         type: "endpagemargin",
-                        margin: marginSym
+                        margin: marginSym,
+                        line:   line,
+                        col:    col
                     });    
                     return true;
                 } else {
@@ -1956,20 +1999,29 @@ Parser.prototype = function(){
                  *     '{' S* declaration [ ';' S* declaration ]* '}' S*
                  *   ;
                  */     
-                var tokenStream = this._tokenStream;
+                var tokenStream = this._tokenStream,
+                    line,
+                    col;
                 
                 //look for @page
                 tokenStream.mustMatch(Tokens.FONT_FACE_SYM);
+                line = tokenStream.token().startLine;
+                col = tokenStream.token().startCol;
+                
                 this._readWhitespace();
 
                 this.fire({
-                    type:   "startfontface"
+                    type:   "startfontface",
+                    line:   line,
+                    col:    col
                 });                    
                 
                 this._readDeclarations(true);
                 
                 this.fire({
-                    type:   "endfontface"
+                    type:   "endfontface",
+                    line:   line,
+                    col:    col
                 });              
             },
 
@@ -2082,6 +2134,7 @@ Parser.prototype = function(){
                  */    
                  
                 var tokenStream = this._tokenStream,
+                tt,
                     selectors;
 
 
@@ -2126,14 +2179,18 @@ Parser.prototype = function(){
                                     
                     this.fire({
                         type:       "startrule",
-                        selectors:  selectors
+                        selectors:  selectors,
+                        line:       selectors[0].line,
+                        col:        selectors[0].col
                     });                
                     
                     this._readDeclarations(true);                
                     
                     this.fire({
                         type:       "endrule",
-                        selectors:  selectors
+                        selectors:  selectors,
+                        line:       selectors[0].line,
+                        col:        selectors[0].col
                     });  
                     
                 }
@@ -2702,7 +2759,7 @@ Parser.prototype = function(){
                 
                 property = this._property();
                 if (property !== null){
-                    
+
                     tokenStream.mustMatch(Tokens.COLON);
                     this._readWhitespace();
                     
@@ -2719,7 +2776,9 @@ Parser.prototype = function(){
                         type:       "property",
                         property:   property,
                         value:      expr,
-                        important:  prio
+                        important:  prio,
+                        line:       property.line,
+                        col:        property.col
                     });                      
                     
                     return true;
@@ -2898,7 +2957,7 @@ Parser.prototype = function(){
                     expr = this._expr();
                     
                     tokenStream.match(Tokens.RPAREN);    
-                    functionText += expr + ")"
+                    functionText += expr + ")";
                     this._readWhitespace();
                 }                
                 
@@ -2949,7 +3008,7 @@ Parser.prototype = function(){
                     } while(tokenStream.match([Tokens.COMMA, Tokens.S]));                    
                     
                     tokenStream.match(Tokens.RPAREN);    
-                    functionText += ")"
+                    functionText += ")";
                     this._readWhitespace();
                 }                
                 
@@ -10400,22 +10459,14 @@ CSSLint.addRule({
             properties,
             num;
 
-        parser.addListener("startrule", function(){
+        //event handler for beginning of rules
+        function startRule(){
             properties = {};
-            num=1;
-        });
-
-        parser.addListener("property", function(event){
-            var name = event.property.text.toLowerCase();
-
-            if (!properties[name]){
-                properties[name] = [];
-            }
-
-            properties[name].push({ name: event.property, value : event.value, pos:num++ });
-        });
-
-        parser.addListener("endrule", function(event){
+            num=1;        
+        }
+        
+        //event handler for end of rules
+        function endRule(event){
             var prop,
                 i, len,
                 standard,
@@ -10441,17 +10492,32 @@ CSSLint.addRule({
                 }
 
                 if (!properties[standard]){               
-                    reporter.warn("Missing standard property '" + standard + "' to go along with '" + actual + "'.", event.selectors[0].line, event.selectors[0].col, rule);
+                    reporter.warn("Missing standard property '" + standard + "' to go along with '" + actual + "'.", event.line, event.col, rule);
                 } else {
                     //make sure standard property is last
                     if (properties[standard][0].pos < properties[actual][0].pos){
-                        reporter.warn("Standard property '" + standard + "' should come after vendor-prefixed property '" + actual + "'.", event.selectors[0].line, event.selectors[0].col, rule);
+                        reporter.warn("Standard property '" + standard + "' should come after vendor-prefixed property '" + actual + "'.", event.line, event.col, rule);
                     }
                 }
             }
 
+        }        
+        
+        parser.addListener("startrule", startRule);
+        parser.addListener("startfontface", startRule);
+
+        parser.addListener("property", function(event){
+            var name = event.property.text.toLowerCase();
+
+            if (!properties[name]){
+                properties[name] = [];
+            }
+
+            properties[name].push({ name: event.property, value : event.value, pos:num++ });
         });
 
+        parser.addListener("endrule", endRule);
+        parser.addListener("endfontface", endRule);
     }
 
 });

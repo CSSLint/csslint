@@ -875,6 +875,11 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
         "Using -moz-border-radius-bottomleft with border-bottom-left-radius should not result in a warning.": function(){
             var result = CSSLint.verify("h1 { -webkit-border-bottom-left-radius: 4px; border-bottom-left-radius: 4px;  }", { "vendor-prefix": 1 });
             Assert.areEqual(0, result.messages.length);
+        },
+        
+        "Using @font-face should not result in an error (#90)": function(){
+            var result = CSSLint.verify("@font-face { src:url('../fonts/UniversBold.otf');font-family:Univers;advancedAntiAliasing: true;}", { "vendor-prefix": 1 });
+            Assert.areEqual(0, result.messages.length);
         }
 
     }));

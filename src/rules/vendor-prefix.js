@@ -16,22 +16,14 @@ CSSLint.addRule({
             properties,
             num;
 
-        parser.addListener("startrule", function(){
+        //event handler for beginning of rules
+        function startRule(){
             properties = {};
-            num=1;
-        });
-
-        parser.addListener("property", function(event){
-            var name = event.property.text.toLowerCase();
-
-            if (!properties[name]){
-                properties[name] = [];
-            }
-
-            properties[name].push({ name: event.property, value : event.value, pos:num++ });
-        });
-
-        parser.addListener("endrule", function(event){
+            num=1;        
+        }
+        
+        //event handler for end of rules
+        function endRule(event){
             var prop,
                 i, len,
                 standard,
@@ -57,17 +49,32 @@ CSSLint.addRule({
                 }
 
                 if (!properties[standard]){               
-                    reporter.warn("Missing standard property '" + standard + "' to go along with '" + actual + "'.", event.selectors[0].line, event.selectors[0].col, rule);
+                    reporter.warn("Missing standard property '" + standard + "' to go along with '" + actual + "'.", event.line, event.col, rule);
                 } else {
                     //make sure standard property is last
                     if (properties[standard][0].pos < properties[actual][0].pos){
-                        reporter.warn("Standard property '" + standard + "' should come after vendor-prefixed property '" + actual + "'.", event.selectors[0].line, event.selectors[0].col, rule);
+                        reporter.warn("Standard property '" + standard + "' should come after vendor-prefixed property '" + actual + "'.", event.line, event.col, rule);
                     }
                 }
             }
 
+        }        
+        
+        parser.addListener("startrule", startRule);
+        parser.addListener("startfontface", startRule);
+
+        parser.addListener("property", function(event){
+            var name = event.property.text.toLowerCase();
+
+            if (!properties[name]){
+                properties[name] = [];
+            }
+
+            properties[name].push({ name: event.property, value : event.value, pos:num++ });
         });
 
+        parser.addListener("endrule", endRule);
+        parser.addListener("endfontface", endRule);
     }
 
 });

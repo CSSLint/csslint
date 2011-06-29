@@ -1,4 +1,6 @@
 Next (not yet released)
+
+* Make sure @font-face doesn't break vendor-prefix rule (fixes #90)
 * Make sure that url() with spaces before the URI works (fixes #94)
 
 June 25, 2011 - v0.3.2
