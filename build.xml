@@ -28,6 +28,7 @@
     <property name="worker.build.file" value="csslint-worker.js"/>
     <property name="tests.build.file" value="csslint-tests.js"/>
     <property name="rhino.build.file" value="csslint-rhino.js"/>
+    <property name="wsh.build.file" value="csslint-wsh.js"/>
     
     <!-- embeddable license -->
     <loadfile property="license.text" srcfile="LICENSE" />   
@@ -130,6 +131,14 @@
             <filelist dir="${src.dir}/cli" files="util.js,rhino.js" />
         </concat>
     </target>    
+
+	<!-- build for wsh CLI integration -->
+	<target name="build.wsh" depends="build.core">
+		<concat destfile="${build.dir}/${wsh.build.file}" fixlastline="true">
+			<filelist dir="${build.dir}" files="${core.build.file}" />
+			<filelist dir="${src.dir}/cli" files="wsh-util.js,wsh.js" />
+		</concat>
+	</target>    
     
     <!-- Create a release with version number embedded -->
     <target name="release" depends="all">
@@ -148,6 +157,6 @@
     </target>
     
     <!-- Build all files -->
-    <target name="all" depends="clean,build.core,build.worker,build.node,build.tests,build.rhino"/>
+    <target name="all" depends="clean,build.core,build.worker,build.node,build.tests,build.rhino,build.wsh"/>
 
 </project>
