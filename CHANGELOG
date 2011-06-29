@@ -1,5 +1,6 @@
 Next (not yet released)
 
+* Vendor prefix rule only checks for known rules (fixes #93, #54, #27)
 * Make sure @font-face doesn't break vendor-prefix rule (fixes #90)
 * Make sure that url() with spaces before the URI works (fixes #94)
 

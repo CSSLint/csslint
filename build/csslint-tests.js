@@ -872,9 +872,23 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             Assert.areEqual("Standard property 'border-radius' should come after vendor-prefixed property '-moz-border-radius'.", result.messages[0].message);
         },
 
-        "Using -moz-border-radius-bottomleft with border-bottom-left-radius should not result in a warning.": function(){
+        "Using -webkit-border-bottom-left-radius with border-bottom-left-radius should not result in a warning.": function(){
             var result = CSSLint.verify("h1 { -webkit-border-bottom-left-radius: 4px; border-bottom-left-radius: 4px;  }", { "vendor-prefix": 1 });
             Assert.areEqual(0, result.messages.length);
+        },
+        
+        "Using -moz-border-radius-bottomleft should result in a warning.": function(){
+            var result = CSSLint.verify("h1 {  -moz-border-radius-bottomleft: 5px;  }", { "vendor-prefix": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Missing standard property 'border-bottom-left-radius' to go along with '-moz-border-radius-bottomleft'.", result.messages[0].message);
+        },
+        
+        "Using -moz-box-shadow should result in a warning.": function(){
+            var result = CSSLint.verify("h1 {  -moz-box-shadow: 5px;  }", { "vendor-prefix": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Missing standard property 'box-shadow' to go along with '-moz-box-shadow'.", result.messages[0].message);
         },
         
         "Using @font-face should not result in an error (#90)": function(){

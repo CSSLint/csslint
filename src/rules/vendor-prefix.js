@@ -14,7 +14,26 @@ CSSLint.addRule({
     init: function(parser, reporter){
         var rule = this,
             properties,
-            num;
+            num,
+            propertiesToCheck = {
+                "-moz-border-radius": "border-radius",
+                "-webkit-border-radius": "border-radius",
+                "-webkit-border-top-left-radius": "border-top-left-radius",
+                "-webkit-border-top-right-radius": "border-top-right-radius",
+                "-webkit-border-bottom-left-radius": "border-bottom-left-radius",
+                "-webkit-border-bottom-right-radius": "border-bottom-right-radius",
+                "-moz-border-radius-topleft": "border-top-left-radius",
+                "-moz-border-radius-topright": "border-top-right-radius",
+                "-moz-border-radius-bottomleft": "border-bottom-left-radius",
+                "-moz-border-radius-bottomright": "border-bottom-right-radius",
+                "-moz-box-shadow": "box-shadow",
+                "-moz-transform" : "transform",
+                "-webkit-transform" : "transform",
+                "-o-transform" : "transform",
+                "-ms-transform" : "transform",
+                "-moz-box-sizing" : "box-sizing",
+                "-webkit-box-sizing" : "box-sizing"
+            };
 
         //event handler for beginning of rules
         function startRule(){
@@ -32,8 +51,8 @@ CSSLint.addRule({
                 needsStandard = [];
 
             for (prop in properties){
-                if (/(\-(?:ms|moz|webkit|o)\-)/.test(prop)){
-                    needsStandard.push({ actual: prop, needed: prop.substring(RegExp.$1.length)});
+                if (propertiesToCheck[prop]){
+                    needsStandard.push({ actual: prop, needed: propertiesToCheck[prop]});
                 }
             }
 
@@ -41,19 +60,12 @@ CSSLint.addRule({
                 needed = needsStandard[i].needed;
                 actual = needsStandard[i].actual;
 
-                //special case for Mozilla's border radius
-                if (/\-moz\-border\-radius\-(.+)/.test(actual)){
-                    standard = "border-" + RegExp.$1.replace(/(left|right)/, "-$1") + "-radius";
-                } else {
-                    standard = needed; 
-                }
-
-                if (!properties[standard]){               
-                    reporter.warn("Missing standard property '" + standard + "' to go along with '" + actual + "'.", event.line, event.col, rule);
+                if (!properties[needed]){               
+                    reporter.warn("Missing standard property '" + needed + "' to go along with '" + actual + "'.", event.line, event.col, rule);
                 } else {
                     //make sure standard property is last
-                    if (properties[standard][0].pos < properties[actual][0].pos){
-                        reporter.warn("Standard property '" + standard + "' should come after vendor-prefixed property '" + actual + "'.", event.line, event.col, rule);
+                    if (properties[needed][0].pos < properties[actual][0].pos){
+                        reporter.warn("Standard property '" + needed + "' should come after vendor-prefixed property '" + actual + "'.", event.line, event.col, rule);
                     }
                 }
             }
