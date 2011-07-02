@@ -48,7 +48,7 @@ Using `float` for layout isn't a great idea, but sometimes you have to. CSSLint 
 
 Web fonts are growing in popularity and use of `@font-face` is on the rise. However, using web fonts comes with performance implications as font files can be quite large and some browsers block rendering while downloading them. For this reason, CSSLint will warn you when there are more than five web fonts in a style sheet.
 
-### Don't use too may font-size declarations
+### Don't use too many font-size declarations
 
 A site is typically made up of a finite number of font treatments, including font size. If you have 10 or more font sizes specified, you probably want to refactor into a standard set of font size classes that can be used in markup.
 
