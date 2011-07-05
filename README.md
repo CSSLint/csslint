@@ -140,3 +140,4 @@ However, if the properties either have the same value or are located at differen
 1. Samori Gorse, https://twitter.com/shinuza (Rules, Non-zero Exit Code for CLI)
 1. Eitan Konigsburg, https://twitter.com/eitanmk (Rhino CLI)
 1. Ben Barber (Compatible Vendor Prefix Rule)
+1. Eric Wendelin, http://eriwen.com (Output formatters)

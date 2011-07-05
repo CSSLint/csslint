@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 5-July-2011 01:07:49 */
+/* Build time: 5-July-2011 01:24:09 */
 var CSSLint = (function(){
 /*!
 Parser-Lib
@@ -9384,8 +9384,9 @@ YUITest.PageManager = YUITest.Util.mix(new YUITest.EventTarget(), {
  */
 var CSSLint = (function(){
 
-    var rules   = [],
-        api     = new parserlib.util.EventTarget();
+    var rules      = [],
+        formatters = [],
+        api        = new parserlib.util.EventTarget();
         
     api.version = "@VERSION@";
 
@@ -9409,6 +9410,42 @@ var CSSLint = (function(){
      */
     api.clearRules = function(){
         rules = [];
+    };
+
+    //-------------------------------------------------------------------------
+    // Formatters
+    //-------------------------------------------------------------------------
+
+    /**
+     * Adds a new formatter to the engine.
+     * @param {Object} formatter The formatter to add.
+     * @method addFormatter
+     */
+    api.addFormatter = function(formatter) {
+        // formatters.push(formatter);
+        formatters[formatter.id] = formatter;
+    };
+    
+    /**
+     * Formats the results in a particular format.
+     * @param {Object} result The results returned from CSSLint.verify().
+     * @param {String} filename The filename for which the results apply.
+     * @param {String} formatId The name of the formatter to use.
+     * @return {String} A formatted string for the results.
+     * @method format
+     */
+    api.format = function(results, filename, formatId) {
+        return formatters[formatId].init(results, filename);
+    }    
+    
+    /**
+     * Indicates if the given format is supported.
+     * @param {String} formatId The ID of the format to check.
+     * @return {Boolean} True if the format exists, false if not.
+     * @method hasFormat
+     */
+    api.hasFormat = function(formatId){
+        return formatters.hasOwnProperty(formatId);
     };
 
     //-------------------------------------------------------------------------
@@ -9462,7 +9499,6 @@ var CSSLint = (function(){
             stats       : reporter.stats
         };
     };
-
 
     //-------------------------------------------------------------------------
     // Publish the API
@@ -10817,6 +10853,98 @@ CSSLint.addRule({
     }
 
 });
+CSSLint.addFormatter({
+    //format information
+    id: "lint-xml",
+    name: "Lint XML format",
+
+    init: function(results, filename) {
+        var messages = results.messages,
+            output = ["<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<lint>"];
+
+        var replaceDoubleQuotes = function(str) {
+            if (!str || str.constructor !== String) {
+                return "";
+            }
+            return str.replace(/\"/g, "'");
+        };
+
+        if (messages.length > 0) {
+            //rollups at the bottom
+            messages.sort(function (a, b) {
+                if (a.rollup && !b.rollup) {
+                    return 1;
+                } else if (!a.rollup && b.rollup) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            });
+        
+            output.push("  <file name=\""+filename+"\">");
+            messages.forEach(function (message, i) {
+                if (message.rollup) {
+                    output.push("    <issue severity=\"" + message.type + "\" reason=\"" + replaceDoubleQuotes(message.message) + "\" evidence=\"" + replaceDoubleQuotes(message.evidence) + "\"/>");
+                } else {
+                    output.push("    <issue line=\"" + message.line + "\" char=\"" + message.col + "\" severity=\"" + message.type + "\"" +
+                        " reason=\"" + replaceDoubleQuotes(message.message) + "\" evidence=\"" + replaceDoubleQuotes(message.evidence) + "\"/>");
+                }
+            });
+            output.push("  </file>");
+        }
+
+        output.push("</lint>");
+        return output.join("\n");
+    }
+});
+CSSLint.addFormatter({
+    //format information
+    id: "text",
+    name: "Plain Text",
+
+    init: function(results, filename) {
+        var messages = results.messages;
+        if (messages.length === 0) {
+            return "\n\ncsslint: No errors in " + filename + ".";
+        }
+        
+        output = "\n\ncsslint: There are " + messages.length  +  " problems in " + filename + ".";
+        var pos = filename.lastIndexOf("/"),
+            shortFilename = filename;
+
+        if (pos == -1){
+            pos = filename.lastIndexOf("\\");       
+        }
+        if (pos > -1){
+            shortFilename = filename.substring(pos+1);
+        }
+
+        //rollups at the bottom
+        messages.sort(function (a, b){
+            if (a.rollup && !b.rollup){
+                return 1;
+            } else if (!a.rollup && b.rollup){
+                return -1;
+            } else {
+                return 0;
+            }
+        });
+
+        messages.forEach(function (message, i) {
+            output = output + "\n\n" + shortFilename;
+            if (message.rollup) {
+                output += "\n" + (i+1) + ": " + message.type;
+                output += "\n" + message.message;
+            } else {
+                output += "\n" + (i+1) + ": " + message.type + " at line " + message.line + ", col " + message.col;
+                output += "\n" + message.message;
+                output += "\n" + message.evidence;
+            }
+        });
+    
+        return output;
+    }
+});
 
 return CSSLint;
 })();
@@ -10851,75 +10979,32 @@ function gatherRules(options){
     }
     
     return ruleset;
-    
 }
 
 //process a list of files, return 1 if one or more error occurred
 var processFile = function(filename, options) {
     var input = readFile(filename),
         result = CSSLint.verify(input, gatherRules(options)),
+        formatId = options.format || "text",
         messages = result.messages || [],
         exitCode = 0;
 
     if (!input) {
         print("csslint: Could not read file data in " + filename + ". Is the file empty?");
         exitCode = 1;
-    }
+    } else if (!CSSLint.hasFormat(formatId)){
+        print("csslint: Unknown format '" + formatId + "'. Cannot proceed.");
+        exitCode = 1;
+    } else {
+        print(CSSLint.format(result, filename, formatId));
 
-    if (messages.length > 0) {
-        var warnings = pluckByType(messages, 'warning');
-        var errors  = pluckByType(messages, 'error');
-        reportMessages(messages, warnings, errors, filename);
-
-        if(errors.length > 0 ) {
+        if (messages.length > 0 && pluckByType(messages, 'error').length > 0) {
             exitCode = 1;
         }
-
-    } else {
-        print("csslint: No problems found in " + filename);
-    }
-    return exitCode;
-};
-
-//display messages
-var reportMessages = function(messages, warnings, errors, filename) {
-    print("\n\ncsslint: There are " + errors.length +  " errors and " + warnings.length  +  " warnings in " + filename + ".");
-
-    var pos = filename.lastIndexOf("/"),
-        shortFilename = filename;
-        
-    if (pos == -1){
-        pos = filename.lastIndexOf("\\");       
-    }
-    if (pos > -1){
-        shortFilename = filename.substring(pos+1);
     }
     
-
-    //rollups at the bottom
-    messages.sort(function (a, b){
-        if (a.rollup && !b.rollup){
-            return 1;
-        } else if (!a.rollup && b.rollup){
-            return -1;
-        } else {
-            return 0;
-        }
-    });
-
-    messages.forEach(function (message, i) {
-        print("\n" + shortFilename + ":");
-        if (message.rollup) {
-            print("" + (i+1) + ": " + message.type);
-            print(message.message);
-        } else {
-            print("" + (i+1) + ": " + message.type + " at line " + message.line + ", col " + message.col);
-            print(message.message);
-            print(message.evidence);
-        }
-    });
+    return exitCode;
 };
-
 
 //output CLI help screen
 function outputHelp(){
@@ -10929,6 +11014,7 @@ function outputHelp(){
         "Global Options",
         "  --help                 Displays this information.",
         "  --rules=<rule[,rule]+> Indicate which rules to include.",
+        "  --format=<format>      Indicate which format to use for output.",
         "  --version              Outputs the current version number."
     ].join("\n") + "\n\n");
 }
@@ -10978,9 +11064,10 @@ while(arg){
         
         if (argName.indexOf("rules=") > -1){
             options.rules = argName.substring(argName.indexOf("=") + 1);
+        } else if (argName.indexOf("format=") > -1) {
+            options.format = argName.substring(argName.indexOf("=") + 1);
         }
     } else {
-        
         var curFile = new File(arg);
         
         //see if it's a directory or a file
@@ -11008,6 +11095,7 @@ if (!files.length) {
     print("No files specified.");
     exitCode = 1;
 } else {
+    //FIXME: This needs to be refactored to take format into account
     exitCode = files.some(function(file){
         processFile(file,options);
     });

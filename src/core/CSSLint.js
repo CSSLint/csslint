@@ -6,8 +6,9 @@
  */
 var CSSLint = (function(){
 
-    var rules   = [],
-        api     = new parserlib.util.EventTarget();
+    var rules      = [],
+        formatters = [],
+        api        = new parserlib.util.EventTarget();
         
     api.version = "@VERSION@";
 
@@ -31,6 +32,42 @@ var CSSLint = (function(){
      */
     api.clearRules = function(){
         rules = [];
+    };
+
+    //-------------------------------------------------------------------------
+    // Formatters
+    //-------------------------------------------------------------------------
+
+    /**
+     * Adds a new formatter to the engine.
+     * @param {Object} formatter The formatter to add.
+     * @method addFormatter
+     */
+    api.addFormatter = function(formatter) {
+        // formatters.push(formatter);
+        formatters[formatter.id] = formatter;
+    };
+    
+    /**
+     * Formats the results in a particular format.
+     * @param {Object} result The results returned from CSSLint.verify().
+     * @param {String} filename The filename for which the results apply.
+     * @param {String} formatId The name of the formatter to use.
+     * @return {String} A formatted string for the results.
+     * @method format
+     */
+    api.format = function(results, filename, formatId) {
+        return formatters[formatId].init(results, filename);
+    }    
+    
+    /**
+     * Indicates if the given format is supported.
+     * @param {String} formatId The ID of the format to check.
+     * @return {Boolean} True if the format exists, false if not.
+     * @method hasFormat
+     */
+    api.hasFormat = function(formatId){
+        return formatters.hasOwnProperty(formatId);
     };
 
     //-------------------------------------------------------------------------
@@ -84,7 +121,6 @@ var CSSLint = (function(){
             stats       : reporter.stats
         };
     };
-
 
     //-------------------------------------------------------------------------
     // Publish the API

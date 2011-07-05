@@ -57,6 +57,7 @@
             <filelist dir="${src.dir}/core" files="CSSLint.js" />
             <fileset dir="${src.dir}/core" includes="*.js" excludes="CSSLint.js"/>
             <fileset dir="${src.dir}/rules" includes="*.js" />
+            <fileset dir="${src.dir}/formatters" includes="*.js" />
             <footer trimleading="yes">
                 return CSSLint;
             })();
@@ -76,7 +77,8 @@
             <fileset dir="${lib.dir}" includes="*.js" />
             <filelist dir="${src.dir}/core" files="CSSLint.js" />
             <fileset dir="${src.dir}/core" includes="*.js" excludes="CSSLint.js"/>
-            <fileset dir="${src.dir}/rules" includes="*.js" />            
+            <fileset dir="${src.dir}/rules" includes="*.js" />     
+               <fileset dir="${src.dir}/formatters" includes="*.js" />
             <fileset dir="${src.dir}/worker" includes="*.js" />            
         </concat>        
     </target>   
@@ -95,6 +97,7 @@
             <filelist dir="${src.dir}/core" files="CSSLint.js" />
             <fileset dir="${src.dir}/core" includes="*.js" excludes="CSSLint.js"/>
             <fileset dir="${src.dir}/rules" includes="*.js" />
+            <fileset dir="${src.dir}/formatters" includes="*.js" />
             <footer trimleading="yes">
             exports.CSSLint = CSSLint;
             </footer>

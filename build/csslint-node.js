@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 5-July-2011 01:07:49 */
+/* Build time: 5-July-2011 01:24:09 */
 /*!
 Parser-Lib
 Copyright (c) 2009-2011 Nicholas C. Zakas. All rights reserved.
@@ -9383,8 +9383,9 @@ YUITest.PageManager = YUITest.Util.mix(new YUITest.EventTarget(), {
  */
 var CSSLint = (function(){
 
-    var rules   = [],
-        api     = new parserlib.util.EventTarget();
+    var rules      = [],
+        formatters = [],
+        api        = new parserlib.util.EventTarget();
         
     api.version = "@VERSION@";
 
@@ -9408,6 +9409,42 @@ var CSSLint = (function(){
      */
     api.clearRules = function(){
         rules = [];
+    };
+
+    //-------------------------------------------------------------------------
+    // Formatters
+    //-------------------------------------------------------------------------
+
+    /**
+     * Adds a new formatter to the engine.
+     * @param {Object} formatter The formatter to add.
+     * @method addFormatter
+     */
+    api.addFormatter = function(formatter) {
+        // formatters.push(formatter);
+        formatters[formatter.id] = formatter;
+    };
+    
+    /**
+     * Formats the results in a particular format.
+     * @param {Object} result The results returned from CSSLint.verify().
+     * @param {String} filename The filename for which the results apply.
+     * @param {String} formatId The name of the formatter to use.
+     * @return {String} A formatted string for the results.
+     * @method format
+     */
+    api.format = function(results, filename, formatId) {
+        return formatters[formatId].init(results, filename);
+    }    
+    
+    /**
+     * Indicates if the given format is supported.
+     * @param {String} formatId The ID of the format to check.
+     * @return {Boolean} True if the format exists, false if not.
+     * @method hasFormat
+     */
+    api.hasFormat = function(formatId){
+        return formatters.hasOwnProperty(formatId);
     };
 
     //-------------------------------------------------------------------------
@@ -9461,7 +9498,6 @@ var CSSLint = (function(){
             stats       : reporter.stats
         };
     };
-
 
     //-------------------------------------------------------------------------
     // Publish the API
@@ -10815,6 +10851,98 @@ CSSLint.addRule({
 
     }
 
+});
+CSSLint.addFormatter({
+    //format information
+    id: "lint-xml",
+    name: "Lint XML format",
+
+    init: function(results, filename) {
+        var messages = results.messages,
+            output = ["<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<lint>"];
+
+        var replaceDoubleQuotes = function(str) {
+            if (!str || str.constructor !== String) {
+                return "";
+            }
+            return str.replace(/\"/g, "'");
+        };
+
+        if (messages.length > 0) {
+            //rollups at the bottom
+            messages.sort(function (a, b) {
+                if (a.rollup && !b.rollup) {
+                    return 1;
+                } else if (!a.rollup && b.rollup) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            });
+        
+            output.push("  <file name=\""+filename+"\">");
+            messages.forEach(function (message, i) {
+                if (message.rollup) {
+                    output.push("    <issue severity=\"" + message.type + "\" reason=\"" + replaceDoubleQuotes(message.message) + "\" evidence=\"" + replaceDoubleQuotes(message.evidence) + "\"/>");
+                } else {
+                    output.push("    <issue line=\"" + message.line + "\" char=\"" + message.col + "\" severity=\"" + message.type + "\"" +
+                        " reason=\"" + replaceDoubleQuotes(message.message) + "\" evidence=\"" + replaceDoubleQuotes(message.evidence) + "\"/>");
+                }
+            });
+            output.push("  </file>");
+        }
+
+        output.push("</lint>");
+        return output.join("\n");
+    }
+});
+CSSLint.addFormatter({
+    //format information
+    id: "text",
+    name: "Plain Text",
+
+    init: function(results, filename) {
+        var messages = results.messages;
+        if (messages.length === 0) {
+            return "\n\ncsslint: No errors in " + filename + ".";
+        }
+        
+        output = "\n\ncsslint: There are " + messages.length  +  " problems in " + filename + ".";
+        var pos = filename.lastIndexOf("/"),
+            shortFilename = filename;
+
+        if (pos == -1){
+            pos = filename.lastIndexOf("\\");       
+        }
+        if (pos > -1){
+            shortFilename = filename.substring(pos+1);
+        }
+
+        //rollups at the bottom
+        messages.sort(function (a, b){
+            if (a.rollup && !b.rollup){
+                return 1;
+            } else if (!a.rollup && b.rollup){
+                return -1;
+            } else {
+                return 0;
+            }
+        });
+
+        messages.forEach(function (message, i) {
+            output = output + "\n\n" + shortFilename;
+            if (message.rollup) {
+                output += "\n" + (i+1) + ": " + message.type;
+                output += "\n" + message.message;
+            } else {
+                output += "\n" + (i+1) + ": " + message.type + " at line " + message.line + ", col " + message.col;
+                output += "\n" + message.message;
+                output += "\n" + message.evidence;
+            }
+        });
+    
+        return output;
+    }
 });
 
 exports.CSSLint = CSSLint;
