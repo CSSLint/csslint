@@ -42,11 +42,8 @@ var processFile = function(filename, options) {
     if (!input) {
         print("csslint: Could not read file data in " + filename + ". Is the file empty?");
         exitCode = 1;
-    } else if (!CSSLint.hasFormat(formatId)){
-        print("csslint: Unknown format '" + formatId + "'. Cannot proceed.");
-        exitCode = 1;
     } else {
-        print(CSSLint.format(result, filename, formatId));
+        print(CSSLint.getFormatter(formatId).formatResults(result, filename, formatId));
 
         if (messages.length > 0 && pluckByType(messages, 'error').length > 0) {
             exitCode = 1;
@@ -67,4 +64,27 @@ function outputHelp(){
         "  --format=<format>      Indicate which format to use for output.",
         "  --version              Outputs the current version number."
     ].join("\n") + "\n\n");
+}
+
+function processFiles(files, options){
+    var exitCode = 0,
+        formatId = options.format || "text",
+        formatter;
+    if (!files.length) {
+        print("No files specified.");
+        exitCode = 1;
+    } else {
+        if (!CSSLint.hasFormat(formatId)){
+            print("csslint: Unknown format '" + formatId + "'. Cannot proceed.");
+            exitCode = 1; 
+        } else {
+            formatter = CSSLint.getFormatter(formatId);
+            print(formatter.startFormat());
+            exitCode = files.some(function(file){
+                processFile(file,options);
+            });
+            print(formatter.endFormat());
+        }
+    }
+    return exitCode;
 }

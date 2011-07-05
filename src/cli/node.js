@@ -89,15 +89,4 @@ files = files.map(function(filename){
     return path.join(process.cwd(), filename);
 });
 
-var exitCode = 0;
-if (!files.length) {
-    print("No files specified.");
-    exitCode = 1;
-} else {
-    //FIXME: This needs to be refactored to take format into account
-    exitCode = files.some(function(file){
-        processFile(file,options);
-    });
-}
-process.exit(Number(exitCode));
-
+process.exit(processFiles(files,options));

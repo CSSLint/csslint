@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 5-July-2011 01:24:09 */
+/* Build time: 5-July-2011 02:38:28 */
 var CSSLint = (function(){
 /*!
 Parser-Lib
@@ -9427,7 +9427,17 @@ var CSSLint = (function(){
     };
     
     /**
-     * Formats the results in a particular format.
+     * Retrieves a formatter for use.
+     * @param {String} formatId The name of the format to retrieve.
+     * @return {Object} The formatter or undefined.
+     * @method getFormatter
+     */
+    api.getFormatter = function(formatId){
+        return formatters[formatId];
+    };
+    
+    /**
+     * Formats the results in a particular format for a single file.
      * @param {Object} result The results returned from CSSLint.verify().
      * @param {String} filename The filename for which the results apply.
      * @param {String} formatId The name of the formatter to use.
@@ -9435,7 +9445,16 @@ var CSSLint = (function(){
      * @method format
      */
     api.format = function(results, filename, formatId) {
-        return formatters[formatId].init(results, filename);
+        var formatter = this.getFormatter(formatId),
+            result = null;
+            
+        if (formatter){
+            result = formatter.startFormat();
+            result += formatter.formatResults(results, filename);
+            result += formatter.endFormat();
+        }
+        
+        return result;
     }    
     
     /**
@@ -10857,10 +10876,18 @@ CSSLint.addFormatter({
     //format information
     id: "lint-xml",
     name: "Lint XML format",
+    
+    startFormat: function(){
+        return "<?xml version=\"1.0\" encoding=\"utf-8\"?><lint>";
+    },
 
-    init: function(results, filename) {
+    endFormat: function(){
+        return "</lint>";
+    },
+    
+    formatResults: function(results, filename) {
         var messages = results.messages,
-            output = ["<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<lint>"];
+            output = [];
 
         var replaceDoubleQuotes = function(str) {
             if (!str || str.constructor !== String) {
@@ -10881,28 +10908,35 @@ CSSLint.addFormatter({
                 }
             });
         
-            output.push("  <file name=\""+filename+"\">");
+            output.push("<file name=\""+filename+"\">");
             messages.forEach(function (message, i) {
                 if (message.rollup) {
-                    output.push("    <issue severity=\"" + message.type + "\" reason=\"" + replaceDoubleQuotes(message.message) + "\" evidence=\"" + replaceDoubleQuotes(message.evidence) + "\"/>");
+                    output.push("<issue severity=\"" + message.type + "\" reason=\"" + replaceDoubleQuotes(message.message) + "\" evidence=\"" + replaceDoubleQuotes(message.evidence) + "\"/>");
                 } else {
-                    output.push("    <issue line=\"" + message.line + "\" char=\"" + message.col + "\" severity=\"" + message.type + "\"" +
+                    output.push("<issue line=\"" + message.line + "\" char=\"" + message.col + "\" severity=\"" + message.type + "\"" +
                         " reason=\"" + replaceDoubleQuotes(message.message) + "\" evidence=\"" + replaceDoubleQuotes(message.evidence) + "\"/>");
                 }
             });
-            output.push("  </file>");
+            output.push("</file>");
         }
 
-        output.push("</lint>");
-        return output.join("\n");
+        return output.join("");
     }
 });
 CSSLint.addFormatter({
     //format information
     id: "text",
     name: "Plain Text",
+    
+    startFormat: function(){
+        return "";
+    },
+    
+    endFormat: function(){
+        return "";
+    },
 
-    init: function(results, filename) {
+    formatResults: function(results, filename) {
         var messages = results.messages;
         if (messages.length === 0) {
             return "\n\ncsslint: No errors in " + filename + ".";

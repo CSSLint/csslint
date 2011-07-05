@@ -70,14 +70,6 @@ if (options.version){
     quit(0);
 }
 
-var exitCode = 0;
-if (!files.length) {
-    print("No files specified.");
-    exitCode = 1;
-} else {
-    //FIXME: This needs to be refactored to take format into account
-    exitCode = files.some(function(file){
-        processFile(file,options);
-    });
-}
-quit(Number(exitCode));
+
+
+quit(processFiles(files,options));

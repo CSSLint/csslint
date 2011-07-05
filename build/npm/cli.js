@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Build time: 5-July-2011 01:24:09 */
+/* Build time: 5-July-2011 02:38:28 */
 //print for rhino and nodejs
 if(typeof print == "undefined") {
     var print = console.log;
@@ -44,11 +44,8 @@ var processFile = function(filename, options) {
     if (!input) {
         print("csslint: Could not read file data in " + filename + ". Is the file empty?");
         exitCode = 1;
-    } else if (!CSSLint.hasFormat(formatId)){
-        print("csslint: Unknown format '" + formatId + "'. Cannot proceed.");
-        exitCode = 1;
     } else {
-        print(CSSLint.format(result, filename, formatId));
+        print(CSSLint.getFormatter(formatId).formatResults(result, filename, formatId));
 
         if (messages.length > 0 && pluckByType(messages, 'error').length > 0) {
             exitCode = 1;
@@ -69,6 +66,29 @@ function outputHelp(){
         "  --format=<format>      Indicate which format to use for output.",
         "  --version              Outputs the current version number."
     ].join("\n") + "\n\n");
+}
+
+function processFiles(files, options){
+    var exitCode = 0,
+        formatId = options.format || "text",
+        formatter;
+    if (!files.length) {
+        print("No files specified.");
+        exitCode = 1;
+    } else {
+        if (!CSSLint.hasFormat(formatId)){
+            print("csslint: Unknown format '" + formatId + "'. Cannot proceed.");
+            exitCode = 1; 
+        } else {
+            formatter = CSSLint.getFormatter(formatId);
+            print(formatter.startFormat());
+            exitCode = files.some(function(file){
+                processFile(file,options);
+            });
+            print(formatter.endFormat());
+        }
+    }
+    return exitCode;
 }
 /*
  * CSSLint Node.js Command Line Interface
@@ -161,15 +181,4 @@ files = files.map(function(filename){
     return path.join(process.cwd(), filename);
 });
 
-var exitCode = 0;
-if (!files.length) {
-    print("No files specified.");
-    exitCode = 1;
-} else {
-    //FIXME: This needs to be refactored to take format into account
-    exitCode = files.some(function(file){
-        processFile(file,options);
-    });
-}
-process.exit(Number(exitCode));
-
+process.exit(processFiles(files,options));

@@ -19,8 +19,9 @@
                 ], stats: [] },
                 error1 = "\n1: warning at line 1, col 1\nBOGUS\nALSO BOGUS",
                 error2 = "\n2: error at line 2, col 1\nBOGUS\nALSO BOGUS",
-                expected = "\n\ncsslint: There are 2 problems in FILE.\nFILE" + error1 + "\nFILE" + error2;
-            Assert.areEqual(expected, CSSLint.format(result, "FILE", "text"));
+                expected = "\n\ncsslint: There are 2 problems in FILE.\n\nFILE" + error1 + "\n\nFILE" + error2,
+                actual = CSSLint.format(result, "FILE", "text");
+            Assert.areEqual(expected, actual);
         }
 
     }));

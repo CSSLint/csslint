@@ -2,10 +2,18 @@ CSSLint.addFormatter({
     //format information
     id: "lint-xml",
     name: "Lint XML format",
+    
+    startFormat: function(){
+        return "<?xml version=\"1.0\" encoding=\"utf-8\"?><lint>";
+    },
 
-    init: function(results, filename) {
+    endFormat: function(){
+        return "</lint>";
+    },
+    
+    formatResults: function(results, filename) {
         var messages = results.messages,
-            output = ["<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<lint>"];
+            output = [];
 
         var replaceDoubleQuotes = function(str) {
             if (!str || str.constructor !== String) {
@@ -26,19 +34,18 @@ CSSLint.addFormatter({
                 }
             });
         
-            output.push("  <file name=\""+filename+"\">");
+            output.push("<file name=\""+filename+"\">");
             messages.forEach(function (message, i) {
                 if (message.rollup) {
-                    output.push("    <issue severity=\"" + message.type + "\" reason=\"" + replaceDoubleQuotes(message.message) + "\" evidence=\"" + replaceDoubleQuotes(message.evidence) + "\"/>");
+                    output.push("<issue severity=\"" + message.type + "\" reason=\"" + replaceDoubleQuotes(message.message) + "\" evidence=\"" + replaceDoubleQuotes(message.evidence) + "\"/>");
                 } else {
-                    output.push("    <issue line=\"" + message.line + "\" char=\"" + message.col + "\" severity=\"" + message.type + "\"" +
+                    output.push("<issue line=\"" + message.line + "\" char=\"" + message.col + "\" severity=\"" + message.type + "\"" +
                         " reason=\"" + replaceDoubleQuotes(message.message) + "\" evidence=\"" + replaceDoubleQuotes(message.evidence) + "\"/>");
                 }
             });
-            output.push("  </file>");
+            output.push("</file>");
         }
 
-        output.push("</lint>");
-        return output.join("\n");
+        return output.join("");
     }
 });

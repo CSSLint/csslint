@@ -49,7 +49,17 @@ var CSSLint = (function(){
     };
     
     /**
-     * Formats the results in a particular format.
+     * Retrieves a formatter for use.
+     * @param {String} formatId The name of the format to retrieve.
+     * @return {Object} The formatter or undefined.
+     * @method getFormatter
+     */
+    api.getFormatter = function(formatId){
+        return formatters[formatId];
+    };
+    
+    /**
+     * Formats the results in a particular format for a single file.
      * @param {Object} result The results returned from CSSLint.verify().
      * @param {String} filename The filename for which the results apply.
      * @param {String} formatId The name of the formatter to use.
@@ -57,7 +67,16 @@ var CSSLint = (function(){
      * @method format
      */
     api.format = function(results, filename, formatId) {
-        return formatters[formatId].init(results, filename);
+        var formatter = this.getFormatter(formatId),
+            result = null;
+            
+        if (formatter){
+            result = formatter.startFormat();
+            result += formatter.formatResults(results, filename);
+            result += formatter.endFormat();
+        }
+        
+        return result;
     }    
     
     /**

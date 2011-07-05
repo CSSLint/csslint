@@ -2,8 +2,16 @@ CSSLint.addFormatter({
     //format information
     id: "text",
     name: "Plain Text",
+    
+    startFormat: function(){
+        return "";
+    },
+    
+    endFormat: function(){
+        return "";
+    },
 
-    init: function(results, filename) {
+    formatResults: function(results, filename) {
         var messages = results.messages;
         if (messages.length === 0) {
             return "\n\ncsslint: No errors in " + filename + ".";
