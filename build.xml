@@ -42,7 +42,6 @@
     <!-- clean -->
     <target name="clean">
         <delete dir="${build.dir}" />
-        <delete dir="${release.dir}" />
     </target>
 
     <!-- build the core library -->
@@ -133,6 +132,7 @@
     
     <!-- Create a release with version number embedded -->
     <target name="release" depends="all">
+        <delete dir="${release.dir}" />
         <mkdir dir="${release.dir}"/>
         <copy todir="${release.dir}">
             <fileset dir="${build.dir}" includes="**/*" />
