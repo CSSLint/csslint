@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 5-July-2011 02:38:28 */
+/* Build time: 5-July-2011 03:16:53 */
 var CSSLint = (function(){
 /*!
 Parser-Lib
@@ -46,7 +46,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 28-June-2011 09:12:00 */
+/* Build time: 5-July-2011 03:12:40 */
 var parserlib = {};
 (function(){
 
@@ -911,7 +911,6 @@ TokenStreamBase.prototype = {
 };
 
 
-
 parserlib.util = {
 StringReader: StringReader,
 SyntaxError : SyntaxError,
@@ -920,7 +919,6 @@ EventTarget : EventTarget,
 TokenStreamBase : TokenStreamBase
 };
 })();
-
 /* 
 Parser-Lib
 Copyright (c) 2009-2011 Nicholas C. Zakas. All rights reserved.
@@ -944,7 +942,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 28-June-2011 09:12:00 */
+/* Build time: 5-July-2011 03:12:40 */
 (function(){
 var EventTarget = parserlib.util.EventTarget,
 TokenStreamBase = parserlib.util.TokenStreamBase,
@@ -1130,7 +1128,6 @@ function Combinator(text, line, col){
 
 Combinator.prototype = new SyntaxUnit();
 Combinator.prototype.constructor = Combinator;
-
 
 
 var Level1Properties = {
@@ -1339,7 +1336,6 @@ function MediaFeature(name, value){
 MediaFeature.prototype = new SyntaxUnit();
 MediaFeature.prototype.constructor = MediaFeature;
 
-
 /**
  * Represents an individual media query.
  * @namespace parserlib.css
@@ -1381,7 +1377,6 @@ function MediaQuery(modifier, mediaType, features, line, col){
 
 MediaQuery.prototype = new SyntaxUnit();
 MediaQuery.prototype.constructor = MediaQuery;
-
 
 /**
  * A CSS3 parser.
@@ -1680,7 +1675,13 @@ Parser.prototype = function(){
                     col:    col
                 });
                 
-                while(this._ruleset()){}
+                while(true) {
+                    if (tokenStream.peek() == Tokens.PAGE_SYM){
+                        this._page();
+                    } else if (!this._ruleset()){
+                        break;
+                    }                
+                }
                 
                 tokenStream.mustMatch(Tokens.RBRACE);
                 this._readWhitespace();
@@ -1707,7 +1708,7 @@ Parser.prototype = function(){
                 
                 this._readWhitespace();
                 
-                if (tokenStream.peek() == Tokens.IDENT){
+                if (tokenStream.peek() == Tokens.IDENT || tokenStream.peek() == Tokens.LPAREN){
                     mediaList.push(this._media_query());
                 }
                 
@@ -3339,7 +3340,6 @@ function PropertyName(text, hack, line, col){
 PropertyName.prototype = new SyntaxUnit();
 PropertyName.prototype.constructor = PropertyName;
 
-
 /**
  * Represents a single part of a CSS property value, meaning that it represents
  * just everything single part between ":" and ";". If there are multiple values
@@ -3367,7 +3367,6 @@ function PropertyValue(parts, line, col){
 
 PropertyValue.prototype = new SyntaxUnit();
 PropertyValue.prototype.constructor = PropertyValue;
-
 
 /**
  * Represents a single part of a CSS property value, meaning that it represents
@@ -3540,7 +3539,6 @@ function Selector(parts, line, col){
 Selector.prototype = new SyntaxUnit();
 Selector.prototype.constructor = Selector;
 
-
 /**
  * Represents a single part of a selector string, meaning a single set of
  * element name and modifiers. This does not include combinators such as
@@ -3582,7 +3580,6 @@ function SelectorPart(elementName, modifiers, text, line, col){
 SelectorPart.prototype = new SyntaxUnit();
 SelectorPart.prototype.constructor = SelectorPart;
 
-
 /**
  * Represents a selector modifier string, meaning a class name, element name,
  * element ID, pseudo rule, etc.
@@ -3617,7 +3614,6 @@ function SelectorSubPart(text, type, line, col){
 
 SelectorSubPart.prototype = new SyntaxUnit();
 SelectorSubPart.prototype.constructor = SelectorSubPart;
-
 
 
  
@@ -4262,11 +4258,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
             ident = this.readName(reader.read());
             value += ident;            
 
-            if (/em/i.test(ident)){
-                tt = Tokens.EMS;
-            } else if (/ex/i.test(ident)){
-                tt = Tokens.EXS;
-            } else if (/px|cm|mm|in|pt|pc/i.test(ident)){
+            if (/em|ex|px|gd|rem|vw|vh|vm|ch|cm|mm|in|pt|pc/i.test(ident)){
                 tt = Tokens.LENGTH;
             } else if (/deg|rad|grad/i.test(ident)){
                 tt = Tokens.ANGLE;
@@ -4596,7 +4588,6 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
 
 });
 
-
 var Tokens  = [
 
     /*
@@ -4797,7 +4788,6 @@ var Tokens  = [
 
 
 
-
 parserlib.css = {
 Colors              :Colors,    
 Combinator          :Combinator,                
@@ -4814,7 +4804,6 @@ TokenStream         :TokenStream,
 Tokens              :Tokens
 };
 })();
-
 /**
  * YUI Test Framework
  * @module yuitest

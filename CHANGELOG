@@ -1,5 +1,6 @@
 Next (not yet released)
 
+* Updated parser (fixes #49)
 * Added rule for compatible vendor prefixes (pull #78)
 * Added rule for duplicate properties (fixes #51)
 * Updated error message for display:inline used with float (fixes #16)
