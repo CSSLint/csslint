@@ -107,6 +107,23 @@ Borders and padding add space outside of an element's content. Setting `width` o
 
 The `@import` command shouldn't be used because it prevent parallel downloads in some browsers (see http://www.stevesouders.com/blog/2009/04/09/dont-use-import/).
 
+### Duplicate Properties
+
+When you include the same property twice, it may be intentional (to provide a fallback) or unintentional (copy-paste error). If duplicate properties are found one after the other with different values, this is okay. For example:
+
+    .foo {
+        background: #fff;
+        background: rgba(255, 255, 255, 0.5);
+    }
+    
+However, if the properties either have the same value or are located at different spots in the rule, this results in a warning. For example:
+
+    .foo {
+        background: #fff;
+        color: #000;
+        background: rgba(255, 255, 255, 0.5);
+    }   
+
 ## Contributors
 
 ### Creators
