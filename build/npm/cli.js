@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Build time: 28-June-2011 09:28:08 */
+/* Build time: 5-July-2011 11:54:47 */
 //print for rhino and nodejs
 if(typeof print == "undefined") {
     var print = console.log;
@@ -212,5 +212,4 @@ if (!files.length) {
     });
 }
 process.exit(Number(exitCode));
-
 

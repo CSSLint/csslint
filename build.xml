@@ -119,7 +119,7 @@
     <!-- build the tests into a single file -->
     <target name="build.tests">    
         <concat destfile="${build.dir}/${tests.build.file}"  fixlastline="true">
-            <fileset dir="${tests.dir}/rules" includes="*.js" />           
+            <fileset dir="${tests.dir}/" includes="**/*.js" />           
         </concat>        
     </target>   
 

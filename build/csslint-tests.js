@@ -5,6 +5,23 @@
 
     YUITest.TestRunner.add(new YUITest.TestCase({
 
+        name: "CSSLint object tests",
+        
+        "Adjoining classes should not cause an error": function(){
+            var result = CSSLint.verify(".foo.bar{}", { });
+            Assert.areEqual(0, result.messages.length);
+        }
+
+    }));
+
+})();
+(function(){
+
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
         name: "Adjoining Selector Rule Errors",
         
         "Adjoining classes should result in a warning": function(){
@@ -22,7 +39,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -224,7 +240,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -251,7 +266,7 @@
             var result = CSSLint.verify(".foo { float: left; display: inline; }", { "display-property-grouping": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("float can't be used with display: inline.", result.messages[0].message);
+            Assert.areEqual("display:inline has no effect on floated elements (but may be used to fix the IE6 double-margin bug).", result.messages[0].message);
         },
 
         "Float:none with inline-block should not result in a warning": function(){
@@ -438,7 +453,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -457,7 +471,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -475,7 +488,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -511,7 +523,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -540,7 +551,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -571,7 +581,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -623,7 +632,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -649,7 +657,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -668,7 +675,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -696,7 +702,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -738,7 +743,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -758,7 +762,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -811,7 +814,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -841,7 +843,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -899,7 +900,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -945,7 +945,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));*/
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -983,4 +982,3 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-

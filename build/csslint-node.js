@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 28-June-2011 09:28:08 */
+/* Build time: 5-July-2011 11:54:47 */
 /*!
 Parser-Lib
 Copyright (c) 2009-2011 Nicholas C. Zakas. All rights reserved.
@@ -4814,7 +4814,6 @@ Tokens              :Tokens
 };
 })();
 
-
 /**
  * YUI Test Framework
  * @module yuitest
@@ -9376,7 +9375,6 @@ YUITest.PageManager = YUITest.Util.mix(new YUITest.EventTarget(), {
         return new TestRunner();
 
     }();
-
 /**
  * Main CSSLint object.
  * @class CSSLint
@@ -9472,7 +9470,6 @@ var CSSLint = (function(){
     return api;
 
 })();
-
 /**
  * An instance of Report is used to report results of the
  * verification back to the main API.
@@ -9607,7 +9604,6 @@ Reporter.prototype = {
         this.stats[name] = value;
     }
 };
-
 /*
  * Utility functions that make life easier.
  */
@@ -9831,7 +9827,7 @@ CSSLint.addRule({
                         reportProperty("margin", display);
                         reportProperty("margin-top", display);
                         reportProperty("margin-bottom", display);              
-                        reportProperty("float", display);
+                        reportProperty("float", display, "display:inline has no effect on floated elements (but may be used to fix the IE6 double-margin bug).");
                         break;
 
                     case "block":
@@ -9862,10 +9858,10 @@ CSSLint.addRule({
         });
 
 
-        function reportProperty(name, display){
+        function reportProperty(name, display, msg){
             if (properties[name]){
                 if (!(typeof propertiesToCheck[name] == "string") || properties[name].value.toLowerCase() != propertiesToCheck[name]){
-                    reporter.warn(name + " can't be used with display: " + display + ".", properties[name].line, properties[name].col, rule);
+                    reporter.warn(msg || name + " can't be used with display: " + display + ".", properties[name].line, properties[name].col, rule);
                 }
             }
         }
