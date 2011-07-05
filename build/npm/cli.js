@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Build time: 5-July-2011 11:54:47 */
+/* Build time: 5-July-2011 11:59:51 */
 //print for rhino and nodejs
 if(typeof print == "undefined") {
     var print = console.log;

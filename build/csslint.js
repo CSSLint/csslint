@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 5-July-2011 11:54:47 */
+/* Build time: 5-July-2011 11:59:51 */
 var CSSLint = (function(){
 /*!
 Parser-Lib
@@ -10466,6 +10466,7 @@ CSSLint.addRule({
                 "-moz-border-radius-bottomleft": "border-bottom-left-radius",
                 "-moz-border-radius-bottomright": "border-bottom-right-radius",
                 "-moz-box-shadow": "box-shadow",
+                "-webkit-box-shadow": "box-shadow",
                 "-moz-transform" : "transform",
                 "-webkit-transform" : "transform",
                 "-o-transform" : "transform",

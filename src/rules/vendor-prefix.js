@@ -27,6 +27,7 @@ CSSLint.addRule({
                 "-moz-border-radius-bottomleft": "border-bottom-left-radius",
                 "-moz-border-radius-bottomright": "border-bottom-right-radius",
                 "-moz-box-shadow": "box-shadow",
+                "-webkit-box-shadow": "box-shadow",
                 "-moz-transform" : "transform",
                 "-webkit-transform" : "transform",
                 "-o-transform" : "transform",
