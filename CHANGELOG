@@ -1,5 +1,9 @@
 Next (not yet released)
 
+TBD
+
+July 5, 2011 - v0.4.0
+
 * Updated parser (fixes #49)
 * Added rule for compatible vendor prefixes (pull #78)
 * Added rule for duplicate properties (fixes #51)
