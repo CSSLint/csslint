@@ -128,6 +128,18 @@ However, if the properties either have the same value or are located at differen
         background: rgba(255, 255, 255, 0.5);
     }   
 
+### Universal Selector
+
+The universal selector (*) selects all elements and can create performance issues when used as the far-right part of a selector. For example, this type of rule is not preferable:
+
+    .foo * {
+        background: #fff;
+        color: #000;
+        background: rgba(255, 255, 255, 0.5);
+    }
+    
+This requires the browser to match all elements first, and then go up the DOM tree to find an element with a class of `.foo`. Generally, it's best to avoid using the universal selector.
+
 ## Contributors
 
 ### Creators

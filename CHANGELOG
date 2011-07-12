@@ -1,5 +1,6 @@
 Next (not yet released)
 
+* Add rule to warn for universal selector (fixes #38)
 * Changed too many !important error to warning (fixes #105)
 * Updated parser to allow parsing of CSS3 keyframes
 * Fixed error where Rhino CLI could not read directories (fixes #106)

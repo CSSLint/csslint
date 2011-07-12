@@ -869,7 +869,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             var result = CSSLint.verify(css, { "important": 1 });
             Assert.areEqual(11, result.messages.length);
             Assert.areEqual("warning", result.messages[10].type);
-            Assert.areEqual("Too many !important declarations (10), be careful with rule specificity", result.messages[10].message);
+            Assert.areEqual("Too many !important declarations (10), try to use less than 10 to avoid specifity issues.", result.messages[10].message);
         }
 
     }));
@@ -1022,6 +1022,37 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
+    
+        name: "Universal Selector Errors",
+
+        "Using a universal selector alone should result in a warning": function(){
+            var result = CSSLint.verify("* { font-size: 10px; }", {"universal-selector": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("The universal selector (*) is known to be slow.", result.messages[0].message);
+        },
+
+        "Using a universal selector as the right-most part should result in a warning": function(){
+            var result = CSSLint.verify("p div * { font-size: 10px; }", {"universal-selector": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("The universal selector (*) is known to be slow.", result.messages[0].message);
+        },
+
+        "Using a universal selector in the middle should not result in a warning": function(){
+            var result = CSSLint.verify("* .foo { font-size: 10px; } ", {"universal-selector": 1 });
+            Assert.areEqual(0, result.messages.length);
+        }
+        
+    }));
+
+})();
+(function(){
+
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
 
         name: "Vendor Prefix Errors",
 
@@ -1063,6 +1094,13 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Missing standard property 'box-shadow' to go along with '-moz-box-shadow'.", result.messages[0].message);
+        },
+        
+        "Using -moz-user-select should result in a warning.": function(){
+            var result = CSSLint.verify("h1 {  -moz-user-select:none;  }", { "vendor-prefix": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Missing standard property 'user-select' to go along with '-moz-user-select'.", result.messages[0].message);
         },
         
         "Using @font-face should not result in an error (#90)": function(){
