@@ -1,5 +1,6 @@
 Next (not yet released)
 
+* Added a rule to check for high text-indent for RTL (fixes #109)
 * Add rule to warn for universal selector (fixes #38)
 * Changed too many !important error to warning (fixes #105)
 * Updated parser to allow parsing of CSS3 keyframes

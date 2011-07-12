@@ -6,6 +6,7 @@ CSSLint is a tool to help point out problems with your CSS code. It does basic s
 
 ## The CSSLint Rules
 
+
 ### Parsing errors should be fixed
 
 By default, CSSLint shows any parsing errors. Parsing errors usually mean you mistyped a character and may cause the browser to drop your rule or a property. Parsing errors are presented as errors by CSSLint, the most important issues to fix.
@@ -13,6 +14,10 @@ By default, CSSLint shows any parsing errors. Parsing errors usually mean you mi
 ### Don't use adjoining classes
 
 Adjoining classes look like `.foo.bar`. While technically allowed in CSS, these aren't handled properly by Internet Explorer 6 and earlier.
+
+### Don't use text indent to hide text if you need to support RTL
+
+Negative text indent doesn't play nicely with right to left oriented languages like Arabic. If your sight needs to support RTL, you should choose a different text hiding method. 
 
 ### Remove empty rules
 
