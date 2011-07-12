@@ -1,5 +1,6 @@
 Next (not yet released)
 
+* Changed too many !important error to warning (fixes #105)
 * Updated parser (fixes #49)
 * Added rule for compatible vendor prefixes (pull #78)
 * Added rule for duplicate properties (fixes #51)

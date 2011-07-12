@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 5-July-2011 03:16:53 */
+/* Build time: 12-July-2011 03:09:36 */
 /*!
 Parser-Lib
 Copyright (c) 2009-2011 Nicholas C. Zakas. All rights reserved.
@@ -10423,8 +10423,8 @@ CSSLint.addRule({
 
     //initialization
     init: function(parser, reporter){
-        var rule = this;
-        var count = 0;
+        var rule = this,
+            count = 0;
 
         //warn that important is used and increment the declaration counter
         parser.addListener("property", function(event){
@@ -10439,7 +10439,7 @@ CSSLint.addRule({
         parser.addListener("endstylesheet", function(){
             reporter.stat("important", count);
             if (count >= 10){
-                reporter.rollupError("Too many !important declarations (" + count + "), be careful with rule specificity", rule);
+                reporter.rollupWarn("Too many !important declarations (" + count + "), be careful with rule specificity", rule);
             }
         });
     }
