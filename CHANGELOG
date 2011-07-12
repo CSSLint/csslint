@@ -1,6 +1,7 @@
 Next (not yet released)
 
 * Updated parser to allow parsing of CSS3 keyframes
+* Fixed error where Rhino CLI could not read directories (fixes #106)
 
 July 5, 2011 - v0.4.0
 

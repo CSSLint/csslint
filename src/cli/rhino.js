@@ -15,7 +15,7 @@ function getFiles(dir) {
         var dirList = dir.listFiles();
         dirList.forEach(function (file) {
             if (/\.css$/.test(file)) {
-                files.push(file);
+                files.push(file.toString());
             } else if (file.isDirectory()) {
                 traverse(file);
             }
@@ -52,7 +52,7 @@ while(arg){
         
         //see if it's a directory or a file
         if (curFile.isDirectory()){
-            files = files.concat(getFiles(arg));
+            files = files.concat(getFiles(curFile));
         } else {
             files.push(arg);
         }
