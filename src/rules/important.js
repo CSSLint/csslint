@@ -13,23 +13,22 @@ CSSLint.addRule({
 
     //initialization
     init: function(parser, reporter){
-        var rule = this;
-        var count = 0;
+        var rule = this,
+            count = 0;
 
         //warn that important is used and increment the declaration counter
         parser.addListener("property", function(event){
-            var name = event.property;
             if (event.important === true){
                 count++;
-                reporter.warn("Use of !important", name.line, name.col, rule);
+                reporter.warn("Use of !important", event.line, event.col, rule);
             }
         });
 
-        //report the results
+        //if there are more than 10, show an error
         parser.addListener("endstylesheet", function(){
             reporter.stat("important", count);
             if (count >= 10){
-                reporter.rollupError("Too many !important declarations (" + count + "), be careful with rule specificity", rule);
+                reporter.rollupError("Too many !important declarations (" + count + "), try to use less than 10 to avoid specifity issues.", rule);
             }
         });
     }
