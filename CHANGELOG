@@ -1,6 +1,13 @@
 Next (not yet released)
 
 * Changed too many !important error to warning (fixes #105)
+* Updated parser to allow parsing of CSS3 keyframes
+* Fixed error where Rhino CLI could not read directories (fixes #106)
+* Added user-select to vendor prefix rule (fixes #98)
+* Changed wording of !important error to include max usage recommendation (fixes #104)
+
+July 5, 2011 - v0.4.0
+
 * Updated parser (fixes #49)
 * Added rule for compatible vendor prefixes (pull #78)
 * Added rule for duplicate properties (fixes #51)

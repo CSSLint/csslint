@@ -5,6 +5,103 @@
 
     YUITest.TestRunner.add(new YUITest.TestCase({
 
+        name: "CSSLint object tests",
+        
+        "Adjoining classes should not cause an error": function(){
+            var result = CSSLint.verify(".foo.bar{}", { });
+            Assert.areEqual(0, result.messages.length);
+        },
+        
+        "@media (max-width:400px) should not cause an error": function(){
+            var result = CSSLint.verify("@media (max-width:400px) {}", { });
+            Assert.areEqual(0, result.messages.length);
+        }
+
+    }));
+
+})();
+
+(function(){
+
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
+        name: "Lint XML formatter test",
+        
+        "File with no problems should say so": function(){
+            var result = { messages: [], stats: [] },
+                expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><lint></lint>";
+            Assert.areEqual(expected, CSSLint.format(result, "FILE", "lint-xml"));
+        },
+
+        "File with problems should list them": function(){
+            var result = { messages: [
+                     { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] },
+                     { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] }
+                ], stats: [] },
+                file = "<file name=\"FILE\">",
+                error1 = "<issue line=\"1\" char=\"1\" severity=\"warning\" reason=\"BOGUS\" evidence=\"ALSO BOGUS\"/>",
+                error2 = "<issue line=\"2\" char=\"1\" severity=\"error\" reason=\"BOGUS\" evidence=\"ALSO BOGUS\"/>",
+                expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><lint>" + file + error1 + error2 + "</file></lint>",
+                actual = CSSLint.format(result, "FILE", "lint-xml");
+            Assert.areEqual(expected, actual);
+        },
+
+        "Formatter should escape double quotes": function() {
+            var doubleQuotedEvidence = 'sneaky, "sneaky"',
+                result = { messages: [
+                     { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] },
+                     { type: "error", line: 2, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] }
+                ], stats: [] },
+                file = "<file name=\"FILE\">",
+                error1 = "<issue line=\"1\" char=\"1\" severity=\"warning\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky'\"/>",
+                error2 = "<issue line=\"2\" char=\"1\" severity=\"error\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky'\"/>",
+                expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><lint>" + file + error1 + error2 + "</file></lint>",
+                actual = CSSLint.format(result, "FILE", "lint-xml");
+            Assert.areEqual(expected, actual);
+        }
+    }));
+})();
+
+(function(){
+
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
+        name: "Text formatter",
+        
+        "File with no problems should say so": function(){
+            var result = { messages: [], stats: [] };
+            Assert.areEqual("\n\ncsslint: No errors in FILE.", CSSLint.format(result, "FILE", "text"));
+        },
+
+        "File with problems should list them": function(){
+            var result = { messages: [ 
+                     { type: 'warning', line: 1, col: 1, message: 'BOGUS', evidence: 'ALSO BOGUS', rule: [] },
+                     { type: 'error', line: 2, col: 1, message: 'BOGUS', evidence: 'ALSO BOGUS', rule: [] }
+                ], stats: [] },
+                error1 = "\n1: warning at line 1, col 1\nBOGUS\nALSO BOGUS",
+                error2 = "\n2: error at line 2, col 1\nBOGUS\nALSO BOGUS",
+                expected = "\n\ncsslint: There are 2 problems in FILE.\n\nFILE" + error1 + "\n\nFILE" + error2,
+                actual = CSSLint.format(result, "FILE", "text");
+            Assert.areEqual(expected, actual);
+        }
+
+    }));
+
+})();
+
+(function(){
+
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
         name: "Adjoining Selector Rule Errors",
         
         "Adjoining classes should result in a warning": function(){
@@ -229,6 +326,54 @@
 
     /*global YUITest, CSSLint*/
     var Assert = YUITest.Assert;
+    
+    YUITest.TestRunner.add(new YUITest.TestCase({
+    
+        name: "Compatible Vendor Prefix Warnings",
+
+        "Using -webkit-border-radius should warn to also include -moz-border-radius.": function(){
+            var result = CSSLint.verify("h1 { -webkit-border-radius: 5px; }", { "compatible-vendor-prefixes": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("The property -moz-border-radius is compatible with -webkit-border-radius and should be included as well.", result.messages[0].message);
+        },
+        
+        "Using -webkit-transition and -moz-transition should warn to also include -o-transition.": function(){
+            var result = CSSLint.verify("h1 { -webkit-transition: height 20px 1s; -moz-transition: height 20px 1s; }", { "compatible-vendor-prefixes": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("The property -o-transition is compatible with -webkit-transition and -moz-transition and should be included as well.", result.messages[0].message);
+        },
+        
+        "Using -webkit-transform should warn to also include -moz-transform, -ms-transform, and -o-transform.": function(){
+            var result = CSSLint.verify("div.box { -webkit-transform: translate(50px, 100px); }", { "compatible-vendor-prefixes": 3 });
+            Assert.areEqual(3, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("The property -moz-transform is compatible with -webkit-transform and should be included as well.", result.messages[0].message);
+            Assert.areEqual("warning", result.messages[1].type);
+            Assert.areEqual("The property -ms-transform is compatible with -webkit-transform and should be included as well.", result.messages[1].message);
+            Assert.areEqual("warning", result.messages[2].type);
+            Assert.areEqual("The property -o-transform is compatible with -webkit-transform and should be included as well.", result.messages[2].message);
+        },
+        
+        "Using all compatible vendor prefixes for animation should be allowed with no warnings.": function(){
+            var result = CSSLint.verify(".next:focus { -moz-animation: 'diagonal-slide' 5s 10; -webkit-animation: 'diagonal-slide' 5s 10; }", { "compatible-vendor-prefixes": 0 });
+            Assert.areEqual(0, result.messages.length);
+        },
+        
+        "Using box-shadow with no vendor prefixes should be allowed with no warnings.": function(){
+            var result = CSSLint.verify("h1 { box-shadow: 5px 5px 5px #ccc; }", { "compatible-vendor-prefixes": 0 });
+            Assert.areEqual(0, result.messages.length);
+        }
+                
+    }));     
+
+})();
+
+(function(){
+
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
 
@@ -251,7 +396,7 @@
             var result = CSSLint.verify(".foo { float: left; display: inline; }", { "display-property-grouping": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("float can't be used with display: inline.", result.messages[0].message);
+            Assert.areEqual("display:inline has no effect on floated elements (but may be used to fix the IE6 double-margin bug).", result.messages[0].message);
         },
 
         "Float:none with inline-block should not result in a warning": function(){
@@ -434,6 +579,56 @@
             var result = CSSLint.verify(".foo { float: none; display: table-cell; }", { "display-property-grouping": 1 });
             Assert.areEqual(0, result.messages.length);
         }
+
+    }));
+
+})();
+
+(function(){
+
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
+        name: "Duplicate Property Rule Errors",
+
+        "Duplicate properties back-to-back should not result in a warning": function(){
+            var result = CSSLint.verify(".foo { float: left; float: right }", { "duplicate-properties": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Duplicate properties in @font-face back-to-back should not result in a warning": function(){
+            var result = CSSLint.verify("@font-face { src: url(foo.svg); src: url(foo1.svg) }", { "duplicate-properties": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Duplicate properties in @page back-to-back should not result in a warning": function(){
+            var result = CSSLint.verify("@page :left { margin: 5px; margin: 4px; }", { "duplicate-properties": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+        
+        "Duplicate properties not back-to-back should result in a warning": function(){
+            var result = CSSLint.verify(".foo { float: left; margin: 0; float: right }", { "duplicate-properties": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Duplicate property 'float' found.", result.messages[0].message);
+        },
+        
+        "Duplicate properties not back-to-back with same values should result in a warning": function(){
+            var result = CSSLint.verify(".foo { float: left; margin: 0; float: left }", { "duplicate-properties": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Duplicate property 'float' found.", result.messages[0].message);
+        },
+        
+        "Duplicate properties back-to-back with same values should result in a warning": function(){
+            var result = CSSLint.verify(".foo { float: left; float: left }", { "duplicate-properties": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Duplicate property 'float' found.", result.messages[0].message);
+        }
+        
 
     }));
 
@@ -872,8 +1067,27 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             Assert.areEqual("Standard property 'border-radius' should come after vendor-prefixed property '-moz-border-radius'.", result.messages[0].message);
         },
 
-        "Using -moz-border-radius-bottomleft with border-bottom-left-radius should not result in a warning.": function(){
+        "Using -webkit-border-bottom-left-radius with border-bottom-left-radius should not result in a warning.": function(){
             var result = CSSLint.verify("h1 { -webkit-border-bottom-left-radius: 4px; border-bottom-left-radius: 4px;  }", { "vendor-prefix": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+        
+        "Using -moz-border-radius-bottomleft should result in a warning.": function(){
+            var result = CSSLint.verify("h1 {  -moz-border-radius-bottomleft: 5px;  }", { "vendor-prefix": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Missing standard property 'border-bottom-left-radius' to go along with '-moz-border-radius-bottomleft'.", result.messages[0].message);
+        },
+        
+        "Using -moz-box-shadow should result in a warning.": function(){
+            var result = CSSLint.verify("h1 {  -moz-box-shadow: 5px;  }", { "vendor-prefix": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Missing standard property 'box-shadow' to go along with '-moz-box-shadow'.", result.messages[0].message);
+        },
+        
+        "Using @font-face should not result in an error (#90)": function(){
+            var result = CSSLint.verify("@font-face { src:url('../fonts/UniversBold.otf');font-family:Univers;advancedAntiAliasing: true;}", { "vendor-prefix": 1 });
             Assert.areEqual(0, result.messages.length);
         }
 
