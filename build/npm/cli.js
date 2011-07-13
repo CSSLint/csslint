@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Build time: 12-July-2011 03:27:00 */
+/* Build time: 13-July-2011 04:31:39 */
 //print for rhino and nodejs
 if(typeof print == "undefined") {
     var print = console.log;
@@ -182,3 +182,4 @@ files = files.map(function(filename){
 });
 
 process.exit(processFiles(files,options));
+

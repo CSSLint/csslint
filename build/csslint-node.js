@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 12-July-2011 03:27:00 */
+/* Build time: 13-July-2011 04:31:39 */
 /*!
 Parser-Lib
 Copyright (c) 2009-2011 Nicholas C. Zakas. All rights reserved.
@@ -45,7 +45,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 11-July-2011 04:28:24 */
+/* Build time: 12-July-2011 11:25:19 */
 var parserlib = {};
 (function(){
 
@@ -941,7 +941,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 11-July-2011 04:28:24 */
+/* Build time: 12-July-2011 11:25:19 */
 (function(){
 var EventTarget = parserlib.util.EventTarget,
 TokenStreamBase = parserlib.util.TokenStreamBase,
@@ -3802,11 +3802,11 @@ function isNameStart(c){
 }
 
 function isNameChar(c){
-    return c != null && (isNameStart(c) || /[0-9\-]/.test(c));
+    return c != null && (isNameStart(c) || /[0-9\-\\]/.test(c));
 }
 
 function isIdentStart(c){
-    return c != null && (isNameStart(c) || c == "-");
+    return c != null && (isNameStart(c) || /\-\\/.test(c));
 }
 
 function mix(receiver, supplier){
@@ -4705,14 +4705,44 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
             ident   = first || "",
             c       = reader.peek();
 
-
-        while(c && isNameChar(c)){
-            ident += reader.read();
-            c = reader.peek();
+        while(true){
+            if (c == "\\"){
+                ident += this.readEscape(reader.read());
+                c = reader.peek();
+            } else if(c && isNameChar(c)){
+                ident += reader.read();
+                c = reader.peek();
+            } else {
+                break;
+            }
         }
 
         return ident;
     },
+    
+    readEscape: function(first){
+        var reader  = this._reader,
+            cssEscape = first || "",
+            i       = 0,
+            c       = reader.peek();    
+    
+        if (isHexDigit(c)){
+            do {
+                cssEscape += reader.read();
+                c = reader.peek();
+            } while(c && isHexDigit(c) && ++i < 6);
+        }
+        
+        if (cssEscape.length == 3 && /\s/.test(c) ||
+            cssEscape.length == 7 || cssEscape.length == 1){
+                reader.read();
+        } else {
+            c = "";
+        }
+        
+        return cssEscape + c;
+    },
+    
     readComment: function(first){
         var reader  = this._reader,
             comment = first || "",
@@ -4962,6 +4992,7 @@ TokenStream         :TokenStream,
 Tokens              :Tokens
 };
 })();
+
 /**
  * YUI Test Framework
  * @module yuitest
@@ -9523,6 +9554,7 @@ YUITest.PageManager = YUITest.Util.mix(new YUITest.EventTarget(), {
         return new TestRunner();
 
     }();
+
 /**
  * Main CSSLint object.
  * @class CSSLint
@@ -9673,6 +9705,7 @@ var CSSLint = (function(){
     return api;
 
 })();
+
 /**
  * An instance of Report is used to report results of the
  * verification back to the main API.
@@ -9807,6 +9840,7 @@ Reporter.prototype = {
         this.stats[name] = value;
     }
 };
+
 /*
  * Utility functions that make life easier.
  */
@@ -10780,7 +10814,7 @@ CSSLint.addRule({
  * Should we be checking for rtl/ltr?
  */
 //Commented out due to lack of tests
-/*CSSLint.addRule({
+CSSLint.addRule({
 
     //rule information
     id: "text-indent",
@@ -10795,7 +10829,7 @@ CSSLint.addRule({
         //check for use of "font-size"
         parser.addListener("property", function(event){
             var name = event.property,
-                value = event.value;
+                value = event.value.parts[0].value;
 
             if (name == "text-indent" && value < -99){
                 reporter.warn("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set text-direction for that item to ltr.", name.line, name.col, rule);
@@ -10803,7 +10837,7 @@ CSSLint.addRule({
         });
     }
 
-});*/
+});
 /*
  * Rule: Headings (h1-h6) should be defined only once.
  */
