@@ -23,6 +23,7 @@
             var result = CSSLint.verify(".foo{text-indent: 5px;}", {"text-indent": 1 });
             Assert.areEqual(0, result.messages.length);
         }
+				
     }));
 
 })();
