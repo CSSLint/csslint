@@ -1,7 +1,7 @@
 CSSLint.addFormatter({
     //format information
-    id: "one-line",
-    name: "One-line, 'porcelain' format",
+    id: "compact",
+    name: "Compact, 'porcelain' format",
     
     startFormat: function(){
         return "";

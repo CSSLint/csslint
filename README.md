@@ -159,7 +159,7 @@ You can customize which rules are applied with the `--rules` option (default is 
 
     csslint --rules=adjoining-classes,other-rule file.css
 
-You can customize the output format with the `--format` option ("text", "one-line", and "lint-xml" are available):
+You can customize the output format with the `--format` option ("text", "compact", and "lint-xml" are available):
 
     csslint --format=lint-xml file.css
 

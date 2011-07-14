@@ -4,11 +4,11 @@
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
-        name: "One-line formatter",
+        name: "Compact formatter",
         
         "File with no problems should say so": function(){
             var result = { messages: [], stats: [] };
-            Assert.areEqual("FILE: Lint Free!", CSSLint.format(result, "FILE", "one-line"));
+            Assert.areEqual("FILE: Lint Free!", CSSLint.format(result, "FILE", "compact"));
         },
 
         "File with problems should list them": function(){
@@ -19,7 +19,7 @@
                 error1 = "FILE: line 1, col 1, BOGUS WARNING\n",
                 error2 = "FILE: line 2, col 1, BOGUS ERROR\n",
                 expected = error1 + error2,
-                actual = CSSLint.format(result, "FILE", "one-line");
+                actual = CSSLint.format(result, "FILE", "compact");
             Assert.areEqual(expected, actual);
         }
 
