@@ -31,7 +31,12 @@ function gatherRules(options){
     return ruleset;
 }
 
-//process a list of files, return 1 if one or more error occurred
+/**
+ * Given a file name and options, run verification and print formatted output.
+ * @param {String} name of file to process
+ * @param {Object} options for processing
+ * @return {Number} exit code
+ */
 var processFile = function(filename, options) {
     var input = readFile(filename),
         result = CSSLint.verify(input, gatherRules(options)),
@@ -66,6 +71,12 @@ function outputHelp(){
     ].join("\n") + "\n\n");
 }
 
+/**
+ * Given an {Array} of files, print wrapping output and process them.
+ * @param {Array} files list
+ * @param {Object} options
+ * @return {Number} exit code
+ */
 function processFiles(files, options){
     var exitCode = 0,
         formatId = options.format || "text",

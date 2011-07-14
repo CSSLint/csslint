@@ -15,6 +15,11 @@ CSSLint.addFormatter({
         var messages = results.messages,
             output = [];
 
+        /**
+         * Replace double-quotes with single quotes for XML output
+         * @param {String} message to escape
+         * @return escaped message as {String}
+         */
         var replaceDoubleQuotes = function(str) {
             if (!str || str.constructor !== String) {
                 return "";
