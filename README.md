@@ -1,4 +1,4 @@
-# CSSLint
+**# CSSLint
 
 ## Introduction
 
@@ -145,6 +145,20 @@ The universal selector (*) selects all elements and can create performance issue
     
 This requires the browser to match all elements first, and then go up the DOM tree to find an element with a class of `.foo`. Generally, it's best to avoid using the universal selector.
 
+## Command-line Interface
+
+You can run CSSLint on a file with:
+
+    csslint path/to/file.css
+
+You can customize which rules are applied with the `--rules` option (default is all rules):
+
+    csslint --rules=adjoining-classes,other-rule file.css
+
+You can also customize the output format with the `--format` option ("text", "one-line", and "jslint-xml" are available):
+
+    csslint --format=jslint-xml file.css
+
 ## Contributors
 
 ### Creators
@@ -158,3 +172,4 @@ This requires the browser to match all elements first, and then go up the DOM tr
 1. Eitan Konigsburg, https://twitter.com/eitanmk (Rhino CLI)
 1. Ben Barber (Compatible Vendor Prefix Rule)
 1. Eric Wendelin, http://eriwen.com (Output formatters)
+**
