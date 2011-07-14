@@ -149,15 +149,23 @@ This requires the browser to match all elements first, and then go up the DOM tr
 
 You can run CSSLint on a file with:
 
-    csslint path/to/file.css
+    csslint [options] path/to/file.css
+
+You can see usage:
+
+    csslint --help
 
 You can customize which rules are applied with the `--rules` option (default is all rules):
 
     csslint --rules=adjoining-classes,other-rule file.css
 
-You can also customize the output format with the `--format` option ("text", "one-line", and "lint-xml" are available):
+You can customize the output format with the `--format` option ("text", "one-line", and "lint-xml" are available):
 
     csslint --format=lint-xml file.css
+
+You can check the version of CSSLint with:
+
+    csslint --version
 
 ## Contributors
 
