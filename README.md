@@ -155,9 +155,9 @@ You can customize which rules are applied with the `--rules` option (default is 
 
     csslint --rules=adjoining-classes,other-rule file.css
 
-You can also customize the output format with the `--format` option ("text", "one-line", and "jslint-xml" are available):
+You can also customize the output format with the `--format` option ("text", "one-line", and "lint-xml" are available):
 
-    csslint --format=jslint-xml file.css
+    csslint --format=lint-xml file.css
 
 ## Contributors
 
