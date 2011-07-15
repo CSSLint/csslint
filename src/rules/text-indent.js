@@ -6,7 +6,7 @@
  * Should we be checking for rtl/ltr?
  */
 //Commented out due to lack of tests
-/*CSSLint.addRule({
+CSSLint.addRule({
 
     //rule information
     id: "text-indent",
@@ -21,7 +21,7 @@
         //check for use of "font-size"
         parser.addListener("property", function(event){
             var name = event.property,
-                value = event.value;
+                value = event.value.parts[0].value;
 
             if (name == "text-indent" && value < -99){
                 reporter.warn("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set text-direction for that item to ltr.", name.line, name.col, rule);
@@ -29,4 +29,4 @@
         });
     }
 
-});*/
+});
