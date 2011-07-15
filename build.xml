@@ -16,12 +16,14 @@
     <!-- the directory containing library files -->
     <property name="lib.dir" value="./lib" />    
     
+    <!-- library files -->
+    <property name="jshint.js" value="jshint.js" />
+    <property name="parserlib.js" value="parserlib.js" />
+    <property name="yuitest.js" value="yuitest.js" />
+    
     <!-- external resources -->
     <property name="parser.url" value="https://raw.github.com/nzakas/parser-lib/master/build/parserlib.js"/>
-    
-    <!-- library filenames -->
-    <property name="parser.file" value="parserlib.js" />
-    
+
     <!-- output filenames -->
     <property name="core.build.file" value="csslint.js"/>
     <property name="node.build.file" value="csslint-node.js"/>
@@ -43,6 +45,19 @@
     <target name="clean">
         <delete dir="${build.dir}" />
     </target>
+    
+    <!-- validate JS files with JSHint -->
+    <target name="lint">
+       
+        <apply executable="java" parallel="false" failonerror="true">
+            <fileset dir="${src.dir}" includes="**/*.js" />
+            <arg line="-jar"/>
+            <arg path="${lib.dir}/js.jar"/>
+            <arg path="${lib.dir}/jshint.js" />
+            <srcfile/>
+        </apply>      
+        
+    </target>
 
     <!-- build the core library -->
     <target name="build.core">    
@@ -53,7 +68,7 @@
             /* Build time: ${RIGHT_NOW} */
             var CSSLint = (function(){
             </header>
-            <fileset dir="${lib.dir}" includes="*.js" />
+            <fileset dir="${lib.dir}" includes="${parserlib.js}" />
             <filelist dir="${src.dir}/core" files="CSSLint.js" />
             <fileset dir="${src.dir}/core" includes="*.js" excludes="CSSLint.js"/>
             <fileset dir="${src.dir}/rules" includes="*.js" />
@@ -74,7 +89,7 @@
             */
             /* Build time: ${RIGHT_NOW} */
             </header>
-            <fileset dir="${lib.dir}" includes="*.js" />
+            <fileset dir="${lib.dir}" includes="${parserlib.js}" />
             <filelist dir="${src.dir}/core" files="CSSLint.js" />
             <fileset dir="${src.dir}/core" includes="*.js" excludes="CSSLint.js"/>
             <fileset dir="${src.dir}/rules" includes="*.js" />     
@@ -93,7 +108,7 @@
             */
             /* Build time: ${RIGHT_NOW} */
             </header>
-            <fileset dir="${lib.dir}" includes="*.js" />
+            <fileset dir="${lib.dir}" includes="${parserlib.js}" />
             <filelist dir="${src.dir}/core" files="CSSLint.js" />
             <fileset dir="${src.dir}/core" includes="*.js" excludes="CSSLint.js"/>
             <fileset dir="${src.dir}/rules" includes="*.js" />
@@ -147,7 +162,13 @@
     
     <!-- Update CSS parser with the latest -->
     <target name="update-parser">
-        <get src="${parser.url}" dest="${lib.dir}/${parser.file}" />
+        <get src="${parser.url}" dest="${lib.dir}/" />
+    </target>
+    
+    <!-- Update JSHint with the latest -->
+    <target name="update-jshint">
+        <get src="${jshint-rhino.url}" dest="${lib.dir}/" />
+        <get src="${jshint.url}" dest="${lib.dir}/" />
     </target>
     
     <!-- Build all files -->
