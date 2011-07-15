@@ -25,7 +25,7 @@ function getFiles(dir) {
     traverse(dir);
 
     return files;
-};
+}
 
 //-----------------------------------------------------------------------------
 // Process command line
@@ -38,7 +38,7 @@ var args     = Array.prototype.slice.call(arguments),
     files    = [];
 
 while(arg){
-    if (arg.indexOf("--") == 0){
+    if (arg.indexOf("--") === 0){
         argName = arg.substring(2);
         options[argName] = true;
         
@@ -60,7 +60,7 @@ while(arg){
     arg = args.shift();
 }
 
-if (options.help || arguments.length == 0){
+if (options.help || arguments.length === 0){
     outputHelp();
     quit(0);
 }

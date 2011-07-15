@@ -54,7 +54,7 @@ var args     = process.argv.slice(2),
     files    = [];
 
 while(arg){
-    if (arg.indexOf("--") == 0){
+    if (arg.indexOf("--") === 0){
         argName = arg.substring(2);
         options[argName] = true;
         
@@ -74,7 +74,7 @@ while(arg){
     arg = args.shift();
 }
 
-if (options.help || arguments.length == 0){
+if (options.help || arguments.length === 0){
     outputHelp();
     process.exit(0);
 }
