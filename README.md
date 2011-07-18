@@ -145,6 +145,10 @@ The universal selector (*) selects all elements and can create performance issue
     
 This requires the browser to match all elements first, and then go up the DOM tree to find an element with a class of `.foo`. Generally, it's best to avoid using the universal selector.
 
+### Known Properties
+
+It's very easy to miss a typo in your CSS. This rule checks each property name to make sure that it is a known CSS property. Vendor-prefixed properties are ignored, since they are technically not part of any specification.
+
 ## Command-line Interface
 
 You can run CSSLint on a file with:

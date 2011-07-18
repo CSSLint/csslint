@@ -1,5 +1,6 @@
 Next (not yet released)
 
+* Added rule to check property name against list of known properties (fixes #136)
 * Ensure consistency across error messages (fixes #89)
 * Updated parser to handle CSS escaping (fixes #97)
 * Added a rule to check for high text-indent for RTL (fixes #109)
