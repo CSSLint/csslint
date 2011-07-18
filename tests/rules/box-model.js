@@ -52,6 +52,11 @@
             var result = CSSLint.verify(".foo { width: 100px; padding-bottom: 10px; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
         },
+        
+        "Using width and padding-to-bottom should not result in a warning": function(){
+            var result = CSSLint.verify(".foo { width: 100px; padding: 10px 0; }", { "box-model": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },            
 
         "Using width and border should result in a warning": function(){
             var result = CSSLint.verify(".foo { width: 100px; border: 10px; }", { "box-model": 1 });
@@ -115,6 +120,11 @@
             var result = CSSLint.verify(".foo { height: 100px; padding-right: 10px; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
         },
+        
+        "Using height and padding-left-right should not result in a warning": function(){
+            var result = CSSLint.verify(".foo { height: 100px; padding: 0 10px; }", { "box-model": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },    
 
         "Using height and padding-top should result in a warning": function(){
             var result = CSSLint.verify(".foo { height: 100px; padding-top: 10px; }", { "box-model": 1 });

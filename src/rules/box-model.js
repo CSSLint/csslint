@@ -40,7 +40,7 @@ CSSLint.addRule({
             
             if (heightProperties[name] || widthProperties[name]){
                 if (!/^0\S*$/.test(event.value) && !(name == "border" && event.value == "none")){
-                    properties[name] = { line: event.property.line, col: event.property.col };
+                    properties[name] = { line: event.property.line, col: event.property.col, value: event.value };
                 }
             } else {
                 if (name == "width" || name == "height"){
@@ -55,7 +55,13 @@ CSSLint.addRule({
             if (properties["height"]){
                 for (prop in heightProperties){
                     if (heightProperties.hasOwnProperty(prop) && properties[prop]){
-                        reporter.warn("Broken box model: using height with " + prop + ".", properties[prop].line, properties[prop].col, rule);
+                    
+                        //special case for padding
+                        if (prop == "padding" && properties[prop].value.parts.length == 2 && properties[prop].value.parts[0].value == 0){
+                            //noop
+                        } else {
+                            reporter.warn("Broken box model: using height with " + prop + ".", properties[prop].line, properties[prop].col, rule);
+                        }
                     }
                 }
             }
@@ -63,7 +69,12 @@ CSSLint.addRule({
             if (properties["width"]){
                 for (prop in widthProperties){
                     if (widthProperties.hasOwnProperty(prop) && properties[prop]){
-                        reporter.warn("Broken box model: using width with " + prop + ".", properties[prop].line, properties[prop].col, rule);
+
+                        if (prop == "padding" && properties[prop].value.parts.length == 2 && properties[prop].value.parts[1].value == 0){
+                            //noop
+                        } else {
+                            reporter.warn("Broken box model: using width with " + prop + ".", properties[prop].line, properties[prop].col, rule);
+                        }
                     }
                 }
             }

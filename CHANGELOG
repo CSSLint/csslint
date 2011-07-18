@@ -1,5 +1,6 @@
 Next (not yet released)
 
+* Fixed bug with box model rule (fixes #135)
 * Added rule to check property name against list of known properties (fixes #136)
 * Ensure consistency across error messages (fixes #89)
 * Updated parser to handle CSS escaping (fixes #97)
