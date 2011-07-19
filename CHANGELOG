@@ -1,5 +1,6 @@
 Next (not yet released)
 
+* Added total headings count to unique-headings rule (fixes #108)
 * Fixed bug with box model rule (fixes #135)
 * Added rule to check property name against list of known properties (fixes #136)
 * Ensure consistency across error messages (fixes #89)

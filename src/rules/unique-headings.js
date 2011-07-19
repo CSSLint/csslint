@@ -32,7 +32,7 @@ CSSLint.addRule({
                 selector = selectors[i];
                 part = selector.parts[selector.parts.length-1];
 
-                if (part.elementName && /(h[1-6])/.test(part.elementName.toString())){
+                if (part.elementName && /(h[1-6])/i.test(part.elementName.toString())){
                     headings[RegExp.$1]++;
                     if (headings[RegExp.$1] > 1) {
                         reporter.warn("Heading (" + part.elementName + ") has already been defined.", part.line, part.col, rule);
@@ -40,6 +40,23 @@ CSSLint.addRule({
                 }
             }
         });
+        
+        parser.addListener("endstylesheet", function(event){
+            var prop,
+                messages = [];
+                
+            for (var prop in headings){
+                if (headings.hasOwnProperty(prop)){
+                    if (headings[prop] > 1){
+                        messages.push(headings[prop] + " " + prop + "s");
+                    }
+                }
+            }
+            
+            if (messages.length){
+                reporter.rollupWarn("You have " + messages.join(", ") + " defined in this stylesheet.", rule);
+            }
+        });        
     }
 
 });
