@@ -1,5 +1,24 @@
+//print for rhino and nodejs
+if(typeof print == "undefined") {
+    var print = console.log;
+}
 
-CLI.gatherRules = function(options){
+//readFile for rhino and nodejs
+if(typeof readFile == "undefined") {
+    var readFile = function(filepath) {
+        var fs = require("fs");
+        return fs.readFileSync(filepath, "utf-8");
+    }
+}
+
+//filter messages by type
+var pluckByType = function(messages, type){
+    return messages.filter(function(message) {
+        return message.type === type;
+    });
+};
+
+function gatherRules(options){
     var ruleset;
     
     if (options.rules){
@@ -10,13 +29,7 @@ CLI.gatherRules = function(options){
     }
     
     return ruleset;
-};
-    
-CLI.pluckByType = function(messages, type){
-    return messages.filter(function(message) {
-        return message.type === type;
-    });
-};
+}
 
 /**
  * Given a file name and options, run verification and print formatted output.
@@ -24,20 +37,20 @@ CLI.pluckByType = function(messages, type){
  * @param {Object} options for processing
  * @return {Number} exit code
  */
-CLI.processFile = function(filename, options) {
-    var input = this.readFile(filename),
-        result = CSSLint.verify(input, this.gatherRules(options)),
+var processFile = function(filename, options) {
+    var input = readFile(filename),
+        result = CSSLint.verify(input, gatherRules(options)),
         formatId = options.format || "text",
         messages = result.messages || [],
         exitCode = 0;
 
     if (!input) {
-        this.print("csslint: Could not read file data in " + filename + ". Is the file empty?");
+        print("csslint: Could not read file data in " + filename + ". Is the file empty?");
         exitCode = 1;
     } else {
-        this.print(CSSLint.getFormatter(formatId).formatResults(result, filename, formatId));
+        print(CSSLint.getFormatter(formatId).formatResults(result, filename, formatId));
 
-        if (messages.length > 0 && this.pluckByType(messages, 'error').length > 0) {
+        if (messages.length > 0 && pluckByType(messages, 'error').length > 0) {
             exitCode = 1;
         }
     }
@@ -46,7 +59,7 @@ CLI.processFile = function(filename, options) {
 };
 
 //output CLI help screen
-CLI.outputHelp = function(){
+function outputHelp(){
     print([
         "\nUsage: csslint-rhino.js [options]* [file|dir]*",
         " ",
@@ -56,7 +69,7 @@ CLI.outputHelp = function(){
         "  --format=<format>      Indicate which format to use for output.",
         "  --version              Outputs the current version number."
     ].join("\n") + "\n\n");
-};
+}
 
 /**
  * Given an {Array} of files, print wrapping output and process them.
@@ -64,25 +77,25 @@ CLI.outputHelp = function(){
  * @param {Object} options
  * @return {Number} exit code
  */
-CLI.processFiles = function(files, options){
+function processFiles(files, options){
     var exitCode = 0,
         formatId = options.format || "text",
         formatter;
     if (!files.length) {
-        this.print("No files specified.");
+        print("No files specified.");
         exitCode = 1;
     } else {
         if (!CSSLint.hasFormat(formatId)){
-            this.print("csslint: Unknown format '" + formatId + "'. Cannot proceed.");
+            print("csslint: Unknown format '" + formatId + "'. Cannot proceed.");
             exitCode = 1; 
         } else {
             formatter = CSSLint.getFormatter(formatId);
-            this.print(formatter.startFormat());
+            print(formatter.startFormat());
             exitCode = files.some(function(file){
-                this.processFile(file,options);
-            }, this);
+                processFile(file,options);
+            });
             print(formatter.endFormat());
         }
     }
     return exitCode;
-};
+}
