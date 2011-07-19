@@ -33,6 +33,14 @@ var CSSLint = (function(){
         rules = [];
     };
 
+    /**
+     * Returns all rules of the engine.
+     * @method getRules
+     */
+    api.getRules = function(){
+        return rules;
+    };
+
     //-------------------------------------------------------------------------
     // Verification
     //-------------------------------------------------------------------------
