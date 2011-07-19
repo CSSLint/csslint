@@ -17,31 +17,29 @@ var cli = (function (print) {
 		rules: {},
 		
 		handleExtension: function (extension) {
-			extension.split(',').each(function (extension) {
-				if (extension.indexOf('+') === 0) {
-					extension = extension.substr(1);
-					that.mode = '+';
-				} else if (extension.indexOf('-') === 0) {
-					extension = extension.substr(1);
-					that.mode = '-';
-				}
-				extension = extension.toLowerCase();
-				if (extension === 'none') {
+			if (extension.indexOf('+') === 0) {
+				extension = extension.substr(1);
+				that.mode = '+';
+			} else if (extension.indexOf('-') === 0) {
+				extension = extension.substr(1);
+				that.mode = '-';
+			}
+			extension = extension.toLowerCase();
+			if (extension === 'none') {
+				that.extensions = [];
+			} else if (that.mode === '-') {
+				if (extension === 'all') {
 					that.extensions = [];
-				} else if (that.mode === '-') {
-					if (extension === 'all') {
-						that.extensions = [];
-					} else {
-						delete that.extensions[extension];
-					}
 				} else {
-					if (extension === 'all') {
-						that.extensions.css = true;
-					} else {
-						that.extensions[extension] = true;
-					}
+					delete that.extensions[extension];
 				}
-			});
+			} else {
+				if (extension === 'all') {
+					that.extensions.css = true;
+				} else {
+					that.extensions[extension] = true;
+				}
+			}
 		},
 		
 		handleFile: function (config, path) {
