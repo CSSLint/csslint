@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 26-June-2011 03:42:58 */
+/* Build time: 5-July-2011 06:51:20 */
 /*!
 Parser-Lib
 Copyright (c) 2009-2011 Nicholas C. Zakas. All rights reserved.
@@ -45,7 +45,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 23-June-2011 03:36:49 */
+/* Build time: 5-July-2011 03:12:40 */
 var parserlib = {};
 (function(){
 
@@ -910,7 +910,6 @@ TokenStreamBase.prototype = {
 };
 
 
-
 parserlib.util = {
 StringReader: StringReader,
 SyntaxError : SyntaxError,
@@ -919,7 +918,6 @@ EventTarget : EventTarget,
 TokenStreamBase : TokenStreamBase
 };
 })();
-
 /* 
 Parser-Lib
 Copyright (c) 2009-2011 Nicholas C. Zakas. All rights reserved.
@@ -943,7 +941,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 23-June-2011 03:36:49 */
+/* Build time: 5-July-2011 03:12:40 */
 (function(){
 var EventTarget = parserlib.util.EventTarget,
 TokenStreamBase = parserlib.util.TokenStreamBase,
@@ -1129,7 +1127,6 @@ function Combinator(text, line, col){
 
 Combinator.prototype = new SyntaxUnit();
 Combinator.prototype.constructor = Combinator;
-
 
 
 var Level1Properties = {
@@ -1338,7 +1335,6 @@ function MediaFeature(name, value){
 MediaFeature.prototype = new SyntaxUnit();
 MediaFeature.prototype.constructor = MediaFeature;
 
-
 /**
  * Represents an individual media query.
  * @namespace parserlib.css
@@ -1380,7 +1376,6 @@ function MediaQuery(modifier, mediaType, features, line, col){
 
 MediaQuery.prototype = new SyntaxUnit();
 MediaQuery.prototype.constructor = MediaQuery;
-
 
 /**
  * A CSS3 parser.
@@ -1526,8 +1521,16 @@ Parser.prototype = function(){
             },
             
             _charset: function(emit){
-                var tokenStream = this._tokenStream;
+                var tokenStream = this._tokenStream,
+                    charset,
+                    token,
+                    line,
+                    col;
+                    
                 if (tokenStream.match(Tokens.CHARSET_SYM)){
+                    line = tokenStream.token().startLine;
+                    col = tokenStream.token().startCol;
+                
                     this._readWhitespace();
                     tokenStream.mustMatch(Tokens.STRING);
                     
@@ -1540,7 +1543,9 @@ Parser.prototype = function(){
                     if (emit !== false){
                         this.fire({ 
                             type:   "charset",
-                            charset:charset
+                            charset:charset,
+                            line:   line,
+                            col:    col
                         });
                     }
                 }            
@@ -1596,11 +1601,15 @@ Parser.prototype = function(){
                  */    
             
                 var tokenStream = this._tokenStream,
+                    line,
+                    col,
                     prefix,
                     uri;
                 
                 //read import symbol
                 tokenStream.mustMatch(Tokens.NAMESPACE_SYM);
+                line = tokenStream.token().startLine;
+                col = tokenStream.token().startCol;
                 this._readWhitespace();
                 
                 //it's a namespace prefix - no _namespace_prefix() method because it's just an IDENT
@@ -1627,7 +1636,9 @@ Parser.prototype = function(){
                     this.fire({
                         type:   "namespace",
                         prefix: prefix,
-                        uri:    uri
+                        uri:    uri,
+                        line:   line,
+                        col:    col
                     });
                 }
         
@@ -1640,10 +1651,15 @@ Parser.prototype = function(){
                  *   ;
                  */
                 var tokenStream     = this._tokenStream,
+                    line,
+                    col,
                     mediaList;//       = [];
                 
                 //look for @media
                 tokenStream.mustMatch(Tokens.MEDIA_SYM);
+                line = tokenStream.token().startLine;
+                col = tokenStream.token().startCol;
+                
                 this._readWhitespace();               
 
                 mediaList = this._media_query_list();
@@ -1653,17 +1669,27 @@ Parser.prototype = function(){
                 
                 this.fire({
                     type:   "startmedia",
-                    media:  mediaList
+                    media:  mediaList,
+                    line:   line,
+                    col:    col
                 });
                 
-                while(this._ruleset()){}
+                while(true) {
+                    if (tokenStream.peek() == Tokens.PAGE_SYM){
+                        this._page();
+                    } else if (!this._ruleset()){
+                        break;
+                    }                
+                }
                 
                 tokenStream.mustMatch(Tokens.RBRACE);
                 this._readWhitespace();
         
                 this.fire({
                     type:   "endmedia",
-                    media:  mediaList
+                    media:  mediaList,
+                    line:   line,
+                    col:    col
                 });
             },                           
         
@@ -1681,8 +1707,8 @@ Parser.prototype = function(){
                 
                 this._readWhitespace();
                 
-                if (tokenStream.peek() == Tokens.IDENT){
-                    mediaList.push(this._media_query())
+                if (tokenStream.peek() == Tokens.IDENT || tokenStream.peek() == Tokens.LPAREN){
+                    mediaList.push(this._media_query());
                 }
                 
                 while(tokenStream.match(Tokens.COMMA)){
@@ -1823,11 +1849,16 @@ Parser.prototype = function(){
                  *    ;
                  */            
                 var tokenStream = this._tokenStream,
+                    line,
+                    col,
                     identifier  = null,
                     pseudoPage  = null;
                 
                 //look for @page
                 tokenStream.mustMatch(Tokens.PAGE_SYM);
+                line = tokenStream.token().startLine;
+                col = tokenStream.token().startCol;
+                
                 this._readWhitespace();
                 
                 if (tokenStream.match(Tokens.IDENT)){
@@ -1849,7 +1880,9 @@ Parser.prototype = function(){
                 this.fire({
                     type:   "startpage",
                     id:     identifier,
-                    pseudo: pseudoPage
+                    pseudo: pseudoPage,
+                    line:   line,
+                    col:    col
                 });                   
 
                 this._readDeclarations(true, true);                
@@ -1857,7 +1890,9 @@ Parser.prototype = function(){
                 this.fire({
                     type:   "endpage",
                     id:     identifier,
-                    pseudo: pseudoPage
+                    pseudo: pseudoPage,
+                    line:   line,
+                    col:    col
                 });             
             
             },
@@ -1870,19 +1905,28 @@ Parser.prototype = function(){
                  *    ;
                  */
                 var tokenStream = this._tokenStream,
+                    line,
+                    col,
                     marginSym   = this._margin_sym();
 
                 if (marginSym){
+                    line = tokenStream.token().startLine;
+                    col = tokenStream.token().startCol;
+                
                     this.fire({
                         type: "startpagemargin",
-                        margin: marginSym
+                        margin: marginSym,
+                        line:   line,
+                        col:    col
                     });    
                     
                     this._readDeclarations(true);
 
                     this.fire({
                         type: "endpagemargin",
-                        margin: marginSym
+                        margin: marginSym,
+                        line:   line,
+                        col:    col
                     });    
                     return true;
                 } else {
@@ -1955,20 +1999,29 @@ Parser.prototype = function(){
                  *     '{' S* declaration [ ';' S* declaration ]* '}' S*
                  *   ;
                  */     
-                var tokenStream = this._tokenStream;
+                var tokenStream = this._tokenStream,
+                    line,
+                    col;
                 
                 //look for @page
                 tokenStream.mustMatch(Tokens.FONT_FACE_SYM);
+                line = tokenStream.token().startLine;
+                col = tokenStream.token().startCol;
+                
                 this._readWhitespace();
 
                 this.fire({
-                    type:   "startfontface"
+                    type:   "startfontface",
+                    line:   line,
+                    col:    col
                 });                    
                 
                 this._readDeclarations(true);
                 
                 this.fire({
-                    type:   "endfontface"
+                    type:   "endfontface",
+                    line:   line,
+                    col:    col
                 });              
             },
 
@@ -2081,6 +2134,7 @@ Parser.prototype = function(){
                  */    
                  
                 var tokenStream = this._tokenStream,
+                tt,
                     selectors;
 
 
@@ -2125,14 +2179,18 @@ Parser.prototype = function(){
                                     
                     this.fire({
                         type:       "startrule",
-                        selectors:  selectors
+                        selectors:  selectors,
+                        line:       selectors[0].line,
+                        col:        selectors[0].col
                     });                
                     
                     this._readDeclarations(true);                
                     
                     this.fire({
                         type:       "endrule",
-                        selectors:  selectors
+                        selectors:  selectors,
+                        line:       selectors[0].line,
+                        col:        selectors[0].col
                     });  
                     
                 }
@@ -2701,7 +2759,7 @@ Parser.prototype = function(){
                 
                 property = this._property();
                 if (property !== null){
-                    
+
                     tokenStream.mustMatch(Tokens.COLON);
                     this._readWhitespace();
                     
@@ -2718,7 +2776,9 @@ Parser.prototype = function(){
                         type:       "property",
                         property:   property,
                         value:      expr,
-                        important:  prio
+                        important:  prio,
+                        line:       property.line,
+                        col:        property.col
                     });                      
                     
                     return true;
@@ -2897,7 +2957,7 @@ Parser.prototype = function(){
                     expr = this._expr();
                     
                     tokenStream.match(Tokens.RPAREN);    
-                    functionText += expr + ")"
+                    functionText += expr + ")";
                     this._readWhitespace();
                 }                
                 
@@ -2948,7 +3008,7 @@ Parser.prototype = function(){
                     } while(tokenStream.match([Tokens.COMMA, Tokens.S]));                    
                     
                     tokenStream.match(Tokens.RPAREN);    
-                    functionText += ")"
+                    functionText += ")";
                     this._readWhitespace();
                 }                
                 
@@ -3279,7 +3339,6 @@ function PropertyName(text, hack, line, col){
 PropertyName.prototype = new SyntaxUnit();
 PropertyName.prototype.constructor = PropertyName;
 
-
 /**
  * Represents a single part of a CSS property value, meaning that it represents
  * just everything single part between ":" and ";". If there are multiple values
@@ -3307,7 +3366,6 @@ function PropertyValue(parts, line, col){
 
 PropertyValue.prototype = new SyntaxUnit();
 PropertyValue.prototype.constructor = PropertyValue;
-
 
 /**
  * Represents a single part of a CSS property value, meaning that it represents
@@ -3480,7 +3538,6 @@ function Selector(parts, line, col){
 Selector.prototype = new SyntaxUnit();
 Selector.prototype.constructor = Selector;
 
-
 /**
  * Represents a single part of a selector string, meaning a single set of
  * element name and modifiers. This does not include combinators such as
@@ -3522,7 +3579,6 @@ function SelectorPart(elementName, modifiers, text, line, col){
 SelectorPart.prototype = new SyntaxUnit();
 SelectorPart.prototype.constructor = SelectorPart;
 
-
 /**
  * Represents a selector modifier string, meaning a class name, element name,
  * element ID, pseudo rule, etc.
@@ -3557,7 +3613,6 @@ function SelectorSubPart(text, type, line, col){
 
 SelectorSubPart.prototype = new SyntaxUnit();
 SelectorSubPart.prototype.constructor = SelectorSubPart;
-
 
 
  
@@ -4202,11 +4257,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
             ident = this.readName(reader.read());
             value += ident;            
 
-            if (/em/i.test(ident)){
-                tt = Tokens.EMS;
-            } else if (/ex/i.test(ident)){
-                tt = Tokens.EXS;
-            } else if (/px|cm|mm|in|pt|pc/i.test(ident)){
+            if (/em|ex|px|gd|rem|vw|vh|vm|ch|cm|mm|in|pt|pc/i.test(ident)){
                 tt = Tokens.LENGTH;
             } else if (/deg|rad|grad/i.test(ident)){
                 tt = Tokens.ANGLE;
@@ -4447,6 +4498,12 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
             c       = reader.peek();
             
         reader.mark();
+        
+        //skip whitespace before
+        while(c && isWhitespace(c)){
+            reader.read();
+            c = reader.peek();
+        }
             
         //it's a string
         if (c == "'" || c == "\""){
@@ -4456,7 +4513,13 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
         }
         
         c = reader.peek();
-        
+
+        //skip whitespace after
+        while(c && isWhitespace(c)){
+            reader.read();
+            c = reader.peek();
+        }
+            
         //if there was no inner value or the next character isn't closing paren, it's not a URI
         if (inner == "" || c != ")"){
             uri = first;
@@ -4523,7 +4586,6 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
 
 
 });
-
 
 var Tokens  = [
 
@@ -4725,7 +4787,6 @@ var Tokens  = [
 
 
 
-
 parserlib.css = {
 Colors              :Colors,    
 Combinator          :Combinator,                
@@ -4743,7 +4804,6 @@ Tokens              :Tokens
 };
 })();
 
-
 /**
  * YUI Test Framework
  * @module yuitest
@@ -4756,7 +4816,7 @@ Tokens              :Tokens
  */
 
 var YUITest = {
-    version: "0.3.2"
+    version: "0.4.0"
 };
 
 
@@ -9314,10 +9374,11 @@ YUITest.PageManager = YUITest.Util.mix(new YUITest.EventTarget(), {
  */
 var CSSLint = (function(){
 
-    var rules   = [],
-        api     = new parserlib.util.EventTarget();
+    var rules      = [],
+        formatters = [],
+        api        = new parserlib.util.EventTarget();
         
-    api.version = "0.3.2";
+    api.version = "0.4.0";
 
     //-------------------------------------------------------------------------
     // Rule Management
@@ -9339,6 +9400,61 @@ var CSSLint = (function(){
      */
     api.clearRules = function(){
         rules = [];
+    };
+
+    //-------------------------------------------------------------------------
+    // Formatters
+    //-------------------------------------------------------------------------
+
+    /**
+     * Adds a new formatter to the engine.
+     * @param {Object} formatter The formatter to add.
+     * @method addFormatter
+     */
+    api.addFormatter = function(formatter) {
+        // formatters.push(formatter);
+        formatters[formatter.id] = formatter;
+    };
+    
+    /**
+     * Retrieves a formatter for use.
+     * @param {String} formatId The name of the format to retrieve.
+     * @return {Object} The formatter or undefined.
+     * @method getFormatter
+     */
+    api.getFormatter = function(formatId){
+        return formatters[formatId];
+    };
+    
+    /**
+     * Formats the results in a particular format for a single file.
+     * @param {Object} result The results returned from CSSLint.verify().
+     * @param {String} filename The filename for which the results apply.
+     * @param {String} formatId The name of the formatter to use.
+     * @return {String} A formatted string for the results.
+     * @method format
+     */
+    api.format = function(results, filename, formatId) {
+        var formatter = this.getFormatter(formatId),
+            result = null;
+            
+        if (formatter){
+            result = formatter.startFormat();
+            result += formatter.formatResults(results, filename);
+            result += formatter.endFormat();
+        }
+        
+        return result;
+    }    
+    
+    /**
+     * Indicates if the given format is supported.
+     * @param {String} formatId The ID of the format to check.
+     * @return {Boolean} True if the format exists, false if not.
+     * @method hasFormat
+     */
+    api.hasFormat = function(formatId){
+        return formatters.hasOwnProperty(formatId);
     };
 
     //-------------------------------------------------------------------------
@@ -9392,7 +9508,6 @@ var CSSLint = (function(){
             stats       : reporter.stats
         };
     };
-
 
     //-------------------------------------------------------------------------
     // Publish the API
@@ -9698,6 +9813,174 @@ CSSLint.addRule({
 
 });
 /*
+ * Rule: Include all compatible vendor prefixes to reach a wider
+ * range of users.
+ */
+/*global CSSLint*/ 
+CSSLint.addRule({
+
+    //rule information
+    id: "compatible-vendor-prefixes",
+    name: "Compatible Vendor Prefixes",
+    desc: "Include all compatible vendor prefixes to reach a wider range of users.",
+    browsers: "All",
+
+    //initialization
+    init: function (parser, reporter) {
+        var rule = this,
+            compatiblePrefixes,
+            properties,
+            prop,
+            variations,
+            prefixed,
+            i,
+            len,
+            arrayPush = Array.prototype.push,
+            applyTo = [];
+
+        // See http://peter.sh/experiments/vendor-prefixed-css-property-overview/ for details
+        compatiblePrefixes = {
+            "animation"                  : "webkit moz",
+            "animation-delay"            : "webkit moz",
+            "animation-direction"        : "webkit moz",
+            "animation-duration"         : "webkit moz",
+            "animation-fill-mode"        : "webkit moz",
+            "animation-iteration-count"  : "webkit moz",
+            "animation-name"             : "webkit moz",
+            "animation-play-state"       : "webkit moz",
+            "animation-timing-function"  : "webkit moz",
+            "appearance"                 : "webkit moz",
+            "border-end"                 : "webkit moz",
+            "border-end-color"           : "webkit moz",
+            "border-end-style"           : "webkit moz",
+            "border-end-width"           : "webkit moz",
+            "border-image"               : "webkit moz o",
+            "border-radius"              : "webkit moz",
+            "border-start"               : "webkit moz",
+            "border-start-color"         : "webkit moz",
+            "border-start-style"         : "webkit moz",
+            "border-start-width"         : "webkit moz",
+            "box-align"                  : "webkit moz ms",
+            "box-direction"              : "webkit moz ms",
+            "box-flex"                   : "webkit moz ms",
+            "box-lines"                  : "webkit ms",
+            "box-ordinal-group"          : "webkit moz ms",
+            "box-orient"                 : "webkit moz ms",
+            "box-pack"                   : "webkit moz ms",
+            "box-sizing"                 : "webkit moz",
+            "box-shadow"                 : "webkit moz",
+            "column-count"               : "webkit moz",
+            "column-gap"                 : "webkit moz",
+            "column-rule"                : "webkit moz",
+            "column-rule-color"          : "webkit moz",
+            "column-rule-style"          : "webkit moz",
+            "column-rule-width"          : "webkit moz",
+            "column-width"               : "webkit moz",
+            "hyphens"                    : "epub moz",
+            "line-break"                 : "webkit ms",
+            "margin-end"                 : "webkit moz",
+            "margin-start"               : "webkit moz",
+            "marquee-speed"              : "webkit wap",
+            "marquee-style"              : "webkit wap",
+            "padding-end"                : "webkit moz",
+            "padding-start"              : "webkit moz",
+            "tab-size"                   : "moz o",
+            "text-size-adjust"           : "webkit ms",
+            "transform"                  : "webkit moz ms o",
+            "transform-origin"           : "webkit moz ms o",
+            "transition"                 : "webkit moz o",
+            "transition-delay"           : "webkit moz o",
+            "transition-duration"        : "webkit moz o",
+            "transition-property"        : "webkit moz o",
+            "transition-timing-function" : "webkit moz o",
+            "user-modify"                : "webkit moz",
+            "user-select"                : "webkit moz",
+            "word-break"                 : "epub ms",
+            "writing-mode"               : "epub ms"
+        };
+
+        for (prop in compatiblePrefixes) {
+            if (compatiblePrefixes.hasOwnProperty(prop)) {
+                variations = [];
+                prefixed = compatiblePrefixes[prop].split(' ');
+                for (i = 0, len = prefixed.length; i < len; i++) {
+                    variations.push('-' + prefixed[i] + '-' + prop);
+                }
+                compatiblePrefixes[prop] = variations;
+                arrayPush.apply(applyTo, variations);
+            }
+        }
+        parser.addListener("startrule", function () {
+            properties = [];
+        });
+
+        parser.addListener("property", function (event) {
+            var name = event.property.text;
+            if (applyTo.indexOf(name) > -1) {
+                properties.push(name);
+            }
+        });
+
+        parser.addListener("endrule", function (event) {
+            if (!properties.length) {
+                return;
+            }
+
+            var propertyGroups = {},
+                i,
+                len,
+                name,
+                prop,
+                variations,
+                value,
+                full,
+                actual,
+                item,
+                propertiesSpecified;
+
+            for (i = 0, len = properties.length; i < len; i++) {
+                name = properties[i];
+
+                for (prop in compatiblePrefixes) {
+                    if (compatiblePrefixes.hasOwnProperty(prop)) {
+                        variations = compatiblePrefixes[prop];
+                        if (variations.indexOf(name) > -1) {
+                            if (propertyGroups[prop] === undefined) {
+                                propertyGroups[prop] = {
+                                    full : variations.slice(0),
+                                    actual : []
+                                };
+                            }
+                            if (propertyGroups[prop].actual.indexOf(name) === -1) {
+                                propertyGroups[prop].actual.push(name);
+                            }
+                        }
+                    }
+                }
+            }
+
+            for (prop in propertyGroups) {
+                if (propertyGroups.hasOwnProperty(prop)) {
+                    value = propertyGroups[prop];
+                    full = value.full;
+                    actual = value.actual;
+
+                    if (full.length > actual.length) {
+                        for (i = 0, len = full.length; i < len; i++) {
+                            item = full[i];
+                            if (actual.indexOf(item) === -1) {
+                                propertiesSpecified = (actual.length === 1) ? actual[0] : (actual.length == 2) ? actual.join(" and ") : actual.join(", ");
+                                reporter.warn("The property " + item + " is compatible with " + propertiesSpecified + " and should be included as well.", event.selectors[0].line, event.selectors[0].col, rule); 
+                            }
+                        }
+
+                    }
+                }
+            }
+        });
+    }
+});
+/*
  * Rule: Certain properties don't play well with certain display values. 
  * - float should not be used with inline-block
  * - height, width, margin-top, margin-bottom, float should not be used with inline
@@ -9760,7 +10043,7 @@ CSSLint.addRule({
                         reportProperty("margin", display);
                         reportProperty("margin-top", display);
                         reportProperty("margin-bottom", display);              
-                        reportProperty("float", display);
+                        reportProperty("float", display, "display:inline has no effect on floated elements (but may be used to fix the IE6 double-margin bug).");
                         break;
 
                     case "block":
@@ -9791,13 +10074,56 @@ CSSLint.addRule({
         });
 
 
-        function reportProperty(name, display){
+        function reportProperty(name, display, msg){
             if (properties[name]){
                 if (!(typeof propertiesToCheck[name] == "string") || properties[name].value.toLowerCase() != propertiesToCheck[name]){
-                    reporter.warn(name + " can't be used with display: " + display + ".", properties[name].line, properties[name].col, rule);
+                    reporter.warn(msg || name + " can't be used with display: " + display + ".", properties[name].line, properties[name].col, rule);
                 }
             }
         }
+    }
+
+});
+/*
+ * Rule: Duplicate properties must appear one after the other. If an already-defined
+ * property appears somewhere else in the rule, then it's likely an error.
+ */
+CSSLint.addRule({
+
+    //rule information
+    id: "duplicate-properties",
+    name: "Duplicate Properties",
+    desc: "Duplicate properties must appear one after the other.",
+    browsers: "All",
+
+    //initialization
+    init: function(parser, reporter){
+        var rule = this,
+            properties,
+            lastProperty;            
+            
+        function startRule(event){
+            properties = {};        
+        }
+        
+        parser.addListener("startrule", startRule);
+        parser.addListener("startfontface", startRule);
+        parser.addListener("startpage", startRule);
+        
+        parser.addListener("property", function(event){
+            var property = event.property,
+                name = property.text.toLowerCase();
+            
+            if (properties[name] && (lastProperty != name || properties[name] == event.value.text)){
+                reporter.warn("Duplicate property '" + event.property + "' found.", event.line, event.col, rule);
+            }
+            
+            properties[name] = event.value.text;
+            lastProperty = name;
+                        
+        });
+            
+        
     }
 
 });
@@ -10385,12 +10711,67 @@ CSSLint.addRule({
     init: function(parser, reporter){
         var rule = this,
             properties,
-            num;
+            num,
+            propertiesToCheck = {
+                "-moz-border-radius": "border-radius",
+                "-webkit-border-radius": "border-radius",
+                "-webkit-border-top-left-radius": "border-top-left-radius",
+                "-webkit-border-top-right-radius": "border-top-right-radius",
+                "-webkit-border-bottom-left-radius": "border-bottom-left-radius",
+                "-webkit-border-bottom-right-radius": "border-bottom-right-radius",
+                "-moz-border-radius-topleft": "border-top-left-radius",
+                "-moz-border-radius-topright": "border-top-right-radius",
+                "-moz-border-radius-bottomleft": "border-bottom-left-radius",
+                "-moz-border-radius-bottomright": "border-bottom-right-radius",
+                "-moz-box-shadow": "box-shadow",
+                "-webkit-box-shadow": "box-shadow",
+                "-moz-transform" : "transform",
+                "-webkit-transform" : "transform",
+                "-o-transform" : "transform",
+                "-ms-transform" : "transform",
+                "-moz-box-sizing" : "box-sizing",
+                "-webkit-box-sizing" : "box-sizing"
+            };
 
-        parser.addListener("startrule", function(){
+        //event handler for beginning of rules
+        function startRule(){
             properties = {};
-            num=1;
-        });
+            num=1;        
+        }
+        
+        //event handler for end of rules
+        function endRule(event){
+            var prop,
+                i, len,
+                standard,
+                needed,
+                actual,
+                needsStandard = [];
+
+            for (prop in properties){
+                if (propertiesToCheck[prop]){
+                    needsStandard.push({ actual: prop, needed: propertiesToCheck[prop]});
+                }
+            }
+
+            for (i=0, len=needsStandard.length; i < len; i++){
+                needed = needsStandard[i].needed;
+                actual = needsStandard[i].actual;
+
+                if (!properties[needed]){               
+                    reporter.warn("Missing standard property '" + needed + "' to go along with '" + actual + "'.", event.line, event.col, rule);
+                } else {
+                    //make sure standard property is last
+                    if (properties[needed][0].pos < properties[actual][0].pos){
+                        reporter.warn("Standard property '" + needed + "' should come after vendor-prefixed property '" + actual + "'.", event.line, event.col, rule);
+                    }
+                }
+            }
+
+        }        
+        
+        parser.addListener("startrule", startRule);
+        parser.addListener("startfontface", startRule);
 
         parser.addListener("property", function(event){
             var name = event.property.text.toLowerCase();
@@ -10402,43 +10783,8 @@ CSSLint.addRule({
             properties[name].push({ name: event.property, value : event.value, pos:num++ });
         });
 
-        parser.addListener("endrule", function(event){
-            var prop,
-                i, len,
-                standard,
-                needed,
-                actual,
-                needsStandard = [];
-
-            for (prop in properties){
-                if (/(\-(?:ms|moz|webkit|o)\-)/.test(prop)){
-                    needsStandard.push({ actual: prop, needed: prop.substring(RegExp.$1.length)});
-                }
-            }
-
-            for (i=0, len=needsStandard.length; i < len; i++){
-                needed = needsStandard[i].needed;
-                actual = needsStandard[i].actual;
-
-                //special case for Mozilla's border radius
-                if (/\-moz\-border\-radius\-(.+)/.test(actual)){
-                    standard = "border-" + RegExp.$1.replace(/(left|right)/, "-$1") + "-radius";
-                } else {
-                    standard = needed; 
-                }
-
-                if (!properties[standard]){               
-                    reporter.warn("Missing standard property '" + standard + "' to go along with '" + actual + "'.", event.selectors[0].line, event.selectors[0].col, rule);
-                } else {
-                    //make sure standard property is last
-                    if (properties[standard][0].pos < properties[actual][0].pos){
-                        reporter.warn("Standard property '" + standard + "' should come after vendor-prefixed property '" + actual + "'.", event.selectors[0].line, event.selectors[0].col, rule);
-                    }
-                }
-            }
-
-        });
-
+        parser.addListener("endrule", endRule);
+        parser.addListener("endfontface", endRule);
     }
 
 });
@@ -10517,6 +10863,113 @@ CSSLint.addRule({
 
     }
 
+});
+CSSLint.addFormatter({
+    //format information
+    id: "lint-xml",
+    name: "Lint XML format",
+    
+    startFormat: function(){
+        return "<?xml version=\"1.0\" encoding=\"utf-8\"?><lint>";
+    },
+
+    endFormat: function(){
+        return "</lint>";
+    },
+    
+    formatResults: function(results, filename) {
+        var messages = results.messages,
+            output = [];
+
+        var replaceDoubleQuotes = function(str) {
+            if (!str || str.constructor !== String) {
+                return "";
+            }
+            return str.replace(/\"/g, "'");
+        };
+
+        if (messages.length > 0) {
+            //rollups at the bottom
+            messages.sort(function (a, b) {
+                if (a.rollup && !b.rollup) {
+                    return 1;
+                } else if (!a.rollup && b.rollup) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            });
+        
+            output.push("<file name=\""+filename+"\">");
+            messages.forEach(function (message, i) {
+                if (message.rollup) {
+                    output.push("<issue severity=\"" + message.type + "\" reason=\"" + replaceDoubleQuotes(message.message) + "\" evidence=\"" + replaceDoubleQuotes(message.evidence) + "\"/>");
+                } else {
+                    output.push("<issue line=\"" + message.line + "\" char=\"" + message.col + "\" severity=\"" + message.type + "\"" +
+                        " reason=\"" + replaceDoubleQuotes(message.message) + "\" evidence=\"" + replaceDoubleQuotes(message.evidence) + "\"/>");
+                }
+            });
+            output.push("</file>");
+        }
+
+        return output.join("");
+    }
+});
+CSSLint.addFormatter({
+    //format information
+    id: "text",
+    name: "Plain Text",
+    
+    startFormat: function(){
+        return "";
+    },
+    
+    endFormat: function(){
+        return "";
+    },
+
+    formatResults: function(results, filename) {
+        var messages = results.messages;
+        if (messages.length === 0) {
+            return "\n\ncsslint: No errors in " + filename + ".";
+        }
+        
+        output = "\n\ncsslint: There are " + messages.length  +  " problems in " + filename + ".";
+        var pos = filename.lastIndexOf("/"),
+            shortFilename = filename;
+
+        if (pos == -1){
+            pos = filename.lastIndexOf("\\");       
+        }
+        if (pos > -1){
+            shortFilename = filename.substring(pos+1);
+        }
+
+        //rollups at the bottom
+        messages.sort(function (a, b){
+            if (a.rollup && !b.rollup){
+                return 1;
+            } else if (!a.rollup && b.rollup){
+                return -1;
+            } else {
+                return 0;
+            }
+        });
+
+        messages.forEach(function (message, i) {
+            output = output + "\n\n" + shortFilename;
+            if (message.rollup) {
+                output += "\n" + (i+1) + ": " + message.type;
+                output += "\n" + message.message;
+            } else {
+                output += "\n" + (i+1) + ": " + message.type + " at line " + message.line + ", col " + message.col;
+                output += "\n" + message.message;
+                output += "\n" + message.evidence;
+            }
+        });
+    
+        return output;
+    }
 });
 /*
  * Web worker for CSSLint

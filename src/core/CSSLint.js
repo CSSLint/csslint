@@ -6,8 +6,9 @@
  */
 var CSSLint = (function(){
 
-    var rules   = [],
-        api     = new parserlib.util.EventTarget();
+    var rules      = [],
+        formatters = [],
+        api        = new parserlib.util.EventTarget();
         
     api.version = "@VERSION@";
 
@@ -39,6 +40,61 @@ var CSSLint = (function(){
      */
     api.getRules = function(){
         return rules;
+    };
+
+    //-------------------------------------------------------------------------
+    // Formatters
+    //-------------------------------------------------------------------------
+
+    /**
+     * Adds a new formatter to the engine.
+     * @param {Object} formatter The formatter to add.
+     * @method addFormatter
+     */
+    api.addFormatter = function(formatter) {
+        // formatters.push(formatter);
+        formatters[formatter.id] = formatter;
+    };
+    
+    /**
+     * Retrieves a formatter for use.
+     * @param {String} formatId The name of the format to retrieve.
+     * @return {Object} The formatter or undefined.
+     * @method getFormatter
+     */
+    api.getFormatter = function(formatId){
+        return formatters[formatId];
+    };
+    
+    /**
+     * Formats the results in a particular format for a single file.
+     * @param {Object} result The results returned from CSSLint.verify().
+     * @param {String} filename The filename for which the results apply.
+     * @param {String} formatId The name of the formatter to use.
+     * @return {String} A formatted string for the results.
+     * @method format
+     */
+    api.format = function(results, filename, formatId) {
+        var formatter = this.getFormatter(formatId),
+            result = null;
+            
+        if (formatter){
+            result = formatter.startFormat();
+            result += formatter.formatResults(results, filename);
+            result += formatter.endFormat();
+        }
+        
+        return result;
+    }    
+    
+    /**
+     * Indicates if the given format is supported.
+     * @param {String} formatId The ID of the format to check.
+     * @return {Boolean} True if the format exists, false if not.
+     * @method hasFormat
+     */
+    api.hasFormat = function(formatId){
+        return formatters.hasOwnProperty(formatId);
     };
 
     //-------------------------------------------------------------------------
@@ -92,7 +148,6 @@ var CSSLint = (function(){
             stats       : reporter.stats
         };
     };
-
 
     //-------------------------------------------------------------------------
     // Publish the API

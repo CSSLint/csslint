@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Build time: 26-June-2011 03:42:58 */
+/* Build time: 5-July-2011 06:51:20 */
 //print for rhino and nodejs
 if(typeof print == "undefined") {
     var print = console.log;
@@ -31,75 +31,29 @@ function gatherRules(options){
     }
     
     return ruleset;
-    
 }
 
 //process a list of files, return 1 if one or more error occurred
 var processFile = function(filename, options) {
     var input = readFile(filename),
         result = CSSLint.verify(input, gatherRules(options)),
+        formatId = options.format || "text",
         messages = result.messages || [],
         exitCode = 0;
 
     if (!input) {
         print("csslint: Could not read file data in " + filename + ". Is the file empty?");
         exitCode = 1;
-    }
+    } else {
+        print(CSSLint.getFormatter(formatId).formatResults(result, filename, formatId));
 
-    if (messages.length > 0) {
-        var warnings = pluckByType(messages, 'warning');
-        var errors  = pluckByType(messages, 'error');
-        reportMessages(messages, warnings, errors, filename);
-
-        if(errors.length > 0 ) {
+        if (messages.length > 0 && pluckByType(messages, 'error').length > 0) {
             exitCode = 1;
         }
-
-    } else {
-        print("csslint: No problems found in " + filename);
-    }
-    return exitCode;
-};
-
-//display messages
-var reportMessages = function(messages, warnings, errors, filename) {
-    print("\n\ncsslint: There are " + errors.length +  " errors and " + warnings.length  +  " warnings in " + filename + ".");
-
-    var pos = filename.lastIndexOf("/"),
-        shortFilename = filename;
-        
-    if (pos == -1){
-        pos = filename.lastIndexOf("\\");       
-    }
-    if (pos > -1){
-        shortFilename = filename.substring(pos+1);
     }
     
-
-    //rollups at the bottom
-    messages.sort(function (a, b){
-        if (a.rollup && !b.rollup){
-            return 1;
-        } else if (!a.rollup && b.rollup){
-            return -1;
-        } else {
-            return 0;
-        }
-    });
-
-    messages.forEach(function (message, i) {
-        print("\n" + shortFilename + ":");
-        if (message.rollup) {
-            print("" + (i+1) + ": " + message.type);
-            print(message.message);
-        } else {
-            print("" + (i+1) + ": " + message.type + " at line " + message.line + ", col " + message.col);
-            print(message.message);
-            print(message.evidence);
-        }
-    });
+    return exitCode;
 };
-
 
 //output CLI help screen
 function outputHelp(){
@@ -109,8 +63,32 @@ function outputHelp(){
         "Global Options",
         "  --help                 Displays this information.",
         "  --rules=<rule[,rule]+> Indicate which rules to include.",
+        "  --format=<format>      Indicate which format to use for output.",
         "  --version              Outputs the current version number."
     ].join("\n") + "\n\n");
+}
+
+function processFiles(files, options){
+    var exitCode = 0,
+        formatId = options.format || "text",
+        formatter;
+    if (!files.length) {
+        print("No files specified.");
+        exitCode = 1;
+    } else {
+        if (!CSSLint.hasFormat(formatId)){
+            print("csslint: Unknown format '" + formatId + "'. Cannot proceed.");
+            exitCode = 1; 
+        } else {
+            formatter = CSSLint.getFormatter(formatId);
+            print(formatter.startFormat());
+            exitCode = files.some(function(file){
+                processFile(file,options);
+            });
+            print(formatter.endFormat());
+        }
+    }
+    return exitCode;
 }
 /*
  * CSSLint Node.js Command Line Interface
@@ -174,9 +152,10 @@ while(arg){
         
         if (argName.indexOf("rules=") > -1){
             options.rules = argName.substring(argName.indexOf("=") + 1);
+        } else if (argName.indexOf("format=") > -1) {
+            options.format = argName.substring(argName.indexOf("=") + 1);
         }
     } else {
-                
         //see if it's a directory or a file
         if (fs.statSync(arg).isDirectory()){
             files = files.concat(getFiles(arg));
@@ -202,15 +181,5 @@ files = files.map(function(filename){
     return path.join(process.cwd(), filename);
 });
 
-var exitCode = 0;
-if (!files.length) {
-    print("No files specified.");
-    exitCode = 1;
-} else {
-    exitCode = files.some(function(file){
-        processFile(file,options);
-    });
-}
-process.exit(Number(exitCode));
-
+process.exit(processFiles(files,options));
 

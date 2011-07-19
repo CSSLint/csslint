@@ -47,6 +47,13 @@
             Assert.areEqual("Missing standard property 'box-shadow' to go along with '-moz-box-shadow'.", result.messages[0].message);
         },
         
+        "Using -moz-user-select should result in a warning.": function(){
+            var result = CSSLint.verify("h1 {  -moz-user-select:none;  }", { "vendor-prefix": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Missing standard property 'user-select' to go along with '-moz-user-select'.", result.messages[0].message);
+        },
+        
         "Using @font-face should not result in an error (#90)": function(){
             var result = CSSLint.verify("@font-face { src:url('../fonts/UniversBold.otf');font-family:Univers;advancedAntiAliasing: true;}", { "vendor-prefix": 1 });
             Assert.areEqual(0, result.messages.length);

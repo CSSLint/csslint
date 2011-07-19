@@ -18,8 +18,8 @@
             var css = "h1 { color:#fff !important; } h2 { color:#fff !important; } h3 { color:#fff !important; } h4 { color:#fff !important; } h5 { color:#fff !important; } h6 { color:#fff !important; } p { color:#fff !important; } ul { color:#fff !important; } ol { color:#fff !important; } li { color:#fff !important; }";
             var result = CSSLint.verify(css, { "important": 1 });
             Assert.areEqual(11, result.messages.length);
-            Assert.areEqual("error", result.messages[10].type);
-            Assert.areEqual("Too many !important declarations (10), be careful with rule specificity", result.messages[10].message);
+            Assert.areEqual("warning", result.messages[10].type);
+            Assert.areEqual("Too many !important declarations (10), try to use less than 10 to avoid specifity issues.", result.messages[10].message);
         }
 
     }));
