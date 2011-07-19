@@ -9,7 +9,7 @@
 
 importPackage(java.io);
 
-cli.init({
+cli({
 	args: process.argv.slice(2),
 	command: 'csslint-node.js',
 	environment: 'Node.js',
@@ -19,7 +19,7 @@ cli.init({
 	getDirectoryContents: function (path) {
 		var contents;
 		contents = [];
-		require('fs').readdirSync(path).forEach(function(file) {
+		require('fs').readdirSync(path).each(function(file) {
 			contents.push(path . '/' . file);
 		});
 		return contents;

@@ -9413,6 +9413,14 @@ var CSSLint = (function(){
         rules = [];
     };
 
+    /**
+     * Returns all rules of the engine.
+     * @method getRules
+     */
+    api.getRules = function(){
+        return rules;
+    };
+
     //-------------------------------------------------------------------------
     // Verification
     //-------------------------------------------------------------------------
@@ -10576,6 +10584,7 @@ CSSLint.addRule({
     }
 
 });*/
+
 /*
  * Rule: You don't need to specify units when a value is 0.
  */
@@ -10613,278 +10622,312 @@ CSSLint.addRule({
 return CSSLint;
 })();
 
+/*global CSSLint, print */
+/*jslint sloppy: true */
+
+// Array.each
+if (typeof Array.prototype.each !== 'function') {
+	Array.prototype.each = function (iterator, context) {
+		var property;
+		for (property in this) {
+			if (this.hasOwnProperty(property)) {
+				iterator.call(context, this[property]);
+			}
+		}
+		return this;
+	};
+}
+
+// Object.isArray
+if (typeof Object.isArray !== 'function') {
+	Object.isArray = function (object) {
+		return (Object.prototype.toString.call(object) === '[object Array]');
+	};
+}
+
+// Object.keys
+if (typeof Object.keys !== 'function') {
+	Object.keys = function (object) {
+		var property, result;
+		result = [];
+		for (property in object) {
+			if (object.hasOwnProperty(property)) {
+				result.push(property);
+			}
+		}
+		return result;
+	};
+}
+
 /*
-//print for rhino and nodejs
-if(typeof print == "undefined") {
-    var print = console.log;
-}
-
-//readFile for rhino and nodejs
-if(typeof readFile == "undefined") {
-    var readFile = function(filepath) {
-        var fs = require("fs");
-        return fs.readFileSync(filepath, "utf-8");
-    }
-}
-*/
-
-//filter messages by type
-var pluckByType = function(messages, type){
-    return messages.filter(function(message) {
-        return message.type === type;
-    });
-};
-
-function gatherRules(options){
-    var ruleset;
-    
-    if (options.rules){
-        ruleset = {};
-        options.rules.split(",").forEach(function(value){
-            ruleset[value] = 1;
-        });
-    }
-    
-    return ruleset;
-    
-}
-
-//process a list of files, return 1 if one or more error occurred
-var processFile = function(filename, options) {
-    var input = readFile(filename),
-        result = CSSLint.verify(input, gatherRules(options)),
-        messages = result.messages || [],
-        exitCode = 0;
-
-    if (!input) {
-        print("csslint: Could not read file data in " + filename + ". Is the file empty?");
-        exitCode = 1;
-    }
-
-    if (messages.length > 0) {
-        var warnings = pluckByType(messages, 'warning');
-        var errors  = pluckByType(messages, 'error');
-        reportMessages(messages, warnings, errors, filename);
-
-        if(errors.length > 0 ) {
-            exitCode = 1;
-        }
-
-    } else {
-        print("csslint: No problems found in " + filename);
-    }
-    return exitCode;
-};
-
-//display messages
-var reportMessages = function(messages, warnings, errors, filename) {
-    print("\n\ncsslint: There are " + errors.length +  " errors and " + warnings.length  +  " warnings in " + filename + ".");
-
-    var pos = filename.lastIndexOf("/"),
-        shortFilename = filename;
-        
-    if (pos == -1){
-        pos = filename.lastIndexOf("\\");       
-    }
-    if (pos > -1){
-        shortFilename = filename.substring(pos+1);
-    }
-    
-
-    //rollups at the bottom
-    messages.sort(function (a, b){
-        if (a.rollup && !b.rollup){
-            return 1;
-        } else if (!a.rollup && b.rollup){
-            return -1;
-        } else {
-            return 0;
-        }
-    });
-
-    messages.forEach(function (message, i) {
-        print("\n" + shortFilename + ":");
-        if (message.rollup) {
-            print("" + (i+1) + ": " + message.type);
-            print(message.message);
-        } else {
-            print("" + (i+1) + ": " + message.type + " at line " + message.line + ", col " + message.col);
-            print(message.message);
-            print(message.evidence);
-        }
-    });
-};
-
-
-//output CLI help screen
-function outputHelp(){
-    print([
-        "\nUsage: csslint-rhino.js [options]* [file|dir]*",
-        " ",
-        "Global Options",
-        "  --help                 Displays this information.",
-        "  --rules=<rule[,rule]+> Indicate which rules to include.",
-        "  --version              Outputs the current version number."
-    ].join("\n") + "\n\n");
-}
-/*
- * CSSLint Windows Script Host (WSH) Command Line Interface
+ * CSSLint
+ * Command Line(s) Interface
  */
 
-//-----------------------------------------------------------------------------
-// Prototype
-//-----------------------------------------------------------------------------
-if (!Array.prototype.filter)
-{
-  Array.prototype.filter = function(fun /*, thisp*/)
-  {
-    var len = this.length;
-    if (typeof fun != "function")
-      throw new TypeError();
-
-    var res = new Array();
-    var thisp = arguments[1];
-    for (var i = 0; i < len; i++)
-    {
-      if (i in this)
-      {
-        var val = this[i]; // in case fun mutates this
-        if (fun.call(thisp, val, i, this))
-          res.push(val);
-      }
-    }
-
-    return res;
-  };
+if (typeof print === 'undefined') {
+	print = null;
 }
-if (!Array.prototype.forEach)
-{
-  Array.prototype.forEach = function(fun /*, thisp*/)
-  {
-    var len = this.length;
-    if (typeof fun != "function")
-      throw new TypeError();
-
-    var thisp = arguments[1];
-    for (var i = 0; i < len; i++)
-    {
-      if (i in this)
-        fun.call(thisp, this[i], i, this);
-    }
-  };
-}
-if (!Array.prototype.some)
-{
-  Array.prototype.some = function(fun /*, thisp*/)
-  {
-    var len = this.length;
-    if (typeof fun != "function")
-      throw new TypeError();
-
-    var thisp = arguments[1];
-    for (var i = 0; i < len; i++)
-    {
-      if (i in this &&
-          fun.call(thisp, this[i], i, this))
-        return true;
-    }
-
-    return false;
-  };
-}
-
-//-----------------------------------------------------------------------------
-// Windows Script Host Utility Fixes
-//-----------------------------------------------------------------------------
-
-//print for wsh
-var print = function (strText) {
-	return WScript.StdOut.Write(strText);
-};
-
-//readFile for wsh
-var readFile = function (filepath) {
-	var handler = new ActiveXObject('Scripting.FileSystemObject').OpenTextFile(filepath, 1);
-	var content = handler.ReadAll();
-	handler.Close();
-	return content;
-}
-
-//-----------------------------------------------------------------------------
-// Helper Functions
-//-----------------------------------------------------------------------------
-
-function getFiles(dir) {
-	var files = [];
-
-	var traverse = function (dir) {
-		var dirList = new ActiveXObject('Scripting.FileSystemObject').GetFolder(dir).files;
-		for (var e = new Enumerator(dirList); !e.atEnd(); e.moveNext()) {
-			var file = e.item();
-			if (/\.css$/.test(file)) {
-				files.push(file);
-			} else if (new ActiveXObject('Scripting.FileSystemObject').FolderExists(file)) {
-				traverse(file);
-			}
-		};
-	};
-
-	traverse(dir);
-
-	return files;
-}
-
-//-----------------------------------------------------------------------------
-// Process command line
-//-----------------------------------------------------------------------------
-
-var args	 = [],
-	argName,
-	arg	  = '',
-	options  = {},
-	files	= [];
-
-for (var i = 0; i < WScript.Arguments.length; i += 1) {
-	args.push(WScript.Arguments(i));
-}
-arg = args.shift();
-
-while(arg){
-	if (arg.indexOf("--") == 0){
-		argName = arg.substring(2);
-		options[argName] = true;
+var cli = (function (print) {
+	var that;
+	
+	that = {
+		exitCode: 0,
+		extensions: {},
+		mode: '+',
+		option: 'files',
+		rules: {},
 		
-		if (argName.indexOf("rules=") > -1){
-			options.rules = argName.substring(argName.indexOf("=") + 1);
+		handleExtension: function (extension) {
+			extension.split(',').each(function (extension) {
+				if (extension.indexOf('+') === 0) {
+					extension = extension.substr(1);
+					that.mode = '+';
+				} else if (extension.indexOf('-') === 0) {
+					extension = extension.substr(1);
+					that.mode = '-';
+				}
+				extension = extension.toLowerCase();
+				if (extension === 'none') {
+					that.extensions = [];
+				} else if (that.mode === '-') {
+					if (extension === 'all') {
+						that.extensions = [];
+					} else {
+						delete that.extensions[extension];
+					}
+				} else {
+					if (extension === 'all') {
+						that.extensions.css = true;
+					} else {
+						that.extensions[extension] = true;
+					}
+				}
+			});
+		},
+		
+		handleFile: function (config, path) {
+			var errors, messages, position, warnings;
+			
+			// Run CSSLint
+			messages = CSSLint.verify(config.getFileContent(path), that.rules).messages;
+			if (Object.isArray(messages) === false) {
+				messages = [];
+			}
+			if (messages.length === 0) {
+				config.print("\n" + 'Successfully verified: ' + path  + "\n");
+			} else {
+				// Split messages into errors and warning
+				errors = [];
+				warnings = [];
+				messages.each(function (message) {
+					if (message.type === 'error') {
+						errors.push(message);
+					} else if (message.type === 'warning') {
+						warnings.push(message);
+					}
+				});
+				config.print("\n" + 'Found ' + String(errors.length) + ' errors and ' + String(warnings.length)  + ' warnings in ' + path + '.' + "\n");
+				
+				// Create path basename
+				position = path.indexOf('/');
+				if (position !== false) {
+					path = path.substr(position + 1);
+				}
+				position = path.indexOf('\\');
+				if (position !== false) {
+					path = path.substr(position + 1);
+				}
+				
+				// Print errors and warning
+				[errors, warnings].each(function (messages) {
+					position = 0;
+					messages.each(function (message) {
+						config.print("\n" + path + ' (' + message.type + ' ' + String(position) + '):' + "\n");
+						position += 1;
+						if (message.rollup === true) {
+							config.print(message.message + "\n");
+						} else {
+							config.print('Line ' + message.line + ', column ' + message.col + "\n" + message.message + "\n" + message.evidence + "\n");
+						}
+					});
+				});
+				
+				// Set exit code
+				if (errors > 0) {
+					that.exitCode = 1;
+				}
+			}
+		},
+		
+		handleOption: function (config, argument) {
+			// Handle command line options
+			argument = argument.toLowerCase();
+			if (argument.indexOf('e') === 0) {
+				that.mode = '+';
+				that.option = 'extensions';
+			} else if (argument.indexOf('f') === 0) {
+				that.option = 'files';
+			} else if (argument.indexOf('h') === 0) {
+				config.printHelp(config);
+				that.option = 'help';
+			} else if (argument.indexOf('r') === 0) {
+				that.mode = '+';
+				that.option = 'rules';
+			}
+		},
+		
+		handlePath: function (config, path) {
+			var parse;
+			if (config.isDirectory(path) === true) {
+				config.getDirectoryContents(path).each(function (path) {
+					that.handlePath(config, path);
+				});
+			} else if (config.isFile(path) === false) {
+				config.print("\n" + 'Error: Could not read ' + path + '.'  + "\n");
+				that.exitCode = 1;
+			} else {
+				parse = false;
+				Object.keys(that.extensions).each(function (extension) {
+					extension = '.' + extension;
+					if (path.substr(path.length - extension.length).toLowerCase() === extension) {
+						parse = true;
+					}
+				});
+				if (parse === true) {
+					that.handleFile(config, path);
+				}
+			}
+		},
+		
+		handleRule: function (rule) {
+			rule.split(',').each(function (rule) {
+				if (rule.indexOf('+') === 0) {
+					rule = rule.substr(1);
+					that.mode = '+';
+				} else if (rule.indexOf('-') === 0) {
+					rule = rule.substr(1);
+					that.mode = '-';
+				}
+				rule = rule.toLowerCase();
+				if (rule === 'none') {
+					that.rules = [];
+				} else if (that.mode === '-') {
+					if (rule === 'all') {
+						that.rules = [];
+					} else {
+						delete that.rules[rule];
+					}
+				} else {
+					if (rule === 'all') {
+						Object.keys(CSSLint.getRules()).each(function (rule) {
+							that.rules[rule] = true;
+						});
+					} else {
+						that.rules[rule] = true;
+					}
+				}
+			});
+		},
+		
+		printHelp: function (config) {
+			return config.print("\n" + 'CSSLint ' + CSSLint.version + ' for ' + config.environment + "\n\n" + 'Automated linting of Cascading Stylesheets' + "\n\n" + 'Syntax:' + "\n" + '    ' + config.command + ' [options]' + "\n\n" + 'Options:' + "\n" + '  --extensions' + "\n" + '  --files' + "\n" + '  --help' + "\n" + '  --rules'  + "\n");
 		}
-	} else {
-		//see if it's a directory or a file
-		if (new ActiveXObject('Scripting.FileSystemObject').FolderExists(arg)){
-			files = files.concat(getFiles(arg));
-		} else {
-			files.push(arg);
+	};
+	
+	/*
+	 * config                   (object)
+	 *  -> args                 (array)
+	 *  -> command              (string)
+	 *  -> environment          (string)
+	 *  -> getDirectoryContents (function)
+	 *  -> getFileContent       (function)
+	 *  -> isDirectory          (function)
+	 *  -> isFile               (function)
+	 *  -> print                (function)
+	 */
+	return function (config) {
+		if (typeof print === 'function') {
+			config.print = print;
 		}
+		that.exitCode = 0;
+		that.option = 'files';
+		that.handleExtension('+all');
+		that.handleRule('+all');
+		
+		// Parse arguments
+		if (config.args.length === 0) {
+			that.handleOption(config, 'help');
+		}
+		config.args.each(function (argument) {
+			if (argument.indexOf('--') === 0) {
+				that.handleOption(config, argument.substr(2));
+			} else if (that.option === 'extensions') {
+				that.handleExtension(argument);
+			} else if (that.option === 'files') {
+				that.handlePath(config, argument);
+			} else if (that.option === 'rules') {
+				that.handleRule(argument);
+			}
+		});
+		return config.quit(that.exitCode);
+	};
+}(print));
+
+/*global ActiveXObject, cli, CSSLint, Enumerator, print, WScript */
+/*jslint sloppy: true */
+
+/*
+ * CSSLint
+ * Command Line Interface
+ * Windows Script Host
+ */
+
+cli({
+	command: 'cscript.exe //E:JScript csslint-wsh.js',
+	environment: 'Windows Script Host',
+	
+	args: (function () {
+		var args, index;
+		args = [];
+		for (index = 0; index < WScript.Arguments.length; index += 1) {
+			args.push(WScript.Arguments(index));
+		}
+		return args;
+	}()),
+	
+	getDirectoryContents: function (path) {
+		var content, contents, folder;
+		folder = new ActiveXObject('Scripting.FileSystemObject').GetFolder(path);
+		for (content = new Enumerator(folder.SubFolders); !content.atEnd(); content.moveNext()) {
+			contents.push(content.item());
+		}
+		for (content = new Enumerator(folder.Files); !content.atEnd(); content.moveNext()) {
+			contents.push(content.item());
+		}
+		return contents;
+	},
+	
+	getFileContent: function (path) {
+		var content, handler;
+		handler = new ActiveXObject('Scripting.FileSystemObject').OpenTextFile(path, 1);
+		content = handler.ReadAll();
+		handler.Close();
+		return content;
+	},
+	
+	isDirectory: function (path) {
+		return new ActiveXObject('Scripting.FileSystemObject').FolderExists(path);
+	},
+	
+	isFile: function (path) {
+		return new ActiveXObject('Scripting.FileSystemObject').FileExists(path);
+	},
+	
+	print: function (value) {
+		WScript.StdOut.Write(value);
+	},
+	
+	quit: function (exitCode) {
+		WScript.Quit(exitCode);
 	}
-	arg = args.shift();
-}
-
-if (options.help || WScript.Arguments.length == 0){
-	outputHelp();
-	WScript.Quit(0);
-}
-
-if (options.version){
-	print("v" + CSSLint.version);
-	WScript.Quit(0);
-}
-
-var exitCode = 0;
-if (!files.length) {
-	print("No files specified.");
-	exitCode = 1;
-} else {
-	files.some(function(file){
-		processFile(file,options);
-	});
-}
-WScript.Quit(Number(exitCode));
+});

@@ -1,11 +1,11 @@
-/*global CSSLint, print */
-/*jslint sloppy: true */
-
 /*
  * CSSLint
  * Command Line(s) Interface
  */
 
+if (typeof print === 'undefined') {
+	print = null;
+}
 var cli = (function (print) {
 	var that;
 	
@@ -17,7 +17,7 @@ var cli = (function (print) {
 		rules: {},
 		
 		handleExtension: function (extension) {
-			extension.split(',').forEach(function (extension) { // Array#forEach
+			extension.split(',').each(function (extension) {
 				if (extension.indexOf('+') === 0) {
 					extension = extension.substr(1);
 					that.mode = '+';
@@ -32,7 +32,7 @@ var cli = (function (print) {
 					if (extension === 'all') {
 						that.extensions = [];
 					} else {
-						that.extensions[extension] = false;
+						delete that.extensions[extension];
 					}
 				} else {
 					if (extension === 'all') {
@@ -49,23 +49,23 @@ var cli = (function (print) {
 			
 			// Run CSSLint
 			messages = CSSLint.verify(config.getFileContent(path), that.rules).messages;
-			if (Object.isArray(messages) === false) { // prototype: Object.isArray
+			if (Object.isArray(messages) === false) {
 				messages = [];
 			}
 			if (messages.length === 0) {
-				print('Successfully verified: ' + path  + "\n");
+				config.print("\n" + 'Successfully verified: ' + path  + "\n");
 			} else {
 				// Split messages into errors and warning
 				errors = [];
 				warnings = [];
-				messages.forEach(function (message) {
+				messages.each(function (message) {
 					if (message.type === 'error') {
 						errors.push(message);
 					} else if (message.type === 'warning') {
 						warnings.push(message);
 					}
 				});
-				print('Found ' + String(errors.length) + ' errors and ' + String(warnings.length)  + ' warnings in ' + path + '.' + "\n");
+				config.print("\n" + 'Found ' + String(errors.length) + ' errors and ' + String(warnings.length)  + ' warnings in ' + path + '.' + "\n");
 				
 				// Create path basename
 				position = path.indexOf('/');
@@ -78,13 +78,15 @@ var cli = (function (print) {
 				}
 				
 				// Print errors and warning
-				[errors, warnings].forEach(function (messages) {
-					messages.forEach(function (message, index) {
-						print(path + ' (' + message.type + ' ' + String(index + 1) + '):');
+				[errors, warnings].each(function (messages) {
+					position = 0;
+					messages.each(function (message) {
+						config.print("\n" + path + ' (' + message.type + ' ' + String(position) + '):' + "\n");
+						position += 1;
 						if (message.rollup === true) {
-							that.print(message.message + "\n");
+							config.print(message.message + "\n");
 						} else {
-							that.print('Line ' + message.line + ', column ' + message.col + "\n" + message.message + "\n" + message.evidence + "\n");
+							config.print('Line ' + message.line + ', column ' + message.col + "\n" + message.message + "\n" + message.evidence + "\n");
 						}
 					});
 				});
@@ -101,11 +103,11 @@ var cli = (function (print) {
 			argument = argument.toLowerCase();
 			if (argument.indexOf('e') === 0) {
 				that.mode = '+';
-				that.option = 'extension';
+				that.option = 'extensions';
 			} else if (argument.indexOf('f') === 0) {
 				that.option = 'files';
 			} else if (argument.indexOf('h') === 0) {
-				that.printHelp(config);
+				config.printHelp(config);
 				that.option = 'help';
 			} else if (argument.indexOf('r') === 0) {
 				that.mode = '+';
@@ -116,15 +118,15 @@ var cli = (function (print) {
 		handlePath: function (config, path) {
 			var parse;
 			if (config.isDirectory(path) === true) {
-				config.getDirectoryContents(path).forEach(function (path) {
+				config.getDirectoryContents(path).each(function (path) {
 					that.handlePath(config, path);
 				});
 			} else if (config.isFile(path) === false) {
-				that.print('Error: Could not read ' + path + '.'  + "\n");
+				config.print("\n" + 'Error: Could not read ' + path + '.'  + "\n");
 				that.exitCode = 1;
 			} else {
 				parse = false;
-				that.extensions.forEach(function (extension) {
+				Object.keys(that.extensions).each(function (extension) {
 					extension = '.' + extension;
 					if (path.substr(path.length - extension.length).toLowerCase() === extension) {
 						parse = true;
@@ -137,7 +139,7 @@ var cli = (function (print) {
 		},
 		
 		handleRule: function (rule) {
-			rule.split(',').forEach(function (rule) {
+			rule.split(',').each(function (rule) {
 				if (rule.indexOf('+') === 0) {
 					rule = rule.substr(1);
 					that.mode = '+';
@@ -152,11 +154,11 @@ var cli = (function (print) {
 					if (rule === 'all') {
 						that.rules = [];
 					} else {
-						that.rules[rule] = false;
+						delete that.rules[rule];
 					}
 				} else {
 					if (rule === 'all') {
-						Object.keys(CSSLint.getRules()).forEach(function (rule) { // prototype: Object.keys
+						Object.keys(CSSLint.getRules()).each(function (rule) {
 							that.rules[rule] = true;
 						});
 					} else {
@@ -167,7 +169,7 @@ var cli = (function (print) {
 		},
 		
 		printHelp: function (config) {
-			return config.print('CSSLint ' + CSSLint.version + ' for ' + config.environment + "\n\n" + 'Automated linting of Cascading Stylesheets' + "\n\n" + 'Syntax:' + "\n" + '    ' + config.command + ' [options]' + "\n\n" + 'Options:' + "\n" + '  --files' + "\n" + '  --help' + "\n" + '  --rules'  + "\n");
+			return config.print("\n" + 'CSSLint ' + CSSLint.version + ' for ' + config.environment + "\n\n" + 'Automated linting of Cascading Stylesheets' + "\n\n" + 'Syntax:' + "\n" + '    ' + config.command + ' [options]' + "\n\n" + 'Options:' + "\n" + '  --extensions' + "\n" + '  --files' + "\n" + '  --help' + "\n" + '  --rules'  + "\n");
 		}
 	};
 	
@@ -183,10 +185,7 @@ var cli = (function (print) {
 	 *  -> print                (function)
 	 */
 	return function (config) {
-		if (typeof config.args.length === 0) {
-			config.args = ['help'];
-		}
-		if (typeof print !== 'undefined') {
+		if (typeof print === 'function') {
 			config.print = print;
 		}
 		that.exitCode = 0;
@@ -195,10 +194,13 @@ var cli = (function (print) {
 		that.handleRule('+all');
 		
 		// Parse arguments
-		config.args.forEach(function (argument) {
+		if (config.args.length === 0) {
+			that.handleOption(config, 'help');
+		}
+		config.args.each(function (argument) {
 			if (argument.indexOf('--') === 0) {
 				that.handleOption(config, argument.substr(2));
-			} else if (that.option === 'extension') {
+			} else if (that.option === 'extensions') {
 				that.handleExtension(argument);
 			} else if (that.option === 'files') {
 				that.handlePath(config, argument);

@@ -9,7 +9,7 @@
 
 importPackage(java.io);
 
-cli.init({
+cli({
 	args: Array.prototype.slice.call(arguments),
 	command: 'csslint-rhino.js',
 	environment: 'Rhino',

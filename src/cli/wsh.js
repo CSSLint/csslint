@@ -7,11 +7,9 @@
  * Windows Script Host
  */
 
-cli.init({
+cli({
 	command: 'cscript.exe //E:JScript csslint-wsh.js',
-	environment: 'Windows Script Host (WSH)',
-	print: WScript.StdOut.Write,
-	quit: WScript.Quit,
+	environment: 'Windows Script Host',
 	
 	args: (function () {
 		var args, index;
@@ -48,5 +46,13 @@ cli.init({
 	
 	isFile: function (path) {
 		return new ActiveXObject('Scripting.FileSystemObject').FileExists(path);
+	},
+	
+	print: function (value) {
+		WScript.StdOut.Write(value);
+	},
+	
+	quit: function (exitCode) {
+		WScript.Quit(exitCode);
 	}
 });
