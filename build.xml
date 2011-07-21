@@ -30,7 +30,10 @@
     <property name="worker.build.file" value="csslint-worker.js"/>
     <property name="tests.build.file" value="csslint-tests.js"/>
     <property name="rhino.build.file" value="csslint-rhino.js"/>
-    
+
+    <!-- plugins -->
+    <property name="plugins.maven.src.dir" value="${src.dir}/plugins/maven"/>
+  
     <!-- embeddable license -->
     <loadfile property="license.text" srcfile="LICENSE" />   
 
@@ -40,7 +43,7 @@
               pattern="d-MMMM-yyyy hh:mm:ss"
               locale="en,US"/>
     </tstamp>
-    
+
     <!-- clean -->
     <target name="clean">
         <delete dir="${build.dir}" />
@@ -147,7 +150,19 @@
             <filelist dir="${src.dir}/cli" files="util.js,rhino.js" />
         </concat>
     </target>    
-    
+
+    <target name="build.plugins.maven" depends="build.rhino">
+        <exec executable="mvn" dir="${plugins.maven.src.dir}">
+          <arg value="clean"/>
+          <arg value="package"/>
+          <arg value="-Dcsslint.version=${csslint.version}"/>
+        </exec>
+      
+        <copy todir="${build.dir}">
+            <fileset dir="${plugins.maven.src.dir}/target" includes="*.jar" />
+        </copy>
+    </target>
+
     <!-- Create a release with version number embedded -->
     <target name="release" depends="all">
         <delete dir="${release.dir}" />
@@ -172,6 +187,6 @@
     </target>
     
     <!-- Build all files -->
-    <target name="all" depends="clean,build.core,build.worker,build.node,build.tests,build.rhino"/>
+    <target name="all" depends="clean,build.core,build.worker,build.node,build.tests,build.rhino,build.plugins.maven"/>
 
 </project>

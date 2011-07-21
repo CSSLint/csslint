@@ -1,0 +1,30 @@
+<project>
+   <modelVersion>4.0.0</modelVersion>
+   <groupId>csslint-maven-plugin.it</groupId>
+   <artifactId>test-explcit-text-format</artifactId>
+   <version>1.0</version>
+
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>net.csslint</groupId>
+            <artifactId>csslint-maven-plugin</artifactId>
+            <version>@project.version@</version>
+             <configuration>
+                 <includes>
+                     <include>file1.css</include>
+                 </includes>
+                 <format>text</format>
+             </configuration>
+            <executions>
+               <execution>
+                   <phase>package</phase>
+                  <goals>
+                     <goal>check</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+      </plugins>
+   </build>
+</project>

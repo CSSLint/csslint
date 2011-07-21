@@ -1,2 +1,6 @@
 csslint.pnproj
 build/
+.idea/
+*.iws
+*.ipr
+*.iml

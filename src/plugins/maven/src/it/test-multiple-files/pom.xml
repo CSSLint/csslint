@@ -1,0 +1,31 @@
+<project>
+   <modelVersion>4.0.0</modelVersion>
+   <groupId>csslint-maven-plugin.it</groupId>
+   <artifactId>test-multiple-files</artifactId>
+   <version>1.0</version>
+
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>net.csslint</groupId>
+            <artifactId>csslint-maven-plugin</artifactId>
+            <version>@project.version@</version>
+             <configuration>
+                 <includes>
+                     <include>file1.css</include>
+                     <include>dict1</include>
+                 </includes>
+                 <format>lint-xml</format>
+             </configuration>
+            <executions>
+               <execution>
+                   <phase>package</phase>
+                  <goals>
+                     <goal>check</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+      </plugins>
+   </build>
+</project>

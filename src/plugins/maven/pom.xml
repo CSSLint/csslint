@@ -1,0 +1,201 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>net.csslint</groupId>
+    <artifactId>csslint-maven-plugin</artifactId>
+    <version>${csslint.version}</version>
+    <packaging>maven-plugin</packaging>
+
+    <description>
+        A Maven plugin for CSS Lint tool.
+    </description>
+
+    <properties>
+        <csslint.version>CURRENT</csslint.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <profiles>
+
+        <!--
+            Note: You should disable Maven debug options (in MAVEN_OPTS) before execute those commands.
+
+            =Build package=
+
+            1. Execute command:
+
+                $ mvn package
+
+            =Deploy package=
+
+            To deploy package without integration tests, because "org.apache.maven.plugins:maven-invoker-plugin"
+            doesn't work in "deploy" phase).
+
+            1. Execute command:
+
+                $ mvn deploy -DskipIntegrationTests
+
+            =Run individual integration test=
+
+            1. Execute command:
+
+                $ mvn clean package -Dinvoker.test=testName[,testName[...]]
+        -->
+        <profile>
+            <id>run-integration-tests</id>
+
+            <activation>
+                <property>
+                    <name>skipIntegrationTests</name>
+                    <value>!true</value>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-invoker-plugin</artifactId>
+                        <version>1.5</version>
+                        <configuration>
+                            <projectsDirectory>src/it</projectsDirectory>
+                            <cloneProjectsTo>${project.build.directory}/it
+                            </cloneProjectsTo>
+                            <pomIncludes>
+                                <pomInclude>*/pom.xml</pomInclude>
+                            </pomIncludes>
+                            <settingsFile>src/it/settings.xml</settingsFile>
+                            <localRepositoryPath>
+                                ${project.build.directory}/local-repo
+                            </localRepositoryPath>
+                            <postBuildHookScript>verify</postBuildHookScript>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>integration-tests</id>
+
+                                <!--
+                                    WORKAROUND:
+                                    By default "org.apache.maven.plugins:maven-invoker-plugin" is attached to
+                                    "install" phase". To invoke integration tests with every build, we
+                                    switched to "package" phase. Unfortunately plugin doesn't work in "test" phase,
+                                    which seems to be the most suitable.
+                                -->
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>install</goal>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <dependencies>
+
+                            <!--
+                                WORKAROUND:
+                                "./test-artifacts/pom.xml: is using "org.apache.maven.plugins:maven-install-plugin:2.3.1".
+                                Because "org.apache.maven.plugins:maven-invoker-plugin" is overriding repository settings,
+                                Maven can't download plugin from our Maven repository. We force Maven to download plugin,
+                                before repository settings are overridden.
+                            -->
+                            <dependency>
+                                <groupId>org.apache.maven.plugins</groupId>
+                                <artifactId>maven-install-plugin</artifactId>
+                                <version>2.3.1</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!--
+            Plugin is waiting for debugger before executing every integration test.
+            To attach debugger you have to connect to "localhost:9000".
+
+            =Run integration tests in debug mode=
+
+            1. Execute command:
+
+                $ mvn package -Pdebug-integration-tests
+        -->
+        <profile>
+            <id>debug-integration-tests</id>
+
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <artifactId>maven-invoker-plugin</artifactId>
+                            <configuration>
+                                <debug>true</debug>
+                                <mavenOpts>-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,address=9000,server=y,suspend=y
+                                </mavenOpts>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+    </profiles>
+
+
+    <build>
+        <resources>
+            <resource>
+
+                <!--
+                    WARNING:
+                    You have to build CSS lint project
+                    before you build this plugin (csslint-rhino.js is
+                    included into package)
+                -->
+                <directory>${basedir}/../../../build</directory>
+                <includes>
+                    <include>csslint-rhino.js</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.1</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-plugin-api</artifactId>
+            <version>3.0.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-utils</artifactId>
+            <version>3.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mozilla</groupId>
+            <artifactId>rhino</artifactId>
+            <version>1.7R3</version>
+        </dependency>
+    </dependencies>
+</project>
+
+

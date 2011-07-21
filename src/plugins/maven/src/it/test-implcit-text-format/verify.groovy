@@ -1,0 +1,1 @@
+assert !(new File( basedir, "target/csslint.xml" ).exists());
