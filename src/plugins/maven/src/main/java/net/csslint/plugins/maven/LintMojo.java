@@ -51,6 +51,8 @@ public class LintMojo extends AbstractMojo {
     private static final String SCRIPT_FILE = "csslint-rhino.js";
     private static final String OUTPUT_FILE = "csslint.xml";
 
+    private int scriptExitCode;
+
     /**
      * List of rules that the tool uses
      * (if not specified all available rules are applied).
@@ -140,12 +142,17 @@ public class LintMojo extends AbstractMojo {
         addIncludesArgument(arguments);
 
         // Invoke script with specified arguments by means Rhino
+        int exitCode = Main.exec(arguments.
+                toArray(new String[arguments.size()]));
 
-        int result = Main.exec(arguments.toArray(new String[arguments.size()]));
-
-        if (result != 0) {
+        if (exitCode != 0) {
             throw new IllegalStateException("Error occurs when " +
                     "executing CSS Lint tool");
+        }
+
+        if (scriptExitCode != 0) {
+            throw new IllegalStateException("There are errors in " +
+                    "your CSS files");
         }
     }
 
@@ -267,7 +274,9 @@ public class LintMojo extends AbstractMojo {
 
             @Override
             public void quit(Context cx, int exitCode) {
-                // nothing
+
+                // Pass exit code from "csslint-rhino.js" script
+                scriptExitCode = exitCode;
             }
         });
     }
