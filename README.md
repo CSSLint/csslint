@@ -395,7 +395,7 @@ You can check the version of CSSLint with:
 List of rules that the tool uses (if not specified all available rules are applied). Available rules:
 
 <table>
-<tr><td>*ID*</td><td>*Description*</td></tr>
+<tr><td><strong>ID</strong></td><td><strong>Description</strong></td></tr>
 <tr><td>adjoining-classes</td><td>Don't use adjoining classes</td></tr>
 <tr><td>box-model</td><td>Beware of broken box model</td></tr>
 <tr><td>compatible-vendor-prefixes</td><td>Use compatible vendor prefixes</td></tr>
