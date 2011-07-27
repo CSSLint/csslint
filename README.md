@@ -446,7 +446,7 @@ The output format. Choose between `text` and `lint-xml`. `text` is console logge
 
 #### Verifying CSS files with all available rules
 
-##### Definition
+#### Definition
 
     <project>
        ...
