@@ -430,7 +430,7 @@ List of files or directories that the tool processes. The path can be absolute o
 
 ##### format
 
-The output format. Choose between @text@ and @lint-xml@. @text@ is console logger. @lint-xml@ is XML file logger (the location of the file is @${project.build.directory}/csslint.xml@).
+The output format. Choose between `text` and `lint-xml`. `text` is console logger. `lint-xml` is XML file logger (the location of the file is `${project.build.directory}/csslint.xml`).
 
 * Type: _String_
 * Required: _No_
@@ -438,7 +438,7 @@ The output format. Choose between @text@ and @lint-xml@. @text@ is console logge
 
 ### Additional information
 
-* 'check' goal is attached to 'verify' phase;
+* `check` goal is attached to `verify` phase;
 
 ### Usage
 
