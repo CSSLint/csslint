@@ -401,7 +401,7 @@ List of rules that the tool uses (if not specified all available rules are appli
 <tr><td>adjoining-classes</td><td>Don't use adjoining classes</td></tr>
 <tr><td>box-model</td><td>Beware of broken box model</td></tr>
 <tr><td>compatible-vendor-prefixes</td><td>Use compatible vendor prefixes</td></tr>
-<tr><td>display-property-grouping</td><td>Use properties appropriate for `display`</td></tr>
+<tr><td>display-property-grouping</td><td>Use properties appropriate for <code>display</code></td></tr>
 <tr><td>duplicate-properties</td><td>Avoid duplicate properties</td></tr>
 <tr><td>empty-rules</td><td>Disallow empty rules</td></tr>
 <tr><td>floats</td><td>Don't use too many floats</td></tr>
@@ -409,12 +409,12 @@ List of rules that the tool uses (if not specified all available rules are appli
 <tr><td>font-sizes</td><td>Don't use too many font sizes</td></tr>
 <tr><td>gradients</td><td>Include all gradient definitions</td></tr>
 <tr><td>ids</td><td>Don't use IDs</td></tr>
-<tr><td>import</td><td>Avoid `@import`</td></tr>
-<tr><td>important</td><td>Disallow `!important`</td></tr>
+<tr><td>import</td><td>Avoid <code>@import</code></td></tr>
+<tr><td>important</td><td>Disallow <code>!important</code></td></tr>
 <tr><td>overqualified-elements</td><td>Don't use overqualified elements</td></tr>
 <tr><td>qualified-headings</td><td>Don't qualify headings</td></tr>
 <tr><td>regex-selectors</td><td>Don't use selectors that look like regexs</td></tr>
-<tr><td>text-indent</td><td>Don't use negative `text-indent`</td></tr>
+<tr><td>text-indent</td><td>Don't use negative <code>text-indent</code></td></tr>
 <tr><td>unique-headings</td><td>Heading should only be defined once</td></tr>
 <tr><td>vendor-prefix</td><td>Use vendor prefix properties correctly</td></tr>
 <tr><td>zero-units</td><td>Don't use units for 0 values</td></tr>
