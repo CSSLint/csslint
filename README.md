@@ -446,7 +446,9 @@ The output format. Choose between `text` and `lint-xml`. `text` is console logge
 
 #### Verifying CSS files with all available rules
 
-#### Definition
+<p/>
+
+##### Definition
 
     <project>
        ...
@@ -478,7 +480,7 @@ The output format. Choose between `text` and `lint-xml`. `text` is console logge
        ...
     </project>
 
-#### Command
+##### Command
 
 To check for CSS issues execute:
 
