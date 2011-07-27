@@ -17,7 +17,7 @@ Adjoining classes look like `.foo.bar`. While technically allowed in CSS, these 
 
 ### Don't use text indent to hide text if you need to support RTL
 
-Negative text indent doesn't play nicely with right to left oriented languages like Arabic. If your sight needs to support RTL, you should choose a different text hiding method. 
+Negative text indent doesn't play nicely with right to left oriented languages like Arabic. If your sight needs to support RTL, you should choose a different text hiding method.
 
 ### Remove empty rules
 
@@ -27,7 +27,7 @@ Any rule that doesn't contain any properties, such as:
 .foo {
 }
 ```
-    
+
 A lot of times, empty rules appear as a result of refactoring without further cleanup. Eliminating empty rules results in smaller file sizes and less style information for the browser to deal with.
 
 ### Use correct properties for a display
@@ -98,7 +98,7 @@ When using vendor-prefixed properties such as `-moz-border-radius`, make sure to
 
 ### CSS gradients require all browser prefixes
 
-Right now, there is no standard CSS gradient implementation, which means using CSS gradients in a cross-browser way requires using many different vendor-prefixed versions. CSSLint warns when a rule with a CSS gradient doesn't have gradients for all supporting browsers. 
+Right now, there is no standard CSS gradient implementation, which means using CSS gradients in a cross-browser way requires using many different vendor-prefixed versions. CSSLint warns when a rule with a CSS gradient doesn't have gradients for all supporting browsers.
 
 ### Include all compatible vendor prefixes to reach a wider range of users
 
@@ -124,14 +124,14 @@ When you include the same property twice, it may be intentional (to provide a fa
         background: #fff;
         background: rgba(255, 255, 255, 0.5);
     }
-    
+
 However, if the properties either have the same value or are located at different spots in the rule, this results in a warning. For example:
 
     .foo {
         background: #fff;
         color: #000;
         background: rgba(255, 255, 255, 0.5);
-    }   
+    }
 
 ### Universal Selector
 
@@ -142,7 +142,7 @@ The universal selector (*) selects all elements and can create performance issue
         color: #000;
         background: rgba(255, 255, 255, 0.5);
     }
-    
+
 This requires the browser to match all elements first, and then go up the DOM tree to find an element with a class of `.foo`. Generally, it's best to avoid using the universal selector.
 
 ### Known Properties
@@ -346,8 +346,6 @@ You can check the version of CSSLint with:
 
 ## Maven plugin
 
-The csslint-maven-plugin is [Maven](http://maven.apache.org/) plugin. The main purpose of this plugin is to verify CSS files. This plugin is mostly a wrapper around [CSS Lint tool](http://csslint.net/).
-
 ### Configuration
 
 #### Schema
@@ -396,27 +394,29 @@ The csslint-maven-plugin is [Maven](http://maven.apache.org/) plugin. The main p
 
 List of rules that the tool uses (if not specified all available rules are applied). Available rules:
 
-|_.ID|_.Description|
-|adjoining-classes|Don't use adjoining classes|
-|box-model|Beware of broken box model|
-|compatible-vendor-prefixes|Use compatible vendor prefixes|
-|display-property-grouping|Use properties appropriate for @display@|
-|duplicate-properties|Avoid duplicate properties|
-|empty-rules|Disallow empty rules|
-|floats|Don't use too many floats|
-|font-faces|Don't use too many web fonts|
-|font-sizes|Don't use too many font sizes|
-|gradients|Include all gradient definitions|
-|ids|Don't use IDs|
-|import|Avoid @@import@|
-|important|Disallow @!important@|
-|overqualified-elements|Don't use overqualified elements|
-|qualified-headings|Don't qualify headings|
-|regex-selectors|Don't use selectors that look like regexs|
-|text-indent|Don't use negative @text-indent@|
-|unique-headings|Heading should only be defined once|
-|vendor-prefix|Use vendor prefix properties correctly|
-|zero-units|Don't use units for 0 values|
+<table>
+<tr><td>*ID*</td><td>*Description*</td></tr>
+<tr><td>adjoining-classes</td><td>Don't use adjoining classes</td></tr>
+<tr><td>box-model</td><td>Beware of broken box model</td></tr>
+<tr><td>compatible-vendor-prefixes</td><td>Use compatible vendor prefixes</td></tr>
+<tr><td>display-property-grouping</td><td>Use properties appropriate for @display@</td></tr>
+<tr><td>duplicate-properties</td><td>Avoid duplicate properties</td></tr>
+<tr><td>empty-rules</td><td>Disallow empty rules</td></tr>
+<tr><td>floats</td><td>Don't use too many floats</td></tr>
+<tr><td>font-faces</td><td>Don't use too many web fonts</td></tr>
+<tr><td>font-sizes</td><td>Don't use too many font sizes</td></tr>
+<tr><td>gradients</td><td>Include all gradient definitions</td></tr>
+<tr><td>ids</td><td>Don't use IDs</td></tr>
+<tr><td>import</td><td>Avoid @@import@</td></tr>
+<tr><td>important</td><td>Disallow @!important@</td></tr>
+<tr><td>overqualified-elements</td><td>Don't use overqualified elements</td></tr>
+<tr><td>qualified-headings</td><td>Don't qualify headings</td></tr>
+<tr><td>regex-selectors</td><td>Don't use selectors that look like regexs</td></tr>
+<tr><td>text-indent</td><td>Don't use negative @text-indent@</td></tr>
+<tr><td>unique-headings</td><td>Heading should only be defined once</td></tr>
+<tr><td>vendor-prefix</td><td>Use vendor prefix properties correctly</td></tr>
+<tr><td>zero-units</td><td>Don't use units for 0 values</td></tr>
+</table>
 
 * Type: _List_
 * Required: _No_
@@ -496,19 +496,3 @@ To check for CSS issues execute:
 1. Ben Barber (Compatible Vendor Prefix Rule)
 1. Eric Wendelin, http://eriwen.com (Output formatters)
 1. Tomasz Oponowicz (Maven plugin)
-**
-
-## Contributors
-
-### Creators
-
-1. Nicole Sullivan, http://www.stubbornella.org
-1. Nicholas C. Zakas, http://www.nczonline.net
-
-### Contributors
-
-1. Samori Gorse, https://twitter.com/shinuza (Rules, Non-zero Exit Code for CLI)
-1. Eitan Konigsburg, https://twitter.com/eitanmk (Rhino CLI)
-1. Ben Barber (Compatible Vendor Prefix Rule)
-1. Eric Wendelin, http://eriwen.com (Output formatters)
-**
