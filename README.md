@@ -346,6 +346,8 @@ You can check the version of CSSLint with:
 
 ## Maven plugin
 
+_Note:_ `net.csslint:csslint-maven-plugin` isn't available in Maven central repository yet.
+
 ### Configuration
 
 #### Schema
