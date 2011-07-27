@@ -346,6 +346,8 @@ You can check the version of CSSLint with:
 
 ## Maven plugin
 
+The plugin has only goal, called `check`. This action verify all CSS files and fails a compilation process if there is any error.
+
 _Note:_ `net.csslint:csslint-maven-plugin` isn't available in Maven central repository yet.
 
 ### Configuration
