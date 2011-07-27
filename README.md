@@ -462,7 +462,7 @@ The output format. Choose between `text` and `lint-xml`. `text` is console logge
                 <version>0.4.0</version>
                 <configuration>
                    <includes>
-                      <include>static-resources/stylesheets</include>
+                      <include>src/main/webapp/WEB-INF/stylesheets</include>
                    </includes>
                 </configuration>
                 <executions>
