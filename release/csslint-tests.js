@@ -20,7 +20,34 @@
     }));
 
 })();
+(function(){
 
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+        name: "Compact formatter",
+        
+        "File with no problems should say so": function(){
+            var result = { messages: [], stats: [] };
+            Assert.areEqual("FILE: Lint Free!", CSSLint.format(result, "FILE", "compact"));
+        },
+
+        "File with problems should list them": function(){
+            var result = { messages: [ 
+                     { type: 'warning', line: 1, col: 1, message: 'BOGUS WARNING', evidence: 'BOGUS', rule: [] },
+                     { type: 'error', line: 2, col: 1, message: 'BOGUS ERROR', evidence: 'BOGUS', rule: [] }
+                ], stats: [] },
+                error1 = "FILE: line 1, col 1, BOGUS WARNING\n",
+                error2 = "FILE: line 2, col 1, BOGUS ERROR\n",
+                expected = error1 + error2,
+                actual = CSSLint.format(result, "FILE", "compact");
+            Assert.areEqual(expected, actual);
+        }
+
+    }));
+
+})();
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -64,7 +91,6 @@
         }
     }));
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -94,7 +120,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -119,7 +144,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -174,6 +198,11 @@
             var result = CSSLint.verify(".foo { width: 100px; padding-bottom: 10px; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
         },
+        
+        "Using width and padding-to-bottom should not result in a warning": function(){
+            var result = CSSLint.verify(".foo { width: 100px; padding: 10px 0; }", { "box-model": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },            
 
         "Using width and border should result in a warning": function(){
             var result = CSSLint.verify(".foo { width: 100px; border: 10px; }", { "box-model": 1 });
@@ -237,6 +266,11 @@
             var result = CSSLint.verify(".foo { height: 100px; padding-right: 10px; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
         },
+        
+        "Using height and padding-left-right should not result in a warning": function(){
+            var result = CSSLint.verify(".foo { height: 100px; padding: 0 10px; }", { "box-model": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },    
 
         "Using height and padding-top should result in a warning": function(){
             var result = CSSLint.verify(".foo { height: 100px; padding-top: 10px; }", { "box-model": 1 });
@@ -321,7 +355,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -369,7 +402,6 @@
     }));     
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -583,7 +615,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -633,7 +664,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -652,7 +682,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -670,7 +699,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -706,7 +734,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -735,7 +762,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -766,7 +792,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -818,7 +843,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -844,7 +868,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -863,7 +886,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -884,14 +906,42 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             var css = "h1 { color:#fff !important; } h2 { color:#fff !important; } h3 { color:#fff !important; } h4 { color:#fff !important; } h5 { color:#fff !important; } h6 { color:#fff !important; } p { color:#fff !important; } ul { color:#fff !important; } ol { color:#fff !important; } li { color:#fff !important; }";
             var result = CSSLint.verify(css, { "important": 1 });
             Assert.areEqual(11, result.messages.length);
-            Assert.areEqual("error", result.messages[10].type);
-            Assert.areEqual("Too many !important declarations (10), be careful with rule specificity", result.messages[10].message);
+            Assert.areEqual("warning", result.messages[10].type);
+            Assert.areEqual("Too many !important declarations (10), try to use less than 10 to avoid specifity issues.", result.messages[10].message);
         }
 
     }));
 
 })();
+(function(){
 
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
+        name: "Known Properties Errors",
+
+        "Using an unknown property should result in an error": function(){
+            var result = CSSLint.verify("h1 { foo: red;}", { "known-properties": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("error", result.messages[0].type);
+            Assert.areEqual("Unknown property 'foo'.", result.messages[0].message);
+        },
+
+        "Using a known property should not result in a warning": function(){
+            var result = CSSLint.verify("h1 { color: red;}", { "known-properties": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using a vendor-prefix property should not result in a warning": function(){
+            var result = CSSLint.verify("h2 { -moz-border-radius: 5px; }", { "known-properties": 1 });
+            Assert.areEqual(0, result.messages.length);        
+        }
+
+    }));
+
+})();
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -933,7 +983,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -953,7 +1002,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1006,7 +1054,35 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+(function(){
 
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+    
+        name: "text-indent Rule Errors",
+
+        "-100px text-indent should result in a warning": function(){
+            var result = CSSLint.verify(".foo{text-indent: -100px;}", {"text-indent": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set text-direction for that item to ltr.", result.messages[0].message);
+        },
+
+        "-98px text-indent should not result in a warning": function(){
+            var result = CSSLint.verify(".foo{text-indent: -98px;} ", {"text-indent": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "5px text-indent should not result in a warning": function(){
+            var result = CSSLint.verify(".foo{text-indent: 5px;}", {"text-indent": 1 });
+            Assert.areEqual(0, result.messages.length);
+        }
+				
+    }));
+
+})();
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1016,11 +1092,24 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 
         name: "Unique Headings Errors",
 
-        "Defining two rules for h1 should result in one warning": function(){
+        "Defining two rules for h1 should result in two warnings": function(){
             var result = CSSLint.verify("h1 { color: red;} h1 {color: blue;}", { "unique-headings": 1 });
-            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual(2, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Heading (h1) has already been defined.", result.messages[0].message);
+            Assert.areEqual("warning", result.messages[1].type);
+            Assert.areEqual("You have 2 h1s defined in this stylesheet.", result.messages[1].message);
+        },
+
+        "Defining two rules for h1 and h2 should result in one warning": function(){
+            var result = CSSLint.verify("h1 { color: red;} h1 {color: blue;} h2 { color: red;} h2 {color: blue;}", { "unique-headings": 1 });
+            Assert.areEqual(3, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Heading (h1) has already been defined.", result.messages[0].message);
+            Assert.areEqual("warning", result.messages[1].type);
+            Assert.areEqual("Heading (h2) has already been defined.", result.messages[1].message);
+            Assert.areEqual("warning", result.messages[2].type);
+            Assert.areEqual("You have 2 h1s, 2 h2s defined in this stylesheet.", result.messages[2].message);
         },
 
          "Defining one rule for h1 should not result in a warning": function(){
@@ -1036,7 +1125,37 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+(function(){
 
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+    
+        name: "Universal Selector Errors",
+
+        "Using a universal selector alone should result in a warning": function(){
+            var result = CSSLint.verify("* { font-size: 10px; }", {"universal-selector": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("The universal selector (*) is known to be slow.", result.messages[0].message);
+        },
+
+        "Using a universal selector as the right-most part should result in a warning": function(){
+            var result = CSSLint.verify("p div * { font-size: 10px; }", {"universal-selector": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("The universal selector (*) is known to be slow.", result.messages[0].message);
+        },
+
+        "Using a universal selector in the middle should not result in a warning": function(){
+            var result = CSSLint.verify("* .foo { font-size: 10px; } ", {"universal-selector": 1 });
+            Assert.areEqual(0, result.messages.length);
+        }
+        
+    }));
+
+})();
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1086,6 +1205,13 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             Assert.areEqual("Missing standard property 'box-shadow' to go along with '-moz-box-shadow'.", result.messages[0].message);
         },
         
+        "Using -moz-user-select should result in a warning.": function(){
+            var result = CSSLint.verify("h1 {  -moz-user-select:none;  }", { "vendor-prefix": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Missing standard property 'user-select' to go along with '-moz-user-select'.", result.messages[0].message);
+        },
+        
         "Using @font-face should not result in an error (#90)": function(){
             var result = CSSLint.verify("@font-face { src:url('../fonts/UniversBold.otf');font-family:Univers;advancedAntiAliasing: true;}", { "vendor-prefix": 1 });
             Assert.areEqual(0, result.messages.length);
@@ -1094,7 +1220,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1140,7 +1265,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));*/
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1178,4 +1302,3 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-

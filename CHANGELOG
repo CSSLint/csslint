@@ -1,5 +1,9 @@
 Next (not yet released)
 
+TBD
+
+July 29, 2011 - v0.5.0
+
 * Added total headings count to unique-headings rule (fixes #108)
 * Fixed bug with box model rule (fixes #135)
 * Added rule to check property name against list of known properties (fixes #136)
