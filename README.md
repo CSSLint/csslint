@@ -13,7 +13,7 @@ By default, CSSLint shows any parsing errors. Parsing errors usually mean you mi
 
 ### Don't use adjoining classes
 
-Adjoining classes look like `.foo.bar`. While technically allowed in CSS, these aren't handled properly by Internet Explorer 6 and earlier.
+Adjoining classes look like `.foo.bar`. While technically allowed in CSS, these aren't handled properly by Internet Explorer 6 and earlier. IE6 will match the selector as if it were simply '.bar' which means your selector will match more frequently than you intend it to and create cross browser bugs.
 
 ### Don't use text indent to hide text if you need to support RTL
 
@@ -47,7 +47,7 @@ Using `!important` overides any cascaded rule and may lead to specificity war. C
 
 ### Don't use too many floats
 
-Using `float` for layout isn't a great idea, but sometimes you have to. CSSLint simply checks to see if you've used `float` more than 10 times, and if so, displays a warning. Using this many floats usually means you need some sort of abstraction to achieve the layout.
+`float` is currently the best way to achieve complex layouts, however it is possible to use too many! CSSLint simply checks to see if you've used `float` more than 10 times, and if so, displays a warning. Using this many floats usually means you need some sort of abstraction to achieve the layout. Consider a grids system like OOCSS, 960gs, blueprint, or YUI3. Read more about grids at: http://www.stubbornella.org/content/2011/01/22/grids-improve-site-performance/
 
 ### Don't use too many web fonts
 
@@ -59,11 +59,11 @@ A site is typically made up of a finite number of font treatments, including fon
 
 ### Don't use IDs in selectors
 
-IDs shouldn't be used in selectors because these rules are too tightly coupled with the HTML and have no possibility of reuse. It's much preferred to use classes in selectors and then apply a class to an element in the page.
+IDs shouldn't be used in selectors because these rules are too tightly coupled with the HTML and have no possibility of reuse. It's much preferred to use classes in selectors and then apply a class to an element in the page. Additionally, IDs impact your specificity and can lead to specificity wars. Read more about using IDs for styles here: http://oli.jp/2011/ids/
 
 ### Don't qualify headings
 
-Heading elements (`h1`-`h6`) should be defined as top-level styles and not scoped to particular areas of the page. For example, this is an example of an overqualified heading:
+Heading elements (`h1`-`h6`) should be defined as top-level styles and not scoped to particular areas of the page. This allows those styles to be reused across your site for better visual consistency and performance and easier maintenance. For example, this is an example of an overqualified heading:
 
 ```css
 .foo h1 {
@@ -114,7 +114,7 @@ Borders and padding add space outside of an element's content. Setting `width` o
 
 ### Avoid @import
 
-The `@import` command shouldn't be used because it prevent parallel downloads in some browsers (see http://www.stevesouders.com/blog/2009/04/09/dont-use-import/).
+The `@import` command shouldn't be used because it prevents parallel downloads in some browsers (see http://www.stevesouders.com/blog/2009/04/09/dont-use-import/).
 
 ### Duplicate Properties
 
