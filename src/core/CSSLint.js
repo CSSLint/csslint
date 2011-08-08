@@ -107,6 +107,7 @@ var CSSLint = (function(){
             len     = rules.length,
             reporter,
             lines,
+            report,
             parser = new parserlib.css.Parser({ starHack: true, ieFilters: true,
                                                 underscoreHack: true, strict: false });
 
@@ -135,10 +136,23 @@ var CSSLint = (function(){
             reporter.error("Fatal error, cannot continue: " + ex.message, ex.line, ex.col);
         }
 
-        return {
+        report = {
             messages    : reporter.messages,
             stats       : reporter.stats
         };
+        
+        //sort by line numbers, rollups at the bottom
+        report.messages.sort(function (a, b){
+            if (a.rollup && !b.rollup){
+                return 1;
+            } else if (!a.rollup && b.rollup){
+                return -1;
+            } else {
+                return a.line - b.line;
+            }
+        });        
+        
+        return report;
     };
 
     //-------------------------------------------------------------------------

@@ -28,17 +28,6 @@ CSSLint.addFormatter({
             shortFilename = filename.substring(pos+1);
         }
 
-        //rollups at the bottom
-        messages.sort(function (a, b){
-            if (a.rollup && !b.rollup){
-                return 1;
-            } else if (!a.rollup && b.rollup){
-                return -1;
-            } else {
-                return 0;
-            }
-        });
-
         messages.forEach(function (message, i) {
             output = output + "\n\n" + shortFilename;
             if (message.rollup) {

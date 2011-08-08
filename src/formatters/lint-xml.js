@@ -28,16 +28,6 @@ CSSLint.addFormatter({
         };
 
         if (messages.length > 0) {
-            //rollups at the bottom
-            messages.sort(function (a, b) {
-                if (a.rollup && !b.rollup) {
-                    return 1;
-                } else if (!a.rollup && b.rollup) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            });
         
             output.push("<file name=\""+filename+"\">");
             messages.forEach(function (message, i) {
