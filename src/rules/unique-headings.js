@@ -26,16 +26,27 @@ CSSLint.addRule({
             var selectors = event.selectors,
                 selector,
                 part,
-                i;
+                pseudo,
+                i, j;
 
             for (i=0; i < selectors.length; i++){
                 selector = selectors[i];
                 part = selector.parts[selector.parts.length-1];
 
                 if (part.elementName && /(h[1-6])/i.test(part.elementName.toString())){
-                    headings[RegExp.$1]++;
-                    if (headings[RegExp.$1] > 1) {
-                        reporter.warn("Heading (" + part.elementName + ") has already been defined.", part.line, part.col, rule);
+                    
+                    for (j=0; j < part.modifiers.length; j++){
+                        if (part.modifiers[j].type == "pseudo"){
+                            pseudo = true;
+                            break;
+                        }
+                    }
+                
+                    if (!pseudo){
+                        headings[RegExp.$1]++;
+                        if (headings[RegExp.$1] > 1) {
+                            reporter.warn("Heading (" + part.elementName + ") has already been defined.", part.line, part.col, rule);
+                        }
                     }
                 }
             }

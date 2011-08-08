@@ -27,8 +27,13 @@
             Assert.areEqual("You have 2 h1s, 2 h2s defined in this stylesheet.", result.messages[2].message);
         },
 
-         "Defining one rule for h1 should not result in a warning": function(){
+        "Defining one rule for h1 should not result in a warning": function(){
             var result = CSSLint.verify("h1 { color: red;}", { "unique-headings": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Defining a rule for h1 and h1:hover should not result in a warning": function(){
+            var result = CSSLint.verify("h1 { color: red;} h1:hover { color: blue; }", { "unique-headings": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
