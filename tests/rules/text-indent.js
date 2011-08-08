@@ -19,6 +19,11 @@
             Assert.areEqual(0, result.messages.length);
         },
 
+        "-100px text-indent with LTR should not result in a warning": function(){
+            var result = CSSLint.verify(".foo{text-indent: -100px; direction: ltr; }", {"text-indent": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
         "5px text-indent should not result in a warning": function(){
             var result = CSSLint.verify(".foo{text-indent: 5px;}", {"text-indent": 1 });
             Assert.areEqual(0, result.messages.length);

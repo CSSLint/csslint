@@ -16,17 +16,39 @@ CSSLint.addRule({
     
     //initialization
     init: function(parser, reporter){
-        var rule = this;
+        var rule = this,
+            textIndent = false;
+            
+            
+        function startRule(event){
+            textIndent = false;
+        }
+        
+        //event handler for end of rules
+        function endRule(event){
+            if (textIndent){
+                reporter.warn("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set text-direction for that item to ltr.", name.line, name.col, rule);
+            }
+        }        
+        
+        parser.addListener("startrule", startRule);
+        parser.addListener("startfontface", startRule);
     
         //check for use of "font-size"
         parser.addListener("property", function(event){
-            var name = event.property,
+            var name = event.property.toString().toLowerCase(),
                 value = event.value.parts[0].value;
 
             if (name == "text-indent" && value < -99){
-                reporter.warn("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set text-direction for that item to ltr.", name.line, name.col, rule);
+                textIndent = true;
+            } else if (name == "direction" && value == "ltr"){
+                textIndent = false;
             }
         });
+
+        parser.addListener("endrule", endRule);
+        parser.addListener("endfontface", endRule);     
+
     }
 
 });
