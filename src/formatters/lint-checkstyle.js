@@ -19,15 +19,11 @@ CSSLint.addFormatter({
          * Generate a source string for a rule.
          * Checkstyle source strings usually resemble Java class names e.g
          * net.csslint.SomeRuleName
-         * @param {Object} base rule or null
+         * @param {Object} rule
          * @return rule source as {String}
          */
         var generateSource = function(rule) {
-            var source = 'net.csslint';
-            if (typeof rule == 'object') {
-              source += '.' + rule.name.replace(" ", "");
-            }
-            return source;
+            return 'net.csslint.' + rule.name.replace(" ", "");
         };
 
         if (messages.length > 0) {
@@ -36,10 +32,8 @@ CSSLint.addFormatter({
                 if (message.rollup) {
                     //ignore rollups for now
                 } else {
-                  message.rule.forEach(function(rule, i) {
-                    output.push("<error line=\"" + message.line + "\" column=\"" + message.col + "\" severity=\"" + message.type + "\"" +
-                        " message=\"" + message.message + "\" source=\"" + generateSource(rule) +"\"/>");
-                  });
+                  output.push("<error line=\"" + message.line + "\" column=\"" + message.col + "\" severity=\"" + message.type + "\"" +
+                      " message=\"" + message.message + "\" source=\"" + generateSource(message.rule) +"\"/>");
                 }
             });
             output.push("</file>");
