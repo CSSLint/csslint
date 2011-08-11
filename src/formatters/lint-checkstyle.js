@@ -23,7 +23,7 @@ CSSLint.addFormatter({
          * @return rule source as {String}
          */
         var generateSource = function(rule) {
-            return 'net.csslint.' + rule.name.replace(" ", "");
+            return 'net.csslint.' + rule.name.replace(/\s/g,'');
         };
 
         if (messages.length > 0) {
