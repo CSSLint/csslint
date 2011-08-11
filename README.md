@@ -184,4 +184,5 @@ You can check the version of CSSLint with:
 1. Eitan Konigsburg, https://twitter.com/eitanmk (Rhino CLI)
 1. Ben Barber (Compatible Vendor Prefix Rule)
 1. Eric Wendelin, http://eriwen.com (Output formatters)
+1. Kasper Garnæs, http://reload.dk (Checkstyle XML format)
 **
