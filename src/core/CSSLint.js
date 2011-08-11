@@ -33,6 +33,15 @@ var CSSLint = (function(){
     api.clearRules = function(){
         rules = [];
     };
+    
+    /**
+     * Returns the rule objects.
+     * @return An array of rule objects.
+     * @method getRules
+     */
+    api.getRules = function(){
+        return [].concat(rules);
+    };
 
     //-------------------------------------------------------------------------
     // Formatters
