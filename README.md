@@ -202,13 +202,13 @@ Heading elements (`h1`-`h6`) should be defined as top-level styles and not scope
 
 Heading elements should have a consistent appearance across a site.
 
-Rule ID: qualified-headings
+Rule ID: `qualified-headings`
 
 ### Heading should only be defined once
 
 Heading elements (`h1`-`h6`) should have exactly one rule on a site. CSSLint warns if it finds more than one.
 
-Rule ID: unique-headings
+Rule ID: `unique-headings`
 
 # Command-line Interface
 
