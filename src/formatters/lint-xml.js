@@ -3,10 +3,18 @@ CSSLint.addFormatter({
     id: "lint-xml",
     name: "Lint XML format",
     
+    /**
+     * Return opening root XML tag.
+     * @return {String} to prepend before all results
+     */
     startFormat: function(){
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?><lint>";
     },
 
+    /**
+     * Return closing root XML tag.
+     * @return {String} to append after all results
+     */
     endFormat: function(){
         return "</lint>";
     },
@@ -28,7 +36,6 @@ CSSLint.addFormatter({
         };
 
         if (messages.length > 0) {
-        
             output.push("<file name=\""+filename+"\">");
             messages.forEach(function (message, i) {
                 if (message.rollup) {

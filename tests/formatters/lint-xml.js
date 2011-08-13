@@ -4,7 +4,6 @@
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
-
         name: "Lint XML formatter test",
         
         "File with no problems should say so": function(){
