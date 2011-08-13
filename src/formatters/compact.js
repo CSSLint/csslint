@@ -2,12 +2,20 @@ CSSLint.addFormatter({
     //format information
     id: "compact",
     name: "Compact, 'porcelain' format",
-    
-    startFormat: function(){
+
+    /**
+     * Return no content to prepend.
+     * @return {String} to prepend before all results
+     */
+    startFormat: function() {
         return "";
     },
-    
-    endFormat: function(){
+
+    /**
+     * Return no content to append.
+     * @return {String} to append after all results
+     */
+    endFormat: function() {
         return "";
     },
 
@@ -17,22 +25,30 @@ CSSLint.addFormatter({
             pos = filename.lastIndexOf("/"),
             shortFilename = filename;
 
+        /**
+         * Capitalize and return given string.
+         * @param str {String} to capitalize
+         * @return {String} capitalized
+         */
+        var capitalize = function(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        };
+
         if (messages.length === 0) {
             return shortFilename + ": Lint Free!";
         }
 
-        if (pos == -1){
+        if (pos == -1) {
             pos = filename.lastIndexOf("\\");       
-        }
-        if (pos > -1){
+        } else if (pos > -1) {
             shortFilename = filename.substring(pos+1);
         }
 
         messages.forEach(function (message, i) {
             if (message.rollup) {
-                output += shortFilename + ": " + message.message + "\n";
+                output += capitalize(message.type) + ": " + shortFilename + ": " + message.message + "\n";
             } else {
-                output += shortFilename + ": " + "line " + message.line + 
+                output += capitalize(message.type) + ": " + shortFilename + ": " + "line " + message.line + 
                     ", col " + message.col + ", " + message.message + "\n";
             }
         });

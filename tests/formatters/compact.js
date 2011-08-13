@@ -13,16 +13,15 @@
 
         "File with problems should list them": function(){
             var result = { messages: [ 
-                     { type: 'warning', line: 1, col: 1, message: 'BOGUS WARNING', evidence: 'BOGUS', rule: [] },
-                     { type: 'error', line: 2, col: 1, message: 'BOGUS ERROR', evidence: 'BOGUS', rule: [] }
+                     { type: 'error', line: 2, col: 1, message: 'BOGUS ERROR', evidence: 'BOGUS', rule: [] },
+                     { type: 'warning', line: 1, col: 1, message: 'BOGUS WARNING', evidence: 'BOGUS', rule: [] }
                 ], stats: [] },
-                error1 = "FILE: line 1, col 1, BOGUS WARNING\n",
-                error2 = "FILE: line 2, col 1, BOGUS ERROR\n",
-                expected = error1 + error2,
+                err = "Error: FILE: line 2, col 1, BOGUS ERROR\n",
+                warning = "Warning: FILE: line 1, col 1, BOGUS WARNING\n",
+                expected = err + warning,
                 actual = CSSLint.format(result, "FILE", "compact");
             Assert.areEqual(expected, actual);
         }
-
     }));
 
 })();
