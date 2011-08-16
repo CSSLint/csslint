@@ -91,9 +91,15 @@ function processFiles(files, options){
         } else {
             formatter = CSSLint.getFormatter(formatId);
             print(formatter.startFormat());
-            exitCode = files.some(function(file){
-                processFile(file,options);
+
+            files.forEach(function(file){
+                if (exitCode == 0) {
+                    exitCode = processFile(file,options);
+                } else {
+                    processFile(file,options);
+                }
             });
+            
             print(formatter.endFormat());
         }
     }
