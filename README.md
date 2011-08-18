@@ -2,28 +2,6 @@
 
 CSSLint is a tool to help point out problems with your CSS code. It does basic syntax checking as well as applying a set of rules to the code that look for problematic patterns or signs of inefficiency. The rules are all pluggable, so you can easily write your own or omit ones you don't want.
 
-# Command-line Interface
-
-You can run CSSLint on a file with:
-
-    csslint [options] path/to/file.css
-
-You can see usage:
-
-    csslint --help
-
-You can customize which rules are applied with the `--rules` option (default is all rules):
-
-    csslint --rules=adjoining-classes,other-rule file.css
-
-You can customize the output format with the `--format` option ("text", "compact", "checkstyle-xml", and "lint-xml" are available):
-
-    csslint --format=lint-xml file.css
-
-You can check the version of CSSLint with:
-
-    csslint --version
-
 # Contributors
 
 ## Creators

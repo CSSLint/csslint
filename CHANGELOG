@@ -1,9 +1,10 @@
 Next (not yet released)
 
-TBD
+* Moved documentation into docs directory.
 
 July 29, 2011 - v0.5.0
 
+* Merged in changes for a compact CLI output format (fixes #88)
 * Added total headings count to unique-headings rule (fixes #108)
 * Fixed bug with box model rule (fixes #135)
 * Added rule to check property name against list of known properties (fixes #136)
