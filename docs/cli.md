@@ -57,22 +57,50 @@ Once these steps are complete, you should be able to execute CSS Lint by using t
 
 ## Options
 
-You can run CSSLint on a file with:
+The command line utility has several options. You can view the options by running `csslint --help`.
 
-    csslint [options] path/to/file.css
+    Usage: csslint-rhino.js [options]* [file|dir]*
+            
+    Global Options
+      --help                 Displays this information.
+      --rules=<rule[,rule]+> Indicate which rules to include.
+      --format=<format>      Indicate which format to use for output.
+      --version              Outputs the current version number.
 
-You can see usage:
+### --help
 
-    csslint --help
+This option outputs the help menu, displaying all of the available options. When `--help` is entered, all other flags are ignored.
 
-You can customize which rules are applied with the `--rules` option (default is all rules):
+### --rules
 
-    csslint --rules=adjoining-classes,other-rule file.css
+This option allows you to specify which rules to run. The rules are represented as a comma-delimited list of rule IDs, such as:
 
-You can customize the output format with the `--format` option ("text", "compact", "checkstyle-xml", and "lint-xml" are available):
+    csslint --rules=box-model,ids test.css
+    
+This command runs the `box-model` and `id` rules on the file `test.css`. The rule IDs are found in the rules documentation. You can specify as many rules as you like using this option.
 
-    csslint --format=lint-xml file.css
+When this option is omitted, all rules are executed.
 
-You can check the version of CSSLint with:
+### --format
 
-    csslint --version
+This options specifies the output format for the console. There are several formats to choose from:
+
+* `text` - the default format
+* `compact` - a more condensed output where each warning takes only one line of output
+* `lint-xml` - an XML format that can be consumed by other utilities
+* `csslint-xml` - same as `lint-xml` except the document element is `<csslint>`
+* `checkstyle-xml` - a format appropriate for consumption by [Checkstyle]:[http://checkstyle.sourceforge.net/]
+
+For example:
+
+    csslint --format=lint-xml test.css
+    
+When specified, the given format is output to the console. If you'd like to save that output into a file, you can do so on the command line like so:
+
+    csslint --format=lint-xml test.css > results.xml
+    
+This saves the output into the `results.xml` file.
+
+### --version
+
+This option outputs the version of CSS Lint that is being used.
