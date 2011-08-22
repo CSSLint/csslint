@@ -70,6 +70,10 @@ if (options.version){
     quit(0);
 }
 
+if (options["list-rules"]){
+    listRules();
+    quit(0);
+}
 
 
 quit(processFiles(files,options));

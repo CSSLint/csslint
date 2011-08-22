@@ -84,6 +84,11 @@ if (options.version){
     process.exit(0);
 }
 
+if (options["list-rules"]){
+    listRules();
+    process.exit(0);
+}
+
 //get the full path names
 files = files.map(function(filename){
     return path.resolve(process.cwd(), filename);

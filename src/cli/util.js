@@ -31,6 +31,15 @@ function gatherRules(options){
     return ruleset;
 }
 
+
+function listRules(){
+    print("");
+    var rules = CSSLint.getRules();
+    rules.forEach(function(rule){
+        print(rule.id + "\n" + rule.desc + "\n");
+    });
+}
+
 /**
  * Given a file name and options, run verification and print formatted output.
  * @param {String} name of file to process
@@ -65,10 +74,11 @@ function outputHelp(){
         " ",
         "Global Options",
         "  --help                 Displays this information.",
-        "  --rules=<rule[,rule]+> Indicate which rules to include.",
         "  --format=<format>      Indicate which format to use for output.",
+        "  --list-rules           Outputs all of the rules available.",
+        "  --rules=<rule[,rule]+> Indicate which rules to include.",
         "  --version              Outputs the current version number."
-    ].join("\n") + "\n\n");
+    ].join("\n") + "\n");
 }
 
 /**

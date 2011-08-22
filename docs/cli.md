@@ -63,23 +63,14 @@ The command line utility has several options. You can view the options by runnin
             
     Global Options
       --help                 Displays this information.
+      --format=<format>      Indicate which format to use for output.      
+      --list-rules           Outputs all of the rules available.
       --rules=<rule[,rule]+> Indicate which rules to include.
-      --format=<format>      Indicate which format to use for output.
       --version              Outputs the current version number.
 
 ### --help
 
 This option outputs the help menu, displaying all of the available options. When `--help` is entered, all other flags are ignored.
-
-### --rules
-
-This option allows you to specify which rules to run. The rules are represented as a comma-delimited list of rule IDs, such as:
-
-    csslint --rules=box-model,ids test.css
-    
-This command runs the `box-model` and `id` rules on the file `test.css`. The rule IDs are found in the rules documentation. You can specify as many rules as you like using this option.
-
-When this option is omitted, all rules are executed.
 
 ### --format
 
@@ -100,6 +91,22 @@ When specified, the given format is output to the console. If you'd like to save
     csslint --format=lint-xml test.css > results.xml
     
 This saves the output into the `results.xml` file.
+
+### --list-rules
+
+This option outputs each rule that is available including its ID and a short description.
+
+### --rules
+
+This option allows you to specify which rules to run. The rules are represented as a comma-delimited list of rule IDs, such as:
+
+    csslint --rules=box-model,ids test.css
+    
+This command runs the `box-model` and `id` rules on the file `test.css`. The rule IDs are found in the rules documentation. You can specify as many rules as you like using this option.
+
+When this option is omitted, all rules are executed.
+
+
 
 ### --version
 

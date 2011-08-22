@@ -40,7 +40,9 @@ var CSSLint = (function(){
      * @method getRules
      */
     api.getRules = function(){
-        return [].concat(rules);
+        return [].concat(rules).sort(function(a,b){ 
+            return a.id > b.id ? 1 : 0;
+        });
     };
 
     //-------------------------------------------------------------------------
