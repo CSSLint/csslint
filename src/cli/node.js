@@ -86,7 +86,7 @@ if (options.version){
 
 //get the full path names
 files = files.map(function(filename){
-    return path.join(process.cwd(), filename);
+    return path.resolve(process.cwd(), filename);
 });
 
 process.exit(processFiles(files,options));

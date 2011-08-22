@@ -36,7 +36,7 @@ if (options.version){
 
 //get the full path names
 files = files.map(function(filename){
-    return path.join(CLI.getCurrentDirectory(), filename);
+    return path.resolve(CLI.getCurrentDirectory(), filename);
 });
 
 CLI.quit(CLI.processFiles(files,options));
