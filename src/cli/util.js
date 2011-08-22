@@ -80,7 +80,8 @@ function outputHelp(){
 function processFiles(files, options){
     var exitCode = 0,
         formatId = options.format || "text",
-        formatter;
+        formatter,
+        output;
     if (!files.length) {
         print("No files specified.");
         exitCode = 1;
@@ -90,7 +91,11 @@ function processFiles(files, options){
             exitCode = 1; 
         } else {
             formatter = CSSLint.getFormatter(formatId);
-            print(formatter.startFormat());
+            
+            output = formatter.startFormat();
+            if (output){
+                print(output);
+            }
 
             files.forEach(function(file){
                 if (exitCode == 0) {
@@ -100,7 +105,10 @@ function processFiles(files, options){
                 }
             });
             
-            print(formatter.endFormat());
+            output = formatter.endFormat();
+            if (output){
+                print(output);
+            }
         }
     }
     return exitCode;
