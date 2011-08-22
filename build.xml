@@ -125,7 +125,7 @@
            <header trimleading="yes">#!/usr/bin/env node
             /* Build time: ${RIGHT_NOW} */
             </header>
-           <filelist dir="${src.dir}/cli" files="util.js,node.js" />
+           <filelist dir="${src.dir}/cli" files="common.js,node.js" />
        </concat>
        <copy file="${build.dir}/${node.build.file}" todir="${build.npm.dir}/lib"/>
        
@@ -144,7 +144,7 @@
     <target name="build.rhino" depends="build.core">
         <concat destfile="${build.dir}/${rhino.build.file}" fixlastline="true">
             <filelist dir="${build.dir}" files="${core.build.file}" />
-            <filelist dir="${src.dir}/cli" files="util.js,rhino.js" />
+            <filelist dir="${src.dir}/cli" files="common.js,rhino.js" />
         </concat>
     </target>    
     
