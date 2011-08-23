@@ -1,4 +1,4 @@
-<project name="csslint" default="all">
+<project name="csslint" default="build.all">
 
     <!-- version number -->
     <property name="csslint.version" value="0.5.0" />
@@ -41,10 +41,45 @@
               pattern="d-MMMM-yyyy hh:mm:ss"
               locale="en,US"/>
     </tstamp>
+    <tstamp>
+      <format property="SIMPLE_DATE"
+              pattern="MMMM d, yyyy"
+              locale="en,US"/>
+    </tstamp>    
     
     <!-- clean -->
     <target name="clean">
         <delete dir="${build.dir}" />
+    </target>
+    
+    <target name="changelog.update">
+        <exec executable="git" failonerror="true" outputproperty="git.tag">
+            <arg line="tag"/>
+        </exec>      
+        <script language="javascript"><![CDATA[
+            //get the two most recent tags to get the diff
+            var tags = csslint.getProperty("git.tag").replace("\r", "").split("\n"),
+                lastTag = tags[tags.length-1],
+                priorTag = tags[tags.length-2];
+            csslint.setProperty("git.log.range", priorTag + ".." + lastTag);
+        ]]></script>
+        
+        <!-- git log -pretty=format:'* %s (%an)' v0.4.0..v0.5.0-->
+        <exec executable="git" failonerror="true" outputproperty="git.changelog">
+            <arg line="log --pretty=format:'* %s (%an)' ${git.log.range}"/>
+        </exec>      
+        
+        <concat destfile="CHANGELOG.tmp"  fixlastline="true">
+            <header trimleading="yes">${SIMPLE_DATE} - v${csslint.version}
+            
+            ${git.changelog}
+            </header>
+            <fileset dir="." includes="CHANGELOG" />
+        </concat>
+        
+        <delete file="CHANGELOG"/>
+        <move file="CHANGELOG.tmp" tofile="CHANGELOG"/>
+        
     </target>
     
     <!-- validate JS files with JSHint -->
@@ -161,7 +196,7 @@
     </target>    
     
     <!-- Create a release with version number embedded -->
-    <target name="release" depends="all">
+    <target name="release" depends="build.all,changelog.update">
         <delete dir="${release.dir}" />
         <mkdir dir="${release.dir}"/>
         <copy todir="${release.dir}">
@@ -173,17 +208,17 @@
     </target>
     
     <!-- Update CSS parser with the latest -->
-    <target name="update-parser">
+    <target name="parser.update">
         <get src="${parser.url}" dest="${lib.dir}/" />
     </target>
     
     <!-- Update JSHint with the latest -->
-    <target name="update-jshint">
+    <target name="jshint.update">
         <get src="${jshint-rhino.url}" dest="${lib.dir}/" />
         <get src="${jshint.url}" dest="${lib.dir}/" />
     </target>
     
     <!-- Build all files -->
-    <target name="all" depends="clean,build.core,build.worker,build.node,build.tests,build.rhino,build.docs"/>
+    <target name="build.all" depends="clean,build.core,build.worker,build.node,build.tests,build.rhino,build.docs"/>
 
 </project>
