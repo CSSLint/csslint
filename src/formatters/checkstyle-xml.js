@@ -23,6 +23,9 @@ CSSLint.addFormatter({
          * @return rule source as {String}
          */
         var generateSource = function(rule) {
+            if (!rule || !('name' in rule)) {
+                return "";
+            }
             return 'net.csslint.' + rule.name.replace(/\s/g,'');
         };
 
