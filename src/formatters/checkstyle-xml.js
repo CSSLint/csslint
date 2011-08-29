@@ -29,6 +29,24 @@ CSSLint.addFormatter({
             return 'net.csslint.' + rule.name.replace(/\s/g,'');
         };
 
+        /**
+         * Replace special characters before write to output.
+         *
+         * Rules:
+         *  - single quotes is the escape sequence for double-quotes
+         *  - &lt; is the escape sequence for <
+         *  - &gt; is the escape sequence for >
+         *
+         * @param {String} message to escape
+         * @return escaped message as {String}
+         */
+        var escapeSpecialCharacters = function(str) {
+            if (!str || str.constructor !== String) {
+                return "";
+            }
+            return str.replace(/\"/g, "'").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        };
+
         if (messages.length > 0) {
             output.push("<file name=\""+filename+"\">");
             messages.forEach(function (message, i) {
@@ -36,7 +54,7 @@ CSSLint.addFormatter({
                     //ignore rollups for now
                 } else {
                   output.push("<error line=\"" + message.line + "\" column=\"" + message.col + "\" severity=\"" + message.type + "\"" +
-                      " message=\"" + message.message + "\" source=\"" + generateSource(message.rule) +"\"/>");
+                      " message=\"" + escapeSpecialCharacters(message.message) + "\" source=\"" + generateSource(message.rule) +"\"/>");
                 }
             });
             output.push("</file>");
