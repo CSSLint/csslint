@@ -8,7 +8,7 @@ This guide is intended for those who wish to:
 
 ## Getting the source
 
-CSS Lint is hosted at [GitHub][http://www.github.com] and uses [Git][http://git-scm.com/] for source control. In order to obtain the source code, you must first install Git on your system. Instructions for installing and setting up Git can be found at http://help.github.com/set-up-git-redirect.
+CSS Lint is hosted at [GitHub](http://www.github.com) and uses [Git](http://git-scm.com/) for source control. In order to obtain the source code, you must first install Git on your system. Instructions for installing and setting up Git can be found at http://help.github.com/set-up-git-redirect.
 
 If you simply want to create a local copy of the source to play with, you can clone the main repository using this command:
 
@@ -23,10 +23,10 @@ The CSS Lint directory and file structure is as follows:
 * `demos` - collection of demos and sample files
 * `docs` - the main documentation folder
 * `lib` - contains third party libraries for use in the build
-* `npm` - files used exclusively with [npm][http://npmjs.org]
+* `npm` - files used exclusively with [npm](http://npmjs.org)
 * `release` - contains the distributable files from the last official release
   * `docs` - the documentation for this release
-  * `npm` - the folder containing all files necessary for publishing to [npm][http://npmjs.org]
+  * `npm` - the folder containing all files necessary for publishing to [npm](http://npmjs.org)
 * `src` - the main source code folder
   * `cli` - files for the command line interfaces
   * `core` - core CSS Lint functionality including the `CSSLint` object
@@ -46,7 +46,7 @@ CSS Lint uses a build system to make updating code faster and easier. Doing so a
 
 ### Installing Ant
 
-In order to build CSS Lint, you must first download and install [Ant][http://ant.apache.org]. Ant is a Java-based command line build tool that works with the `build.xml` file found in the root directory. 
+In order to build CSS Lint, you must first download and install [Ant](http://ant.apache.org). Ant is a Java-based command line build tool that works with the `build.xml` file found in the root directory. 
 
 If you're using Mac OS X, Ant is already installed for you. If for some reason it's not installed, be sure to install MacPorts and run:
 
@@ -109,7 +109,7 @@ Whenever you make changes to the CSS Lint source files, you'll need to run the `
 
 ## Running unit tests
 
-Most parts of CSS Lint have unit tests associated with them. Unit tests are written using [YUI Test][http://yuilibrary.com/projects/yuitest/] and are required when making contributions to formatters, rules, or the core library.
+Most parts of CSS Lint have unit tests associated with them. Unit tests are written using [YUI Test](http://yuilibrary.com/projects/yuitest/) and are required when making contributions to formatters, rules, or the core library.
 
 When you first get the source code, you need to run `ant` once initially to generate all of the code and the tests. Once you've done that, locate the `testrunner.htm` file in the `tests` directory. Load this into any web browser and click the "Run Tests" button. This executes all tests and prints out the results. 
 
