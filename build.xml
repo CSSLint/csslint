@@ -57,11 +57,10 @@
             <arg line="tag"/>
         </exec>      
         <script language="javascript"><![CDATA[
-            //get the two most recent tags to get the diff
+            //get the most recent tag to get the diff
             var tags = csslint.getProperty("git.tag").replace("\r", "").split("\n"),
-                lastTag = tags[tags.length-1],
-                priorTag = tags[tags.length-2];
-            csslint.setProperty("git.log.range", priorTag + ".." + lastTag);
+                lastTag = tags[tags.length-1];
+            csslint.setProperty("git.log.range", lastTag + "..HEAD");
         ]]></script>
         
         <!-- git log -pretty=format:'* %s (%an)' v0.4.0..v0.5.0-->
@@ -73,6 +72,7 @@
             <header trimleading="yes">${SIMPLE_DATE} - v${csslint.version}
             
             ${git.changelog}
+            
             </header>
             <fileset dir="." includes="CHANGELOG" />
         </concat>
