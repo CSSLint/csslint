@@ -1,3 +1,54 @@
+September 3, 2011 - v0.6.0
+
+* Updated changelog task in build script (Nicholas C. Zakas)
+* Ensure output from Node.js CLI can be captured (fixes #175) (Nicholas C. Zakas)
+* Merge branch 'master' of github.com:stubbornella/csslint (Nicholas C. Zakas)
+* Fixed links in the developer guide documentation (Nicholas C. Zakas)
+* Merge pull request #171 from kasperg/checkstyle-escape-chars (Nicholas C. Zakas)
+* Updated developer guide documentation (Nicholas C. Zakas)
+* Escape special characters in error message (Kasper Garnæs)
+* Defensive coding for source generation if a proper rule is not passed (Kasper Garnæs)
+* First rev of developer guide (Nicholas C. Zakas)
+* Update build.xml target names and added changelog generator. (Nicholas C. Zakas)
+* Copy docs into build directory upon build completion - makes iteasier to bundle docs with releases (Nicholas C. Zakas)
+* Added IDE documentation (Nicholas C. Zakas)
+* Added proper escaping to csslint-xml format (Nicholas C. Zakas)
+* Refactored CLI to make it easier to add other CLI environments (Nicholas C. Zakas)
+* Removed unused files (Nicholas C. Zakas)
+* Added CLI option to list all rules (fixes #158) (Nicholas C. Zakas)
+* CLI no longer outputs extra newlines for compact format (fixes #165) (Nicholas C. Zakas)
+* Merge branch 'master' of github.com:stubbornella/csslint (Nicholas C. Zakas)
+* Updated CLI documentation (Nicholas C. Zakas)
+* Merge pull request #167 from cillianderoiste/master (Nicholas C. Zakas)
+* Fixed README for 0.5.0, updated other documentation. (Nicholas C. Zakas)
+* Refactored docs (Nicholas C. Zakas)
+* Change path.join to path.resolve so that '..', '/', '~' can be used as the filename successfully, fixes #166 (Cillian de Róiste)
+* Merge pull request #161 from eriwen/master (Nicholas C. Zakas)
+* Merge pull request #163 from tomasz-oponowicz/issue_141 (Nicholas C. Zakas)
+* Merge pull request #162 from tomasz-oponowicz/issue_142 (Nicholas C. Zakas)
+* Fixed returning exit_code when errors exist (Tomasz Oponowicz)
+* Fixed "the XML output formatter produces '<' and '>' inside attribute's value (XML output)" (Tomasz Oponowicz)
+* Adding CSSLint XML formatter for Jenkins Violations compatibility (Eric Wendelin)
+* Updated README (Nicholas C. Zakas)
+* Updated README (Nicholas C. Zakas)
+* Added getRules() to CSSLint API (fixes #155) (Nicholas C. Zakas)
+* Updated README with checkstyle-xml author (Nicholas C. Zakas)
+* Merge pull request #156 from kasperg/master (Nicholas C. Zakas)
+* Renamed checkstyle-xml formatter and test according to match id (Kasper Garnæs)
+* Some rule names contain more than one whitespace. All of these should be stripped to generate the source. (Kasper Garnæs)
+* Revert "Add release with Checkstyle XML formatter support" (Kasper Garnæs)
+* Add release with Checkstyle XML formatter support (Kasper Garnæs)
+* message.rule is not an array is actual use. Reduce complexity accordingly. (Kasper Garnæs)
+* Add support for Checkstyle XML format (Kasper Garnæs)
+* Added rule to check for properties that can be replaced by shorthand (fixes #66) (Nicholas C. Zakas)
+* Check for direction:ltr with text-indent (fixes #147) (Nicholas C. Zakas)
+* Added better vendor prefix compatibility information (fixes #146) (Nicholas C. Zakas)
+* Make sure that heading pseudo classes aren't counted as heading definition (fixes #149) (Nicholas C. Zakas)
+* Ensure messages are properly sorted by line number and rollups (fixes #151) (Nicholas C. Zakas)
+* Merge pull request #148 from parallel/master (Nicholas C. Zakas)
+* Added missing properties in the list of known properties (Julien Kernec'h)
+* updating some language in the readme (Nicole Sullivan)
+
 July 29, 2011 - v0.5.0
 
 * Merged in changes for a compact CLI output format (fixes #88)
@@ -62,6 +113,7 @@ June 18, 2011 - v0.2.0
 June 15, 2011 - v0.1.0
 
 * Initial release
+
 
 
 

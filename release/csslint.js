@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 29-July-2011 06:18:34 */
+/* Build time: 3-September-2011 10:57:51 */
 var CSSLint = (function(){
 /*!
 Parser-Lib
@@ -5420,6 +5420,7 @@ Tokens              :Tokens,
 ValidationError     :ValidationError
 };
 })();
+
 /**
  * Main CSSLint object.
  * @class CSSLint
@@ -5432,7 +5433,7 @@ var CSSLint = (function(){
         formatters = [],
         api        = new parserlib.util.EventTarget();
         
-    api.version = "0.5.0";
+    api.version = "0.6.0";
 
     //-------------------------------------------------------------------------
     // Rule Management
@@ -5454,6 +5455,17 @@ var CSSLint = (function(){
      */
     api.clearRules = function(){
         rules = [];
+    };
+    
+    /**
+     * Returns the rule objects.
+     * @return An array of rule objects.
+     * @method getRules
+     */
+    api.getRules = function(){
+        return [].concat(rules).sort(function(a,b){ 
+            return a.id > b.id ? 1 : 0;
+        });
     };
 
     //-------------------------------------------------------------------------
@@ -5529,6 +5541,7 @@ var CSSLint = (function(){
             len     = rules.length,
             reporter,
             lines,
+            report,
             parser = new parserlib.css.Parser({ starHack: true, ieFilters: true,
                                                 underscoreHack: true, strict: false });
 
@@ -5557,10 +5570,23 @@ var CSSLint = (function(){
             reporter.error("Fatal error, cannot continue: " + ex.message, ex.line, ex.col);
         }
 
-        return {
+        report = {
             messages    : reporter.messages,
             stats       : reporter.stats
         };
+        
+        //sort by line numbers, rollups at the bottom
+        report.messages.sort(function (a, b){
+            if (a.rollup && !b.rollup){
+                return 1;
+            } else if (!a.rollup && b.rollup){
+                return -1;
+            } else {
+                return a.line - b.line;
+            }
+        });        
+        
+        return report;
     };
 
     //-------------------------------------------------------------------------
@@ -5570,6 +5596,7 @@ var CSSLint = (function(){
     return api;
 
 })();
+
 /**
  * An instance of Report is used to report results of the
  * verification back to the main API.
@@ -5704,6 +5731,7 @@ Reporter.prototype = {
         this.stats[name] = value;
     }
 };
+
 /*
  * Utility functions that make life easier.
  */
@@ -6534,6 +6562,7 @@ CSSLint.addRule({
                 "animation-delay": 1,
                 "animation-direction": 1,
                 "animation-duration": 1,
+                "animation-fill-mode": 1,
                 "animation-iteration-count": 1,
                 "animation-name": 1,
                 "animation-play-state": 1,
@@ -6782,6 +6811,8 @@ CSSLint.addRule({
                 "transition-property": 1,
                 "transition-timing-function": 1,
                 "unicode-bidi": 1,
+                "user-modify": 1,
+                "user-select": 1,
                 "vertical-align": 1,
                 "visibility": 1,
                 "voice-balance": 1,
@@ -6988,6 +7019,93 @@ CSSLint.addRule({
 
 });
 /*
+ * Rule: Use shorthand properties where possible.
+ * 
+ */
+
+CSSLint.addRule({
+
+    //rule information
+    id: "shorthand",
+    name: "Shorthand Properties",
+    desc: "Use shorthand properties where possible.",
+    browsers: "All",
+    
+    //initialization
+    init: function(parser, reporter){
+        var rule = this,
+            prop, i, len,
+            propertiesToCheck = {},
+            properties,
+            mapping = {
+                "margin": [
+                    "margin-top",
+                    "margin-bottom",
+                    "margin-left",
+                    "margin-right"
+                ],
+                "padding": [
+                    "padding-top",
+                    "padding-bottom",
+                    "padding-left",
+                    "padding-right"
+                ]              
+            };
+            
+        //initialize propertiesToCheck 
+        for (prop in mapping){
+            if (mapping.hasOwnProperty(prop)){
+                for (i=0, len=mapping[prop].length; i < len; i++){
+                    propertiesToCheck[mapping[prop][i]] = prop;
+                }
+            }
+        }
+            
+        function startRule(event){
+            properties = {};
+        }
+        
+        //event handler for end of rules
+        function endRule(event){
+            
+            var prop, i, len, total;
+            
+            //check which properties this rule has
+            for (prop in mapping){
+                if (mapping.hasOwnProperty(prop)){
+                    total=0;
+                    
+                    for (i=0, len=mapping[prop].length; i < len; i++){
+                        total += properties[mapping[prop][i]] ? 1 : 0;
+                    }
+                    
+                    if (total == mapping[prop].length){
+                        reporter.warn("The properties " + mapping[prop].join(", ") + " can be replaced by " + prop + ".", event.line, event.col, rule);
+                    }
+                }
+            }
+        }        
+        
+        parser.addListener("startrule", startRule);
+        parser.addListener("startfontface", startRule);
+    
+        //check for use of "font-size"
+        parser.addListener("property", function(event){
+            var name = event.property.toString().toLowerCase(),
+                value = event.value.parts[0].value;
+
+            if (propertiesToCheck[name]){
+                properties[name] = 1;
+            }
+        });
+
+        parser.addListener("endrule", endRule);
+        parser.addListener("endfontface", endRule);     
+
+    }
+
+});
+/*
  * Rule: Don't use text-indent for image replacement if you need to support rtl. 
  * 
  */
@@ -7005,17 +7123,39 @@ CSSLint.addRule({
     
     //initialization
     init: function(parser, reporter){
-        var rule = this;
+        var rule = this,
+            textIndent = false;
+            
+            
+        function startRule(event){
+            textIndent = false;
+        }
+        
+        //event handler for end of rules
+        function endRule(event){
+            if (textIndent){
+                reporter.warn("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set text-direction for that item to ltr.", name.line, name.col, rule);
+            }
+        }        
+        
+        parser.addListener("startrule", startRule);
+        parser.addListener("startfontface", startRule);
     
         //check for use of "font-size"
         parser.addListener("property", function(event){
-            var name = event.property,
+            var name = event.property.toString().toLowerCase(),
                 value = event.value.parts[0].value;
 
             if (name == "text-indent" && value < -99){
-                reporter.warn("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set text-direction for that item to ltr.", name.line, name.col, rule);
+                textIndent = true;
+            } else if (name == "direction" && value == "ltr"){
+                textIndent = false;
             }
         });
+
+        parser.addListener("endrule", endRule);
+        parser.addListener("endfontface", endRule);     
+
     }
 
 });
@@ -7047,16 +7187,27 @@ CSSLint.addRule({
             var selectors = event.selectors,
                 selector,
                 part,
-                i;
+                pseudo,
+                i, j;
 
             for (i=0; i < selectors.length; i++){
                 selector = selectors[i];
                 part = selector.parts[selector.parts.length-1];
 
                 if (part.elementName && /(h[1-6])/i.test(part.elementName.toString())){
-                    headings[RegExp.$1]++;
-                    if (headings[RegExp.$1] > 1) {
-                        reporter.warn("Heading (" + part.elementName + ") has already been defined.", part.line, part.col, rule);
+                    
+                    for (j=0; j < part.modifiers.length; j++){
+                        if (part.modifiers[j].type == "pseudo"){
+                            pseudo = true;
+                            break;
+                        }
+                    }
+                
+                    if (!pseudo){
+                        headings[RegExp.$1]++;
+                        if (headings[RegExp.$1] > 1) {
+                            reporter.warn("Heading (" + part.elementName + ") has already been defined.", part.line, part.col, rule);
+                        }
                     }
                 }
             }
@@ -7133,24 +7284,64 @@ CSSLint.addRule({
             properties,
             num,
             propertiesToCheck = {
-                "-moz-border-radius": "border-radius",
                 "-webkit-border-radius": "border-radius",
                 "-webkit-border-top-left-radius": "border-top-left-radius",
                 "-webkit-border-top-right-radius": "border-top-right-radius",
                 "-webkit-border-bottom-left-radius": "border-bottom-left-radius",
                 "-webkit-border-bottom-right-radius": "border-bottom-right-radius",
+                
+                "-o-border-radius": "border-radius",
+                "-o-border-top-left-radius": "border-top-left-radius",
+                "-o-border-top-right-radius": "border-top-right-radius",
+                "-o-border-bottom-left-radius": "border-bottom-left-radius",
+                "-o-border-bottom-right-radius": "border-bottom-right-radius",
+                
+                "-moz-border-radius": "border-radius",
                 "-moz-border-radius-topleft": "border-top-left-radius",
                 "-moz-border-radius-topright": "border-top-right-radius",
                 "-moz-border-radius-bottomleft": "border-bottom-left-radius",
-                "-moz-border-radius-bottomright": "border-bottom-right-radius",
+                "-moz-border-radius-bottomright": "border-bottom-right-radius",                
+                
+                "-moz-column-count": "column-count",
+                "-webkit-column-count": "column-count",
+                
+                "-moz-column-gap": "column-gap",
+                "-webkit-column-gap": "column-gap",
+                
+                "-moz-column-rule": "column-rule",
+                "-webkit-column-rule": "column-rule",
+                
+                "-moz-column-rule-style": "column-rule-style",
+                "-webkit-column-rule-style": "column-rule-style",
+                
+                "-moz-column-rule-color": "column-rule-color",
+                "-webkit-column-rule-color": "column-rule-color",
+                
+                "-moz-column-rule-width": "column-rule-width",
+                "-webkit-column-rule-width": "column-rule-width",
+                
+                "-moz-column-width": "column-width",
+                "-webkit-column-width": "column-width",
+                
+                "-webkit-column-span": "column-span",
+                "-webkit-columns": "columns",
+                
                 "-moz-box-shadow": "box-shadow",
                 "-webkit-box-shadow": "box-shadow",
+                
                 "-moz-transform" : "transform",
                 "-webkit-transform" : "transform",
                 "-o-transform" : "transform",
                 "-ms-transform" : "transform",
+                
+                "-moz-transform-origin" : "transform-origin",
+                "-webkit-transform-origin" : "transform-origin",
+                "-o-transform-origin" : "transform-origin",
+                "-ms-transform-origin" : "transform-origin",
+                
                 "-moz-box-sizing" : "box-sizing",
                 "-webkit-box-sizing" : "box-sizing",
+                
                 "-moz-user-select" : "user-select",
                 "-khtml-user-select" : "user-select",
                 "-webkit-user-select" : "user-select"                
@@ -7289,6 +7480,71 @@ CSSLint.addRule({
 });
 CSSLint.addFormatter({
     //format information
+    id: "checkstyle-xml",
+    name: "Checkstyle XML format",
+
+    startFormat: function(){
+        return "<?xml version=\"1.0\" encoding=\"utf-8\"?><checkstyle>";
+    },
+
+    endFormat: function(){
+        return "</checkstyle>";
+    },
+
+    formatResults: function(results, filename) {
+        var messages = results.messages,
+            output = [];
+
+        /**
+         * Generate a source string for a rule.
+         * Checkstyle source strings usually resemble Java class names e.g
+         * net.csslint.SomeRuleName
+         * @param {Object} rule
+         * @return rule source as {String}
+         */
+        var generateSource = function(rule) {
+            if (!rule || !('name' in rule)) {
+                return "";
+            }
+            return 'net.csslint.' + rule.name.replace(/\s/g,'');
+        };
+
+        /**
+         * Replace special characters before write to output.
+         *
+         * Rules:
+         *  - single quotes is the escape sequence for double-quotes
+         *  - &lt; is the escape sequence for <
+         *  - &gt; is the escape sequence for >
+         *
+         * @param {String} message to escape
+         * @return escaped message as {String}
+         */
+        var escapeSpecialCharacters = function(str) {
+            if (!str || str.constructor !== String) {
+                return "";
+            }
+            return str.replace(/\"/g, "'").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        };
+
+        if (messages.length > 0) {
+            output.push("<file name=\""+filename+"\">");
+            messages.forEach(function (message, i) {
+                if (message.rollup) {
+                    //ignore rollups for now
+                } else {
+                  output.push("<error line=\"" + message.line + "\" column=\"" + message.col + "\" severity=\"" + message.type + "\"" +
+                      " message=\"" + escapeSpecialCharacters(message.message) + "\" source=\"" + generateSource(message.rule) +"\"/>");
+                }
+            });
+            output.push("</file>");
+        }
+
+        return output.join("");
+    }
+});
+CSSLint.addFormatter({
+    //format information
     id: "compact",
     name: "Compact, 'porcelain' format",
     
@@ -7317,17 +7573,6 @@ CSSLint.addFormatter({
             shortFilename = filename.substring(pos+1);
         }
 
-        //rollups at the bottom
-        messages.sort(function (a, b){
-            if (a.rollup && !b.rollup){
-                return 1;
-            } else if (!a.rollup && b.rollup){
-                return -1;
-            } else {
-                return 0;
-            }
-        });
-
         messages.forEach(function (message, i) {
             if (message.rollup) {
                 output += shortFilename + ": " + message.message + "\n";
@@ -7338,6 +7583,65 @@ CSSLint.addFormatter({
         });
     
         return output;
+    }
+});
+CSSLint.addFormatter({
+    //format information
+    id: "csslint-xml",
+    name: "CSSLint XML format",
+    
+    /**
+     * Return opening root XML tag.
+     * @return {String} to prepend before all results
+     */
+    startFormat: function(){
+        return "<?xml version=\"1.0\" encoding=\"utf-8\"?><csslint>";
+    },
+
+    /**
+     * Return closing root XML tag.
+     * @return {String} to append after all results
+     */
+    endFormat: function(){
+        return "</csslint>";
+    },
+    
+    formatResults: function(results, filename) {
+        var messages = results.messages,
+            output = [];
+
+        /**
+         * Replace special characters before write to output.
+         *
+         * Rules:
+         *  - single quotes is the escape sequence for double-quotes
+         *  - &lt; is the escape sequence for <
+         *  - &gt; is the escape sequence for >
+         * 
+         * @param {String} message to escape
+         * @return escaped message as {String}
+         */
+        var escapeSpecialCharacters = function(str) {
+            if (!str || str.constructor !== String) {
+                return "";
+            }
+            return str.replace(/\"/g, "'").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        };
+
+        if (messages.length > 0) {
+            output.push("<file name=\""+filename+"\">");
+            messages.forEach(function (message, i) {
+                if (message.rollup) {
+                    output.push("<issue severity=\"" + message.type + "\" reason=\"" + escapeSpecialCharacters(message.message) + "\" evidence=\"" + escapeSpecialCharacters(message.evidence) + "\"/>");
+                } else {
+                    output.push("<issue line=\"" + message.line + "\" char=\"" + message.col + "\" severity=\"" + message.type + "\"" +
+                        " reason=\"" + escapeSpecialCharacters(message.message) + "\" evidence=\"" + escapeSpecialCharacters(message.evidence) + "\"/>");
+                }
+            });
+            output.push("</file>");
+        }
+
+        return output.join("");
     }
 });
 CSSLint.addFormatter({
@@ -7358,36 +7662,32 @@ CSSLint.addFormatter({
             output = [];
 
         /**
-         * Replace double-quotes with single quotes for XML output
+         * Replace special characters before write to output.
+         *
+         * Rules:
+         *  - single quotes is the escape sequence for double-quotes
+         *  - &lt; is the escape sequence for <
+         *  - &gt; is the escape sequence for >
+         * 
          * @param {String} message to escape
          * @return escaped message as {String}
          */
-        var replaceDoubleQuotes = function(str) {
+        var escapeSpecialCharacters = function(str) {
             if (!str || str.constructor !== String) {
                 return "";
             }
-            return str.replace(/\"/g, "'");
+            return str.replace(/\"/g, "'").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         };
 
         if (messages.length > 0) {
-            //rollups at the bottom
-            messages.sort(function (a, b) {
-                if (a.rollup && !b.rollup) {
-                    return 1;
-                } else if (!a.rollup && b.rollup) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            });
         
             output.push("<file name=\""+filename+"\">");
             messages.forEach(function (message, i) {
                 if (message.rollup) {
-                    output.push("<issue severity=\"" + message.type + "\" reason=\"" + replaceDoubleQuotes(message.message) + "\" evidence=\"" + replaceDoubleQuotes(message.evidence) + "\"/>");
+                    output.push("<issue severity=\"" + message.type + "\" reason=\"" + escapeSpecialCharacters(message.message) + "\" evidence=\"" + escapeSpecialCharacters(message.evidence) + "\"/>");
                 } else {
                     output.push("<issue line=\"" + message.line + "\" char=\"" + message.col + "\" severity=\"" + message.type + "\"" +
-                        " reason=\"" + replaceDoubleQuotes(message.message) + "\" evidence=\"" + replaceDoubleQuotes(message.evidence) + "\"/>");
+                        " reason=\"" + escapeSpecialCharacters(message.message) + "\" evidence=\"" + escapeSpecialCharacters(message.evidence) + "\"/>");
                 }
             });
             output.push("</file>");
@@ -7425,17 +7725,6 @@ CSSLint.addFormatter({
         if (pos > -1){
             shortFilename = filename.substring(pos+1);
         }
-
-        //rollups at the bottom
-        messages.sort(function (a, b){
-            if (a.rollup && !b.rollup){
-                return 1;
-            } else if (!a.rollup && b.rollup){
-                return -1;
-            } else {
-                return 0;
-            }
-        });
 
         messages.forEach(function (message, i) {
             output = output + "\n\n" + shortFilename;

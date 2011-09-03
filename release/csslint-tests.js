@@ -20,6 +20,52 @@
     }));
 
 })();
+
+(function(){
+
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
+        name: "Checkstyle XML formatter test",
+
+        "File with no problems should say so": function(){
+            var result = { messages: [], stats: [] },
+                expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><checkstyle></checkstyle>";
+            Assert.areEqual(expected, CSSLint.format(result, "FILE", "checkstyle-xml"));
+        },
+
+        "File with problems should list them": function(){
+            var result = { messages: [
+                     { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: { name: "A Rule"} },
+                     { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: { name: "Some Other Rule"} }
+                ], stats: [] },
+                file = "<file name=\"FILE\">",
+                error1 = "<error line=\"1\" column=\"1\" severity=\"warning\" message=\"BOGUS\" source=\"net.csslint.ARule\"/>",
+                error2 = "<error line=\"2\" column=\"1\" severity=\"error\" message=\"BOGUS\" source=\"net.csslint.SomeOtherRule\"/>",
+                expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><checkstyle>" + file + error1 + error2 + "</file></checkstyle>",
+                actual = CSSLint.format(result, "FILE", "checkstyle-xml");
+            Assert.areEqual(expected, actual);
+        },
+
+        "Formatter should escape special characters": function() {
+            var specialCharsSting = 'sneaky, "sneaky", <sneaky>',
+                result = { messages: [
+                     { type: "warning", line: 1, col: 1, message: specialCharsSting, evidence: "ALSO BOGUS", rule: [] },
+                     { type: "error", line: 2, col: 1, message: specialCharsSting, evidence: "ALSO BOGUS", rule: [] }
+                ], stats: [] },
+                file = "<file name=\"FILE\">",
+                error1 = "<error line=\"1\" column=\"1\" severity=\"warning\" message=\"sneaky, 'sneaky', &lt;sneaky&gt;\" source=\"\"/>",
+                error2 = "<error line=\"2\" column=\"1\" severity=\"error\" message=\"sneaky, 'sneaky', &lt;sneaky&gt;\" source=\"\"/>",
+                expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><checkstyle>" + file + error1 + error2 + "</file></checkstyle>",
+                actual = CSSLint.format(result, "FILE", "checkstyle-xml");
+            Assert.areEqual(expected, actual);
+        }
+
+    }));
+})();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -48,6 +94,50 @@
     }));
 
 })();
+
+(function(){
+
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+        name: "CSSLint XML formatter test",
+        
+        "File with no problems should say so": function(){
+            var result = { messages: [], stats: [] },
+                expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><csslint></csslint>";
+            Assert.areEqual(expected, CSSLint.format(result, "FILE", "csslint-xml"));
+        },
+
+        "File with problems should list them": function(){
+            var result = { messages: [
+                     { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] },
+                     { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] }
+                ], stats: [] },
+                file = "<file name=\"FILE\">",
+                error1 = "<issue line=\"1\" char=\"1\" severity=\"warning\" reason=\"BOGUS\" evidence=\"ALSO BOGUS\"/>",
+                error2 = "<issue line=\"2\" char=\"1\" severity=\"error\" reason=\"BOGUS\" evidence=\"ALSO BOGUS\"/>",
+                expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><csslint>" + file + error1 + error2 + "</file></csslint>",
+                actual = CSSLint.format(result, "FILE", "csslint-xml");
+            Assert.areEqual(expected, actual);
+        },
+
+        "Formatter should escape double quotes": function() {
+            var doubleQuotedEvidence = 'sneaky, "sneaky"',
+                result = { messages: [
+                     { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] },
+                     { type: "error", line: 2, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] }
+                ], stats: [] },
+                file = "<file name=\"FILE\">",
+                error1 = "<issue line=\"1\" char=\"1\" severity=\"warning\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky'\"/>",
+                error2 = "<issue line=\"2\" char=\"1\" severity=\"error\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky'\"/>",
+                expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><csslint>" + file + error1 + error2 + "</file></csslint>",
+                actual = CSSLint.format(result, "FILE", "csslint-xml");
+            Assert.areEqual(expected, actual);
+        }
+    }));
+})();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -91,6 +181,7 @@
         }
     }));
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -120,6 +211,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -144,6 +236,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -355,6 +448,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -402,6 +496,7 @@
     }));     
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -615,6 +710,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -664,6 +760,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -682,6 +779,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -699,6 +797,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -734,6 +833,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -762,6 +862,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -792,6 +893,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -843,6 +945,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -868,6 +971,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -886,6 +990,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -913,6 +1018,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -942,6 +1048,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -983,6 +1090,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1002,6 +1110,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1054,6 +1163,44 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
+(function(){
+
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+    
+        name: "Shorthand Rule Errors",
+
+        "All padding properties should result in a warning": function(){
+            var result = CSSLint.verify(".foo{padding-top: 0px; padding-left: 3px; padding-right: 25px; padding-bottom: 10px;}", {"shorthand": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("The properties padding-top, padding-bottom, padding-left, padding-right can be replaced by padding.", result.messages[0].message);
+        },
+
+        "All margin properties should result in a warning": function(){
+            var result = CSSLint.verify(".foo{margin-top: 0px; margin-left: 3px; margin-right: 25px; margin-bottom: 10px;}", {"shorthand": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("The properties margin-top, margin-bottom, margin-left, margin-right can be replaced by margin.", result.messages[0].message);
+        },
+
+        "padding-left should not result in a warning": function(){
+            var result = CSSLint.verify(".foo{ padding-left: 8px;} ", {"shorthand": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "margin-top should not result in a warning": function(){
+            var result = CSSLint.verify(".foo{ margin-top: 8px;} ", {"shorthand": 1 });
+            Assert.areEqual(0, result.messages.length);
+        }
+				
+    }));
+
+})();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1075,6 +1222,11 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             Assert.areEqual(0, result.messages.length);
         },
 
+        "-100px text-indent with LTR should not result in a warning": function(){
+            var result = CSSLint.verify(".foo{text-indent: -100px; direction: ltr; }", {"text-indent": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
         "5px text-indent should not result in a warning": function(){
             var result = CSSLint.verify(".foo{text-indent: 5px;}", {"text-indent": 1 });
             Assert.areEqual(0, result.messages.length);
@@ -1083,6 +1235,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1112,8 +1265,13 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             Assert.areEqual("You have 2 h1s, 2 h2s defined in this stylesheet.", result.messages[2].message);
         },
 
-         "Defining one rule for h1 should not result in a warning": function(){
+        "Defining one rule for h1 should not result in a warning": function(){
             var result = CSSLint.verify("h1 { color: red;}", { "unique-headings": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Defining a rule for h1 and h1:hover should not result in a warning": function(){
+            var result = CSSLint.verify("h1 { color: red;} h1:hover { color: blue; }", { "unique-headings": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
@@ -1125,6 +1283,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1156,6 +1315,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1177,6 +1337,13 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Missing standard property 'border-radius' to go along with '-webkit-border-radius'.", result.messages[0].message);
+        },
+
+        "Using -o-border-radius without border-radius should result in one warning": function(){
+            var result = CSSLint.verify("h1 { -o-border-radius: 5px; }", { "vendor-prefix": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Missing standard property 'border-radius' to go along with '-o-border-radius'.", result.messages[0].message);
         },
 
         "Using -moz-border-radius after  border-radius should result in one warning": function(){
@@ -1220,6 +1387,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1265,6 +1433,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));*/
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1302,3 +1471,4 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
