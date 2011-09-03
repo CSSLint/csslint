@@ -9,7 +9,10 @@ var fs      = require("fs"),
 cli({
     args: process.argv.slice(2),
 
-    print: console.log,
+    print: function(message){
+        fs.writeSync(1, message + "\n");
+        fs.fsyncSync(1);
+    },
     
     quit: function(code){
         process.exit(code || 0);
