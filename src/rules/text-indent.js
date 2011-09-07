@@ -27,7 +27,7 @@ CSSLint.addRule({
         //event handler for end of rules
         function endRule(event){
             if (textIndent){
-                reporter.warn("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set text-direction for that item to ltr.", name.line, name.col, rule);
+                reporter.warn("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set text-direction for that item to ltr.", textIndent.line, textIndent.col, rule);
             }
         }        
         
@@ -37,10 +37,10 @@ CSSLint.addRule({
         //check for use of "font-size"
         parser.addListener("property", function(event){
             var name = event.property.toString().toLowerCase(),
-                value = event.value.parts[0].value;
+                value = event.value;
 
-            if (name == "text-indent" && value < -99){
-                textIndent = true;
+            if (name == "text-indent" && value.parts[0].value < -99){
+                textIndent = event.property;
             } else if (name == "direction" && value == "ltr"){
                 textIndent = false;
             }
