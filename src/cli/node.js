@@ -11,11 +11,19 @@ cli({
 
     print: function(message){
         fs.writeSync(1, message + "\n");
-        fs.fsyncSync(1);
     },
     
     quit: function(code){
-        process.exit(code || 0);
+    
+        //Workaround for https://github.com/joyent/node/issues/1669
+        var flushed = process.stdout.flush()
+        if (!flushed) {
+            process.once("drain", function () {
+                process.exit(code || 0)
+            });
+        } else {
+            process.exit(code || 0);
+        }
     },
     
     isDirectory: function(name){
@@ -63,3 +71,4 @@ cli({
         return fs.readFileSync(filename, "utf-8");    
     }
 });
+
