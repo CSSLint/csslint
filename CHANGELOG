@@ -1,3 +1,10 @@
+September 8, 2011 - v0.6.1
+
+* Workaround for Node.js stdout not flushing prior to exit (fixes #176) (Nicholas C. Zakas)
+* Ensure text-indent rule doesn't throw an error (fixes #179) (Nicholas C. Zakas)
+* Added documentation for shorthand rule (Nicholas C. Zakas)
+* Release v0.6.0 (Nicholas C. Zakas)
+
 September 3, 2011 - v0.6.0
 
 * Updated changelog task in build script (Nicholas C. Zakas)
@@ -113,6 +120,7 @@ June 18, 2011 - v0.2.0
 June 15, 2011 - v0.1.0
 
 * Initial release
+
 
 
 

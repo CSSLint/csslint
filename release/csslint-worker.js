@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 3-September-2011 10:59:45 */
+/* Build time: 8-September-2011 08:50:44 */
 /*!
 Parser-Lib
 Copyright (c) 2009-2011 Nicholas C. Zakas. All rights reserved.
@@ -5432,7 +5432,7 @@ var CSSLint = (function(){
         formatters = [],
         api        = new parserlib.util.EventTarget();
         
-    api.version = "0.6.0";
+    api.version = "0.6.1";
 
     //-------------------------------------------------------------------------
     // Rule Management
@@ -7133,7 +7133,7 @@ CSSLint.addRule({
         //event handler for end of rules
         function endRule(event){
             if (textIndent){
-                reporter.warn("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set text-direction for that item to ltr.", name.line, name.col, rule);
+                reporter.warn("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set text-direction for that item to ltr.", textIndent.line, textIndent.col, rule);
             }
         }        
         
@@ -7143,10 +7143,10 @@ CSSLint.addRule({
         //check for use of "font-size"
         parser.addListener("property", function(event){
             var name = event.property.toString().toLowerCase(),
-                value = event.value.parts[0].value;
+                value = event.value;
 
-            if (name == "text-indent" && value < -99){
-                textIndent = true;
+            if (name == "text-indent" && value.parts[0].value < -99){
+                textIndent = event.property;
             } else if (name == "direction" && value == "ltr"){
                 textIndent = false;
             }

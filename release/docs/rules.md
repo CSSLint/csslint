@@ -152,6 +152,12 @@ Writing selectors such as `li.active` are unnecessary unless the element name ca
 
 Rule ID: `overqualified-elements`
 
+### Require shorthand properties
+
+Sometimes when editing a rule you may end up defining multiple properties that can better be represented using shorthand. This rule checks to see if you're using `margin-left`, `margin-right`, `margin-top`, and `margin-bottom` together and suggests to use just `margin` instead. The same is done for the variants of `padding`.
+
+Rule ID: `shorthand`
+
 ## Maintainability & Duplication
 
 These rules help to ensure your code is readable and maintainable by others.
