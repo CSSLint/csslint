@@ -8,7 +8,7 @@
 
         "File with no problems should say so": function() {
             var result = { messages: [], stats: [] };
-            Assert.areEqual("FILE: Lint Free!", CSSLint.getFormatter("compact").formatResults(result, "FILE"));
+            Assert.areEqual("path/to/FILE: Lint Free!", CSSLint.getFormatter("compact").formatResults(result, "/absolute/path/to/FILE", {workingDirectory: "/absolute"}));
         },
 
         "File with problems should list them": function() {

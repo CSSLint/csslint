@@ -57,14 +57,14 @@ CSSLint.addFormatter({
             return relativePath + file;
         }
 
-        if (messages.length === 0) {
-            return relativeFilename + ": Lint Free!";
-        }
-
         options = options || {};
 
         if (options.workingDirectory) {
             relativeFilename = getRelativePath(options.workingDirectory, filename)
+        }
+
+        if (messages.length === 0) {
+            return relativeFilename + ": Lint Free!";
         }
 
         messages.forEach(function(message, i) {
