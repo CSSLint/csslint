@@ -60,7 +60,7 @@ function cli(api){
     function processFile(filename, options) {
         var input = api.readFile(filename),
             result = CSSLint.verify(input, gatherRules(options)),
-            formatId = options.format || "text",
+            formatter = CSSLint.getFormatter(options.format || "text")
             messages = result.messages || [],
             exitCode = 0;
 
@@ -68,7 +68,7 @@ function cli(api){
             api.print("csslint: Could not read file data in " + filename + ". Is the file empty?");
             exitCode = 1;
         } else {
-            api.print(CSSLint.getFormatter(formatId).formatResults(result, filename, formatId));
+            api.print(formatter.formatResults(result, filename, {workingDirectory: api.getWorkingDirectory()}));
 
             if (messages.length > 0 && pluckByType(messages, "error").length > 0) {
                 exitCode = 1;
