@@ -2,16 +2,31 @@ CSSLint.addFormatter({
     //format information
     id: "lint-xml",
     name: "Lint XML format",
-    
+
+    /**
+     * Return opening root XML tag.
+     * @return {String} to prepend before all results
+     */
     startFormat: function(){
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?><lint>";
     },
 
+    /**
+     * Return closing root XML tag.
+     * @return {String} to append after all results
+     */
     endFormat: function(){
         return "</lint>";
     },
-    
-    formatResults: function(results, filename) {
+
+    /**
+     * Given CSS Lint results for a file, return output for this format.
+     * @param results {Object} with error and warning messages
+     * @param filename {String} absolute file path
+     * @param options {Object} (UNUSED for now) specifies special handling of output
+     * @return {String} output for results
+     */
+    formatResults: function(results, filename, options) {
         var messages = results.messages,
             output = [];
 

@@ -2,7 +2,7 @@ CSSLint.addFormatter({
     //format information
     id: "csslint-xml",
     name: "CSSLint XML format",
-    
+
     /**
      * Return opening root XML tag.
      * @return {String} to prepend before all results
@@ -18,8 +18,15 @@ CSSLint.addFormatter({
     endFormat: function(){
         return "</csslint>";
     },
-    
-    formatResults: function(results, filename) {
+
+    /**
+     * Given CSS Lint results for a file, return output for this format.
+     * @param results {Object} with error and warning messages
+     * @param filename {String} absolute file path
+     * @param options {Object} (UNUSED for now) specifies special handling of output
+     * @return {String} output for results
+     */
+    formatResults: function(results, filename, options) {
         var messages = results.messages,
             output = [];
 

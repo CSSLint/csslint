@@ -2,16 +2,31 @@ CSSLint.addFormatter({
     //format information
     id: "text",
     name: "Plain Text",
-    
-    startFormat: function(){
-        return "";
-    },
-    
-    endFormat: function(){
+
+    /**
+     * Return content to be printed before all file results.
+     * @return {String} to prepend before all results
+     */
+    startFormat: function() {
         return "";
     },
 
-    formatResults: function(results, filename) {
+    /**
+     * Return content to be printed after all file results.
+     * @return {String} to append after all results
+     */
+    endFormat: function() {
+        return "";
+    },
+
+    /**
+     * Given CSS Lint results for a file, return output for this format.
+     * @param results {Object} with error and warning messages
+     * @param filename {String} absolute file path
+     * @param options {Object} (Optional) specifies special handling of output
+     * @return {String} output for results
+     */
+    formatResults: function(results, filename, options) {
         var messages = results.messages;
         if (messages.length === 0) {
             return "\n\ncsslint: No errors in " + filename + ".";
