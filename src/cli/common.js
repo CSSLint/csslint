@@ -69,7 +69,8 @@ function cli(api){
             exitCode = 1;
         } else {
             var relativeFilePath = getRelativePath(api.getWorkingDirectory(), fullFilePath);
-            api.print(formatter.formatResults(result, relativeFilePath, {fullPath: fullFilePath}));
+            options["fullPath"] = fullFilePath;
+            api.print(formatter.formatResults(result, relativeFilePath, options));
 
             if (messages.length > 0 && pluckByType(messages, "error").length > 0) {
                 exitCode = 1;

@@ -12,6 +12,12 @@
             Assert.areEqual("path/to/FILE: Lint Free!", actual);
         },
 
+        "Should have no output when quiet option is specified and no errors": function() {
+            var result = { messages: [], stats: [] },
+                actual = CSSLint.getFormatter("compact").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE", quiet: "true"});
+            Assert.areEqual("", actual);
+        },
+
         "File with problems should list them": function() {
             var result = { messages: [ 
                      { type: 'warning', line: 1, col: 1, message: 'BOGUS WARNING', evidence: 'BOGUS', rule: [] },

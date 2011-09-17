@@ -28,12 +28,11 @@ CSSLint.addFormatter({
      */
     formatResults: function(results, filename, options) {
         var messages = results.messages,
-            output = "";
-
-        options = options || {};
+            output = "",
+            options = options || {};
 
         if (messages.length === 0) {
-            return filename + ": Lint Free!";
+            return options.quiet ? "" : filename + ": Lint Free!";
         }
 
         messages.forEach(function(message, i) {

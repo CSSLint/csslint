@@ -27,11 +27,13 @@ CSSLint.addFormatter({
      * @return {String} output for results
      */
     formatResults: function(results, filename, options) {
-        var messages = results.messages;
+        var messages = results.messages,
+            options = options || {};
+
         if (messages.length === 0) {
-            return "\n\ncsslint: No errors in " + filename + ".";
+            return options.quiet ? "" : "\n\ncsslint: No errors in " + filename + ".";
         }
-        
+
         output = "\n\ncsslint: There are " + messages.length  +  " problems in " + filename + ".";
         var pos = filename.lastIndexOf("/"),
             shortFilename = filename;
