@@ -22,7 +22,7 @@ CSSLint.addFormatter({
     /**
      * Given CSS Lint results for a file, return output for this format.
      * @param results {Object} with error and warning messages
-     * @param filename {String} absolute file path
+     * @param filename {String} relative file path
      * @param options {Object} (Optional) specifies special handling of output
      * @return {String} output for results
      */
