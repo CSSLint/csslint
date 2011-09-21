@@ -74,16 +74,17 @@ var CSSLint = (function(){
      * @param {Object} result The results returned from CSSLint.verify().
      * @param {String} filename The filename for which the results apply.
      * @param {String} formatId The name of the formatter to use.
+     * @param {Object} options (Optional) for special output handling.
      * @return {String} A formatted string for the results.
      * @method format
      */
-    api.format = function(results, filename, formatId) {
+    api.format = function(results, filename, formatId, options) {
         var formatter = this.getFormatter(formatId),
             result = null;
             
         if (formatter){
             result = formatter.startFormat();
-            result += formatter.formatResults(results, filename);
+            result += formatter.formatResults(results, filename, options || {});
             result += formatter.endFormat();
         }
         

@@ -66,7 +66,11 @@ cli({
             return path.resolve(process.cwd(), filename);
         });
     },
-    
+
+    getWorkingDirectory: function() {
+        return process.cwd();
+    },
+
     readFile: function(filename){
         return fs.readFileSync(filename, "utf-8");    
     }

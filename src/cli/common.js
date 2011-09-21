@@ -53,22 +53,24 @@ function cli(api){
 
     /**
      * Given a file name and options, run verification and print formatted output.
-     * @param {String} name of file to process
+     * @param {String} fullFilePath absolute file location
      * @param {Object} options for processing
      * @return {Number} exit code
      */
-    function processFile(filename, options) {
-        var input = api.readFile(filename),
+    function processFile(fullFilePath, options) {
+        var input = api.readFile(fullFilePath),
             result = CSSLint.verify(input, gatherRules(options)),
-            formatId = options.format || "text",
+            formatter = CSSLint.getFormatter(options.format || "text")
             messages = result.messages || [],
             exitCode = 0;
 
         if (!input) {
-            api.print("csslint: Could not read file data in " + filename + ". Is the file empty?");
+            api.print("csslint: Could not read file data in " + fullFilePath + ". Is the file empty?");
             exitCode = 1;
         } else {
-            api.print(CSSLint.getFormatter(formatId).formatResults(result, filename, formatId));
+            var relativeFilePath = getRelativePath(api.getWorkingDirectory(), fullFilePath);
+            options["fullPath"] = fullFilePath;
+            api.print(formatter.formatResults(result, relativeFilePath, options));
 
             if (messages.length > 0 && pluckByType(messages, "error").length > 0) {
                 exitCode = 1;
@@ -76,6 +78,32 @@ function cli(api){
         }
         
         return exitCode;
+    }
+
+    /**
+     * Given a source directory and a target filename, return the relative
+     * file path from source to target.
+     * @param source {String} directory path to start from for traversal
+     * @param target {String} directory path and filename to seek from source
+     * @return Relative path (e.g. "../../style.css") as {String}
+     */
+    function getRelativePath(source, target) {
+        var sep = (source.indexOf("/") !== -1) ? "/" : "\\",
+            targetArr = target.split(sep),
+            sourceArr = source.split(sep),
+            file = targetArr.pop(),
+            targetPath = targetArr.join(sep),
+            relativePath = "";
+
+        while (targetPath.indexOf(sourceArr.join(sep)) === -1) {
+            sourceArr.pop();
+            relativePath += ".." + sep;
+        }
+
+        var relPathArr = targetArr.slice(sourceArr.length);
+        relPathArr.length && (relativePath += relPathArr.join(sep) + sep);
+
+        return relativePath + file;
     }
 
     /**

@@ -36,7 +36,10 @@ cli({
     fixFilenames: function(files){
         return files;
     },
-    
-    readFile: readFile
 
+    getWorkingDirectory: function() {
+        return (new File(".")).getCanonicalPath();
+    },
+
+    readFile: readFile
 });
