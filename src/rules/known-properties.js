@@ -294,7 +294,10 @@ CSSLint.addRule({
                 
                 //IE
                 "filter": 1,
-                "zoom": 1
+                "zoom": 1,
+                
+                //@font-face
+                "src": 1
             };
 
         parser.addListener("property", function(event){
