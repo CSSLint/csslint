@@ -28,6 +28,7 @@ CSSLint.addFormatter({
      */
     formatResults: function(results, filename, options) {
         var messages = results.messages,
+            output = "",
             options = options || {};
 
         if (messages.length === 0) {
@@ -38,7 +39,7 @@ CSSLint.addFormatter({
         var pos = filename.lastIndexOf("/"),
             shortFilename = filename;
 
-        if (pos == -1){
+        if (pos === -1){
             pos = filename.lastIndexOf("\\");       
         }
         if (pos > -1){

@@ -209,7 +209,7 @@
     
     <!-- Update CSS parser with the latest -->
     <target name="parser.update">
-        <get src="${parser.url}" dest="${lib.dir}/" />
+        <get src="${parser.url}" dest="${lib.dir}/${parserlib.js}" />
     </target>
     
     <!-- Update JSHint with the latest -->

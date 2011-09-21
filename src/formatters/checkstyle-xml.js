@@ -65,9 +65,8 @@ CSSLint.addFormatter({
         if (messages.length > 0) {
             output.push("<file name=\""+filename+"\">");
             messages.forEach(function (message, i) {
-                if (message.rollup) {
-                    //ignore rollups for now
-                } else {
+                //ignore rollups for now
+                if (!message.rollup) {
                   output.push("<error line=\"" + message.line + "\" column=\"" + message.col + "\" severity=\"" + message.type + "\"" +
                       " message=\"" + escapeSpecialCharacters(message.message) + "\" source=\"" + generateSource(message.rule) +"\"/>");
                 }
