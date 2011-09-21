@@ -2,37 +2,44 @@ CSSLint.addFormatter({
     //format information
     id: "compact",
     name: "Compact, 'porcelain' format",
-    
-    startFormat: function(){
-        return "";
-    },
-    
-    endFormat: function(){
+
+    /**
+     * Return content to be printed before all file results.
+     * @return {String} to prepend before all results
+     */
+    startFormat: function() {
         return "";
     },
 
-    formatResults: function(results, filename) {
+    /**
+     * Return content to be printed after all file results.
+     * @return {String} to append after all results
+     */
+    endFormat: function() {
+        return "";
+    },
+
+    /**
+     * Given CSS Lint results for a file, return output for this format.
+     * @param results {Object} with error and warning messages
+     * @param filename {String} relative file path
+     * @param options {Object} (Optional) specifies special handling of output
+     * @return {String} output for results
+     */
+    formatResults: function(results, filename, options) {
         var messages = results.messages,
             output = "",
-            pos = filename.lastIndexOf("/"),
-            shortFilename = filename;
+            options = options || {};
 
         if (messages.length === 0) {
-            return shortFilename + ": Lint Free!";
+            return options.quiet ? "" : filename + ": Lint Free!";
         }
 
-        if (pos == -1){
-            pos = filename.lastIndexOf("\\");       
-        }
-        if (pos > -1){
-            shortFilename = filename.substring(pos+1);
-        }
-
-        messages.forEach(function (message, i) {
+        messages.forEach(function(message, i) {
             if (message.rollup) {
-                output += shortFilename + ": " + message.message + "\n";
+                output += filename + ": " + message.message + "\n";
             } else {
-                output += shortFilename + ": " + "line " + message.line + 
+                output += filename + ": " + "line " + message.line + 
                     ", col " + message.col + ", " + message.message + "\n";
             }
         });

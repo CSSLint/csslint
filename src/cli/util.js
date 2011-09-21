@@ -57,7 +57,7 @@ var processFile = function(filename, options) {
         print("csslint: Could not read file data in " + filename + ". Is the file empty?");
         exitCode = 1;
     } else {
-        print(CSSLint.getFormatter(formatId).formatResults(result, filename, formatId));
+        print(CSSLint.getFormatter(formatId).formatResults(result, filename, options));
 
         if (messages.length > 0 && pluckByType(messages, 'error').length > 0) {
             exitCode = 1;
