@@ -16,3 +16,4 @@ CSSLint is a tool to help point out problems with your CSS code. It does basic s
 1. Ben Barber (Compatible Vendor Prefix Rule)
 1. Eric Wendelin, http://eriwen.com (Output formatters)
 1. Kasper Garnaes, http://reload.dk (Checkstyle XML format)
+1. Gord Tanner, http://www.tinyhippos.com (CLI quiet option)
