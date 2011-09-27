@@ -197,7 +197,7 @@
     </target>    
     
     <!-- Create a release with version number embedded -->
-    <target name="release" depends="build.all,changelog.update">
+    <target name="release" depends="lint,build.all,changelog.update">
         <delete dir="${release.dir}" />
         <mkdir dir="${release.dir}"/>
         <copy todir="${release.dir}">
