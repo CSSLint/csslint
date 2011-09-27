@@ -26,7 +26,7 @@ CSSLint.addRule({
 
                 for (j=0; j < selector.parts.length; j++){
                     part = selector.parts[j];
-                    if (part instanceof parserlib.css.SelectorPart){
+                    if (part.type == parser.SELECTOR_PART_TYPE){
                         for (k=0; k < part.modifiers.length; k++){
                             modifier = part.modifiers[k];
                             if (modifier.type == "id"){

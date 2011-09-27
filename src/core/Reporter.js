@@ -50,7 +50,7 @@ Reporter.prototype = {
             col     : col,
             message : message,
             evidence: this.lines[line-1],
-            rule    : rule
+            rule    : rule || {}
         });
     },
 
