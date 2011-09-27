@@ -118,6 +118,7 @@ function cli(api){
             "  --help                 Displays this information.",
             "  --format=<format>      Indicate which format to use for output.",
             "  --list-rules           Outputs all of the rules available.",
+            "  --quiet                Only output when errors are present.",
             "  --rules=<rule[,rule]+> Indicate which rules to include.",
             "  --version              Outputs the current version number."
         ].join("\n") + "\n");
