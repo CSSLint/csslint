@@ -4,6 +4,7 @@
  * @static
  * @extends parserlib.util.EventTarget
  */
+/*global parserlib, Reporter*/
 var CSSLint = (function(){
 
     var rules      = [],
@@ -89,7 +90,7 @@ var CSSLint = (function(){
         }
         
         return result;
-    }    
+    };
     
     /**
      * Indicates if the given format is supported.

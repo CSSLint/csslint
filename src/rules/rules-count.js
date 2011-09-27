@@ -1,6 +1,7 @@
 /*
  * Rule: Total number of rules should not exceed x.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information

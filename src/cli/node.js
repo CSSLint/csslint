@@ -2,6 +2,9 @@
  * CSSLint Node.js Command Line Interface
  */
 
+/*jshint node:true*/
+/*global cli*/
+
 var fs      = require("fs"),
     path    = require("path"),
     CSSLint = require("./lib/csslint-node").CSSLint;
@@ -16,10 +19,10 @@ cli({
     quit: function(code){
     
         //Workaround for https://github.com/joyent/node/issues/1669
-        var flushed = process.stdout.flush()
+        var flushed = process.stdout.flush();
         if (!flushed) {
             process.once("drain", function () {
-                process.exit(code || 0)
+                process.exit(code || 0);
             });
         } else {
             process.exit(code || 0);

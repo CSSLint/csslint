@@ -1,6 +1,7 @@
 /*
  * Rule: Headings (h1-h6) should be defined only once.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -56,7 +57,7 @@ CSSLint.addRule({
             var prop,
                 messages = [];
                 
-            for (var prop in headings){
+            for (prop in headings){
                 if (headings.hasOwnProperty(prop)){
                     if (headings[prop] > 1){
                         messages.push(headings[prop] + " " + prop + "s");

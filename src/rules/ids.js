@@ -1,6 +1,7 @@
 /*
  * Rule: Don't use IDs for selectors.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information

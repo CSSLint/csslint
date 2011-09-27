@@ -1,6 +1,7 @@
 /*
  * Rule: Don't use classes or IDs with elements (a.foo or a#foo).
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information

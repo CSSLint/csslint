@@ -10,7 +10,7 @@
  * @param {Object} The object to provide the properties.
  * @return {Object} The receiver
  */
-function mix(reciever, supplier){
+function mix(receiver, supplier){
     var prop;
 
     for (prop in supplier){

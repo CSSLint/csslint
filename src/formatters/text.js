@@ -1,3 +1,4 @@
+/*global CSSLint*/
 CSSLint.addFormatter({
     //format information
     id: "text",
@@ -28,8 +29,8 @@ CSSLint.addFormatter({
      */
     formatResults: function(results, filename, options) {
         var messages = results.messages,
-            output = "",
-            options = options || {};
+            output = "";
+        options = options || {};
 
         if (messages.length === 0) {
             return options.quiet ? "" : "\n\ncsslint: No errors in " + filename + ".";

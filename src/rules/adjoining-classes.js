@@ -1,3 +1,4 @@
+/*global CSSLint*/
 /*
  * Rule: Don't use adjoining classes (.foo.bar).
  */

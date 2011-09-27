@@ -1,6 +1,8 @@
 /*
  * CSSLint Rhino Command Line Interface
  */
+/*jshint rhino:true*/
+/*global cli, File*/
 
 importPackage(java.io);
 
@@ -26,7 +28,7 @@ cli({
                     traverse(file);
                 }
             });
-        };
+        }
 
         traverse(new File(dir));
 

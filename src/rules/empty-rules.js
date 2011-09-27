@@ -1,6 +1,7 @@
 /*
  * Rule: Style rules without any properties defined should be removed.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -24,7 +25,7 @@ CSSLint.addRule({
 
         parser.addListener("endrule", function(event){
             var selectors = event.selectors;
-            if (count == 0){
+            if (count === 0){
                 reporter.warn("Rule is empty.", selectors[0].line, selectors[0].col, rule);
             }
         });

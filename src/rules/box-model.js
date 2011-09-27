@@ -1,3 +1,5 @@
+/*global CSSLint*/
+
 /*
  * Rule: Don't use width or height when using padding or border. 
  */
@@ -31,8 +33,7 @@ CSSLint.addRule({
             properties;
 
         parser.addListener("startrule", function(){
-            properties = {
-            };
+            properties = {};
         });
 
         parser.addListener("property", function(event){
@@ -52,27 +53,23 @@ CSSLint.addRule({
 
         parser.addListener("endrule", function(){
             var prop;
-            if (properties["height"]){
+            if (properties.height){
                 for (prop in heightProperties){
                     if (heightProperties.hasOwnProperty(prop) && properties[prop]){
                     
                         //special case for padding
-                        if (prop == "padding" && properties[prop].value.parts.length == 2 && properties[prop].value.parts[0].value == 0){
-                            //noop
-                        } else {
+                        if (!(prop == "padding" && properties[prop].value.parts.length === 2 && properties[prop].value.parts[0].value === 0)){
                             reporter.warn("Broken box model: using height with " + prop + ".", properties[prop].line, properties[prop].col, rule);
                         }
                     }
                 }
             }
 
-            if (properties["width"]){
+            if (properties.width){
                 for (prop in widthProperties){
                     if (widthProperties.hasOwnProperty(prop) && properties[prop]){
 
-                        if (prop == "padding" && properties[prop].value.parts.length == 2 && properties[prop].value.parts[1].value == 0){
-                            //noop
-                        } else {
+                        if (!(prop == "padding" && properties[prop].value.parts.length === 2 && properties[prop].value.parts[1].value === 0)){
                             reporter.warn("Broken box model: using width with " + prop + ".", properties[prop].line, properties[prop].col, rule);
                         }
                     }

@@ -1,6 +1,7 @@
 /*
  * Rule: Don't use @import, use <link> instead.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information

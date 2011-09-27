@@ -3,6 +3,7 @@
  * war. Display a warning on !important declarations, an error if it's
  * used more at least 10 times.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information

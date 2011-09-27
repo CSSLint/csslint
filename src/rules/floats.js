@@ -2,6 +2,7 @@
  * Rule: You shouldn't use more than 10 floats. If you do, there's probably
  * room for some abstraction.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information

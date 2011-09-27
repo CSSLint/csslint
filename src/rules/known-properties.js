@@ -2,6 +2,7 @@
  * Rule: Properties should be known (listed in CSS3 specification) or
  * be a vendor-prefixed property.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information

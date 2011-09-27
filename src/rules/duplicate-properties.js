@@ -2,6 +2,7 @@
  * Rule: Duplicate properties must appear one after the other. If an already-defined
  * property appears somewhere else in the rule, then it's likely an error.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information

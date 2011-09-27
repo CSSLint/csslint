@@ -91,6 +91,7 @@
             <arg path="${lib.dir}/js.jar"/>
             <arg path="${lib.dir}/jshint.js" />
             <srcfile/>
+            <arg line="curly=true,forin=true,latedef=true,noempty=true,undef=true,rhino=false"/>
         </apply>      
         
     </target>

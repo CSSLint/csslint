@@ -60,7 +60,7 @@ function cli(api){
     function processFile(relativeFilePath, options) {
         var input = api.readFile(relativeFilePath),
             result = CSSLint.verify(input, gatherRules(options)),
-            formatter = CSSLint.getFormatter(options.format || "text")
+            formatter = CSSLint.getFormatter(options.format || "text"),
             messages = result.messages || [],
             exitCode = 0;
 
@@ -69,7 +69,7 @@ function cli(api){
             exitCode = 1;
         } else {
             //var relativeFilePath = getRelativePath(api.getWorkingDirectory(), fullFilePath);
-            options["fullPath"] = api.getFullPath(relativeFilePath);
+            options.fullPath = api.getFullPath(relativeFilePath);
             api.print(formatter.formatResults(result, relativeFilePath, options));
 
             if (messages.length > 0 && pluckByType(messages, "error").length > 0) {
@@ -127,7 +127,7 @@ function cli(api){
                 }
 
                 files.forEach(function(file){
-                    if (exitCode == 0) {
+                    if (exitCode === 0) {
                         exitCode = processFile(file,options);
                     } else {
                         processFile(file,options);

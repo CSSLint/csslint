@@ -1,6 +1,7 @@
 /*
  * Rule: Don't use universal selector because it's slow.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information

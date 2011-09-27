@@ -5,6 +5,7 @@
  * - vertical-align should not be used with block
  * - margin, float should not be used with table-*
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -35,6 +36,14 @@ CSSLint.addRule({
                 "vertical-align": 1
             },
             properties;
+
+        function reportProperty(name, display, msg){
+            if (properties[name]){
+                if (typeof propertiesToCheck[name] != "string" || properties[name].value.toLowerCase() != propertiesToCheck[name]){
+                    reporter.warn(msg || name + " can't be used with display: " + display + ".", properties[name].line, properties[name].col, rule);
+                }
+            }
+        }
 
         parser.addListener("startrule", function(){
             properties = {};
@@ -76,7 +85,7 @@ CSSLint.addRule({
 
                     default:
                         //margin, float should not be used with table
-                        if (display.indexOf("table-") == 0){
+                        if (display.indexOf("table-") === 0){
                             reportProperty("margin", display);
                             reportProperty("margin-left", display);
                             reportProperty("margin-right", display);
@@ -92,13 +101,7 @@ CSSLint.addRule({
         });
 
 
-        function reportProperty(name, display, msg){
-            if (properties[name]){
-                if (!(typeof propertiesToCheck[name] == "string") || properties[name].value.toLowerCase() != propertiesToCheck[name]){
-                    reporter.warn(msg || name + " can't be used with display: " + display + ".", properties[name].line, properties[name].col, rule);
-                }
-            }
-        }
+
     }
 
 });

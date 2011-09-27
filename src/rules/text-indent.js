@@ -2,10 +2,7 @@
  * Rule: Don't use text-indent for image replacement if you need to support rtl. 
  * 
  */
-/*
- * Should we be checking for rtl/ltr?
- */
-//Commented out due to lack of tests
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information

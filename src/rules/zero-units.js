@@ -1,6 +1,7 @@
 /*
  * Rule: You don't need to specify units when a value is 0.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information

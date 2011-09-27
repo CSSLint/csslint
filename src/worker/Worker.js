@@ -1,7 +1,7 @@
 /*
  * Web worker for CSSLint
  */
-
+/*global self, CSSLint, JSON*/
 //message indicates to start linting
 self.onmessage = function(event){
 
