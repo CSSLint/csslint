@@ -40,6 +40,10 @@ cli({
     getWorkingDirectory: function() {
         return (new File(".")).getCanonicalPath();
     },
+    
+    getFullPath: function(filename){
+        return (new File(filename)).getCanonicalPath();
+    },
 
     readFile: readFile
 });

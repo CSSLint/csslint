@@ -70,6 +70,10 @@ cli({
     getWorkingDirectory: function() {
         return process.cwd();
     },
+    
+    getFullPath: function(filename){
+        return path.resolve(process.cwd(), filename);
+    },
 
     readFile: function(filename){
         return fs.readFileSync(filename, "utf-8");    
