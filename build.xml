@@ -83,8 +83,7 @@
     </target>
     
     <!-- validate JS files with JSHint -->
-    <target name="lint">
-       
+    <target name="lint">       
         <apply executable="java" parallel="false" failonerror="true">
             <fileset dir="${src.dir}" includes="**/*.js" />
             <arg line="-jar"/>
@@ -92,8 +91,18 @@
             <arg path="${lib.dir}/jshint.js" />
             <srcfile/>
             <arg line="curly=true,forin=true,latedef=true,noempty=true,undef=true,rhino=false"/>
-        </apply>      
-        
+        </apply>              
+    </target>
+
+    <!-- run tests on the command line -->
+    <target name="test">       
+        <exec executable="java" failonerror="true">
+            <arg line="-jar"/>
+            <arg path="${lib.dir}/js.jar"/>
+            <arg path="${lib.dir}/yuitest-rhino-cli.js" />
+            <arg path="${build.dir}/${core.build.file}" />
+            <arg path="${build.dir}/${tests.build.file}" />
+        </exec>              
     </target>
 
     <!-- build the core library -->
@@ -197,7 +206,7 @@
     </target>    
     
     <!-- Create a release with version number embedded -->
-    <target name="release" depends="lint,build.all,changelog.update">
+    <target name="release" depends="lint,test,build.all,changelog.update">
         <delete dir="${release.dir}" />
         <mkdir dir="${release.dir}"/>
         <copy todir="${release.dir}">
