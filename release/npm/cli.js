@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-/* Build time: 8-September-2011 08:50:44 */
+/* Build time: 14-October-2011 11:51:41 */
+
 /*
  * Encapsulates all of the CLI functionality. The api argument simply
  * provides environment-specific functionality.
@@ -55,22 +56,24 @@ function cli(api){
 
     /**
      * Given a file name and options, run verification and print formatted output.
-     * @param {String} name of file to process
+     * @param {String} relativeFilePath absolute file location
      * @param {Object} options for processing
      * @return {Number} exit code
      */
-    function processFile(filename, options) {
-        var input = api.readFile(filename),
+    function processFile(relativeFilePath, options) {
+        var input = api.readFile(relativeFilePath),
             result = CSSLint.verify(input, gatherRules(options)),
-            formatId = options.format || "text",
+            formatter = CSSLint.getFormatter(options.format || "text"),
             messages = result.messages || [],
             exitCode = 0;
 
         if (!input) {
-            api.print("csslint: Could not read file data in " + filename + ". Is the file empty?");
+            api.print("csslint: Could not read file data in " + relativeFilePath + ". Is the file empty?");
             exitCode = 1;
         } else {
-            api.print(CSSLint.getFormatter(formatId).formatResults(result, filename, formatId));
+            //var relativeFilePath = getRelativePath(api.getWorkingDirectory(), fullFilePath);
+            options.fullPath = api.getFullPath(relativeFilePath);
+            api.print(formatter.formatResults(result, relativeFilePath, options));
 
             if (messages.length > 0 && pluckByType(messages, "error").length > 0) {
                 exitCode = 1;
@@ -79,6 +82,7 @@ function cli(api){
         
         return exitCode;
     }
+
 
     /**
      * Outputs the help screen to the CLI.
@@ -92,6 +96,7 @@ function cli(api){
             "  --help                 Displays this information.",
             "  --format=<format>      Indicate which format to use for output.",
             "  --list-rules           Outputs all of the rules available.",
+            "  --quiet                Only output when errors are present.",
             "  --rules=<rule[,rule]+> Indicate which rules to include.",
             "  --version              Outputs the current version number."
         ].join("\n") + "\n");
@@ -125,7 +130,7 @@ function cli(api){
                 }
 
                 files.forEach(function(file){
-                    if (exitCode == 0) {
+                    if (exitCode === 0) {
                         exitCode = processFile(file,options);
                     } else {
                         processFile(file,options);
@@ -188,13 +193,16 @@ function cli(api){
         api.quit(0);
     }
 
-    files = api.fixFilenames(files);
+    //files = api.fixFilenames(files);
 
     api.quit(processFiles(files,options));
 }
 /*
  * CSSLint Node.js Command Line Interface
  */
+
+/*jshint node:true*/
+/*global cli*/
 
 var fs      = require("fs"),
     path    = require("path"),
@@ -210,10 +218,9 @@ cli({
     quit: function(code){
     
         //Workaround for https://github.com/joyent/node/issues/1669
-        var flushed = process.stdout.flush()
-        if (!flushed) {
+        if (!process.stdout.flush || !process.stdout.flush()) {
             process.once("drain", function () {
-                process.exit(code || 0)
+                process.exit(code || 0);
             });
         } else {
             process.exit(code || 0);
@@ -260,10 +267,19 @@ cli({
             return path.resolve(process.cwd(), filename);
         });
     },
+
+    getWorkingDirectory: function() {
+        return process.cwd();
+    },
     
+    getFullPath: function(filename){
+        return path.resolve(process.cwd(), filename);
+    },
+
     readFile: function(filename){
         return fs.readFileSync(filename, "utf-8");    
     }
 });
+
 
 

@@ -21,7 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 8-September-2011 08:50:44 */
+/* Build time: 14-October-2011 11:51:41 */
+
 /*!
 Parser-Lib
 Copyright (c) 2009-2011 Nicholas C. Zakas. All rights reserved.
@@ -45,7 +46,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 19-July-2011 01:46:47 */
+/* Build time: 26-September-2011 05:00:33 */
 var parserlib = {};
 (function(){
 
@@ -448,7 +449,7 @@ SyntaxError.prototype = new Error();
  * @param {int} line The line of text on which the unit resides.
  * @param {int} col The column of text on which the unit resides.
  */
-function SyntaxUnit(text, line, col){
+function SyntaxUnit(text, line, col, type){
 
 
     /**
@@ -472,6 +473,12 @@ function SyntaxUnit(text, line, col){
      */
     this.text = text;
 
+    /**
+     * The type of syntax unit.
+     * @type int
+     * @property type
+     */
+    this.type = type;
 }
 
 /**
@@ -576,14 +583,14 @@ function TokenStreamBase(input, tokenData){
  */
 TokenStreamBase.createTokenData = function(tokens){
 
-    var nameMap 	= [],
-        typeMap 	= {},
-		tokenData 	= tokens.concat([]),
-		i			= 0,
-		len			= tokenData.length+1;
+    var nameMap     = [],
+        typeMap     = {},
+        tokenData     = tokens.concat([]),
+        i            = 0,
+        len            = tokenData.length+1;
     
     tokenData.UNKNOWN = -1;
-	tokenData.unshift({name:"EOF"});
+    tokenData.unshift({name:"EOF"});
 
     for (; i < len; i++){
         nameMap.push(tokenData[i].name);
@@ -600,8 +607,8 @@ TokenStreamBase.createTokenData = function(tokens){
     tokenData.type = function(c){
         return typeMap[c];
     };
-	
-	return tokenData;
+    
+    return tokenData;
 };
 
 TokenStreamBase.prototype = {
@@ -661,6 +668,8 @@ TokenStreamBase.prototype = {
      * @method mustMatch
      */    
     mustMatch: function(tokenTypes, channel){
+
+        var token;
 
         //always convert to an array, makes things easier
         if (!(tokenTypes instanceof Array)){
@@ -738,7 +747,7 @@ TokenStreamBase.prototype = {
         }
         
         //call token retriever method
-		token = this._getToken();
+        token = this._getToken();
 
         //if it should be hidden, don't save a token
         if (token.type > -1 && !tokenInfo[token.type].hide){
@@ -910,6 +919,7 @@ TokenStreamBase.prototype = {
 };
 
 
+
 parserlib.util = {
 StringReader: StringReader,
 SyntaxError : SyntaxError,
@@ -918,6 +928,7 @@ EventTarget : EventTarget,
 TokenStreamBase : TokenStreamBase
 };
 })();
+
 /* 
 Parser-Lib
 Copyright (c) 2009-2011 Nicholas C. Zakas. All rights reserved.
@@ -941,7 +952,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 19-July-2011 01:46:47 */
+/* Build time: 26-September-2011 05:00:33 */
 (function(){
 var EventTarget = parserlib.util.EventTarget,
 TokenStreamBase = parserlib.util.TokenStreamBase,
@@ -1103,7 +1114,7 @@ var Colors = {
  */
 function Combinator(text, line, col){
     
-    SyntaxUnit.call(this, text, line, col);
+    SyntaxUnit.call(this, text, line, col, Parser.COMBINATOR_TYPE);
 
     /**
      * The type of modifier.
@@ -1127,6 +1138,7 @@ function Combinator(text, line, col){
 
 Combinator.prototype = new SyntaxUnit();
 Combinator.prototype.constructor = Combinator;
+
 
 
 var Level1Properties = {
@@ -1315,7 +1327,7 @@ var Level2Properties = {
  */
 function MediaFeature(name, value){
     
-    SyntaxUnit.call(this, "(" + name + (value !== null ? ":" + value : "") + ")", name.startLine, name.startCol);
+    SyntaxUnit.call(this, "(" + name + (value !== null ? ":" + value : "") + ")", name.startLine, name.startCol, Parser.MEDIA_FEATURE_TYPE);
 
     /**
      * The name of the media feature
@@ -1335,6 +1347,7 @@ function MediaFeature(name, value){
 MediaFeature.prototype = new SyntaxUnit();
 MediaFeature.prototype.constructor = MediaFeature;
 
+
 /**
  * Represents an individual media query.
  * @namespace parserlib.css
@@ -1349,7 +1362,7 @@ MediaFeature.prototype.constructor = MediaFeature;
  */
 function MediaQuery(modifier, mediaType, features, line, col){
     
-    SyntaxUnit.call(this, (modifier ? modifier + " ": "") + (mediaType ? mediaType + " " : "") + features.join(" and "), line, col);
+    SyntaxUnit.call(this, (modifier ? modifier + " ": "") + (mediaType ? mediaType + " " : "") + features.join(" and "), line, col, Parser.MEDIA_QUERY_TYPE);
 
     /**
      * The media modifier ("not" or "only")
@@ -1377,6 +1390,7 @@ function MediaQuery(modifier, mediaType, features, line, col){
 MediaQuery.prototype = new SyntaxUnit();
 MediaQuery.prototype.constructor = MediaQuery;
 
+
 /**
  * A CSS3 parser.
  * @namespace parserlib.css
@@ -1400,6 +1414,18 @@ function Parser(options){
     this._tokenStream = null;
 }
 
+//Static constants
+Parser.DEFAULT_TYPE = 0;
+Parser.COMBINATOR_TYPE = 1;
+Parser.MEDIA_FEATURE_TYPE = 2;
+Parser.MEDIA_QUERY_TYPE = 3;
+Parser.PROPERTY_NAME_TYPE = 4;
+Parser.PROPERTY_VALUE_TYPE = 5;
+Parser.PROPERTY_VALUE_PART_TYPE = 6;
+Parser.SELECTOR_TYPE = 7;
+Parser.SELECTOR_PART_TYPE = 8;
+Parser.SELECTOR_SUB_PART_TYPE = 9;
+
 Parser.prototype = function(){
 
     var proto = new EventTarget(),  //new prototype
@@ -1408,6 +1434,18 @@ Parser.prototype = function(){
         
             //restore constructor
             constructor: Parser,
+                        
+            //instance constants - yuck
+            DEFAULT_TYPE : 0,
+            COMBINATOR_TYPE : 1,
+            MEDIA_FEATURE_TYPE : 2,
+            MEDIA_QUERY_TYPE : 3,
+            PROPERTY_NAME_TYPE : 4,
+            PROPERTY_VALUE_TYPE : 5,
+            PROPERTY_VALUE_PART_TYPE : 6,
+            SELECTOR_TYPE : 7,
+            SELECTOR_PART_TYPE : 8,
+            SELECTOR_SUB_PART_TYPE : 9,            
         
             //-----------------------------------------------------------------
             // Grammar
@@ -2964,15 +3002,48 @@ Parser.prototype = function(){
                  
                 var tokenStream = this._tokenStream,
                     functionText = null,
-                    expr        = null;
+                    expr        = null,
+                    lt;
                     
                 if (tokenStream.match(Tokens.FUNCTION)){
                     functionText = tokenStream.token().value;
                     this._readWhitespace();
                     expr = this._expr();
+                    functionText += expr;
+                    
+                    //START: Horrible hack in case it's an IE filter
+                    if (this.options.ieFilters && tokenStream.peek() == Tokens.EQUALS){
+                        do {
+                        
+                            if (this._readWhitespace()){
+                                functionText += tokenStream.token().value;
+                            }
+                            
+                            //might be second time in the loop
+                            if (tokenStream.LA(0) == Tokens.COMMA){
+                                functionText += tokenStream.token().value;
+                            }
+                        
+                            tokenStream.match(Tokens.IDENT);
+                            functionText += tokenStream.token().value;
+                            
+                            tokenStream.match(Tokens.EQUALS);
+                            functionText += tokenStream.token().value;
+                            
+                            //functionText += this._term();
+                            lt = tokenStream.peek();
+                            while(lt != Tokens.COMMA && lt != Tokens.S && lt != Tokens.RPAREN){
+                                tokenStream.get();
+                                functionText += tokenStream.token().value;
+                                lt = tokenStream.peek();
+                            }
+                        } while(tokenStream.match([Tokens.COMMA, Tokens.S]));
+                    }
+
+                    //END: Horrible Hack
                     
                     tokenStream.match(Tokens.RPAREN);    
-                    functionText += expr + ")";
+                    functionText += ")";
                     this._readWhitespace();
                 }                
                 
@@ -3552,6 +3623,7 @@ var Properties = {
     "animation-delay": 1,
     "animation-direction": 1,
     "animation-duration": 1,
+    "animation-fill-mode": 1,
     "animation-iteration-count": 1,
     "animation-name": 1,
     "animation-play-state": 1,
@@ -3815,6 +3887,8 @@ var Properties = {
     "transition-property": 1,
     "transition-timing-function": 1,
     "unicode-bidi": 1,
+    "user-modify": 1,
+    "user-select": 1,
     "vertical-align": 1,
     "visibility": 1,
     "voice-balance": 1,
@@ -3869,7 +3943,7 @@ var Properties = {
  */
 function PropertyName(text, hack, line, col){
     
-    SyntaxUnit.call(this, text, line, col);
+    SyntaxUnit.call(this, text, line, col, Parser.PROPERTY_NAME_TYPE);
 
     /**
      * The type of IE hack applied ("*", "_", or null).
@@ -3885,6 +3959,7 @@ PropertyName.prototype.constructor = PropertyName;
 PropertyName.prototype.toString = function(){
     return (this.hack ? this.hack : "") + this.text;
 };
+
 /**
  * Represents a single part of a CSS property value, meaning that it represents
  * just everything single part between ":" and ";". If there are multiple values
@@ -3899,7 +3974,7 @@ PropertyName.prototype.toString = function(){
  */
 function PropertyValue(parts, line, col){
 
-    SyntaxUnit.call(this, parts.join(" "), line, col);
+    SyntaxUnit.call(this, parts.join(" "), line, col, Parser.PROPERTY_VALUE_TYPE);
     
     /**
      * The parts that make up the selector.
@@ -3912,6 +3987,7 @@ function PropertyValue(parts, line, col){
 
 PropertyValue.prototype = new SyntaxUnit();
 PropertyValue.prototype.constructor = PropertyValue;
+
 
 /**
  * Represents a single part of a CSS property value, meaning that it represents
@@ -3926,7 +4002,7 @@ PropertyValue.prototype.constructor = PropertyValue;
  */
 function PropertyValuePart(text, line, col){
 
-    SyntaxUnit.apply(this,arguments);
+    SyntaxUnit.call(this, text, line, col, Parser.PROPERTY_VALUE_PART_TYPE);
     
     /**
      * Indicates the type of value unit.
@@ -4057,6 +4133,19 @@ PropertyValuePart.prototype.constructor = PropertyValue;
 PropertyValuePart.fromToken = function(token){
     return new PropertyValuePart(token.value, token.startLine, token.startCol);
 };
+var Pseudos = {
+    ":first-letter": 1,
+    ":first-line":   1,
+    ":before":       1,
+    ":after":        1
+};
+
+Pseudos.ELEMENT = 1;
+Pseudos.CLASS = 2;
+
+Pseudos.isElement = function(pseudo){
+    return pseudo.indexOf("::") === 0 || Pseudos[pseudo.toLowerCase()] == Pseudos.ELEMENT;
+};
 /**
  * Represents an entire single selector, including all parts but not
  * including multiple selectors (those separated by commas).
@@ -4070,7 +4159,7 @@ PropertyValuePart.fromToken = function(token){
  */
 function Selector(parts, line, col){
     
-    SyntaxUnit.call(this, parts.join(" "), line, col);
+    SyntaxUnit.call(this, parts.join(" "), line, col, Parser.SELECTOR_TYPE);
     
     /**
      * The parts that make up the selector.
@@ -4078,11 +4167,19 @@ function Selector(parts, line, col){
      * @property parts
      */
     this.parts = parts;
+    
+    /**
+     * The specificity of the selector.
+     * @type parserlib.css.Specificity
+     * @property specificity
+     */
+    this.specificity = Specificity.calculate(this);
 
 }
 
 Selector.prototype = new SyntaxUnit();
 Selector.prototype.constructor = Selector;
+
 
 /**
  * Represents a single part of a selector string, meaning a single set of
@@ -4102,7 +4199,7 @@ Selector.prototype.constructor = Selector;
  */
 function SelectorPart(elementName, modifiers, text, line, col){
     
-    SyntaxUnit.call(this, text, line, col);
+    SyntaxUnit.call(this, text, line, col, Parser.SELECTOR_PART_TYPE);
 
     /**
      * The tag name of the element to which this part
@@ -4125,6 +4222,7 @@ function SelectorPart(elementName, modifiers, text, line, col){
 SelectorPart.prototype = new SyntaxUnit();
 SelectorPart.prototype.constructor = SelectorPart;
 
+
 /**
  * Represents a selector modifier string, meaning a class name, element name,
  * element ID, pseudo rule, etc.
@@ -4139,7 +4237,7 @@ SelectorPart.prototype.constructor = SelectorPart;
  */
 function SelectorSubPart(text, type, line, col){
     
-    SyntaxUnit.call(this, text, line, col);
+    SyntaxUnit.call(this, text, line, col, Parser.SELECTOR_SUB_PART_TYPE);
 
     /**
      * The type of modifier.
@@ -4159,6 +4257,128 @@ function SelectorSubPart(text, type, line, col){
 
 SelectorSubPart.prototype = new SyntaxUnit();
 SelectorSubPart.prototype.constructor = SelectorSubPart;
+
+
+/**
+ * Represents a selector's specificity.
+ * @namespace parserlib.css
+ * @class Specificity
+ * @constructor
+ * @param {int} a Should be 1 for inline styles, zero for stylesheet styles
+ * @param {int} b Number of ID selectors
+ * @param {int} c Number of classes and pseudo classes
+ * @param {int} d Number of element names and pseudo elements
+ */
+function Specificity(a, b, c, d){
+    this.a = a;
+    this.b = b;
+    this.c = c;
+    this.d = d;
+}
+
+Specificity.prototype = {
+    constructor: Specificity,
+    
+    /**
+     * Compare this specificity to another.
+     * @param {Specificity} other The other specificity to compare to.
+     * @return {int} -1 if the other specificity is larger, 1 if smaller, 0 if equal.
+     * @method compare
+     */
+    compare: function(other){
+        var comps = ["a", "b", "c", "d"],
+            i, len;
+            
+        for (i=0, len=comps.length; i < len; i++){
+            if (this[comps[i]] < other[comps[i]]){
+                return -1;
+            } else if (this[comps[i]] > other[comps[i]]){
+                return 1;
+            }
+        }
+        
+        return 0;
+    },
+    
+    /**
+     * Creates a numeric value for the specificity.
+     * @return {int} The numeric value for the specificity.
+     * @method valueOf
+     */
+    valueOf: function(){
+        return (this.a * 1000) + (this.b * 100) + (this.c * 10) + this.d;
+    },
+    
+    /**
+     * Returns a string representation for specificity.
+     * @return {String} The string representation of specificity.
+     * @method toString
+     */
+    toString: function(){
+        return this.a + "," + this.b + "," + this.c + "," + this.d;
+    }
+
+};
+
+/**
+ * Calculates the specificity of the given selector.
+ * @param {parserlib.css.Selector} The selector to calculate specificity for.
+ * @return {parserlib.css.Specificity} The specificity of the selector.
+ * @static
+ * @method calculate
+ */
+Specificity.calculate = function(selector){
+
+    var i, len,
+        b=0, c=0, d=0;
+        
+    function updateValues(part){
+    
+        var i, j, len, num,
+            modifier;
+    
+        if (part.elementName && part.text.charAt(part.text.length-1) != "*") {
+            d++;
+        }    
+    
+        for (i=0, len=part.modifiers.length; i < len; i++){
+            modifier = part.modifiers[i];
+            switch(modifier.type){
+                case "class":
+                case "attribute":
+                    c++;
+                    break;
+                    
+                case "id":
+                    b++;
+                    break;
+                    
+                case "pseudo":
+                    if (Pseudos.isElement(modifier.text)){
+                        d++;
+                    } else {
+                        c++;
+                    }                    
+                    break;
+                    
+                case "not":
+                    for (j=0, num=modifier.args.length; j < num; j++){
+                        updateValues(modifier.args[j]);
+                    }
+            }    
+         }
+    }
+    
+    for (i=0, len=selector.parts.length; i < len; i++){
+        part = selector.parts[i];
+        
+        if (part instanceof SelectorPart){
+            updateValues(part);                
+        }
+    }
+    
+    return new Specificity(0, b, c, d);
+};
 
 
 
@@ -5143,7 +5363,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
                 comment += c;
 
                 //look for end of comment
-                if (c == "*" && reader.peek() == "/"){
+                if (comment.length > 2 && c == "*" && reader.peek() == "/"){
                     comment += reader.read();
                     break;
                 }
@@ -5158,6 +5378,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
 
     }
 });
+
 
 var Tokens  = [
 
@@ -5365,6 +5586,7 @@ var Tokens  = [
 
 
 
+
 /**
  * Type to use when a validation error occurs.
  * @class ValidationError
@@ -5414,11 +5636,13 @@ MediaQuery          :MediaQuery,
 Selector            :Selector,
 SelectorPart        :SelectorPart,
 SelectorSubPart     :SelectorSubPart,
+Specificity         :Specificity,
 TokenStream         :TokenStream,
 Tokens              :Tokens,
 ValidationError     :ValidationError
 };
 })();
+
 
 /**
  * Main CSSLint object.
@@ -5426,13 +5650,14 @@ ValidationError     :ValidationError
  * @static
  * @extends parserlib.util.EventTarget
  */
+/*global parserlib, Reporter*/
 var CSSLint = (function(){
 
     var rules      = [],
         formatters = [],
         api        = new parserlib.util.EventTarget();
         
-    api.version = "0.6.1";
+    api.version = "0.7.0";
 
     //-------------------------------------------------------------------------
     // Rule Management
@@ -5496,21 +5721,22 @@ var CSSLint = (function(){
      * @param {Object} result The results returned from CSSLint.verify().
      * @param {String} filename The filename for which the results apply.
      * @param {String} formatId The name of the formatter to use.
+     * @param {Object} options (Optional) for special output handling.
      * @return {String} A formatted string for the results.
      * @method format
      */
-    api.format = function(results, filename, formatId) {
+    api.format = function(results, filename, formatId, options) {
         var formatter = this.getFormatter(formatId),
             result = null;
             
         if (formatter){
             result = formatter.startFormat();
-            result += formatter.formatResults(results, filename);
+            result += formatter.formatResults(results, filename, options || {});
             result += formatter.endFormat();
         }
         
         return result;
-    }    
+    };
     
     /**
      * Indicates if the given format is supported.
@@ -5648,7 +5874,7 @@ Reporter.prototype = {
             col     : col,
             message : message,
             evidence: this.lines[line-1],
-            rule    : rule
+            rule    : rule || {}
         });
     },
 
@@ -5743,7 +5969,7 @@ Reporter.prototype = {
  * @param {Object} The object to provide the properties.
  * @return {Object} The receiver
  */
-function mix(reciever, supplier){
+function mix(receiver, supplier){
     var prop;
 
     for (prop in supplier){
@@ -5773,6 +5999,7 @@ function indexOf(values, value){
         return -1;
     }
 }
+/*global CSSLint*/
 /*
  * Rule: Don't use adjoining classes (.foo.bar).
  */
@@ -5799,7 +6026,7 @@ CSSLint.addRule({
                 selector = selectors[i];
                 for (j=0; j < selector.parts.length; j++){
                     part = selector.parts[j];
-                    if (part instanceof parserlib.css.SelectorPart){
+                    if (part.type == parser.SELECTOR_PART_TYPE){
                         classCount = 0;
                         for (k=0; k < part.modifiers.length; k++){
                             modifier = part.modifiers[k];
@@ -5817,6 +6044,8 @@ CSSLint.addRule({
     }
 
 });
+/*global CSSLint*/
+
 /*
  * Rule: Don't use width or height when using padding or border. 
  */
@@ -5850,8 +6079,7 @@ CSSLint.addRule({
             properties;
 
         parser.addListener("startrule", function(){
-            properties = {
-            };
+            properties = {};
         });
 
         parser.addListener("property", function(event){
@@ -5871,27 +6099,23 @@ CSSLint.addRule({
 
         parser.addListener("endrule", function(){
             var prop;
-            if (properties["height"]){
+            if (properties.height){
                 for (prop in heightProperties){
                     if (heightProperties.hasOwnProperty(prop) && properties[prop]){
                     
                         //special case for padding
-                        if (prop == "padding" && properties[prop].value.parts.length == 2 && properties[prop].value.parts[0].value == 0){
-                            //noop
-                        } else {
+                        if (!(prop == "padding" && properties[prop].value.parts.length === 2 && properties[prop].value.parts[0].value === 0)){
                             reporter.warn("Broken box model: using height with " + prop + ".", properties[prop].line, properties[prop].col, rule);
                         }
                     }
                 }
             }
 
-            if (properties["width"]){
+            if (properties.width){
                 for (prop in widthProperties){
                     if (widthProperties.hasOwnProperty(prop) && properties[prop]){
 
-                        if (prop == "padding" && properties[prop].value.parts.length == 2 && properties[prop].value.parts[1].value == 0){
-                            //noop
-                        } else {
+                        if (!(prop == "padding" && properties[prop].value.parts.length === 2 && properties[prop].value.parts[1].value === 0)){
                             reporter.warn("Broken box model: using width with " + prop + ".", properties[prop].line, properties[prop].col, rule);
                         }
                     }
@@ -6077,6 +6301,7 @@ CSSLint.addRule({
  * - vertical-align should not be used with block
  * - margin, float should not be used with table-*
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -6107,6 +6332,14 @@ CSSLint.addRule({
                 "vertical-align": 1
             },
             properties;
+
+        function reportProperty(name, display, msg){
+            if (properties[name]){
+                if (typeof propertiesToCheck[name] != "string" || properties[name].value.toLowerCase() != propertiesToCheck[name]){
+                    reporter.warn(msg || name + " can't be used with display: " + display + ".", properties[name].line, properties[name].col, rule);
+                }
+            }
+        }
 
         parser.addListener("startrule", function(){
             properties = {};
@@ -6148,7 +6381,7 @@ CSSLint.addRule({
 
                     default:
                         //margin, float should not be used with table
-                        if (display.indexOf("table-") == 0){
+                        if (display.indexOf("table-") === 0){
                             reportProperty("margin", display);
                             reportProperty("margin-left", display);
                             reportProperty("margin-right", display);
@@ -6164,13 +6397,7 @@ CSSLint.addRule({
         });
 
 
-        function reportProperty(name, display, msg){
-            if (properties[name]){
-                if (!(typeof propertiesToCheck[name] == "string") || properties[name].value.toLowerCase() != propertiesToCheck[name]){
-                    reporter.warn(msg || name + " can't be used with display: " + display + ".", properties[name].line, properties[name].col, rule);
-                }
-            }
-        }
+
     }
 
 });
@@ -6178,6 +6405,7 @@ CSSLint.addRule({
  * Rule: Duplicate properties must appear one after the other. If an already-defined
  * property appears somewhere else in the rule, then it's likely an error.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -6220,6 +6448,7 @@ CSSLint.addRule({
 /*
  * Rule: Style rules without any properties defined should be removed.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -6243,7 +6472,7 @@ CSSLint.addRule({
 
         parser.addListener("endrule", function(event){
             var selectors = event.selectors;
-            if (count == 0){
+            if (count === 0){
                 reporter.warn("Rule is empty.", selectors[0].line, selectors[0].col, rule);
             }
         });
@@ -6253,6 +6482,7 @@ CSSLint.addRule({
 /*
  * Rule: There should be no syntax errors. (Duh.)
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -6276,6 +6506,7 @@ CSSLint.addRule({
  * Rule: You shouldn't use more than 10 floats. If you do, there's probably
  * room for some abstraction.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -6310,6 +6541,7 @@ CSSLint.addRule({
 /*
  * Rule: Avoid too many @font-face declarations in the same stylesheet.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -6340,6 +6572,7 @@ CSSLint.addRule({
  * Rule: You shouldn't need more than 9 font-size declarations.
  */
 
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -6373,6 +6606,7 @@ CSSLint.addRule({
 /*
  * Rule: When using a vendor-prefixed gradient, make sure to use them all.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -6434,6 +6668,7 @@ CSSLint.addRule({
 /*
  * Rule: Don't use IDs for selectors.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -6459,7 +6694,7 @@ CSSLint.addRule({
 
                 for (j=0; j < selector.parts.length; j++){
                     part = selector.parts[j];
-                    if (part instanceof parserlib.css.SelectorPart){
+                    if (part.type == parser.SELECTOR_PART_TYPE){
                         for (k=0; k < part.modifiers.length; k++){
                             modifier = part.modifiers[k];
                             if (modifier.type == "id"){
@@ -6483,6 +6718,7 @@ CSSLint.addRule({
 /*
  * Rule: Don't use @import, use <link> instead.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -6507,6 +6743,7 @@ CSSLint.addRule({
  * war. Display a warning on !important declarations, an error if it's
  * used more at least 10 times.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -6542,6 +6779,7 @@ CSSLint.addRule({
  * Rule: Properties should be known (listed in CSS3 specification) or
  * be a vendor-prefixed property.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -6834,7 +7072,10 @@ CSSLint.addRule({
                 
                 //IE
                 "filter": 1,
-                "zoom": 1
+                "zoom": 1,
+                
+                //@font-face
+                "src": 1
             };
 
         parser.addListener("property", function(event){
@@ -6851,6 +7092,7 @@ CSSLint.addRule({
 /*
  * Rule: Don't use classes or IDs with elements (a.foo or a#foo).
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -6876,7 +7118,7 @@ CSSLint.addRule({
 
                 for (j=0; j < selector.parts.length; j++){
                     part = selector.parts[j];
-                    if (part instanceof parserlib.css.SelectorPart){
+                    if (part.type == parser.SELECTOR_PART_TYPE){
                         for (k=0; k < part.modifiers.length; k++){
                             modifier = part.modifiers[k];
                             if (part.elementName && modifier.type == "id"){
@@ -6913,6 +7155,7 @@ CSSLint.addRule({
 /*
  * Rule: Headings (h1-h6) should not be qualified (namespaced).
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -6936,7 +7179,7 @@ CSSLint.addRule({
 
                 for (j=0; j < selector.parts.length; j++){
                     part = selector.parts[j];
-                    if (part instanceof parserlib.css.SelectorPart){
+                    if (part.type == parser.SELECTOR_PART_TYPE){
                         if (part.elementName && /h[1-6]/.test(part.elementName.toString()) && j > 0){
                             reporter.warn("Heading (" + part.elementName + ") should not be qualified.", part.line, part.col, rule);
                         }
@@ -6950,6 +7193,7 @@ CSSLint.addRule({
 /*
  * Rule: Selectors that look like regular expressions are slow and should be avoided.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -6973,7 +7217,7 @@ CSSLint.addRule({
                 selector = selectors[i];
                 for (j=0; j < selector.parts.length; j++){
                     part = selector.parts[j];
-                    if (part instanceof parserlib.css.SelectorPart){
+                    if (part.type == parser.SELECTOR_PART_TYPE){
                         for (k=0; k < part.modifiers.length; k++){
                             modifier = part.modifiers[k];
                             if (modifier.type == "attribute"){
@@ -6993,6 +7237,7 @@ CSSLint.addRule({
 /*
  * Rule: Total number of rules should not exceed x.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -7021,7 +7266,7 @@ CSSLint.addRule({
  * Rule: Use shorthand properties where possible.
  * 
  */
-
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -7108,10 +7353,7 @@ CSSLint.addRule({
  * Rule: Don't use text-indent for image replacement if you need to support rtl. 
  * 
  */
-/*
- * Should we be checking for rtl/ltr?
- */
-//Commented out due to lack of tests
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -7161,6 +7403,7 @@ CSSLint.addRule({
 /*
  * Rule: Headings (h1-h6) should be defined only once.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -7216,7 +7459,7 @@ CSSLint.addRule({
             var prop,
                 messages = [];
                 
-            for (var prop in headings){
+            for (prop in headings){
                 if (headings.hasOwnProperty(prop)){
                     if (headings[prop] > 1){
                         messages.push(headings[prop] + " " + prop + "s");
@@ -7234,6 +7477,7 @@ CSSLint.addRule({
 /*
  * Rule: Don't use universal selector because it's slow.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -7269,6 +7513,7 @@ CSSLint.addRule({
  * Rule: When using a vendor-prefixed property, make sure to
  * include the standard one.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -7447,6 +7692,7 @@ CSSLint.addRule({
 /*
  * Rule: You don't need to specify units when a value is 0.
  */
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -7477,20 +7723,36 @@ CSSLint.addRule({
     }
 
 });
+/*global CSSLint*/
 CSSLint.addFormatter({
     //format information
     id: "checkstyle-xml",
     name: "Checkstyle XML format",
 
+    /**
+     * Return opening root XML tag.
+     * @return {String} to prepend before all results
+     */
     startFormat: function(){
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?><checkstyle>";
     },
 
+    /**
+     * Return closing root XML tag.
+     * @return {String} to append after all results
+     */
     endFormat: function(){
         return "</checkstyle>";
     },
 
-    formatResults: function(results, filename) {
+    /**
+     * Given CSS Lint results for a file, return output for this format.
+     * @param results {Object} with error and warning messages
+     * @param filename {String} relative file path
+     * @param options {Object} (UNUSED for now) specifies special handling of output
+     * @return {String} output for results
+     */
+    formatResults: function(results, filename, options) {
         var messages = results.messages,
             output = [];
 
@@ -7529,9 +7791,8 @@ CSSLint.addFormatter({
         if (messages.length > 0) {
             output.push("<file name=\""+filename+"\">");
             messages.forEach(function (message, i) {
-                if (message.rollup) {
-                    //ignore rollups for now
-                } else {
+                //ignore rollups for now
+                if (!message.rollup) {
                   output.push("<error line=\"" + message.line + "\" column=\"" + message.col + "\" severity=\"" + message.type + "\"" +
                       " message=\"" + escapeSpecialCharacters(message.message) + "\" source=\"" + generateSource(message.rule) +"\"/>");
                 }
@@ -7542,41 +7803,49 @@ CSSLint.addFormatter({
         return output.join("");
     }
 });
+/*global CSSLint*/
 CSSLint.addFormatter({
     //format information
     id: "compact",
     name: "Compact, 'porcelain' format",
-    
-    startFormat: function(){
-        return "";
-    },
-    
-    endFormat: function(){
+
+    /**
+     * Return content to be printed before all file results.
+     * @return {String} to prepend before all results
+     */
+    startFormat: function() {
         return "";
     },
 
-    formatResults: function(results, filename) {
+    /**
+     * Return content to be printed after all file results.
+     * @return {String} to append after all results
+     */
+    endFormat: function() {
+        return "";
+    },
+
+    /**
+     * Given CSS Lint results for a file, return output for this format.
+     * @param results {Object} with error and warning messages
+     * @param filename {String} relative file path
+     * @param options {Object} (Optional) specifies special handling of output
+     * @return {String} output for results
+     */
+    formatResults: function(results, filename, options) {
         var messages = results.messages,
-            output = "",
-            pos = filename.lastIndexOf("/"),
-            shortFilename = filename;
+            output = "";
+        options = options || {};
 
         if (messages.length === 0) {
-            return shortFilename + ": Lint Free!";
+            return options.quiet ? "" : filename + ": Lint Free!";
         }
 
-        if (pos == -1){
-            pos = filename.lastIndexOf("\\");       
-        }
-        if (pos > -1){
-            shortFilename = filename.substring(pos+1);
-        }
-
-        messages.forEach(function (message, i) {
+        messages.forEach(function(message, i) {
             if (message.rollup) {
-                output += shortFilename + ": " + message.message + "\n";
+                output += filename + ": " + message.message + "\n";
             } else {
-                output += shortFilename + ": " + "line " + message.line + 
+                output += filename + ": " + "line " + message.line + 
                     ", col " + message.col + ", " + message.message + "\n";
             }
         });
@@ -7584,11 +7853,12 @@ CSSLint.addFormatter({
         return output;
     }
 });
+/*global CSSLint*/
 CSSLint.addFormatter({
     //format information
     id: "csslint-xml",
     name: "CSSLint XML format",
-    
+
     /**
      * Return opening root XML tag.
      * @return {String} to prepend before all results
@@ -7604,8 +7874,15 @@ CSSLint.addFormatter({
     endFormat: function(){
         return "</csslint>";
     },
-    
-    formatResults: function(results, filename) {
+
+    /**
+     * Given CSS Lint results for a file, return output for this format.
+     * @param results {Object} with error and warning messages
+     * @param filename {String} relative file path
+     * @param options {Object} (UNUSED for now) specifies special handling of output
+     * @return {String} output for results
+     */
+    formatResults: function(results, filename, options) {
         var messages = results.messages,
             output = [];
 
@@ -7643,20 +7920,36 @@ CSSLint.addFormatter({
         return output.join("");
     }
 });
+/*global CSSLint*/
 CSSLint.addFormatter({
     //format information
     id: "lint-xml",
     name: "Lint XML format",
-    
+
+    /**
+     * Return opening root XML tag.
+     * @return {String} to prepend before all results
+     */
     startFormat: function(){
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?><lint>";
     },
 
+    /**
+     * Return closing root XML tag.
+     * @return {String} to append after all results
+     */
     endFormat: function(){
         return "</lint>";
     },
-    
-    formatResults: function(results, filename) {
+
+    /**
+     * Given CSS Lint results for a file, return output for this format.
+     * @param results {Object} with error and warning messages
+     * @param filename {String} relative file path
+     * @param options {Object} (UNUSED for now) specifies special handling of output
+     * @return {String} output for results
+     */
+    formatResults: function(results, filename, options) {
         var messages = results.messages,
             output = [];
 
@@ -7695,30 +7988,49 @@ CSSLint.addFormatter({
         return output.join("");
     }
 });
+/*global CSSLint*/
 CSSLint.addFormatter({
     //format information
     id: "text",
     name: "Plain Text",
-    
-    startFormat: function(){
-        return "";
-    },
-    
-    endFormat: function(){
+
+    /**
+     * Return content to be printed before all file results.
+     * @return {String} to prepend before all results
+     */
+    startFormat: function() {
         return "";
     },
 
-    formatResults: function(results, filename) {
-        var messages = results.messages;
+    /**
+     * Return content to be printed after all file results.
+     * @return {String} to append after all results
+     */
+    endFormat: function() {
+        return "";
+    },
+
+    /**
+     * Given CSS Lint results for a file, return output for this format.
+     * @param results {Object} with error and warning messages
+     * @param filename {String} relative file path
+     * @param options {Object} (Optional) specifies special handling of output
+     * @return {String} output for results
+     */
+    formatResults: function(results, filename, options) {
+        var messages = results.messages,
+            output = "";
+        options = options || {};
+
         if (messages.length === 0) {
-            return "\n\ncsslint: No errors in " + filename + ".";
+            return options.quiet ? "" : "\n\ncsslint: No errors in " + filename + ".";
         }
-        
+
         output = "\n\ncsslint: There are " + messages.length  +  " problems in " + filename + ".";
         var pos = filename.lastIndexOf("/"),
             shortFilename = filename;
 
-        if (pos == -1){
+        if (pos === -1){
             pos = filename.lastIndexOf("\\");       
         }
         if (pos > -1){
@@ -7743,7 +8055,7 @@ CSSLint.addFormatter({
 /*
  * Web worker for CSSLint
  */
-
+/*global self, CSSLint, JSON*/
 //message indicates to start linting
 self.onmessage = function(event){
 
@@ -7766,3 +8078,4 @@ self.onmessage = function(event){
     //Not all browsers support structured clone, so JSON stringify results
     self.postMessage(JSON.stringify(results));
 };
+

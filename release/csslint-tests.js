@@ -73,13 +73,20 @@
 
     YUITest.TestRunner.add(new YUITest.TestCase({
         name: "Compact formatter",
-        
-        "File with no problems should say so": function(){
-            var result = { messages: [], stats: [] };
-            Assert.areEqual("FILE: Lint Free!", CSSLint.format(result, "FILE", "compact"));
+
+        "File with no problems should say so": function() {
+            var result = { messages: [], stats: [] },
+                actual = CSSLint.getFormatter("compact").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE"});
+            Assert.areEqual("path/to/FILE: Lint Free!", actual);
         },
 
-        "File with problems should list them": function(){
+        "Should have no output when quiet option is specified and no errors": function() {
+            var result = { messages: [], stats: [] },
+                actual = CSSLint.getFormatter("compact").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE", quiet: "true"});
+            Assert.areEqual("", actual);
+        },
+
+        "File with problems should list them": function() {
             var result = { messages: [ 
                      { type: 'warning', line: 1, col: 1, message: 'BOGUS WARNING', evidence: 'BOGUS', rule: [] },
                      { type: 'error', line: 2, col: 1, message: 'BOGUS ERROR', evidence: 'BOGUS', rule: [] }
@@ -87,7 +94,19 @@
                 error1 = "FILE: line 1, col 1, BOGUS WARNING\n",
                 error2 = "FILE: line 2, col 1, BOGUS ERROR\n",
                 expected = error1 + error2,
-                actual = CSSLint.format(result, "FILE", "compact");
+                actual = CSSLint.getFormatter("compact").formatResults(result, "FILE");
+            Assert.areEqual(expected, actual);
+        },
+
+        "Should output relative file paths": function() {
+            var result = { messages: [ 
+                     { type: 'warning', line: 1, col: 1, message: 'BOGUS WARNING', evidence: 'BOGUS', rule: [] },
+                     { type: 'error', line: 2, col: 1, message: 'BOGUS ERROR', evidence: 'BOGUS', rule: [] }
+                ], stats: [] },
+                error1 = "path/to/FILE: line 1, col 1, BOGUS WARNING\n",
+                error2 = "path/to/FILE: line 2, col 1, BOGUS ERROR\n",
+                expected = error1 + error2,
+                actual = CSSLint.getFormatter("compact").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE"});
             Assert.areEqual(expected, actual);
         }
 
@@ -191,20 +210,27 @@
 
         name: "Text formatter",
         
-        "File with no problems should say so": function(){
-            var result = { messages: [], stats: [] };
-            Assert.areEqual("\n\ncsslint: No errors in FILE.", CSSLint.format(result, "FILE", "text"));
+        "File with no problems should say so": function() {
+            var result = { messages: [], stats: [] },
+                actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE"});
+            Assert.areEqual("\n\ncsslint: No errors in path/to/FILE.", actual);
         },
 
-        "File with problems should list them": function(){
+        "Should have no output when quiet option is specified and no errors": function() {
+            var result = { messages: [], stats: [] },
+                actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE", quiet: "true"});
+            Assert.areEqual("", actual);
+        },
+
+        "File with problems should list them": function() {
             var result = { messages: [ 
                      { type: 'warning', line: 1, col: 1, message: 'BOGUS', evidence: 'ALSO BOGUS', rule: [] },
                      { type: 'error', line: 2, col: 1, message: 'BOGUS', evidence: 'ALSO BOGUS', rule: [] }
                 ], stats: [] },
                 error1 = "\n1: warning at line 1, col 1\nBOGUS\nALSO BOGUS",
                 error2 = "\n2: error at line 2, col 1\nBOGUS\nALSO BOGUS",
-                expected = "\n\ncsslint: There are 2 problems in FILE.\n\nFILE" + error1 + "\n\nFILE" + error2,
-                actual = CSSLint.format(result, "FILE", "text");
+                expected = "\n\ncsslint: There are 2 problems in path/to/FILE.\n\nFILE" + error1 + "\n\nFILE" + error2,
+                actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE"});
             Assert.areEqual(expected, actual);
         }
 
@@ -1042,6 +1068,11 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 
         "Using a vendor-prefix property should not result in a warning": function(){
             var result = CSSLint.verify("h2 { -moz-border-radius: 5px; }", { "known-properties": 1 });
+            Assert.areEqual(0, result.messages.length);        
+        },
+        
+        "Using src in @font-face should not result in a warning": function(){
+            var result = CSSLint.verify("@font-face { src: url(foo.otf); }", { "known-properties": 1 });
             Assert.areEqual(0, result.messages.length);        
         }
 

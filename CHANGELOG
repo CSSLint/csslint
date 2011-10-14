@@ -1,3 +1,27 @@
+October 14, 2011 - v0.7.0
+
+* Moved docs onto GitHub wiki (Nicholas C. Zakas)
+* Added check for flush() method on Node.js before attempting to use it (fixes #182) (Nicholas C. Zakas)
+* Added command-line testing via ant (Nicholas C. Zakas)
+* Add lint check to release process (Nicholas C. Zakas)
+* Fixed a bunch of JSHint warnings (Nicholas C. Zakas)
+* Updated JSHint (Nicholas C. Zakas)
+* Fix error with Rhino CLI, ensure consistent use of relative paths across output formats (fixes #189) (Nicholas C. Zakas)
+* Misc bug fixes (Nicholas C. Zakas)
+* Allow easier identification of syntax unit types (fixes #153) (Nicholas C. Zakas)
+* Updated parser to reflect better IE filter function handling (fixes #174) (Nicholas C. Zakas)
+* Updated parser to better handle comments (fixes #184) (Nicholas C. Zakas)
+* Updated parser, fixed implicitly declared variables (fixes #186) (Nicholas C. Zakas)
+* Ensure src is recognized as valid CSS property (fixes #173) (Nicholas C. Zakas)
+* Added contributor info to readme (Nicholas C. Zakas)
+* Merge pull request #187 from eriwen/master (Nicholas C. Zakas)
+* Adding --quiet option to fix request #170 (thanks to gtanner) (Eric Wendelin)
+* Passing relative path and absolute path (in options) to formatters for issue #172 (Eric Wendelin)
+* Finishing use of relative path in compact format, fixing issue #172 (Eric Wendelin)
+* Adding working directory methods (Eric Wendelin)
+* Switching to relative paths for compact format (Eric Wendelin)
+* Adding options (Eric Wendelin)
+
 September 8, 2011 - v0.6.1
 
 * Workaround for Node.js stdout not flushing prior to exit (fixes #176) (Nicholas C. Zakas)
@@ -120,6 +144,10 @@ June 18, 2011 - v0.2.0
 June 15, 2011 - v0.1.0
 
 * Initial release
+
+
+
+
 
 
 
