@@ -6,7 +6,6 @@
     <!-- the directories containing the source files -->
     <property name="src.dir" value="./src" />
     <property name="npm.dir" value="./npm" />
-    <property name="docs.dir" value="./docs" />
     <property name="tests.dir" value="./tests" />
     
     <!-- the directories and files to output to -->
@@ -127,17 +126,6 @@
         </concat>
     </target>
     
-    <!-- build the docs -->
-    <target name="build.docs">
-    
-        <delete dir="${build.dir}/docs"/>
-        <mkdir dir="${build.dir}/docs"/>
-        
-        <copy todir="${build.dir}/docs">
-            <fileset dir="${docs.dir}" includes="**/*" />
-        </copy>      
-    </target>    
-    
     <!-- build the web worker library -->
     <target name="build.worker">    
         <concat destfile="${build.dir}/${worker.build.file}"  fixlastline="true">
@@ -229,6 +217,6 @@
     </target>
     
     <!-- Build all files -->
-    <target name="build.all" depends="clean,build.core,build.worker,build.node,build.tests,build.rhino,build.docs"/>
+    <target name="build.all" depends="clean,build.core,build.worker,build.node,build.tests,build.rhino"/>
 
 </project>
