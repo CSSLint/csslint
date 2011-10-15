@@ -20,24 +20,24 @@
 
         "File with problems should list them": function() {
             var result = { messages: [ 
-                     { type: 'warning', line: 1, col: 1, message: 'BOGUS WARNING', evidence: 'BOGUS', rule: [] },
-                     { type: 'error', line: 2, col: 1, message: 'BOGUS ERROR', evidence: 'BOGUS', rule: [] }
+                     { type: 'error', line: 2, col: 1, message: 'BOGUS ERROR', evidence: 'BOGUS', rule: [] },
+                     { type: 'warning', line: 1, col: 1, message: 'BOGUS WARNING', evidence: 'BOGUS', rule: [] }
                 ], stats: [] },
-                error1 = "FILE: line 1, col 1, BOGUS WARNING\n",
-                error2 = "FILE: line 2, col 1, BOGUS ERROR\n",
-                expected = error1 + error2,
-                actual = CSSLint.getFormatter("compact").formatResults(result, "FILE");
+                err = "Error: path/to/FILE: line 2, col 1, BOGUS ERROR\n",
+                warning = "Warning: path/to/FILE: line 1, col 1, BOGUS WARNING\n",
+                expected = err + warning,
+                actual = CSSLint.getFormatter("compact").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE"});
             Assert.areEqual(expected, actual);
         },
 
         "Should output relative file paths": function() {
             var result = { messages: [ 
-                     { type: 'warning', line: 1, col: 1, message: 'BOGUS WARNING', evidence: 'BOGUS', rule: [] },
-                     { type: 'error', line: 2, col: 1, message: 'BOGUS ERROR', evidence: 'BOGUS', rule: [] }
+                    { type: 'error', line: 2, col: 1, message: 'BOGUS ERROR', evidence: 'BOGUS', rule: [] },
+                    { type: 'warning', line: 1, col: 1, message: 'BOGUS WARNING', evidence: 'BOGUS', rule: [] }
                 ], stats: [] },
-                error1 = "path/to/FILE: line 1, col 1, BOGUS WARNING\n",
-                error2 = "path/to/FILE: line 2, col 1, BOGUS ERROR\n",
-                expected = error1 + error2,
+                err = "Error: path/to/FILE: line 2, col 1, BOGUS ERROR\n",
+                warning = "Warning: path/to/FILE: line 1, col 1, BOGUS WARNING\n",
+                expected = err + warning,
                 actual = CSSLint.getFormatter("compact").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE"});
             Assert.areEqual(expected, actual);
         }

@@ -32,15 +32,24 @@ CSSLint.addFormatter({
             output = "";
         options = options || {};
 
+        /**
+         * Capitalize and return given string.
+         * @param str {String} to capitalize
+         * @return {String} capitalized
+         */
+        var capitalize = function(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        };
+
         if (messages.length === 0) {
             return options.quiet ? "" : filename + ": Lint Free!";
         }
 
         messages.forEach(function(message, i) {
             if (message.rollup) {
-                output += filename + ": " + message.message + "\n";
+                output += capitalize(message.type) + ": " + filename + ": " + message.message + "\n";
             } else {
-                output += filename + ": " + "line " + message.line + 
+                output += capitalize(message.type) + ": " + filename + ": " + "line " + message.line + 
                     ", col " + message.col + ", " + message.message + "\n";
             }
         });
