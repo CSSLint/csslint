@@ -27,6 +27,10 @@ cli({
             process.exit(code || 0);
         }
     },
+
+    isFile: function(name){
+        return fs.statSync(name).isFile();
+    },
     
     isDirectory: function(name){
         return fs.statSync(name).isDirectory();

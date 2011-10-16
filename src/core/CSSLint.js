@@ -111,10 +111,11 @@ var CSSLint = (function(){
      * @param {String} text The CSS text to verify.
      * @param {Object} ruleset (Optional) List of rules to apply. If null, then
      *      all rules are used.
-     * @return {Object} Results of the verification.
+     * @param {Object} cli A reference to the commandline.    
+     * @return {Object} Results of the verification.  
      * @method verify
      */
-    api.verify = function(text, ruleset){
+    api.verify = function(text, ruleset, cli){
 
         var i       = 0,
             len     = rules.length,
@@ -129,14 +130,14 @@ var CSSLint = (function(){
 
         if (!ruleset){
             while (i < len){
-                rules[i++].init(parser, reporter);
+                rules[i++].init(parser, reporter, cli);
             }
         } else {
             ruleset.errors = 1;       //always report parsing errors
             for (i in ruleset){
                 if(ruleset.hasOwnProperty(i)){
                     if (rules[i]){
-                        rules[i].init(parser, reporter);
+                        rules[i].init(parser, reporter, cli);
                     }
                 }
             }

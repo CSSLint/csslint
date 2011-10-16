@@ -10,6 +10,11 @@ cli({
     args: arguments,
     print: print,
     quit: quit,
+
+    isFile: function(name){
+        var file = new File(name);
+        return file.isFile();
+    },
     
     isDirectory: function(name){
         var dir = new File(name);
