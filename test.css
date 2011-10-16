@@ -1,1 +1,14 @@
-@import url('../resource/t.css');
+@import url('http://www.external.com/resource/resource.ext');
+@import url('../resource/test2.css');
+@font-face {font-family: 'MyFontFamily'; src: url('http://www.external.com/resource/resource.ext') format('embedded-opentype'), url('http://www.external.com/resource/resource.ext') format('woff'), url('http://www.external.com/resource/resource.ext')  format('truetype'), url('http://www.external.com/resource/resource.ext') format('svg');}
+@font-face {font-family: 'MyFontFamily'; src: url('../resource/resource.ext') format('embedded-opentype'), url('../resource/resource.ext') format('woff'), url('../resource/resource.ext')  format('truetype'), url('../resource/resource.ext') format('svg');}
+.background { background: url('http://www.external.com/resource/resource.ext');}
+.background { background: url('../resource/resource.ext');}
+.background-image { background-image: url('http://www.external.com/resource/resource.ext');}
+.background-image { background-image: url('../resource/resource.ext');}
+.border-image { border-image: url('http://www.external.com/resource/resource.ext');}
+.border-image { border-image: url('../resource/resource.ext');}
+.border-image-source { border-image-source: url('http://www.external.com/resource/resource.ext');}
+.border-image-source { border-image-source: url('../resource/resource.ext');}
+.content { content: url('http://www.external.com/resource/resource.ext');}
+.content { content: url('../resource/resource.ext');}

@@ -58,7 +58,8 @@ CSSLint.addRule({
 				     */                    		          		
             		cmd: function (path) {
 
-            			var result = false;
+            			var result = false,
+            				uri = path.split('?')[0];
             		
             			if (!tests.external.cmd(path)) {
             				result = !cli.isFile(path);
@@ -151,6 +152,18 @@ CSSLint.addRule({
         parser.addListener("startrule", function(event){
 			matches = [];
         });
+
+        parser.addListener("startpage", function(event){
+			matches = [];
+        });
+        
+        parser.addListener("startpagemargin", function(event){
+			matches = [];
+        }); 
+        
+        parser.addListener("startkeyframes", function(event){
+			matches = [];
+        });      
         
         parser.addListener("property", function(event){
         
@@ -186,11 +199,23 @@ CSSLint.addRule({
         
         parser.addListener("endrule", function(event){
             testPath(matches);
-        });    
-        
+        });
+
         parser.addListener("endfontface", function(event){
             testPath(matches);
-        });             
+        });
+
+        parser.addListener("endpage", function(event){
+            testPath(matches);
+        });
+
+        parser.addListener("endpagemargin", function(event){
+            testPath(matches);
+        });
+
+        parser.addListener("endkeyframe", function(event){
+            testPath(matches);
+        });
 
     }
 
