@@ -8,6 +8,8 @@
         uri_external = "http://www.external.com/resource/" + uri,
 
         uri_local = "../resource/" + uri,
+        
+        uri_data = "data:font/opentype;base64,[base-encoded font here]",
 
         default_template = ".#{key} { #{key}: url('#{uri}');}",
 
@@ -93,6 +95,7 @@
 
 	                tests['Referencing external' + title + 'result in a warning'] = util.test(temp, uri_external, true);
 	                tests['Referencing local' + title + ' not result in a warning'] = util.test(temp, uri_local, false);
+	                tests['Referencing data uri' + title + ' not result in a warning'] = util.test(temp, uri_data, false);	                
 
 	            }
 

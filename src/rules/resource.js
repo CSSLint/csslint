@@ -60,12 +60,10 @@ CSSLint.addRule({
 
             			var result = false,
             				uri = path.split('?')[0];
-            		
-            			if (!tests.external.cmd(path)) {
+
+            			if (!tests.external.cmd(path) && path.substr(0, 5) !== 'data:') {
             				result = !cli.isFile(path);
             			}
-            			
-            			cli.print(result);
             		
             			return result;
             		}

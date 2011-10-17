@@ -29,7 +29,14 @@ cli({
     },
 
     isFile: function(name){
-        return fs.statSync(name).isFile();
+
+    	try {
+    		var stat = fs.statSync(name);
+    		return stat.isFile();
+    	} catch (ex) {
+	    	return false;
+    	}
+    	
     },
     
     isDirectory: function(name){
