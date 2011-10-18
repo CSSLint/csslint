@@ -27,6 +27,17 @@ cli({
             process.exit(code || 0);
         }
     },
+
+    isFile: function(name){
+
+    	try {
+    		var stat = fs.statSync(name);
+    		return stat.isFile();
+    	} catch (ex) {
+	    	return false;
+    	}
+    	
+    },
     
     isDirectory: function(name){
         return fs.statSync(name).isDirectory();
