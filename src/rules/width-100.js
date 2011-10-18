@@ -35,7 +35,7 @@
         
         parser.addListener("endrule", function(){
             if (width100 && !boxsizing){
-                reporter.warn("Elements with a width of 100% may not appear as you expect inside of other elements.", width100.line, width100.col, rule);
+                reporter.report("Elements with a width of 100% may not appear as you expect inside of other elements.", width100.line, width100.col, rule);
             }
         });
     }

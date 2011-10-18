@@ -40,24 +40,16 @@ CSSLint.addRule({
         function reportProperty(name, display, msg){
             if (properties[name]){
                 if (typeof propertiesToCheck[name] != "string" || properties[name].value.toLowerCase() != propertiesToCheck[name]){
-                    reporter.warn(msg || name + " can't be used with display: " + display + ".", properties[name].line, properties[name].col, rule);
+                    reporter.report(msg || name + " can't be used with display: " + display + ".", properties[name].line, properties[name].col, rule);
                 }
             }
         }
-
-        parser.addListener("startrule", function(){
+        
+        function startRule(){
             properties = {};
-        });
+        }
 
-        parser.addListener("property", function(event){
-            var name = event.property.text.toLowerCase();
-
-            if (propertiesToCheck[name]){
-                properties[name] = { value: event.value.text, line: event.property.line, col: event.property.col };                    
-            }
-        });
-
-        parser.addListener("endrule", function(){
+        function endRule(){
 
             var display = properties.display ? properties.display.value : null;
             if (display){
@@ -98,9 +90,27 @@ CSSLint.addRule({
                 }
             }
           
+        }
+
+        parser.addListener("startrule", startRule);
+        parser.addListener("startfontface", startRule);
+        parser.addListener("startkeyframerule", startRule);
+        parser.addListener("startpagemargin", startRule);
+        parser.addListener("startpage", startRule);
+
+        parser.addListener("property", function(event){
+            var name = event.property.text.toLowerCase();
+
+            if (propertiesToCheck[name]){
+                properties[name] = { value: event.value.text, line: event.property.line, col: event.property.col };                    
+            }
         });
 
-
+        parser.addListener("endrule", endRule);
+        parser.addListener("endfontface", endRule);
+        parser.addListener("endkeyframerule", endRule);
+        parser.addListener("endpagemargin", endRule);
+        parser.addListener("endpage", endRule);
 
     }
 

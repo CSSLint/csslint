@@ -94,7 +94,7 @@
     </target>
 
     <!-- run tests on the command line -->
-    <target name="test">       
+    <target name="test" depends="build.all">       
         <exec executable="java" failonerror="true">
             <arg line="-jar"/>
             <arg path="${lib.dir}/js.jar"/>

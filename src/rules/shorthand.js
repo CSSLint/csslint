@@ -60,7 +60,7 @@ CSSLint.addRule({
                     }
                     
                     if (total == mapping[prop].length){
-                        reporter.warn("The properties " + mapping[prop].join(", ") + " can be replaced by " + prop + ".", event.line, event.col, rule);
+                        reporter.report("The properties " + mapping[prop].join(", ") + " can be replaced by " + prop + ".", event.line, event.col, rule);
                     }
                 }
             }

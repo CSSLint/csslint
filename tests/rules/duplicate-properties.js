@@ -41,7 +41,22 @@
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Duplicate property 'float' found.", result.messages[0].message);
-        }
+        },
+        
+        "Using keyframes should not result in an error": function(){
+            var result = CSSLint.verify("@keyframes resize { 0% {padding: 0;} 50% {padding: 0 20px;background-color:rgba(255,0,0,0.2);} 100% {padding: 0 100px; background-color:rgba(255,0,0,0.9);}}", { "duplicate-properties": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using font-face should not result in an error": function(){
+            var result = CSSLint.verify("@font-face { src: local(foo); }", { "duplicate-properties": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using page should not result in an error": function(){
+            var result = CSSLint.verify("@page { width: 100px; }", { "duplicate-properties": 1 });
+            Assert.areEqual(0, result.messages.length);
+        }        
         
 
     }));

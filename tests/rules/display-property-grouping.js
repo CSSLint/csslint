@@ -206,6 +206,21 @@
         "Float:none with table-cell should not result in a warning": function(){
             var result = CSSLint.verify(".foo { float: none; display: table-cell; }", { "display-property-grouping": 1 });
             Assert.areEqual(0, result.messages.length);
+        },
+        
+        "Using keyframes should not result in an error": function(){
+            var result = CSSLint.verify("@keyframes resize { 0% {padding: 0;} 50% {padding: 0 20px;background-color:rgba(255,0,0,0.2);} 100% {padding: 0 100px; background-color:rgba(255,0,0,0.9);}}", { "display-property-grouping": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using font-face should not result in an error": function(){
+            var result = CSSLint.verify("@font-face { src: local(foo); }", { "display-property-grouping": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using page should not result in an error": function(){
+            var result = CSSLint.verify("@page { width: 100px; }", { "display-property-grouping": 1 });
+            Assert.areEqual(0, result.messages.length);
         }
 
     }));

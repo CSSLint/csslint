@@ -46,7 +46,7 @@ CSSLint.addRule({
                     if (!pseudo){
                         headings[RegExp.$1]++;
                         if (headings[RegExp.$1] > 1) {
-                            reporter.warn("Heading (" + part.elementName + ") has already been defined.", part.line, part.col, rule);
+                            reporter.report("Heading (" + part.elementName + ") has already been defined.", part.line, part.col, rule);
                         }
                     }
                 }

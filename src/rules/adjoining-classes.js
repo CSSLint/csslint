@@ -33,7 +33,7 @@ CSSLint.addRule({
                                 classCount++;
                             }
                             if (classCount > 1){
-                                reporter.warn("Don't use adjoining classes.", part.line, part.col, rule);
+                                reporter.report("Don't use adjoining classes.", part.line, part.col, rule);
                             }
                         }
                     }

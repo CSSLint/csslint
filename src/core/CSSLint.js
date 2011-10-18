@@ -110,7 +110,8 @@ var CSSLint = (function(){
      * Starts the verification process for the given CSS text.
      * @param {String} text The CSS text to verify.
      * @param {Object} ruleset (Optional) List of rules to apply. If null, then
-     *      all rules are used.
+     *      all rules are used. If a rule has a value of 1 then it's a warning,
+     *      a value of 2 means it's an error.
      * @return {Object} Results of the verification.
      * @method verify
      */
@@ -125,28 +126,30 @@ var CSSLint = (function(){
                                                 underscoreHack: true, strict: false });
 
         lines = text.split(/\n\r?/g);
-        reporter = new Reporter(lines);
+        reporter = new Reporter(lines, ruleset);
 
         if (!ruleset){
+            ruleset = {};
             while (i < len){
-                rules[i++].init(parser, reporter);
+                ruleset[rules[i++].id] = 1;    //by default, everything is a warning
             }
-        } else {
-            ruleset.errors = 1;       //always report parsing errors
-            for (i in ruleset){
-                if(ruleset.hasOwnProperty(i)){
-                    if (rules[i]){
-                        rules[i].init(parser, reporter);
-                    }
+        }
+        
+        ruleset.errors = 2;       //always report parsing errors as errors
+        for (i in ruleset){
+            if(ruleset.hasOwnProperty(i)){
+                if (rules[i]){
+                    rules[i].init(parser, reporter);
                 }
             }
         }
+
 
         //capture most horrible error type
         try {
             parser.parse(text);
         } catch (ex) {
-            reporter.error("Fatal error, cannot continue: " + ex.message, ex.line, ex.col);
+            reporter.error("Fatal error, cannot continue: " + ex.message, ex.line, ex.col, {});
         }
 
         report = {

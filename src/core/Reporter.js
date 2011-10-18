@@ -4,8 +4,10 @@
  * @class Reporter
  * @constructor
  * @param {String[]} lines The text lines of the source.
+ * @param {Object} ruleset The set of rules to work with, including if
+ *      they are errors or warnings.
  */
-function Reporter(lines){
+function Reporter(lines, ruleset){
 
     /**
      * List of messages being reported.
@@ -28,6 +30,14 @@ function Reporter(lines){
      * @type String[]
      */
     this.lines = lines;
+    
+    /**
+     * Information about the rules. Used to determine whether an issue is an
+     * error or warning.
+     * @property ruleset
+     * @type Object
+     */
+    this.ruleset = ruleset;
 }
 
 Reporter.prototype = {
@@ -61,10 +71,23 @@ Reporter.prototype = {
      * @param {int} col The column number.
      * @param {Object} rule The rule this message relates to.
      * @method warn
+     * @deprecated Use report instead.
      */
     warn: function(message, line, col, rule){
+        this.report(message, line, col, rule);
+    },
+
+    /**
+     * Report an issue.
+     * @param {String} message The message to store.
+     * @param {int} line The line number.
+     * @param {int} col The column number.
+     * @param {Object} rule The rule this message relates to.
+     * @method report
+     */
+    report: function(message, line, col, rule){
         this.messages.push({
-            type    : "warning",
+            type    : this.ruleset[rule.id] == 2 ? "error" : "warning",
             line    : line,
             col     : col,
             message : message,
@@ -132,3 +155,6 @@ Reporter.prototype = {
         this.stats[name] = value;
     }
 };
+
+//expose for testing purposes
+CSSLint._Reporter = Reporter;

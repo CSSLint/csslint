@@ -31,7 +31,7 @@ CSSLint.addRule({
                         for (k=0; k < part.modifiers.length; k++){
                             modifier = part.modifiers[k];
                             if (part.elementName && modifier.type == "id"){
-                                reporter.warn("Element (" + part + ") is overqualified, just use " + modifier + " without element name.", part.line, part.col, rule);
+                                reporter.report("Element (" + part + ") is overqualified, just use " + modifier + " without element name.", part.line, part.col, rule);
                             } else if (modifier.type == "class"){
                                 
                                 if (!classes[modifier]){
@@ -53,7 +53,7 @@ CSSLint.addRule({
                 
                     //one use means that this is overqualified
                     if (classes[prop].length == 1 && classes[prop][0].part.elementName){
-                        reporter.warn("Element (" + classes[prop][0].part + ") is overqualified, just use " + classes[prop][0].modifier + " without element name.", classes[prop][0].part.line, classes[prop][0].part.col, rule);
+                        reporter.report("Element (" + classes[prop][0].part + ") is overqualified, just use " + classes[prop][0].modifier + " without element name.", classes[prop][0].part.line, classes[prop][0].part.col, rule);
                     }
                 }
             }        

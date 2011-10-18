@@ -24,7 +24,7 @@ CSSLint.addRule({
         //event handler for end of rules
         function endRule(event){
             if (textIndent){
-                reporter.warn("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set text-direction for that item to ltr.", textIndent.line, textIndent.col, rule);
+                reporter.report("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set text-direction for that item to ltr.", textIndent.line, textIndent.col, rule);
             }
         }        
         

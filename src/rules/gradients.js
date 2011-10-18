@@ -52,7 +52,7 @@ CSSLint.addRule({
             }
 
             if (missing.length && missing.length < 4){            
-                reporter.warn("Missing vendor-prefixed CSS gradients for " + missing.join(", ") + ".", event.selectors[0].line, event.selectors[0].col, rule); 
+                reporter.report("Missing vendor-prefixed CSS gradients for " + missing.join(", ") + ".", event.selectors[0].line, event.selectors[0].col, rule); 
             }
 
         });

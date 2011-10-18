@@ -27,7 +27,7 @@ CSSLint.addRule({
                     part = selector.parts[j];
                     if (part.type == parser.SELECTOR_PART_TYPE){
                         if (part.elementName && /h[1-6]/.test(part.elementName.toString()) && j > 0){
-                            reporter.warn("Heading (" + part.elementName + ") should not be qualified.", part.line, part.col, rule);
+                            reporter.report("Heading (" + part.elementName + ") should not be qualified.", part.line, part.col, rule);
                         }
                     }
                 }

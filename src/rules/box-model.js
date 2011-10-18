@@ -59,7 +59,7 @@ CSSLint.addRule({
                     
                         //special case for padding
                         if (!(prop == "padding" && properties[prop].value.parts.length === 2 && properties[prop].value.parts[0].value === 0)){
-                            reporter.warn("Broken box model: using height with " + prop + ".", properties[prop].line, properties[prop].col, rule);
+                            reporter.report("Broken box model: using height with " + prop + ".", properties[prop].line, properties[prop].col, rule);
                         }
                     }
                 }
@@ -70,7 +70,7 @@ CSSLint.addRule({
                     if (widthProperties.hasOwnProperty(prop) && properties[prop]){
 
                         if (!(prop == "padding" && properties[prop].value.parts.length === 2 && properties[prop].value.parts[1].value === 0)){
-                            reporter.warn("Broken box model: using width with " + prop + ".", properties[prop].line, properties[prop].col, rule);
+                            reporter.report("Broken box model: using width with " + prop + ".", properties[prop].line, properties[prop].col, rule);
                         }
                     }
                 }

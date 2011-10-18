@@ -27,12 +27,21 @@ function cli(api){
      * @return {Object} A ruleset object.
      */
     function gatherRules(options){
-        var ruleset;
+        var ruleset,
+            warnings = options.rules || options.warnings,
+            errors = options.errors;
         
-        if (options.rules){
-            ruleset = {};
-            options.rules.split(",").forEach(function(value){
+        if (warnings){
+            ruleset = ruleset || {};
+            warnings.split(",").forEach(function(value){
                 ruleset[value] = 1;
+            });
+        }
+        
+        if (errors){
+            ruleset = ruleset || {};
+            errors.split(",").forEach(function(value){
+                ruleset[value] = 2;
             });
         }
         
@@ -90,12 +99,13 @@ function cli(api){
             "\nUsage: csslint-rhino.js [options]* [file|dir]*",
             " ",
             "Global Options",
-            "  --help                 Displays this information.",
-            "  --format=<format>      Indicate which format to use for output.",
-            "  --list-rules           Outputs all of the rules available.",
-            "  --quiet                Only output when errors are present.",
-            "  --rules=<rule[,rule]+> Indicate which rules to include.",
-            "  --version              Outputs the current version number."
+            "  --help                    Displays this information.",
+            "  --format=<format>         Indicate which format to use for output.",
+            "  --list-rules              Outputs all of the rules available.",
+            "  --quiet                   Only output when errors are present.",
+            "  --errors=<rule[,rule]+>   Indicate which rules to include as errors.",
+            "  --warnings=<rule[,rule]+> Indicate which rules to include as warnings.",
+            "  --version                 Outputs the current version number."
         ].join("\n") + "\n");
     }
 
@@ -149,6 +159,7 @@ function cli(api){
 
     var args     = api.args,
         argName,
+        parts,
         arg      = args.shift(),
         options  = {},
         files    = [];
@@ -158,11 +169,13 @@ function cli(api){
             argName = arg.substring(2);
             options[argName] = true;
             
-            if (argName.indexOf("rules=") > -1){
-                options.rules = argName.substring(argName.indexOf("=") + 1);
-            } else if (argName.indexOf("format=") > -1) {
-                options.format = argName.substring(argName.indexOf("=") + 1);
+            if (argName.indexOf("=") > -1){
+                parts = argName.split("=");
+                options[parts[0]] = parts[1];
+            } else {
+                options[argName] = true;
             }
+
         } else {
             
             //see if it's a directory or a file

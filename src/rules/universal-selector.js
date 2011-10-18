@@ -26,7 +26,7 @@ CSSLint.addRule({
                 
                 part = selector.parts[selector.parts.length-1];
                 if (part.elementName == "*"){
-                    reporter.warn(rule.desc, part.line, part.col, rule);
+                    reporter.report(rule.desc, part.line, part.col, rule);
                 }
             }
         });
