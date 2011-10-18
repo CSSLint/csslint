@@ -32,26 +32,11 @@ CSSLint.addRule({
             },
             properties;
 
-        parser.addListener("startrule", function(){
+        function startRule(){
             properties = {};
-        });
+        }
 
-        parser.addListener("property", function(event){
-            var name = event.property.text.toLowerCase();
-            
-            if (heightProperties[name] || widthProperties[name]){
-                if (!/^0\S*$/.test(event.value) && !(name == "border" && event.value == "none")){
-                    properties[name] = { line: event.property.line, col: event.property.col, value: event.value };
-                }
-            } else {
-                if (name == "width" || name == "height"){
-                    properties[name] = 1;
-                }
-            }
-            
-        });
-
-        parser.addListener("endrule", function(){
+        function endRule(){
             var prop;
             if (properties.height){
                 for (prop in heightProperties){
@@ -74,9 +59,35 @@ CSSLint.addRule({
                         }
                     }
                 }
-            }
+            }        
+        }
 
+        parser.addListener("startrule", startRule);
+        parser.addListener("startfontface", startRule);
+        parser.addListener("startpage", startRule);
+        parser.addListener("startpagemargin", startRule);
+        parser.addListener("startkeyframerule", startRule); 
+
+        parser.addListener("property", function(event){
+            var name = event.property.text.toLowerCase();
+            
+            if (heightProperties[name] || widthProperties[name]){
+                if (!/^0\S*$/.test(event.value) && !(name == "border" && event.value == "none")){
+                    properties[name] = { line: event.property.line, col: event.property.col, value: event.value };
+                }
+            } else {
+                if (name == "width" || name == "height"){
+                    properties[name] = 1;
+                }
+            }
+            
         });
+
+        parser.addListener("endrule", endRule);
+        parser.addListener("endfontface", endRule);
+        parser.addListener("endpage", endRule);
+        parser.addListener("endpagemargin", endRule);
+        parser.addListener("endkeyframerule", endRule);         
     }
 
 });

@@ -94,13 +94,24 @@
     </target>
 
     <!-- run tests on the command line -->
-    <target name="test" depends="build.all">       
+    <target name="test" depends="build.all,test.general.rules">       
         <exec executable="java" failonerror="true">
             <arg line="-jar"/>
             <arg path="${lib.dir}/js.jar"/>
             <arg path="${lib.dir}/yuitest-rhino-cli.js" />
             <arg path="${build.dir}/${core.build.file}" />
             <arg path="${build.dir}/${tests.build.file}" />
+        </exec>              
+    </target>
+
+    <!-- must be done separately from other tests due to Rhino limitations -->
+    <target name="test.general.rules">       
+        <exec executable="java" failonerror="true">
+            <arg line="-jar"/>
+            <arg path="${lib.dir}/js.jar"/>
+            <arg path="${lib.dir}/yuitest-rhino-cli.js" />
+            <arg path="${build.dir}/${core.build.file}" />
+            <arg path="${tests.dir}/all-rules.js" />
         </exec>              
     </target>
 
@@ -181,7 +192,7 @@
     <!-- build the tests into a single file -->
     <target name="build.tests">    
         <concat destfile="${build.dir}/${tests.build.file}"  fixlastline="true">
-            <fileset dir="${tests.dir}/" includes="**/*.js" />           
+            <fileset dir="${tests.dir}/" includes="**/*.js" excludes="all-rules.js" />           
         </concat>        
     </target>   
 
