@@ -6,7 +6,7 @@ CSSLint.addRule({
 
     //rule information
     id: "ids",
-    name: "IDs",
+    name: "Disallow IDs in selectors",
     desc: "Selectors should not contain IDs.",
     browsers: "All",
 

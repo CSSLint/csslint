@@ -6,7 +6,7 @@ CSSLint.addRule({
 
     //rule information
     id: "gradients",
-    name: "Gradients",
+    name: "Require all gradient definitions",
     desc: "When using a vendor-prefixed gradient, make sure to use them all.",
     browsers: "All",
 

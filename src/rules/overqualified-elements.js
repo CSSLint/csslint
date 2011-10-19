@@ -6,7 +6,7 @@ CSSLint.addRule({
 
     //rule information
     id: "overqualified-elements",
-    name: "Overqualified Elements",
+    name: "Disallow overqualified elements",
     desc: "Don't use classes or IDs with elements (a.foo or a#foo).",
     browsers: "All",
 

@@ -6,7 +6,7 @@ CSSLint.addRule({
 
     //rule information
     id: "zero-units",
-    name: "Zero Units",
+    name: "Disallow units for 0 values",
     desc: "You don't need to specify units when a value is 0.",
     browsers: "All",
 

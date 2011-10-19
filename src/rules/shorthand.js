@@ -7,7 +7,7 @@ CSSLint.addRule({
 
     //rule information
     id: "shorthand",
-    name: "Shorthand Properties",
+    name: "Require shorthand properties",
     desc: "Use shorthand properties where possible.",
     browsers: "All",
     

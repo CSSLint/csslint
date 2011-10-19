@@ -8,7 +8,7 @@ CSSLint.addRule({
 
     //rule information
     id: "important",
-    name: "Important",
+    name: "Disallow !important",
     desc: "Be careful when using !important declaration",
     browsers: "All",
 

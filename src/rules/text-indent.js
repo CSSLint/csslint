@@ -7,7 +7,7 @@ CSSLint.addRule({
 
     //rule information
     id: "text-indent",
-    name: "Text Indent",
+    name: "Disallow negative text-indent",
     desc: "Checks for text indent less than -99px",
     browsers: "All",
     

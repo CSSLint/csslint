@@ -7,7 +7,7 @@ CSSLint.addRule({
 
     //rule information
     id: "vendor-prefix",
-    name: "Vendor Prefix",
+    name: "Require standard property with vendor prefix",
     desc: "When using a vendor-prefixed property, make sure to include the standard one.",
     browsers: "All",
 

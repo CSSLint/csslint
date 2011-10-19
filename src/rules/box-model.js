@@ -7,7 +7,7 @@ CSSLint.addRule({
 
     //rule information
     id: "box-model",
-    name: "Box Model",
+    name: "Beware of broken box model",
     desc: "Don't use width or height when using padding or border.",
     browsers: "All",
 

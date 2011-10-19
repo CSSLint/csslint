@@ -6,7 +6,7 @@ CSSLint.addRule({
 
     //rule information
     id: "universal-selector",
-    name: "Universal Selector",
+    name: "Disallow universal selector",
     desc: "The universal selector (*) is known to be slow.",
     browsers: "All",
 

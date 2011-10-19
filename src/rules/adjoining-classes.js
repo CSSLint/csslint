@@ -6,7 +6,7 @@ CSSLint.addRule({
 
     //rule information
     id: "adjoining-classes",
-    name: "Adjoining Classes",
+    name: "Disallow adjoining classes",
     desc: "Don't use adjoining classes.",
     browsers: "IE6",
 

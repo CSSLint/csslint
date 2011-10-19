@@ -7,7 +7,7 @@ CSSLint.addRule({
 
     //rule information
     id: "compatible-vendor-prefixes",
-    name: "Compatible Vendor Prefixes",
+    name: "Require compatible vendor prefixes",
     desc: "Include all compatible vendor prefixes to reach a wider range of users.",
     browsers: "All",
 

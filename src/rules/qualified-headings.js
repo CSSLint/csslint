@@ -6,7 +6,7 @@ CSSLint.addRule({
 
     //rule information
     id: "qualified-headings",
-    name: "Qualified Headings",
+    name: "Disallow qualified headings",
     desc: "Headings should not be qualified (namespaced).",
     browsers: "All",
 

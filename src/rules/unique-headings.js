@@ -6,7 +6,7 @@ CSSLint.addRule({
 
     //rule information
     id: "unique-headings",
-    name: "Unique Headings",
+    name: "Headings should only be defined once",
     desc: "Headings should be defined only once.",
     browsers: "All",
 

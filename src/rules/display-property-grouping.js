@@ -10,7 +10,7 @@ CSSLint.addRule({
 
     //rule information
     id: "display-property-grouping",
-    name: "Display Property Grouping",
+    name: "Require properties appropriate for display",
     desc: "Certain properties shouldn't be used with certain display property values.",
     browsers: "All",
 

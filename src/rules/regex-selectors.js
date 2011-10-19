@@ -6,7 +6,7 @@ CSSLint.addRule({
 
     //rule information
     id: "regex-selectors",
-    name: "Regex Selectors",
+    name: "Disallow selectors that look like regexs",
     desc: "Selectors that look like regular expressions are slow and should be avoided.",
     browsers: "All",
 

@@ -6,7 +6,7 @@ CSSLint.addRule({
 
     //rule information
     id: "import",
-    name: "@import",
+    name: "Disallow @import",
     desc: "Don't use @import, use <link> instead.",
     browsers: "All",
 

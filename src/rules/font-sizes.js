@@ -7,7 +7,7 @@ CSSLint.addRule({
 
     //rule information
     id: "font-sizes",
-    name: "Font Sizes",
+    name: "Disallow too many font sizes",
     desc: "Checks the number of font-size declarations.",
     browsers: "All",
 
