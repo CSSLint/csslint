@@ -304,9 +304,12 @@ CSSLint.addRule({
         parser.addListener("property", function(event){
             var name = event.property.text.toLowerCase();
 
-            if (!properties[name] && name.charAt(0) != "-"){
-                reporter.error("Unknown property '" + event.property + "'.", event.line, event.col, rule);
+            if (event.invalid) {
+                reporter.report(event.invalid.message, event.line, event.col, rule);
             }
+            //if (!properties[name] && name.charAt(0) != "-"){
+            //    reporter.error("Unknown property '" + event.property + "'.", event.line, event.col, rule);
+            //}
 
         });
     }

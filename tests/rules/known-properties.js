@@ -7,10 +7,10 @@
 
         name: "Known Properties Errors",
 
-        "Using an unknown property should result in an error": function(){
+        "Using an unknown property should result in a warning": function(){
             var result = CSSLint.verify("h1 { foo: red;}", { "known-properties": 1 });
             Assert.areEqual(1, result.messages.length);
-            Assert.areEqual("error", result.messages[0].type);
+            Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Unknown property 'foo'.", result.messages[0].message);
         },
 
@@ -26,7 +26,7 @@
         
         "Using src in @font-face should not result in a warning": function(){
             var result = CSSLint.verify("@font-face { src: url(foo.otf); }", { "known-properties": 1 });
-            Assert.areEqual(0, result.messages.length);        
+            Assert.areEqual(0, result.messages.length);    
         }
 
     }));
