@@ -17,17 +17,18 @@ CSSLint.addRule({
 
         parser.addListener("property", function(event){
             var name = event.property.text,
-                value = event.value.text,
-                match;
+                value = event.value,
+                i;
 
-            if (name.match(/background/i) && value.match(/url/i)) {
-                match = /url\(("|')?(.*?)("|')?\)/.exec(value);
-                if (typeof match[2] !== 'undefined') {
-                    if (typeof stack[match[2]] === 'undefined') {
-                        stack[match[2]] = event;
-                    }
-                    else {
-                        reporter.rollupWarn("Background-Image (" + match[2] + ") was used multiple times, first declared at line " + stack[match[2]].line + ", col " + + stack[match[2]].col + ".", event.line, event.col, rule);
+            if (name.match(/background/i)) {
+                for (i in value.parts) {
+                    if (value.parts[i].type == 'uri') {
+                        if (typeof stack[value.parts[i].uri] === 'undefined') {
+                            stack[value.parts[i].uri] = event;
+                        }
+                        else {
+                            reporter.report("Background-Image (" + value.parts[i].uri + ") was used multiple times, first declared at line " + stack[value.parts[i].uri].line + ", col " + + stack[value.parts[i].uri].col + ".", event.line, event.col, rule);
+                        }
                     }
                 }
             }
