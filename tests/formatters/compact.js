@@ -23,8 +23,8 @@
                      { type: 'error', line: 2, col: 1, message: 'BOGUS ERROR', evidence: 'BOGUS', rule: [] },
                      { type: 'warning', line: 1, col: 1, message: 'BOGUS WARNING', evidence: 'BOGUS', rule: [] }
                 ], stats: [] },
-                err = "Error: path/to/FILE: line 2, col 1, BOGUS ERROR\n",
-                warning = "Warning: path/to/FILE: line 1, col 1, BOGUS WARNING\n",
+                err = "path/to/FILE: line 2, col 1, Error - BOGUS ERROR\n",
+                warning = "path/to/FILE: line 1, col 1, Warning - BOGUS WARNING\n",
                 expected = err + warning,
                 actual = CSSLint.getFormatter("compact").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE"});
             Assert.areEqual(expected, actual);
@@ -35,8 +35,8 @@
                     { type: 'error', line: 2, col: 1, message: 'BOGUS ERROR', evidence: 'BOGUS', rule: [] },
                     { type: 'warning', line: 1, col: 1, message: 'BOGUS WARNING', evidence: 'BOGUS', rule: [] }
                 ], stats: [] },
-                err = "Error: path/to/FILE: line 2, col 1, BOGUS ERROR\n",
-                warning = "Warning: path/to/FILE: line 1, col 1, BOGUS WARNING\n",
+                err = "path/to/FILE: line 2, col 1, Error - BOGUS ERROR\n",
+                warning = "path/to/FILE: line 1, col 1, Warning - BOGUS WARNING\n",
                 expected = err + warning,
                 actual = CSSLint.getFormatter("compact").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE"});
             Assert.areEqual(expected, actual);

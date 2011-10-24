@@ -47,10 +47,10 @@ CSSLint.addFormatter({
 
         messages.forEach(function(message, i) {
             if (message.rollup) {
-                output += capitalize(message.type) + ": " + filename + ": " + message.message + "\n";
+                output += filename + ": " + capitalize(message.type) + " - " + message.message + "\n";
             } else {
-                output += capitalize(message.type) + ": " + filename + ": " + "line " + message.line + 
-                    ", col " + message.col + ", " + message.message + "\n";
+                output += filename + ": " + "line " + message.line + 
+                    ", col " + message.col + ", " + capitalize(message.type) + " - " + message.message + "\n";
             }
         });
     
