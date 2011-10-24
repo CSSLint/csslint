@@ -1,7 +1,7 @@
 <project name="csslint" default="build.all">
 
     <!-- version number -->
-    <property name="csslint.version" value="0.7.0" />
+    <property name="csslint.version" value="0.8.0" />
 
     <!-- the directories containing the source files -->
     <property name="src.dir" value="./src" />
@@ -205,7 +205,7 @@
     </target>    
     
     <!-- Create a release with version number embedded -->
-    <target name="release" depends="lint,test,build.all,changelog.update">
+    <target name="release" depends="test,build.all,changelog.update">
         <delete dir="${release.dir}" />
         <mkdir dir="${release.dir}"/>
         <copy todir="${release.dir}">
