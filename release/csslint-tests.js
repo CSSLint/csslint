@@ -23,6 +23,43 @@
 
 (function(){
 
+    /*global YUITest, CSSLint, Reporter*/
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
+        name: "Reporter Object Tests",
+        
+        "Report should cause a warning": function(){
+            var reporter = new CSSLint._Reporter([], { "fake-rule": 1});
+            reporter.report("Foo", 1, 1, { id: "fake-rule" });
+            
+            Assert.areEqual(1, reporter.messages.length);
+            Assert.areEqual("warning", reporter.messages[0].type);
+        },
+        
+        "Report should cause an error": function(){
+            var reporter = new CSSLint._Reporter([], { "fake-rule": 2});
+            reporter.report("Foo", 1, 1, { id: "fake-rule" });
+            
+            Assert.areEqual(1, reporter.messages.length);
+            Assert.areEqual("error", reporter.messages[0].type);
+        },
+        
+        "Calling error() should cause an error": function(){
+            var reporter = new CSSLint._Reporter([], { "fake-rule": 1});
+            reporter.error("Foo", 1, 1, { id: "fake-rule" });
+            
+            Assert.areEqual(1, reporter.messages.length);
+            Assert.areEqual("error", reporter.messages[0].type);
+        }
+
+    }));
+
+})();
+
+(function(){
+
     /*global YUITest, CSSLint*/
     var Assert = YUITest.Assert;
 
@@ -88,24 +125,24 @@
 
         "File with problems should list them": function() {
             var result = { messages: [ 
-                     { type: 'warning', line: 1, col: 1, message: 'BOGUS WARNING', evidence: 'BOGUS', rule: [] },
-                     { type: 'error', line: 2, col: 1, message: 'BOGUS ERROR', evidence: 'BOGUS', rule: [] }
+                     { type: 'error', line: 2, col: 1, message: 'BOGUS ERROR', evidence: 'BOGUS', rule: [] },
+                     { type: 'warning', line: 1, col: 1, message: 'BOGUS WARNING', evidence: 'BOGUS', rule: [] }
                 ], stats: [] },
-                error1 = "FILE: line 1, col 1, BOGUS WARNING\n",
-                error2 = "FILE: line 2, col 1, BOGUS ERROR\n",
-                expected = error1 + error2,
-                actual = CSSLint.getFormatter("compact").formatResults(result, "FILE");
+                err = "path/to/FILE: line 2, col 1, Error - BOGUS ERROR\n",
+                warning = "path/to/FILE: line 1, col 1, Warning - BOGUS WARNING\n",
+                expected = err + warning,
+                actual = CSSLint.getFormatter("compact").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE"});
             Assert.areEqual(expected, actual);
         },
 
         "Should output relative file paths": function() {
             var result = { messages: [ 
-                     { type: 'warning', line: 1, col: 1, message: 'BOGUS WARNING', evidence: 'BOGUS', rule: [] },
-                     { type: 'error', line: 2, col: 1, message: 'BOGUS ERROR', evidence: 'BOGUS', rule: [] }
+                    { type: 'error', line: 2, col: 1, message: 'BOGUS ERROR', evidence: 'BOGUS', rule: [] },
+                    { type: 'warning', line: 1, col: 1, message: 'BOGUS WARNING', evidence: 'BOGUS', rule: [] }
                 ], stats: [] },
-                error1 = "path/to/FILE: line 1, col 1, BOGUS WARNING\n",
-                error2 = "path/to/FILE: line 2, col 1, BOGUS ERROR\n",
-                expected = error1 + error2,
+                err = "path/to/FILE: line 2, col 1, Error - BOGUS ERROR\n",
+                warning = "path/to/FILE: line 1, col 1, Warning - BOGUS WARNING\n",
+                expected = err + warning,
                 actual = CSSLint.getFormatter("compact").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE"});
             Assert.areEqual(expected, actual);
         }
@@ -254,6 +291,13 @@
             Assert.areEqual("Don't use adjoining classes.", result.messages[0].message);
         },
 
+        "Adjoining classes should result in an error": function(){
+            var result = CSSLint.verify(".foo.bar { }", { "adjoining-classes": 2 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("error", result.messages[0].type);
+            Assert.areEqual("Don't use adjoining classes.", result.messages[0].message);
+        },
+
         "Descendant selector with classes should not result in a warning": function(){
             var result = CSSLint.verify(".foo .bar { }", { "adjoining-classes": 1 });
             Assert.areEqual(0, result.messages.length);
@@ -276,7 +320,7 @@
             var result = CSSLint.verify(".foo { width: 100px; padding: 10px; }", { "box-model": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Broken box model: using width with padding.", result.messages[0].message);
+            Assert.areEqual("Using width with padding can sometimes make elements larger than you expect.", result.messages[0].message);
         },
 
         "Using width when padding is zero should not result in a warning": function(){
@@ -288,7 +332,7 @@
             var result = CSSLint.verify(".foo { width: 100px; padding-left: 10px; }", { "box-model": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Broken box model: using width with padding-left.", result.messages[0].message);
+            Assert.areEqual("Using width with padding-left can sometimes make elements larger than you expect.", result.messages[0].message);
         },
 
         "Using width when padding-left is zero should not result in a warning": function(){
@@ -300,7 +344,7 @@
             var result = CSSLint.verify(".foo { width: 100px; padding-right: 10px; }", { "box-model": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Broken box model: using width with padding-right.", result.messages[0].message);
+            Assert.areEqual("Using width with padding-right can sometimes make elements larger than you expect.", result.messages[0].message);
         },
 
         "Using width when padding-right is zero should not result in a warning": function(){
@@ -327,14 +371,14 @@
             var result = CSSLint.verify(".foo { width: 100px; border: 10px; }", { "box-model": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Broken box model: using width with border.", result.messages[0].message);
+            Assert.areEqual("Using width with border can sometimes make elements larger than you expect.", result.messages[0].message);
         },
         
         "Using width and border-left should result in a warning": function(){
             var result = CSSLint.verify(".foo { width: 100px; border-left: 10px; }", { "box-model": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Broken box model: using width with border-left.", result.messages[0].message);
+            Assert.areEqual("Using width with border-left can sometimes make elements larger than you expect.", result.messages[0].message);
         },
 
         "Using width when border-left is zero should not result in a warning": function(){
@@ -346,7 +390,7 @@
             var result = CSSLint.verify(".foo { width: 100px; border-right: 10px; }", { "box-model": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Broken box model: using width with border-right.", result.messages[0].message);
+            Assert.areEqual("Using width with border-right can sometimes make elements larger than you expect.", result.messages[0].message);
         },
 
         "Using width when border-right is zero should not result in a warning": function(){
@@ -368,7 +412,7 @@
             var result = CSSLint.verify(".foo { height: 100px; padding: 10px; }", { "box-model": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Broken box model: using height with padding.", result.messages[0].message);
+            Assert.areEqual("Using height with padding can sometimes make elements larger than you expect.", result.messages[0].message);
         },
 
         "Using height when padding is zero should not result in a warning": function(){
@@ -395,7 +439,7 @@
             var result = CSSLint.verify(".foo { height: 100px; padding-top: 10px; }", { "box-model": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Broken box model: using height with padding-top.", result.messages[0].message);
+            Assert.areEqual("Using height with padding-top can sometimes make elements larger than you expect.", result.messages[0].message);
         },
 
         "Using height when padding-top is zero should not result in a warning": function(){
@@ -407,7 +451,7 @@
             var result = CSSLint.verify(".foo { height: 100px; padding-bottom: 10px; }", { "box-model": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Broken box model: using height with padding-bottom.", result.messages[0].message);
+            Assert.areEqual("Using height with padding-bottom can sometimes make elements larger than you expect.", result.messages[0].message);
         },
 
         "Using height when padding-bottom is zero should not result in a warning": function(){
@@ -419,7 +463,7 @@
             var result = CSSLint.verify(".foo { height: 100px; border: 10px; }", { "box-model": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Broken box model: using height with border.", result.messages[0].message);
+            Assert.areEqual("Using height with border can sometimes make elements larger than you expect.", result.messages[0].message);
         },
 
         "Using height and border: none should not result in a warning": function(){
@@ -446,7 +490,7 @@
             var result = CSSLint.verify(".foo { height: 100px; border-top: 10px; }", { "box-model": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Broken box model: using height with border-top.", result.messages[0].message);
+            Assert.areEqual("Using height with border-top can sometimes make elements larger than you expect.", result.messages[0].message);
         },
 
         "Using height when border-top is zero should not result in a warning": function(){
@@ -458,7 +502,7 @@
             var result = CSSLint.verify(".foo { height: 100px; border-bottom: 10px; }", { "box-model": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Broken box model: using height with border-bottom.", result.messages[0].message);
+            Assert.areEqual("Using height with border-bottom can sometimes make elements larger than you expect.", result.messages[0].message);
         },
 
         "Using height when border-bottom is zero should not result in a warning": function(){
@@ -471,6 +515,30 @@
             Assert.areEqual(0, result.messages.length);
         }
 
+    }));
+
+})();
+
+(function(){
+
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
+        name: "Box Sizing Rule Errors",
+
+        "Using box-sizing should result in a warning": function(){
+            var result = CSSLint.verify(".foo { box-sizing: border-box; }", { "box-sizing": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("The box-sizing property isn't supported in IE6 and IE7.", result.messages[0].message);
+        },
+
+        "No box-sizing should not result in a warning": function(){
+            var result = CSSLint.verify(".foo { width: 100px; padding: 0; }", { "box-sizing": 1 });
+            Assert.areEqual(0, result.messages.length);
+        }
     }));
 
 })();
@@ -780,6 +848,11 @@
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Duplicate property 'float' found.", result.messages[0].message);
+        },
+        
+        "Duplicate properties in @keyframe rules should not result in a warning": function(){
+            var result = CSSLint.verify("@-webkit-keyframes slide_up {  from {  bottom:-91px; } to {  bottom:0; } }", { "duplicate-properties": 1 });
+            Assert.areEqual(0, result.messages.length);
         }
         
 
@@ -1054,10 +1127,10 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 
         name: "Known Properties Errors",
 
-        "Using an unknown property should result in an error": function(){
+        "Using an unknown property should result in a warning": function(){
             var result = CSSLint.verify("h1 { foo: red;}", { "known-properties": 1 });
             Assert.areEqual(1, result.messages.length);
-            Assert.areEqual("error", result.messages[0].type);
+            Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Unknown property 'foo'.", result.messages[0].message);
         },
 
@@ -1073,7 +1146,58 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
         
         "Using src in @font-face should not result in a warning": function(){
             var result = CSSLint.verify("@font-face { src: url(foo.otf); }", { "known-properties": 1 });
-            Assert.areEqual(0, result.messages.length);        
+            Assert.areEqual(0, result.messages.length);    
+        }
+
+    }));
+
+})();
+
+(function(){
+
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
+        name: "Outline:none Errors",
+
+        "Using outline: none should result in a warning": function(){
+            var result = CSSLint.verify(".foo { outline: none; }", { "outline-none": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Outlines should only be modified using :focus.", result.messages[0].message);
+        },
+
+        "Using outline: 0 should result in a warning": function(){
+            var result = CSSLint.verify(".foo { outline: 0; }", { "outline-none": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Outlines should only be modified using :focus.", result.messages[0].message);
+        },
+        
+        "Using outline: none alone with :focus should result in a warning": function(){
+            var result = CSSLint.verify(".foo:focus { outline: none; }", { "outline-none": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Outlines shouldn't be hidden unless other visual changes are made.", result.messages[0].message);
+        },
+
+        "Using outline: 0 alone with :focus should result in a warning": function(){
+            var result = CSSLint.verify(".foo:focus { outline: 0; }", { "outline-none": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Outlines shouldn't be hidden unless other visual changes are made.", result.messages[0].message);
+        },
+        
+        "Using outline: none with :focus and another property should not result in a warning": function(){
+            var result = CSSLint.verify(".foo:focus { outline: none; border: 1px solid black; }", { "outline-none": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using outline: 0 with :focus and another property should not result in a warning": function(){
+            var result = CSSLint.verify(".foo:focus { outline: 0; border: 1px solid black;}", { "outline-none": 1 });
+            Assert.areEqual(0, result.messages.length);
         }
 
     }));
@@ -1423,52 +1547,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
         }
 
     }));
-
-})();
-
-(function(){
-
-    /*global YUITest, CSSLint*/
-    //Commented out pending further review
-    /*var Assert = YUITest.Assert;
-
-    YUITest.TestRunner.add(new YUITest.TestCase({
-
-        name: "width: 100%; Errors",
-
-        "Using width: 100% should result in one warning": function(){
-            var result = CSSLint.verify("h1 { width: 100%; }", { "width-100": 1 });
-            Assert.areEqual(1, result.messages.length);
-            Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Elements with a width of 100% may not appear as you expect inside of other elements.", result.messages[0].message);
-        },
-
-        "Using width: 100px should not result in a warning": function(){
-            var result = CSSLint.verify("h1 { width: 100px; }", { "width-100": 1 });
-            Assert.areEqual(0, result.messages.length);
-        },
-
-        "Using width: 100% and box-sizing should not result in a warning": function(){
-            var result = CSSLint.verify("h1 { width: 100%; box-sizing: content-box; }", { "width-100": 1 });
-            Assert.areEqual(0, result.messages.length);
-        },
-
-        "Using width: 100% and -moz-box-sizing should not result in a warning": function(){
-            var result = CSSLint.verify("h1 { width: 100%; -moz-box-sizing: content-box; }", { "width-100": 1 });
-            Assert.areEqual(0, result.messages.length);
-        },
-
-        "Using width: 100% and -webkit-box-sizing should not result in a warning": function(){
-            var result = CSSLint.verify("h1 { width: 100%; -webkit-box-sizing: content-box; }", { "width-100": 1 });
-            Assert.areEqual(0, result.messages.length);
-        },
-
-        "Using width: 100% and -ms-box-sizing should not result in a warning": function(){
-            var result = CSSLint.verify("h1 { width: 100%; -ms-box-sizing: content-box; }", { "width-100": 1 });
-            Assert.areEqual(0, result.messages.length);
-        }
-
-    }));*/
 
 })();
 

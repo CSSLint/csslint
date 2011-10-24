@@ -1,3 +1,21 @@
+October 24, 2011 - v0.8.0
+
+* Fixup compact format (Nicholas C. Zakas)
+* Updated parser to the latest (Nicholas C. Zakas)
+* Updated test target (Nicholas C. Zakas)
+* Updated test for duplicate properties rule (Nicholas C. Zakas)
+* Added validation of values for a subset of properties (refs #30) (Nicholas C. Zakas)
+* Improved JSHint execution time and added to ant test target (Nicholas C. Zakas)
+* Created box-sizing compatibility rule (fixes #197) (Nicholas C. Zakas)
+* Change wording for box model rule (fixes #168) (Nicholas C. Zakas)
+* Updated names of rules to match web site names (Nicholas C. Zakas)
+* Added rule for disallowing outline:none (fixes #138) (Nicholas C. Zakas)
+* Added tests for all rules to check for common problems, fixed Rhino testing issue, updated unit tests (Nicholas C. Zakas)
+* Merge branch 'master' of github.com:stubbornella/csslint (Nicholas C. Zakas)
+* Fixed error condition that prevented display from updating (fixes #196) (Nicholas C. Zakas)
+* Merge pull request #192 from eriwen/master (Nicholas C. Zakas)
+* Distinguishing between warnings and errors in compact formatter fixing issue #152 (Eric Wendelin)
+
 October 14, 2011 - v0.7.0
 
 * Moved docs onto GitHub wiki (Nicholas C. Zakas)
@@ -144,6 +162,8 @@ June 18, 2011 - v0.2.0
 June 15, 2011 - v0.1.0
 
 * Initial release
+
+
 
 
 
