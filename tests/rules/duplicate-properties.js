@@ -41,7 +41,12 @@
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Duplicate property 'float' found.", result.messages[0].message);
-        }   
+        },
+        
+        "Duplicate properties in @keyframe rules should not result in a warning": function(){
+            var result = CSSLint.verify("@-webkit-keyframes slide_up {  from {  bottom:-91px; } to {  bottom:0; } }", { "duplicate-properties": 1 });
+            Assert.areEqual(0, result.messages.length);
+        }
         
 
     }));
