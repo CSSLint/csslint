@@ -126,14 +126,15 @@ var CSSLint = (function(){
                                                 underscoreHack: true, strict: false });
 
         lines = text.split(/\n\r?/g);
-        reporter = new Reporter(lines, ruleset);
-
+        
         if (!ruleset){
             ruleset = {};
             while (i < len){
                 ruleset[rules[i++].id] = 1;    //by default, everything is a warning
             }
         }
+        
+        reporter = new Reporter(lines, ruleset);
         
         ruleset.errors = 2;       //always report parsing errors as errors
         for (i in ruleset){
