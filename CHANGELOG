@@ -1,3 +1,8 @@
+October 25, 2011 - v0.8.1
+
+* Updated parser and fixed CLI errors (fixes #203 and fixes #205) (Nicholas C. Zakas)
+
+
 October 24, 2011 - v0.8.0
 
 * Fixup compact format (Nicholas C. Zakas)
@@ -162,6 +167,8 @@ June 18, 2011 - v0.2.0
 June 15, 2011 - v0.1.0
 
 * Initial release
+
+
 
 
 

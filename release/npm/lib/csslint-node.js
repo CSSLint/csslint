@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 24-October-2011 03:14:38 */
+/* Build time: 25-October-2011 09:25:06 */
 
 /*!
 Parser-Lib
@@ -46,7 +46,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 21-October-2011 04:48:14 */
+/* Build time: 25-October-2011 09:11:57 */
 var parserlib = {};
 (function(){
 
@@ -955,7 +955,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 21-October-2011 04:48:14 */
+/* Build time: 25-October-2011 09:11:57 */
 (function(){
 var EventTarget = parserlib.util.EventTarget,
 TokenStreamBase = parserlib.util.TokenStreamBase,
@@ -3429,6 +3429,10 @@ var ValidationType = {
         return part.type == "color" || part == "transparent";
     },
     
+    "number": function(part){
+        return part.type == "number" || this.integer(part);
+    },
+    
     "integer": function(part){
         return part.type == "integer";
     },
@@ -3516,13 +3520,13 @@ var Properties = {
     "border-bottom-style":          [ "border-style" ],
     "border-bottom-width":          [ "border-width" ],
     "border-collapse":              [ "collapse | separate | inherit" ],
-    "border-color":                 [ "color", "inherit" ],
+    "border-color":                 { multi: [ "color", "inherit" ], max: 4 },
     "border-image": 1,
-    "border-image-outset": 1,
-    "border-image-repeat": 1,
+    "border-image-outset":          { multi: [ "length", "number" ], max: 4 },
+    "border-image-repeat":          { multi: [ "stretch | repeat | round" ], max: 2 },
     "border-image-slice": 1,
     "border-image-source":          [ "image", "none" ],
-    "border-image-width": 1,
+    "border-image-width":           { multi: [ "length", "percentage", "number", "auto" ], max: 4 },
     "border-left": 1,
     "border-left-color":            [ "color", "inherit" ],
     "border-left-style":            [ "border-style" ],
@@ -3533,14 +3537,14 @@ var Properties = {
     "border-right-style":           [ "border-style" ],
     "border-right-width":           [ "border-width" ],
     "border-spacing": 1,
-    "border-style": 1,
+    "border-style":                 { multi: [ "border-style" ], max: 4 },
     "border-top": 1,
     "border-top-color":             [ "color", "inherit" ],
     "border-top-left-radius": 1,
     "border-top-right-radius": 1,
     "border-top-style":             [ "border-style" ],
     "border-top-width":             [ "border-width" ],
-    "border-width": 1,
+    "border-width":                 { multi: [ "border-width" ], max: 4 },
     "bottom":                       [ "margin-width", "inherit" ], 
     "box-align":                    [ "start | end | center | baseline | stretch" ],        //http://www.w3.org/TR/2009/WD-css3-flexbox-20090723/
     "box-decoration-break":         [ "slice |clone" ],
@@ -3659,7 +3663,7 @@ var Properties = {
     "list-style-type":              [ "disc | circle | square | decimal | decimal-leading-zero | lower-roman | upper-roman | lower-greek | lower-latin | upper-latin | armenian | georgian | lower-alpha | upper-alpha | none | inherit" ],
     
     //M
-    "margin": 1,
+    "margin":                       { multi: [ "margin-width", "inherit" ], max: 4 },
     "margin-bottom":                [ "margin-width", "inherit" ],
     "margin-left":                  [ "margin-width", "inherit" ],
     "margin-right":                 [ "margin-width", "inherit" ],
@@ -3699,7 +3703,7 @@ var Properties = {
     "overflow-y": 1,
     
     //P
-    "padding": 1,
+    "padding":                      { multi: [ "padding-width", "inherit" ], max: 4 },
     "padding-bottom":               [ "padding-width", "inherit" ],
     "padding-left":                 [ "padding-width", "inherit" ],
     "padding-right":                [ "padding-width", "inherit" ],
@@ -3841,6 +3845,51 @@ var Properties = {
                         }
                     };
                 })(Properties[prop]);
+            } else if (typeof Properties[prop] == "object"){
+                Properties[prop] = (function(spec){
+                    return function(value){
+                        var valid,
+                            i, len, j, count,
+                            msg,
+                            values,
+                            parts   = value.parts;
+                        
+                        if (spec.max) {
+                            if (parts.length > spec.max){
+                                throw new ValidationError("Expected a max of " + spec.max + " property values but found " + parts.length + ".", value.line, value.col);
+                            }
+                        }
+                        
+                        if (spec.multi){
+                            values = spec.multi;                            
+                        }
+                        
+                        for (i=0, len=parts.length; i < len; i++){
+                            msg = [];
+                            valid = false;
+                            for (j=0, count=values.length; j < count; j++){
+                                if (typeof ValidationType[values[j]] == "undefined"){
+                                    if(ValidationType.identifier(parts[i], values[j])){
+                                        valid = true;
+                                        break;
+                                    }
+                                    msg.push("one of (" + values[j] + ")");
+                                } else {
+                                    if (ValidationType[values[j]](parts[i])){
+                                        valid = true;
+                                        break;
+                                    }
+                                    msg.push(values[j]);
+                                }                                   
+                            }
+                            
+                            if (!valid) {
+                                throw new ValidationError("Expected " + msg.join(" or ") + " but found '" + parts[i] + "'.", value.line, value.col);
+                            }
+                        }                
+
+                    };
+                })(Properties[prop]);                
             }
         }
     }
@@ -5574,7 +5623,7 @@ var CSSLint = (function(){
         formatters = [],
         api        = new parserlib.util.EventTarget();
         
-    api.version = "0.8.0";
+    api.version = "0.8.1";
 
     //-------------------------------------------------------------------------
     // Rule Management
@@ -5689,14 +5738,15 @@ var CSSLint = (function(){
                                                 underscoreHack: true, strict: false });
 
         lines = text.split(/\n\r?/g);
-        reporter = new Reporter(lines, ruleset);
-
+        
         if (!ruleset){
             ruleset = {};
             while (i < len){
                 ruleset[rules[i++].id] = 1;    //by default, everything is a warning
             }
         }
+        
+        reporter = new Reporter(lines, ruleset);
         
         ruleset.errors = 2;       //always report parsing errors as errors
         for (i in ruleset){
