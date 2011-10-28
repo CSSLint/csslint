@@ -258,6 +258,7 @@ CSSLint.addRule({
                 "text-indent": 1,
                 "text-justify": 1,
                 "text-outline": 1,
+                "text-overflow": 1,
                 "text-shadow": 1,
                 "text-transform": 1,
                 "text-wrap": 1,
