@@ -1,7 +1,7 @@
 <project name="csslint" default="build.all">
 
     <!-- version number -->
-    <property name="csslint.version" value="0.8.1" />
+    <property name="csslint.version" value="0.8.5" />
 
     <!-- the directories containing the source files -->
     <property name="src.dir" value="./src" />

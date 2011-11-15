@@ -1,3 +1,8 @@
+November 15, 2011 - v0.8.5
+
+* Updated parser (fixes #206 and fixes #209) (Nicholas C. Zakas)
+* Removed extra file (Nicholas C. Zakas)
+
 October 25, 2011 - v0.8.1
 
 * Updated parser and fixed CLI errors (fixes #203 and fixes #205) (Nicholas C. Zakas)
