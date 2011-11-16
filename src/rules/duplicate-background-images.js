@@ -5,8 +5,8 @@
 CSSLint.addRule({
 
     //rule information
-    id: "duplicate-background-url",
-    name: "Disallow duplicate background URL",
+    id: "duplicate-background-images",
+    name: "Disallow duplicate background images",
     desc: "Every background-image should be unique. Use a common class for e.g. sprites.",
     browsers: "All",
 
