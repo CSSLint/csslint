@@ -85,7 +85,7 @@
     <target name="lint">       
         <fileset dir="${src.dir}" includes="**/*.js" id="jsfiles.raw"/>
         <pathconvert pathsep=" " property="jsfiles.clean" refid="jsfiles.raw" />
-        <exec executable="java">
+        <exec executable="java" failonerror="true">
             <arg line="-jar"/>
             <arg path="${lib.dir}/js.jar"/>
             <arg path="${lib.dir}/jshint.js" />        
