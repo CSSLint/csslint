@@ -71,6 +71,7 @@ function cli(api){
             result = CSSLint.verify(input, gatherRules(options)),
             formatter = CSSLint.getFormatter(options.format || "text"),
             messages = result.messages || [],
+            output,
             exitCode = 0;
 
         if (!input) {
@@ -79,8 +80,11 @@ function cli(api){
         } else {
             //var relativeFilePath = getRelativePath(api.getWorkingDirectory(), fullFilePath);
             options.fullPath = api.getFullPath(relativeFilePath);
-            api.print(formatter.formatResults(result, relativeFilePath, options));
-
+            output = formatter.formatResults(result, relativeFilePath, options);
+            if (output){
+                api.print(output);
+            }
+            
             if (messages.length > 0 && pluckByType(messages, "error").length > 0) {
                 exitCode = 1;
             }
