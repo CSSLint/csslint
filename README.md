@@ -18,3 +18,4 @@ CSSLint is a tool to help point out problems with your CSS code. It does basic s
 1. Kasper Garnaes, http://reload.dk (Checkstyle XML format)
 1. Gord Tanner, http://www.tinyhippos.com (CLI quiet option)
 1. Hans-Peter Buniat, https://github.com/hpbuniat (Duplicate background image rule)
+1. Dino Chiesa, https://github.com/DinoChiesa (Windows Script Host CLI)

@@ -203,7 +203,5 @@ function cli(api){
         api.quit(0);
     }
 
-    //files = api.fixFilenames(files);
-
     api.quit(processFiles(files,options));
 }
