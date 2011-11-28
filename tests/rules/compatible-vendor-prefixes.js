@@ -14,11 +14,13 @@
             Assert.areEqual("The property -moz-border-radius is compatible with -webkit-border-radius and should be included as well.", result.messages[0].message);
         },
         
-        "Using -webkit-transition and -moz-transition should warn to also include -o-transition.": function(){
+        "Using -webkit-transition and -moz-transition should warn to also include -o-transition and -ms-transition.": function(){
             var result = CSSLint.verify("h1 { -webkit-transition: height 20px 1s; -moz-transition: height 20px 1s; }", { "compatible-vendor-prefixes": 1 });
-            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual(2, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("The property -o-transition is compatible with -webkit-transition and -moz-transition and should be included as well.", result.messages[0].message);
+            Assert.areEqual("warning", result.messages[1].type);
+            Assert.areEqual("The property -ms-transition is compatible with -webkit-transition and -moz-transition and should be included as well.", result.messages[1].message);
         },
         
         "Using -webkit-transform should warn to also include -moz-transform, -ms-transform, and -o-transform.": function(){
@@ -33,7 +35,7 @@
         },
         
         "Using all compatible vendor prefixes for animation should be allowed with no warnings.": function(){
-            var result = CSSLint.verify(".next:focus { -moz-animation: 'diagonal-slide' 5s 10; -webkit-animation: 'diagonal-slide' 5s 10; }", { "compatible-vendor-prefixes": 0 });
+            var result = CSSLint.verify(".next:focus { -moz-animation: 'diagonal-slide' 5s 10; -webkit-animation: 'diagonal-slide' 5s 10; -ms-animation: 'diagonal-slide' 5s 10; }", { "compatible-vendor-prefixes": 0 });
             Assert.areEqual(0, result.messages.length);
         },
         
