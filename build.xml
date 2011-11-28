@@ -22,7 +22,7 @@
     <property name="yuitest.js" value="yuitest.js" />
     
     <!-- external resources -->
-    <property name="parser.url" value="https://raw.github.com/nzakas/parser-lib/master/build/parserlib.js"/>
+    <property name="parser.url" value="https://raw.github.com/nzakas/parser-lib/master/release/parserlib.js"/>
 
     <!-- output filenames -->
     <property name="core.build.file" value="csslint.js"/>
