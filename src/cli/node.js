@@ -61,13 +61,7 @@ cli({
         traverse(dir, []);
 
         return files;
-    },
-    
-    fixFilenames: function(files){
-        return files.map(function(filename){
-            return path.resolve(process.cwd(), filename);
-        });
-    },
+    },    
 
     getWorkingDirectory: function() {
         return process.cwd();

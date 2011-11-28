@@ -8,7 +8,7 @@
 @namespace svg "http://www.w3.org/2000/svg";
 
 li.inline #foo {
-  background: url("something.png");
+  background: rgba(234, 212, 200, 0.5) url("something.png");
   display: inline;
   padding-left: 3px;
   padding-right: 7px;

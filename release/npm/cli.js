@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-/* Build time: 25-October-2011 09:25:06 */
-
+/* Build time: 15-November-2011 07:33:18 */
 /*
  * Encapsulates all of the CLI functionality. The api argument simply
  * provides environment-specific functionality.
@@ -293,6 +292,4 @@ cli({
         return fs.readFileSync(filename, "utf-8");    
     }
 });
-
-
 

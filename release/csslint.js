@@ -21,9 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 25-October-2011 09:25:06 */
+/* Build time: 15-November-2011 07:33:18 */
 var CSSLint = (function(){
-
 /*!
 Parser-Lib
 Copyright (c) 2009-2011 Nicholas C. Zakas. All rights reserved.
@@ -47,10 +46,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 25-October-2011 09:11:57 */
+/* Build time: 1-November-2011 12:11:55 */
 var parserlib = {};
 (function(){
-
 
 /**
  * A generic base to inherit from for any object
@@ -921,8 +919,6 @@ TokenStreamBase.prototype = {
 };
 
 
-
-
 parserlib.util = {
 StringReader: StringReader,
 SyntaxError : SyntaxError,
@@ -931,8 +927,6 @@ EventTarget : EventTarget,
 TokenStreamBase : TokenStreamBase
 };
 })();
-
-
 /* 
 Parser-Lib
 Copyright (c) 2009-2011 Nicholas C. Zakas. All rights reserved.
@@ -956,14 +950,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 25-October-2011 09:11:57 */
+/* Build time: 1-November-2011 12:11:55 */
 (function(){
 var EventTarget = parserlib.util.EventTarget,
 TokenStreamBase = parserlib.util.TokenStreamBase,
 StringReader = parserlib.util.StringReader,
 SyntaxError = parserlib.util.SyntaxError,
 SyntaxUnit  = parserlib.util.SyntaxUnit;
-
 
 var Colors = {
     aliceblue       :"#f0f8ff",
@@ -1144,7 +1137,6 @@ function Combinator(text, line, col){
 Combinator.prototype = new SyntaxUnit();
 Combinator.prototype.constructor = Combinator;
 
-
 /**
  * Represents a media feature, such as max-width:500.
  * @namespace parserlib.css
@@ -1175,7 +1167,6 @@ function MediaFeature(name, value){
 
 MediaFeature.prototype = new SyntaxUnit();
 MediaFeature.prototype.constructor = MediaFeature;
-
 
 /**
  * Represents an individual media query.
@@ -1218,7 +1209,6 @@ function MediaQuery(modifier, mediaType, features, line, col){
 
 MediaQuery.prototype = new SyntaxUnit();
 MediaQuery.prototype.constructor = MediaQuery;
-
 
 /**
  * A CSS3 parser.
@@ -3397,10 +3387,20 @@ nth
          ['-'|'+']? INTEGER | {O}{D}{D} | {E}{V}{E}{N} ] S*
   ;
 */
+//This file will likely change a lot! Very experimental!
+
 var ValidationType = {
 
     "absolute-size": function(part){
         return this.identifier(part, "xx-small | x-small | small | medium | large | x-large | xx-large");
+    },
+    
+    "attachment": function(part){
+        return this.identifier(part, "scroll | fixed | local");
+    },
+    
+    "box": function(part){
+        return this.identifier(part, "padding-box | border-box | content-box");
     },
     
     "relative-size": function(part){
@@ -3450,6 +3450,10 @@ var ValidationType = {
         return this.uri(part);
     },
     
+    "bg-image": function(part){
+        return this.image(part) || part == "none";
+    },
+    
     "percentage": function(part){
         return part.type == "percentage" || part == "0";
     },
@@ -3484,12 +3488,12 @@ var Properties = {
     "alignment-baseline": 1,
     "animation": 1,
     "animation-delay": 1,
-    "animation-direction": 1,
+    "animation-direction":          { multi: [ "normal | alternate" ], separator: "," },
     "animation-duration": 1,
     "animation-fill-mode": 1,
-    "animation-iteration-count": 1,
+    "animation-iteration-count":    { multi: [ "number", "infinite"], separator: "," },
     "animation-name": 1,
-    "animation-play-state": 1,
+    "animation-play-state":         { multi: [ "running | paused" ], separator: "," },
     "animation-timing-function": 1,
     "appearance": 1,
     "azimuth": 1,
@@ -3497,12 +3501,12 @@ var Properties = {
     //B
     "backface-visibility": 1,
     "background": 1,
-    "background-attachment":        [ "scroll | fixed | inherit" ],
+    "background-attachment":        { multi: [ "attachment" ], separator: "," },
     "background-break": 1,
-    "background-clip": 1,
+    "background-clip":              { multi: [ "box" ], separator: "," },
     "background-color":             [ "color", "inherit" ],
-    "background-image": 1,
-    "background-origin": 1,
+    "background-image":             { multi: [ "bg-image" ], separator: "," },
+    "background-origin":            { multi: [ "box" ], separator: "," },
     "background-position": 1,
     "background-repeat":            [ "repeat | repeat-x | repeat-y | no-repeat | inherit" ],
     "background-size": 1,
@@ -3660,7 +3664,7 @@ var Properties = {
     "line-stacking-strategy": 1,
     "list-style": 1,
     "list-style-image":             [ "uri", "none | inherit" ],
-    "list-style-position":          [ "inside | outsider | inherit" ],
+    "list-style-position":          [ "inside | outside | inherit" ],
     "list-style-type":              [ "disc | circle | square | decimal | decimal-leading-zero | lower-roman | upper-roman | lower-greek | lower-latin | upper-latin | armenian | georgian | lower-alpha | upper-alpha | none | inherit" ],
     
     //M
@@ -3770,6 +3774,7 @@ var Properties = {
     "text-indent":                  [ "length", "percentage", "inherit" ],
     "text-justify":                 [ "auto | none | inter-word | inter-ideograph | inter-cluster | distribute | kashida" ],
     "text-outline": 1,
+    "text-overflow": 1,
     "text-shadow": 1,
     "text-transform":               [ "capitalize | uppercase | lowercase | none | inherit" ],
     "text-wrap":                    [ "normal | none | avoid" ],
@@ -3853,8 +3858,10 @@ var Properties = {
                             i, len, j, count,
                             msg,
                             values,
+                            last,
                             parts   = value.parts;
                         
+                        //if there's a maximum set, use it (max can't be 0)
                         if (spec.max) {
                             if (parts.length > spec.max){
                                 throw new ValidationError("Expected a max of " + spec.max + " property values but found " + parts.length + ".", value.line, value.col);
@@ -3868,25 +3875,45 @@ var Properties = {
                         for (i=0, len=parts.length; i < len; i++){
                             msg = [];
                             valid = false;
-                            for (j=0, count=values.length; j < count; j++){
-                                if (typeof ValidationType[values[j]] == "undefined"){
-                                    if(ValidationType.identifier(parts[i], values[j])){
-                                        valid = true;
-                                        break;
-                                    }
-                                    msg.push("one of (" + values[j] + ")");
+                            
+                            if (spec.separator && parts[i].type == "operator"){
+                                
+                                //two operators in a row - not allowed?
+                                if ((last && last.type == "operator")){
+                                    msg = msg.concat(values);
+                                } else if (i == len-1){
+                                    msg = msg.concat("end of line");
+                                } else if (parts[i] != spec.separator){
+                                    msg.push("'" + spec.separator + "'");
                                 } else {
-                                    if (ValidationType[values[j]](parts[i])){
-                                        valid = true;
-                                        break;
-                                    }
-                                    msg.push(values[j]);
-                                }                                   
+                                    valid = true;
+                                }
+                            } else {
+
+                                for (j=0, count=values.length; j < count; j++){
+                                    if (typeof ValidationType[values[j]] == "undefined"){
+                                        if(ValidationType.identifier(parts[i], values[j])){
+                                            valid = true;
+                                            break;
+                                        }
+                                        msg.push("one of (" + values[j] + ")");
+                                    } else {
+                                        if (ValidationType[values[j]](parts[i])){
+                                            valid = true;
+                                            break;
+                                        }
+                                        msg.push(values[j]);
+                                    }                                   
+                                }
                             }
+
                             
                             if (!valid) {
                                 throw new ValidationError("Expected " + msg.join(" or ") + " but found '" + parts[i] + "'.", value.line, value.col);
                             }
+                            
+                            
+                            last = parts[i];
                         }                
 
                     };
@@ -3924,7 +3951,6 @@ PropertyName.prototype.constructor = PropertyName;
 PropertyName.prototype.toString = function(){
     return (this.hack ? this.hack : "") + this.text;
 };
-
 /**
  * Represents a single part of a CSS property value, meaning that it represents
  * just everything single part between ":" and ";". If there are multiple values
@@ -3952,7 +3978,6 @@ function PropertyValue(parts, line, col){
 
 PropertyValue.prototype = new SyntaxUnit();
 PropertyValue.prototype.constructor = PropertyValue;
-
 
 /**
  * Represents a single part of a CSS property value, meaning that it represents
@@ -4061,6 +4086,29 @@ function PropertyValuePart(text, line, col){
         this.red    = +RegExp.$1 * 255 / 100;
         this.green  = +RegExp.$2 * 255 / 100;
         this.blue   = +RegExp.$3 * 255 / 100;
+    } else if (/^rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([\d\.]+)\s*\)/i.test(text)){ //rgba() color with absolute numbers
+        this.type   = "color";
+        this.red    = +RegExp.$1;
+        this.green  = +RegExp.$2;
+        this.blue   = +RegExp.$3;
+        this.alpha  = +RegExp.$4;
+    } else if (/^rgba\(\s*(\d+)%\s*,\s*(\d+)%\s*,\s*(\d+)%\s*,\s*([\d\.]+)\s*\)/i.test(text)){ //rgba() color with percentages
+        this.type   = "color";
+        this.red    = +RegExp.$1 * 255 / 100;
+        this.green  = +RegExp.$2 * 255 / 100;
+        this.blue   = +RegExp.$3 * 255 / 100;
+        this.alpha  = +RegExp.$4;        
+    } else if (/^hsl\(\s*(\d+)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*\)/i.test(text)){ //hsl()
+        this.type   = "color";
+        this.hue    = +RegExp.$1;
+        this.saturation = +RegExp.$2 / 100;
+        this.lightness  = +RegExp.$3 / 100;        
+    } else if (/^hsla\(\s*(\d+)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*,\s*([\d\.]+)\s*\)/i.test(text)){ //hsla() color with percentages
+        this.type   = "color";
+        this.hue    = +RegExp.$1;
+        this.saturation = +RegExp.$2 / 100;
+        this.lightness  = +RegExp.$3 / 100;        
+        this.alpha  = +RegExp.$4;        
     } else if (/^url\(["']?([^\)"']+)["']?\)/i.test(text)){ //URI
         this.type   = "uri";
         this.uri    = RegExp.$1;
@@ -4145,7 +4193,6 @@ function Selector(parts, line, col){
 Selector.prototype = new SyntaxUnit();
 Selector.prototype.constructor = Selector;
 
-
 /**
  * Represents a single part of a selector string, meaning a single set of
  * element name and modifiers. This does not include combinators such as
@@ -4187,7 +4234,6 @@ function SelectorPart(elementName, modifiers, text, line, col){
 SelectorPart.prototype = new SyntaxUnit();
 SelectorPart.prototype.constructor = SelectorPart;
 
-
 /**
  * Represents a selector modifier string, meaning a class name, element name,
  * element ID, pseudo rule, etc.
@@ -4222,7 +4268,6 @@ function SelectorSubPart(text, type, line, col){
 
 SelectorSubPart.prototype = new SyntaxUnit();
 SelectorSubPart.prototype.constructor = SelectorSubPart;
-
 
 /**
  * Represents a selector's specificity.
@@ -4344,7 +4389,6 @@ Specificity.calculate = function(selector){
     
     return new Specificity(0, b, c, d);
 };
-
 
 
 var h = /^[0-9a-fA-F]$/,
@@ -5344,7 +5388,6 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
     }
 });
 
-
 var Tokens  = [
 
     /*
@@ -5551,7 +5594,6 @@ var Tokens  = [
 
 
 
-
 /**
  * Type to use when a validation error occurs.
  * @class ValidationError
@@ -5589,7 +5631,6 @@ function ValidationError(message, line, col){
 //inherit from Error
 ValidationError.prototype = new Error();
 
-
 parserlib.css = {
 Colors              :Colors,    
 Combinator          :Combinator,                
@@ -5608,9 +5649,6 @@ Tokens              :Tokens,
 ValidationError     :ValidationError
 };
 })();
-
-
-
 /**
  * Main CSSLint object.
  * @class CSSLint
@@ -5624,7 +5662,7 @@ var CSSLint = (function(){
         formatters = [],
         api        = new parserlib.util.EventTarget();
         
-    api.version = "0.8.1";
+    api.version = "0.8.5";
 
     //-------------------------------------------------------------------------
     // Rule Management
@@ -5792,7 +5830,6 @@ var CSSLint = (function(){
     return api;
 
 })();
-
 /*global CSSLint*/
 /**
  * An instance of Report is used to report results of the
@@ -8149,7 +8186,5 @@ CSSLint.addFormatter({
     }
 });
 
-
 return CSSLint;
 })();
-

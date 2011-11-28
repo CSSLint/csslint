@@ -1,7 +1,7 @@
 <project name="csslint" default="build.all">
 
     <!-- version number -->
-    <property name="csslint.version" value="0.8.1" />
+    <property name="csslint.version" value="0.8.5" />
 
     <!-- the directories containing the source files -->
     <property name="src.dir" value="./src" />
@@ -30,6 +30,7 @@
     <property name="worker.build.file" value="csslint-worker.js"/>
     <property name="tests.build.file" value="csslint-tests.js"/>
     <property name="rhino.build.file" value="csslint-rhino.js"/>
+    <property name="wsh.build.file" value="csslint-wsh.js"/>
     
     <!-- embeddable license -->
     <loadfile property="license.text" srcfile="LICENSE" />   
@@ -85,7 +86,7 @@
     <target name="lint">       
         <fileset dir="${src.dir}" includes="**/*.js" id="jsfiles.raw"/>
         <pathconvert pathsep=" " property="jsfiles.clean" refid="jsfiles.raw" />
-        <exec executable="java">
+        <exec executable="java" failonerror="true">
             <arg line="-jar"/>
             <arg path="${lib.dir}/js.jar"/>
             <arg path="${lib.dir}/jshint.js" />        
@@ -204,6 +205,14 @@
         </concat>
     </target>    
     
+    <!-- build for WSH CLI integration -->
+    <target name="build.wsh" depends="build.core">
+        <concat destfile="${build.dir}/${wsh.build.file}" fixlastline="true">
+            <filelist dir="${build.dir}" files="${core.build.file}" />
+            <filelist dir="${src.dir}/cli" files="common.js,wsh.js" />
+        </concat>
+    </target>    
+    
     <!-- Create a release with version number embedded -->
     <target name="release" depends="test,build.all,changelog.update">
         <delete dir="${release.dir}" />
@@ -228,6 +237,6 @@
     </target>
     
     <!-- Build all files -->
-    <target name="build.all" depends="clean,build.core,build.worker,build.node,build.tests,build.rhino"/>
+    <target name="build.all" depends="clean,build.core,build.worker,build.node,build.tests,build.rhino,build.wsh"/>
 
 </project>
