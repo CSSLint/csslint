@@ -19,6 +19,7 @@ CSSLint.addRule({
             gradients = {
                 moz: 0,
                 webkit: 0,
+                oldWebkit: 0,
                 ms: 0,
                 o: 0
             };
@@ -26,8 +27,10 @@ CSSLint.addRule({
 
         parser.addListener("property", function(event){
 
-            if (/\-(moz|ms|o|webkit)(?:\-(?:linear|radial))\-gradient/.test(event.value)){
+            if (/\-(moz|ms|o|webkit)(?:\-(?:linear|radial))\-gradient/i.test(event.value)){
                 gradients[RegExp.$1] = 1;
+            } else if (/\-webkit\-gradient/i.test(event.value)){
+                gradients.oldWebkit = 1;
             }
 
         });
@@ -40,7 +43,11 @@ CSSLint.addRule({
             }
 
             if (!gradients.webkit){
-                missing.push("Webkit (Safari, Chrome)");
+                missing.push("Webkit (Safari 5+, Chrome)");
+            }
+            
+            if (!gradients.oldWebkit){
+                missing.push("Old Webkit (Safari 4+, Chrome)");
             }
 
             if (!gradients.ms){
@@ -51,7 +58,7 @@ CSSLint.addRule({
                 missing.push("Opera 11.1+");
             }
 
-            if (missing.length && missing.length < 4){            
+            if (missing.length && missing.length < 5){            
                 reporter.report("Missing vendor-prefixed CSS gradients for " + missing.join(", ") + ".", event.selectors[0].line, event.selectors[0].col, rule); 
             }
 
