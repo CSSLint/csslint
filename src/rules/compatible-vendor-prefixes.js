@@ -80,7 +80,7 @@ CSSLint.addRule({
             "transition-property"        : "webkit moz o ms",
             "transition-timing-function" : "webkit moz o ms",
             "user-modify"                : "webkit moz",
-            "user-select"                : "webkit moz",
+            "user-select"                : "webkit moz ms",
             "word-break"                 : "epub ms",
             "writing-mode"               : "epub ms"
         };
