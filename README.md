@@ -19,3 +19,7 @@ CSSLint is a tool to help point out problems with your CSS code. It does basic s
 1. Gord Tanner, http://www.tinyhippos.com (CLI quiet option)
 1. Hans-Peter Buniat, https://github.com/hpbuniat (Duplicate background image rule)
 1. Dino Chiesa, https://github.com/DinoChiesa (Windows Script Host CLI)
+1. Tomasz Oponowicz, https://github.com/tomasz-oponowicz (XML format and CLI fixes)
+1. Julien Kernec'h, https://github.com/parallel (Fixed a rule)
+1. Cillian de Róiste, https://plus.google.com/116480676247600483573/posts (Node CLI fixes)
+1. Damien Sennm, https://github.com/topaxi (README fixes)
