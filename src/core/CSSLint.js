@@ -28,6 +28,21 @@ var CSSLint = (function(){
     };
 
     /**
+	 * Removes rule from engine.
+	 * @param {string} id ID of rule to remove.
+	 * @method removeRule
+	 */
+    api.removeRule = function(id) {
+		var rule = rules[ id ];
+		if (rule !== undefined) {
+			delete rules[ id ];
+			var i = rules.indexOf(rule);
+			if (i !== -1)
+				rules.splice(i, 1);
+		}
+    };
+
+    /**
      * Clears all rule from the engine.
      * @method clearRules
      */
