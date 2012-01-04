@@ -20,6 +20,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint, Reporter*/
@@ -56,6 +57,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -100,6 +102,7 @@
 
     }));
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -147,6 +150,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -189,6 +193,7 @@
         }
     }));
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -232,6 +237,7 @@
         }
     }));
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -268,6 +274,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -299,6 +306,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -510,6 +518,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -533,6 +542,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -549,11 +559,13 @@
             Assert.areEqual("The property -moz-border-radius is compatible with -webkit-border-radius and should be included as well.", result.messages[0].message);
         },
         
-        "Using -webkit-transition and -moz-transition should warn to also include -o-transition.": function(){
+        "Using -webkit-transition and -moz-transition should warn to also include -o-transition and -ms-transition.": function(){
             var result = CSSLint.verify("h1 { -webkit-transition: height 20px 1s; -moz-transition: height 20px 1s; }", { "compatible-vendor-prefixes": 1 });
-            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual(2, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("The property -o-transition is compatible with -webkit-transition and -moz-transition and should be included as well.", result.messages[0].message);
+            Assert.areEqual("warning", result.messages[1].type);
+            Assert.areEqual("The property -ms-transition is compatible with -webkit-transition and -moz-transition and should be included as well.", result.messages[1].message);
         },
         
         "Using -webkit-transform should warn to also include -moz-transform, -ms-transform, and -o-transform.": function(){
@@ -568,7 +580,7 @@
         },
         
         "Using all compatible vendor prefixes for animation should be allowed with no warnings.": function(){
-            var result = CSSLint.verify(".next:focus { -moz-animation: 'diagonal-slide' 5s 10; -webkit-animation: 'diagonal-slide' 5s 10; }", { "compatible-vendor-prefixes": 0 });
+            var result = CSSLint.verify(".next:focus { -moz-animation: 'diagonal-slide' 5s 10; -webkit-animation: 'diagonal-slide' 5s 10; -ms-animation: 'diagonal-slide' 5s 10; }", { "compatible-vendor-prefixes": 0 });
             Assert.areEqual(0, result.messages.length);
         },
         
@@ -580,6 +592,7 @@
     }));     
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -793,6 +806,33 @@
     }));
 
 })();
+
+(function(){
+
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
+        name: "Duplicate Background-URL Rule Errors",
+
+        "duplicate background-image should result in a warning": function(){
+            var result = CSSLint.verify(".foo { background-image: url('mega-sprite.png'); } .foofoo { background-image: url('fancy-sprite.png'); } .bar { background-image: url(\"mega-sprite.png\"); } .foobar { background: white url(mega-sprite.png); }", {"duplicate-background-images": 1 });
+            Assert.areEqual(2, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Background image 'mega-sprite.png' was used multiple times, first declared at line 1, col 8.", result.messages[0].message);
+        },
+
+        "duplicate background with url should result in a warning": function(){
+            var result = CSSLint.verify(".foo { background: url(mega-sprite.png) repeat-x; } .foofoo { background-image: url('fancy-sprite.png'); } .bar { background: white url(\"mega-sprite.png\") no-repeat left top; } .foobar { background: white url('mega-sprite.png'); }", {"duplicate-background-images": 1 });
+            Assert.areEqual(2, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Background image 'mega-sprite.png' was used multiple times, first declared at line 1, col 8.", result.messages[0].message);
+        }
+    }));
+
+})();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -847,6 +887,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -865,6 +906,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -882,6 +924,170 @@
     }));
 
 })();
+
+(function(){
+
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
+        name: "Fallback Colors Rule Errors",
+
+        "Using only a named color should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { color: red; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+        
+        "Using only a hex color should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { color: #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+        
+        "Using only rgb() should not result in a warning": function(){
+            var result = CSSLint.verify(".rgb { color: rgb(0, 0, 0); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+        
+        "Using only rgba() should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { color: rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback color (hex or RGB) should precede RGBA color.", result.messages[0].message);
+        },
+        
+        "Using only hsl() should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { color: hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback color (hex or RGB) should precede HSL color.", result.messages[0].message);
+        },
+
+        "Using only hsla() should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { color: hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback color (hex or RGB) should precede HSLA color.", result.messages[0].message);
+        },
+
+        "Using rgba() with a fallback should not result in a warning": function(){
+            var result = CSSLint.verify(".rgba { color: #fff; color: rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+        
+        "Using hsl() with a fallback should not result in a warning": function(){
+            var result = CSSLint.verify(".hsl { color: #fff; color: hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using hsla() with a fallback should not result in a warning": function(){
+            var result = CSSLint.verify(".hsla { color: #fff; color: hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using rgba() with fallback color afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { color: rgba(0, 0, 0, 0.5); color: #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback color (hex or RGB) should precede RGBA color.", result.messages[0].message);
+        },
+        
+        "Using hsl() with fallback color afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { color: hsl(0, 0%, 0%); color: #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback color (hex or RGB) should precede HSL color.", result.messages[0].message);
+        },
+
+        "Using hsla() with fallback color afterwards  should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { color: hsla(0, 0%, 0%, 0.5); color: #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback color (hex or RGB) should precede HSLA color.", result.messages[0].message);
+        },
+        
+
+        "Using only a named background-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { background-color: red; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+        
+        "Using only a hex background-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { background-color: #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+        
+        "Using only rgb() background-color should not result in a warning": function(){
+            var result = CSSLint.verify(".rgb { background-color: rgb(0, 0, 0); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+        
+        "Using only rgba() background-color should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { background-color: rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback background-color (hex or RGB) should precede RGBA background-color.", result.messages[0].message);
+        },
+        
+        "Using only hsl() background-color should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { background-color: hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback background-color (hex or RGB) should precede HSL background-color.", result.messages[0].message);
+        },
+
+        "Using only hsla() background-color should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { background-color: hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback background-color (hex or RGB) should precede HSLA background-color.", result.messages[0].message);
+        },
+
+        "Using rgba() with a fallback background-color should not result in a warning": function(){
+            var result = CSSLint.verify(".rgba { background-color: #fff; background-color: rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+        
+        "Using hsl() with a fallback background-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hsl { background-color: #fff; background-color: hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using hsla() with a fallback background-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hsla { background-color: #fff; background-color: hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using rgba() with fallback background-color afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { background-color: rgba(0, 0, 0, 0.5); background-color: #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback background-color (hex or RGB) should precede RGBA background-color.", result.messages[0].message);
+        },
+        
+        "Using hsl() with fallback background-color afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { background-color: hsl(0, 0%, 0%); background-color: #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback background-color (hex or RGB) should precede HSL background-color.", result.messages[0].message);
+        },
+
+        "Using hsla() with fallback background-color afterwards  should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { background-color: hsla(0, 0%, 0%, 0.5); background-color: #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback background-color (hex or RGB) should precede HSLA background-color.", result.messages[0].message);
+        }
+
+
+        
+
+
+
+    }));
+
+})();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -917,6 +1123,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -945,6 +1152,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -975,6 +1183,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -997,35 +1206,45 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             var result = CSSLint.verify(".foo { background: -moz-linear-gradient(top, #1e5799 , #2989d8 , #207cca , #7db9e8 ); }", {"gradients": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Missing vendor-prefixed CSS gradients for Webkit (Safari 5+, Chrome), Old Webkit (Safari 4+, Chrome), Internet Explorer 10+, Opera 11.1+.", result.messages[0].message);
         },
 
         "Only using Opera gradients should result in a warning": function(){
             var result = CSSLint.verify(".foo { background: -o-linear-gradient(top, #1e5799 , #2989d8 , #207cca , #7db9e8 ); }", {"gradients": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Missing vendor-prefixed CSS gradients for Firefox 3.6+, Webkit (Safari 5+, Chrome), Old Webkit (Safari 4+, Chrome), Internet Explorer 10+.", result.messages[0].message);
         },
 
         "Only using IE gradients should result in a warning": function(){
             var result = CSSLint.verify(".foo { background: -ms-linear-gradient(top, #1e5799 , #2989d8 , #207cca , #7db9e8 ); }", {"gradients": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Missing vendor-prefixed CSS gradients for Firefox 3.6+, Webkit (Safari 5+, Chrome), Old Webkit (Safari 4+, Chrome), Opera 11.1+.", result.messages[0].message);
         },
 
         "Only using WebKit gradients should result in a warning": function(){
             var result = CSSLint.verify(".foo { background: -webkit-linear-gradient(top, #1e5799 , #2989d8 , #207cca , #7db9e8 ); }", {"gradients": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-        }
+            Assert.areEqual("Missing vendor-prefixed CSS gradients for Firefox 3.6+, Old Webkit (Safari 4+, Chrome), Internet Explorer 10+, Opera 11.1+.", result.messages[0].message);
+        },
 
-        //parser barfs
-        /*"Only using old WebKit gradients should result in a warning": function(){
-            var result = CSSLint.verify(".foo { background: -webkit-gradient(linear, left top, left bottom, color-stop(,#1e5799), color-stop(,#2989d8), color-stop(,#207cca), color-stop(10,#7db9e8)); }", {"gradients": 1 });
+        "Only using old WebKit gradients should result in a warning": function(){
+            var result = CSSLint.verify(".foo { background: -webkit-gradient(linear, left top, left bottom, color-stop(10%,#1e5799), color-stop(20%,#2989d8), color-stop(30%,#207cca), color-stop(100%,#7db9e8)); }", {"gradients": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-        } */
+            Assert.areEqual("Missing vendor-prefixed CSS gradients for Firefox 3.6+, Webkit (Safari 5+, Chrome), Internet Explorer 10+, Opera 11.1+.", result.messages[0].message);
+        },
+
+        "Using all vendor-prefixed gradients should not result in a warning": function(){
+            var result = CSSLint.verify("div.box {\n    background: -moz-linear-gradient(top,  #1e5799 0%, #7db9e8 100%);\n    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#1e5799), color-   stop(100%,#7db9e8));\n    background: -webkit-linear-gradient(top,  #1e5799 0%,#7db9e8 100%);\n    background: -o-linear-gradient(top,  #1e5799 0%,#7db9e8 100%);\n    background: -ms-linear-gradient(top,  #1e5799 0%,#7db9e8 100%); \n}", { "gradients": 1 });
+            Assert.areEqual(0, result.messages.length);
+        }
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1051,6 +1270,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1069,6 +1289,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1096,6 +1317,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1130,6 +1352,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1180,6 +1403,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1221,6 +1445,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1240,6 +1465,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1292,6 +1518,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1328,6 +1555,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1341,7 +1569,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             var result = CSSLint.verify(".foo{text-indent: -100px;}", {"text-indent": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set text-direction for that item to ltr.", result.messages[0].message);
+            Assert.areEqual("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set direction for that item to ltr.", result.messages[0].message);
         },
 
         "-98px text-indent should not result in a warning": function(){
@@ -1354,6 +1582,13 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             Assert.areEqual(0, result.messages.length);
         },
 
+        "-100px text-indent with RTL should  result in a warning": function(){
+            var result = CSSLint.verify(".foo{text-indent: -100px; direction: rtl; }", {"text-indent": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set direction for that item to ltr.", result.messages[0].message);
+        },
+
         "5px text-indent should not result in a warning": function(){
             var result = CSSLint.verify(".foo{text-indent: 5px;}", {"text-indent": 1 });
             Assert.areEqual(0, result.messages.length);
@@ -1363,12 +1598,13 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             var result = CSSLint.verify(".top h1 a { background: url(../images/background/logo.png) no-repeat; display: block; height: 44px; position: relative; text-indent: -9999px; width: 250px; }", { "text-indent": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set text-direction for that item to ltr.", result.messages[0].message);
+            Assert.areEqual("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set direction for that item to ltr.", result.messages[0].message);
         }
 				
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1416,6 +1652,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1447,6 +1684,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1518,6 +1756,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1555,3 +1794,4 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+

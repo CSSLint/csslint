@@ -21,8 +21,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 15-November-2011 07:33:18 */
+/* Build time: 4-January-2012 09:27:30 */
 var CSSLint = (function(){
+
 /*!
 Parser-Lib
 Copyright (c) 2009-2011 Nicholas C. Zakas. All rights reserved.
@@ -46,9 +47,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 1-November-2011 12:11:55 */
+/* Version v0.1.1, Build time: 4-January-2012 09:10:14 */
 var parserlib = {};
 (function(){
+
 
 /**
  * A generic base to inherit from for any object
@@ -518,6 +520,8 @@ SyntaxUnit.prototype = {
     }
 
 };
+/*global StringReader, SyntaxError*/
+
 /**
  * Generic TokenStream providing base functionality.
  * @class TokenStreamBase
@@ -534,7 +538,6 @@ function TokenStreamBase(input, tokenData){
      * @property _reader
      * @private
      */
-    //this._reader = (typeof input == "string") ? new StringReader(input) : input;
     this._reader = input ? new StringReader(input.toString()) : null;
     
     /**
@@ -700,7 +703,7 @@ TokenStreamBase.prototype = {
      */
     advance: function(tokenTypes, channel){
         
-        while(this.LA(0) != 0 && !this.match(tokenTypes, channel)){
+        while(this.LA(0) !== 0 && !this.match(tokenTypes, channel)){
             this.get();
         }
 
@@ -919,6 +922,8 @@ TokenStreamBase.prototype = {
 };
 
 
+
+
 parserlib.util = {
 StringReader: StringReader,
 SyntaxError : SyntaxError,
@@ -927,6 +932,8 @@ EventTarget : EventTarget,
 TokenStreamBase : TokenStreamBase
 };
 })();
+
+
 /* 
 Parser-Lib
 Copyright (c) 2009-2011 Nicholas C. Zakas. All rights reserved.
@@ -950,13 +957,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 1-November-2011 12:11:55 */
+/* Version v0.1.1, Build time: 4-January-2012 09:10:14 */
 (function(){
 var EventTarget = parserlib.util.EventTarget,
 TokenStreamBase = parserlib.util.TokenStreamBase,
 StringReader = parserlib.util.StringReader,
 SyntaxError = parserlib.util.SyntaxError,
 SyntaxUnit  = parserlib.util.SyntaxUnit;
+
 
 var Colors = {
     aliceblue       :"#f0f8ff",
@@ -1026,7 +1034,7 @@ var Colors = {
     lightcoral      :"#f08080",
     lightcyan       :"#e0ffff",
     lightgoldenrodyellow  :"#fafad2",
-    lightgrey       :"#d3d3d3",
+    lightgray       :"#d3d3d3",
     lightgreen      :"#90ee90",
     lightpink       :"#ffb6c1",
     lightsalmon     :"#ffa07a",
@@ -1100,6 +1108,7 @@ var Colors = {
     yellow          :"#ffff00",
     yellowgreen     :"#9acd32"
 };
+/*global SyntaxUnit, Parser*/
 /**
  * Represents a selector combinator (whitespace, +, >).
  * @namespace parserlib.css
@@ -1137,6 +1146,8 @@ function Combinator(text, line, col){
 Combinator.prototype = new SyntaxUnit();
 Combinator.prototype.constructor = Combinator;
 
+
+/*global SyntaxUnit, Parser*/
 /**
  * Represents a media feature, such as max-width:500.
  * @namespace parserlib.css
@@ -1168,6 +1179,8 @@ function MediaFeature(name, value){
 MediaFeature.prototype = new SyntaxUnit();
 MediaFeature.prototype.constructor = MediaFeature;
 
+
+/*global SyntaxUnit, Parser*/
 /**
  * Represents an individual media query.
  * @namespace parserlib.css
@@ -1209,6 +1222,11 @@ function MediaQuery(modifier, mediaType, features, line, col){
 
 MediaQuery.prototype = new SyntaxUnit();
 MediaQuery.prototype.constructor = MediaQuery;
+
+
+/*global Tokens, TokenStream, SyntaxError, Properties, Validation, ValidationError, SyntaxUnit,
+    PropertyValue, PropertyValuePart, SelectorPart, SelectorSubPart, Selector,
+    PropertyName, Combinator, MediaFeature, MediaQuery, EventTarget */
 
 /**
  * A CSS3 parser.
@@ -1283,6 +1301,7 @@ Parser.prototype = function(){
                
                 var tokenStream = this._tokenStream,
                     charset     = null,
+                    count,
                     token,
                     tt;
                     
@@ -1329,7 +1348,36 @@ Parser.prototype = function(){
                             case Tokens.KEYFRAMES_SYM:
                                 this._keyframes(); 
                                 this._skipCruft();
-                                break;  
+                                break;                                
+                            case Tokens.UNKNOWN_SYM:  //unknown @ rule
+                                tokenStream.get();
+                                if (!this.options.strict){
+                                
+                                    //fire error event
+                                    this.fire({
+                                        type:       "error",
+                                        error:      null,
+                                        message:    "Unknown @ rule: " + tokenStream.LT(0).value + ".",
+                                        line:       tokenStream.LT(0).startLine,
+                                        col:        tokenStream.LT(0).startCol
+                                    });                          
+                                    
+                                    //skip braces
+                                    count=0;
+                                    while (tokenStream.advance([Tokens.LBRACE, Tokens.RBRACE]) == Tokens.LBRACE){
+                                        count++;    //keep track of nesting depth
+                                    }
+                                    
+                                    while(count){
+                                        tokenStream.advance([Tokens.RBRACE]);
+                                        count--;
+                                    }
+                                    
+                                } else {
+                                    //not a syntax error, rethrow it
+                                    throw new SyntaxError("Unknown @ rule.", tokenStream.LT(0).startLine, tokenStream.LT(0).startCol);
+                                }                                
+                                break;
                             case Tokens.S:
                                 this._readWhitespace();
                                 break;
@@ -2716,7 +2764,7 @@ Parser.prototype = function(){
                     values.push(new PropertyValue(valueParts, valueParts[0].line, valueParts[0].col));
                 }*/
         
-                return values.length > 0 ? new PropertyValue(values, values[0].startLine, values[0].startCol) : null;
+                return values.length > 0 ? new PropertyValue(values, values[0].line, values[0].col) : null;
             },
             
             _term: function(){                       
@@ -2733,6 +2781,7 @@ Parser.prototype = function(){
                 var tokenStream = this._tokenStream,
                     unary       = null,
                     value       = null,
+                    token,
                     line,
                     col;
                     
@@ -2766,8 +2815,8 @@ Parser.prototype = function(){
                 } else {
                 
                     //see if it's a color
-                    value = this._hexcolor();
-                    if (value === null){
+                    token = this._hexcolor();
+                    if (token === null){
                     
                         //if there's no unary, get the start of the next token for line/col info
                         if (unary === null){
@@ -2795,9 +2844,10 @@ Parser.prototype = function(){
                         }*/
                     
                     } else {
+                        value = token.value;
                         if (unary === null){
-                            line = tokenStream.token().startLine;
-                            col = tokenStream.token().startCol;
+                            line = token.startLine;
+                            col = token.startCol;
                         }                    
                     }
                 
@@ -2930,9 +2980,9 @@ Parser.prototype = function(){
                  */
                  
                 var tokenStream = this._tokenStream,
-                    token,
-                    color = null;
-                
+                    token = null,
+                    color;
+                    
                 if(tokenStream.match(Tokens.HASH)){
                 
                     //need to do some validation here
@@ -2945,7 +2995,7 @@ Parser.prototype = function(){
                     this._readWhitespace();
                 }
                 
-                return color;
+                return token;
             },
             
             //-----------------------------------------------------------------
@@ -3190,10 +3240,9 @@ Parser.prototype = function(){
                         tt = tokenStream.advance([Tokens.SEMICOLON, Tokens.RBRACE]);
                         if (tt == Tokens.SEMICOLON){
                             //if there's a semicolon, then there might be another declaration
-                            this._readDeclarations(false, readMargins);
-                        } else if (tt == Tokens.RBRACE){
+                            this._readDeclarations(false, readMargins);                            
+                        } else if (tt != Tokens.RBRACE){
                             //if there's a right brace, the rule is finished so don't do anything
-                        } else {
                             //otherwise, rethrow the error because it wasn't handled properly
                             throw ex;
                         }                        
@@ -3255,20 +3304,7 @@ Parser.prototype = function(){
             // Validation methods
             //-----------------------------------------------------------------
             _validateProperty: function(property, value){
-                var name = property.text.toLowerCase(),
-                    validation,
-                    i, len;
-                
-                if (Properties[name]){
-                
-                    if (typeof Properties[name] == "function"){
-                        Properties[name](value);                   
-                    } 
-                    
-                    //otherwise, no validation available yet
-                } else if (name.indexOf("-") !== 0){    //vendor prefixed are ok
-                    throw new ValidationError("Unknown property '" + property + "'.", property.line, property.col);
-                }
+                Validation.validate(property, value);
             },
             
             //-----------------------------------------------------------------
@@ -3368,13 +3404,27 @@ Parser.prototype = function(){
                 
                 //otherwise return result
                 return result;
+            },
+
+            /**
+             * Parses an HTML style attribute: a set of CSS declarations 
+             * separated by semicolons.
+             * @param {String} input The text to parse as a style attribute
+             * @return {void} 
+             * @method parseStyleAttribute
+             */
+            parseStyleAttribute: function(input){
+                input += "}"; // for error recovery in _readDeclarations()
+                this._tokenStream = new TokenStream(input, Tokens);
+                this._readDeclarations();
             }
-            
         };
         
     //copy over onto prototype
     for (prop in additions){
-        proto[prop] = additions[prop];
+        if (additions.hasOwnProperty(prop)){
+            proto[prop] = additions[prop];
+        }
     }   
     
     return proto;
@@ -3387,541 +3437,342 @@ nth
          ['-'|'+']? INTEGER | {O}{D}{D} | {E}{V}{E}{N} ] S*
   ;
 */
-//This file will likely change a lot! Very experimental!
-
-var ValidationType = {
-
-    "absolute-size": function(part){
-        return this.identifier(part, "xx-small | x-small | small | medium | large | x-large | xx-large");
-    },
-    
-    "attachment": function(part){
-        return this.identifier(part, "scroll | fixed | local");
-    },
-    
-    "box": function(part){
-        return this.identifier(part, "padding-box | border-box | content-box");
-    },
-    
-    "relative-size": function(part){
-        return this.identifier(part, "smaller | larger");
-    },
-    
-    "identifier": function(part, options){
-        var text = part.text.toString().toLowerCase(),
-            args = options.split(" | "),
-            i, len, found = false;
-
-        
-        for (i=0,len=args.length; i < len && !found; i++){
-            if (text == args[i]){
-                found = true;
-            }
-        }
-        
-        return found;
-    },
-    
-    "length": function(part){
-        return part.type == "length" || part.type == "number" || part.type == "integer" || part == "0";
-    },
-    
-    "color": function(part){
-        return part.type == "color" || part == "transparent";
-    },
-    
-    "number": function(part){
-        return part.type == "number" || this.integer(part);
-    },
-    
-    "integer": function(part){
-        return part.type == "integer";
-    },
-    
-    "angle": function(part){
-        return part.type == "angle";
-    },        
-    
-    "uri": function(part){
-        return part.type == "uri";
-    },
-    
-    "image": function(part){
-        return this.uri(part);
-    },
-    
-    "bg-image": function(part){
-        return this.image(part) || part == "none";
-    },
-    
-    "percentage": function(part){
-        return part.type == "percentage" || part == "0";
-    },
-
-    "border-width": function(part){
-        return this.length(part) || this.identifier(part, "thin | medium | thick");
-    },
-    
-    "border-style": function(part){
-        return this.identifier(part, "none | hidden | dotted | dashed | solid | double | groove | ridge | inset | outset");
-    },
-    
-    "margin-width": function(part){
-        return this.length(part) || this.percentage(part) || this.identifier(part, "auto");
-    },
-    
-    "padding-width": function(part){
-        return this.length(part) || this.percentage(part);
-    }
-};
-
-    
-       
-
-
-
-
 var Properties = {
 
     //A
-    "alignment-adjust": 1,
-    "alignment-baseline": 1,
-    "animation": 1,
-    "animation-delay": 1,
-    "animation-direction":          { multi: [ "normal | alternate" ], separator: "," },
-    "animation-duration": 1,
-    "animation-fill-mode": 1,
-    "animation-iteration-count":    { multi: [ "number", "infinite"], separator: "," },
-    "animation-name": 1,
-    "animation-play-state":         { multi: [ "running | paused" ], separator: "," },
-    "animation-timing-function": 1,
-    "appearance": 1,
-    "azimuth": 1,
+    "alignment-adjust"              : "auto | baseline | before-edge | text-before-edge | middle | central | after-edge | text-after-edge | ideographic | alphabetic | hanging | mathematical | <percentage> | <length>",
+    "alignment-baseline"            : "baseline | use-script | before-edge | text-before-edge | after-edge | text-after-edge | central | middle | ideographic | alphabetic | hanging | mathematical",
+    "animation"                     : 1,
+    "animation-delay"               : { multi: "<time>", separator: "," },
+    "animation-direction"           : { multi: "normal | alternate", separator: "," },
+    "animation-duration"            : { multi: "<time>", separator: "," },
+    "animation-iteration-count"     : { multi: "<number> | infinite", separator: "," },
+    "animation-name"                : { multi: "none | <ident>", separator: "," },
+    "animation-play-state"          : { multi: "running | paused", separator: "," },
+    "animation-timing-function"     : 1,
+    "appearance"                    : "icon | window | desktop | workspace | document | tooltip | dialog | button | push-button | hyperlink | radio-button | checkbox | menu-item | tab | menu | menubar | pull-down-menu | pop-up-menu | list-menu | radio-group | checkbox-group | outline-tree | range | field | combo-box | signature | password | normal | inherit",
+    "azimuth"                       : 1,
     
     //B
-    "backface-visibility": 1,
-    "background": 1,
-    "background-attachment":        { multi: [ "attachment" ], separator: "," },
-    "background-break": 1,
-    "background-clip":              { multi: [ "box" ], separator: "," },
-    "background-color":             [ "color", "inherit" ],
-    "background-image":             { multi: [ "bg-image" ], separator: "," },
-    "background-origin":            { multi: [ "box" ], separator: "," },
-    "background-position": 1,
-    "background-repeat":            [ "repeat | repeat-x | repeat-y | no-repeat | inherit" ],
-    "background-size": 1,
-    "baseline-shift": 1,
-    "binding": 1,
-    "bleed": 1,
-    "bookmark-label": 1,
-    "bookmark-level": 1,
-    "bookmark-state": 1,
-    "bookmark-target": 1,
-    "border": 1,
-    "border-bottom": 1,
-    "border-bottom-color": 1,
-    "border-bottom-left-radius":    1,
-    "border-bottom-right-radius":   1,
-    "border-bottom-style":          [ "border-style" ],
-    "border-bottom-width":          [ "border-width" ],
-    "border-collapse":              [ "collapse | separate | inherit" ],
-    "border-color":                 { multi: [ "color", "inherit" ], max: 4 },
-    "border-image": 1,
-    "border-image-outset":          { multi: [ "length", "number" ], max: 4 },
-    "border-image-repeat":          { multi: [ "stretch | repeat | round" ], max: 2 },
-    "border-image-slice": 1,
-    "border-image-source":          [ "image", "none" ],
-    "border-image-width":           { multi: [ "length", "percentage", "number", "auto" ], max: 4 },
-    "border-left": 1,
-    "border-left-color":            [ "color", "inherit" ],
-    "border-left-style":            [ "border-style" ],
-    "border-left-width":            [ "border-width" ],
-    "border-radius": 1,
-    "border-right": 1,
-    "border-right-color":           [ "color", "inherit" ],
-    "border-right-style":           [ "border-style" ],
-    "border-right-width":           [ "border-width" ],
-    "border-spacing": 1,
-    "border-style":                 { multi: [ "border-style" ], max: 4 },
-    "border-top": 1,
-    "border-top-color":             [ "color", "inherit" ],
-    "border-top-left-radius": 1,
-    "border-top-right-radius": 1,
-    "border-top-style":             [ "border-style" ],
-    "border-top-width":             [ "border-width" ],
-    "border-width":                 { multi: [ "border-width" ], max: 4 },
-    "bottom":                       [ "margin-width", "inherit" ], 
-    "box-align":                    [ "start | end | center | baseline | stretch" ],        //http://www.w3.org/TR/2009/WD-css3-flexbox-20090723/
-    "box-decoration-break":         [ "slice |clone" ],
-    "box-direction":                [ "normal | reverse | inherit" ],
-    "box-flex":                     [ "number" ],
-    "box-flex-group":               [ "integer" ],
-    "box-lines":                    [ "single | multiple" ],
-    "box-ordinal-group":            [ "integer" ],
-    "box-orient":                   [ "horizontal | vertical | inline-axis | block-axis | inherit" ],
-    "box-pack":                     [ "start | end | center | justify" ],
-    "box-shadow": 1,
-    "box-sizing":                   [ "content-box | border-box | inherit" ],
-    "break-after":                  [ "auto | always | avoid | left | right | page | column | avoid-page | avoid-column" ],
-    "break-before":                 [ "auto | always | avoid | left | right | page | column | avoid-page | avoid-column" ],
-    "break-inside":                 [ "auto | avoid | avoid-page | avoid-column" ],
+    "backface-visibility"           : "visible | hidden",
+    "background"                    : 1,
+    "background-attachment"         : { multi: "<attachment>", separator: "," },
+    "background-clip"               : { multi: "<box>", separator: "," },
+    "background-color"              : "<color> | inherit",
+    "background-image"              : { multi: "<bg-image>", separator: "," },
+    "background-origin"             : { multi: "<box>", separator: "," },
+    "background-position"           : { multi: "<bg-position>", separator: ",", complex: true },
+    "background-repeat"             : { multi: "<repeat-style>", complex: true },
+    "background-size"               : { multi: "<bg-size>", separator: ",", complex: true },
+    "baseline-shift"                : "baseline | sub | super | <percentage> <length>",
+    "binding"                       : 1,
+    "bleed"                         : "<length>",
+    "bookmark-label"                : "<content> | <attr> | <string>",
+    "bookmark-level"                : "none | <integer>",
+    "bookmark-state"                : "open | closed",
+    "bookmark-target"               : "none | <uri> | <attr>",
+    "border"                        : { group: "<border-width> || <border-style> || <color>" },
+    "border-bottom"                 : { group: "<border-width> || <border-style> || <color>" },
+    "border-bottom-color"           : "<color>",
+    "border-bottom-left-radius"     :  { single: "<x-one-radius>", complex: true },
+    "border-bottom-right-radius"    :  { single: "<x-one-radius>", complex: true },
+    "border-bottom-style"           : "border-style",
+    "border-bottom-width"           : "border-width",
+    "border-collapse"               : "collapse | separate | inherit",
+    "border-color"                  : { multi: "<color> | inherit", max: 4 },
+    "border-image"                  : 1,
+    "border-image-outset"           : { multi: "<length> | <number>", max: 4 },
+    "border-image-repeat"           : { multi: "stretch | repeat | round", max: 2 },
+    "border-image-slice"            : 1,
+    "border-image-source"           : "<image> | none",
+    "border-image-width"            : { multi: "<length> | <percentage> | <number> | auto", max: 4 },
+    "border-left"                   : { group: "<border-width> || <border-style> || <color>" },
+    "border-left-color"             : "<color> | inherit",
+    "border-left-style"             : "<border-style>",
+    "border-left-width"             : "<border-width>",
+    "border-radius"                 : 1,
+    "border-right"                  : { group: "<border-width> || <border-style> || <color>" },
+    "border-right-color"            : "<color> | inherit",
+    "border-right-style"            : "<border-style>",
+    "border-right-width"            : "<border-width>",
+    "border-style"                  : { multi: "<border-style>", max: 4 },
+    "border-top"                    : { group: "<border-width> || <border-style> || <color>" },
+    "border-top-color"              : "<color> | inherit",
+    "border-top-left-radius"        : { single: "<x-one-radius>", complex: true },
+    "border-top-right-radius"       : { single: "<x-one-radius>", complex: true },
+    "border-top-style"              : "<border-style>",
+    "border-top-width"              : "<border-width>",
+    "border-width"                  : { multi: "<border-width>", max: 4 },
+    "bottom"                        : "<margin-width> | inherit", 
+    "box-align"                     : "start | end | center | baseline | stretch",        //http://www.w3.org/TR/2009/WD-css3-flexbox-20090723/
+    "box-decoration-break"          : "slice |clone",
+    "box-direction"                 : "normal | reverse | inherit",
+    "box-flex"                      : "<number>",
+    "box-flex-group"                : "<integer>",
+    "box-lines"                     : "single | multiple",
+    "box-ordinal-group"             : "<integer>",
+    "box-orient"                    : "horizontal | vertical | inline-axis | block-axis | inherit",
+    "box-pack"                      : "start | end | center | justify",
+    "box-shadow"                    : { property: true },
+    "box-sizing"                    : "content-box | border-box | inherit",
+    "break-after"                   : "auto | always | avoid | left | right | page | column | avoid-page | avoid-column",
+    "break-before"                  : "auto | always | avoid | left | right | page | column | avoid-page | avoid-column",
+    "break-inside"                  : "auto | avoid | avoid-page | avoid-column",
     
     //C
-    "caption-side":                 [ "top | bottom | inherit" ],
-    "clear":                        [ "none | right | left | both | inherit" ],
-    "clip": 1,
-    "color":                        [ "color", "inherit" ],
-    "color-profile": 1,
-    "column-count":                 [ "integer", "auto" ],                      //http://www.w3.org/TR/css3-multicol/
-    "column-fill":                  [ "auto | balance" ],
-    "column-gap":                   [ "length", "normal" ],
-    "column-rule": 1,
-    "column-rule-color":            [ "color" ],
-    "column-rule-style":            [ "border-style" ],
-    "column-rule-width":            [ "border-width" ],
-    "column-span":                  [ "none | all" ],
-    "column-width":                 [ "length", "auto" ],
-    "columns": 1,
-    "content": 1,
-    "counter-increment": 1,
-    "counter-reset": 1,
-    "crop": 1,
-    "cue":                          [ "cue-after | cue-before | inherit" ],
-    "cue-after": 1,
-    "cue-before": 1,
-    "cursor": 1,
+    "caption-side"                  : "top | bottom | inherit",
+    "clear"                         : "none | right | left | both | inherit",
+    "clip"                          : 1,
+    "color"                         : "<color> | inherit",
+    "color-profile"                 : 1,
+    "column-count"                  : "<integer> | auto",                      //http://www.w3.org/TR/css3-multicol/
+    "column-fill"                   : "auto | balance",
+    "column-gap"                    : "<length> | normal",
+    "column-rule"                   : { group: "<border-width> || <border-style> || <color>" },
+    "column-rule-color"             : "<color>",
+    "column-rule-style"             : "<border-style>",
+    "column-rule-width"             : "<border-width>",
+    "column-span"                   : "none | all",
+    "column-width"                  : "<length> | auto",
+    "columns"                       : 1,
+    "content"                       : 1,
+    "counter-increment"             : 1,
+    "counter-reset"                 : 1,
+    "crop"                          : "<shape> | auto",
+    "cue"                           : "cue-after | cue-before | inherit",
+    "cue-after"                     : 1,
+    "cue-before"                    : 1,
+    "cursor"                        : 1,
     
     //D
-    "direction":                    [ "ltr | rtl | inherit" ],
-    "display":                      [ "inline | block | list-item | inline-block | table | inline-table | table-row-group | table-header-group | table-footer-group | table-row | table-column-group | table-column | table-cell | table-caption | box | inline-box | grid | inline-grid", "none | inherit" ],
-    "dominant-baseline": 1,
-    "drop-initial-after-adjust": 1,
-    "drop-initial-after-align": 1,
-    "drop-initial-before-adjust": 1,
-    "drop-initial-before-align": 1,
-    "drop-initial-size": 1,
-    "drop-initial-value": 1,
+    "direction"                     : "ltr | rtl | inherit",
+    "display"                       : "inline | block | list-item | inline-block | table | inline-table | table-row-group | table-header-group | table-footer-group | table-row | table-column-group | table-column | table-cell | table-caption | box | inline-box | grid | inline-grid | none | inherit",
+    "dominant-baseline"             : 1,
+    "drop-initial-after-adjust"     : "central | middle | after-edge | text-after-edge | ideographic | alphabetic | mathematical | <percentage> | <length>",
+    "drop-initial-after-align"      : "baseline | use-script | before-edge | text-before-edge | after-edge | text-after-edge | central | middle | ideographic | alphabetic | hanging | mathematical",
+    "drop-initial-before-adjust"    : "before-edge | text-before-edge | central | middle | hanging | mathematical | <percentage> | <length>",
+    "drop-initial-before-align"     : "caps-height | baseline | use-script | before-edge | text-before-edge | after-edge | text-after-edge | central | middle | ideographic | alphabetic | hanging | mathematical",
+    "drop-initial-size"             : "auto | line | <length> | <percentage>",
+    "drop-initial-value"            : "initial | <integer>",
     
     //E
-    "elevation": 1,
-    "empty-cells":                  [ "show | hide | inherit" ],
+    "elevation"                     : "<angle> | below | level | above | higher | lower | inherit",
+    "empty-cells"                   : "show | hide | inherit",
     
     //F
-    "filter": 1,
-    "fit":                          [ "fill | hidden | meet | slice" ],
-    "fit-position": 1,
-    "float":                        [ "left | right | none | inherit" ],    
-    "float-offset": 1,
-    "font": 1,
-    "font-family": 1,
-    "font-size":                    [ "absolute-size", "relative-size", "length", "percentage", "inherit" ],
-    "font-size-adjust": 1,
-    "font-stretch": 1,
-    "font-style":                   [ "normal | italic | oblique | inherit" ],
-    "font-variant":                 [ "normal | small-caps | inherit" ],
-    "font-weight":                  [ "normal | bold | bolder | lighter | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | inherit" ],
+    "filter"                        : 1,
+    "fit"                           : "fill | hidden | meet | slice",
+    "fit-position"                  : 1,
+    "float"                         : "left | right | none | inherit",    
+    "float-offset"                  : 1,
+    "font"                          : 1,
+    "font-family"                   : 1,
+    "font-size"                     : "<absolute-size> | <relative-size> | <length> | <percentage> | inherit",
+    "font-size-adjust"              : "<number> | none | inherit",
+    "font-stretch"                  : "normal | ultra-condensed | extra-condensed | condensed | semi-condensed | semi-expanded | expanded | extra-expanded | ultra-expanded | inherit",
+    "font-style"                    : "normal | italic | oblique | inherit",
+    "font-variant"                  : "normal | small-caps | inherit",
+    "font-weight"                   : "normal | bold | bolder | lighter | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | inherit",
     
     //G
-    "grid-cell-stacking":           [ "columns | rows | layer" ],
-    "grid-column": 1,
-    "grid-columns": 1,
-    "grid-column-align":            [ "start | end | center | stretch" ],
-    "grid-column-sizing": 1,
-    "grid-column-span":             [ "integer" ],
-    "grid-flow":                    [ "none | rows | columns" ],
-    "grid-layer":                   [ "integer" ],
-    "grid-row": 1,
-    "grid-rows": 1,
-    "grid-row-align":               [ "start | end | center | stretch" ],
-    "grid-row-span":                [ "integer" ],
-    "grid-row-sizing": 1,
+    "grid-cell-stacking"            : "columns | rows | layer",
+    "grid-column"                   : 1,
+    "grid-columns"                  : 1,
+    "grid-column-align"             : "start | end | center | stretch",
+    "grid-column-sizing"            : 1,
+    "grid-column-span"              : "<integer>",
+    "grid-flow"                     : "none | rows | columns",
+    "grid-layer"                    : "<integer>",
+    "grid-row"                      : 1,
+    "grid-rows"                     : 1,
+    "grid-row-align"                : "start | end | center | stretch",
+    "grid-row-span"                 : "<integer>",
+    "grid-row-sizing"               : 1,
     
     //H
-    "hanging-punctuation": 1,
-    "height":                       [ "margin-width", "inherit" ],
-    "hyphenate-after": 1,
-    "hyphenate-before": 1,
-    "hyphenate-character":          [ "string", "auto" ],
-    "hyphenate-lines": 1,
-    "hyphenate-resource": 1,
-    "hyphens":                      [ "none | manual | auto" ],
+    "hanging-punctuation"           : 1,
+    "height"                        : "<margin-width> | inherit",
+    "hyphenate-after"               : "<integer> | auto",
+    "hyphenate-before"              : "<integer> | auto",
+    "hyphenate-character"           : "<string> | auto",
+    "hyphenate-lines"               : "no-limit | <integer>",
+    "hyphenate-resource"            : 1,
+    "hyphens"                       : "none | manual | auto",
     
     //I
-    "icon": 1,
-    "image-orientation":            [ "angle", "auto" ],
-    "image-rendering": 1,
-    "image-resolution": 1,
-    "inline-box-align": 1,
+    "icon"                          : 1,
+    "image-orientation"             : "angle | auto",
+    "image-rendering"               : 1,
+    "image-resolution"              : 1,
+    "inline-box-align"              : "initial | last | <integer>",
     
     //L
-    "left":                         [ "margin-width", "inherit" ],
-    "letter-spacing":               [ "length", "normal | inherit" ],
-    "line-height":                  [ "number", "length", "percentage", "normal | inherit"],
-    "line-break":                   [ "auto | loose | normal | strict" ],
-    "line-stacking": 1,
-    "line-stacking-ruby": 1,
-    "line-stacking-shift": 1,
-    "line-stacking-strategy": 1,
-    "list-style": 1,
-    "list-style-image":             [ "uri", "none | inherit" ],
-    "list-style-position":          [ "inside | outside | inherit" ],
-    "list-style-type":              [ "disc | circle | square | decimal | decimal-leading-zero | lower-roman | upper-roman | lower-greek | lower-latin | upper-latin | armenian | georgian | lower-alpha | upper-alpha | none | inherit" ],
+    "left"                          : "<margin-width> | inherit",
+    "letter-spacing"                : "<length> | normal | inherit",
+    "line-height"                   : "<number> | <length> | <percentage> | normal | inherit",
+    "line-break"                    : "auto | loose | normal | strict",
+    "line-stacking"                 : 1,
+    "line-stacking-ruby"            : "exclude-ruby | include-ruby",
+    "line-stacking-shift"           : "consider-shifts | disregard-shifts",
+    "line-stacking-strategy"        : "inline-line-height | block-line-height | max-height | grid-height",
+    "list-style"                    : 1,
+    "list-style-image"              : "<uri> | none | inherit",
+    "list-style-position"           : "inside | outside | inherit",
+    "list-style-type"               : "disc | circle | square | decimal | decimal-leading-zero | lower-roman | upper-roman | lower-greek | lower-latin | upper-latin | armenian | georgian | lower-alpha | upper-alpha | none | inherit",
     
     //M
-    "margin":                       { multi: [ "margin-width", "inherit" ], max: 4 },
-    "margin-bottom":                [ "margin-width", "inherit" ],
-    "margin-left":                  [ "margin-width", "inherit" ],
-    "margin-right":                 [ "margin-width", "inherit" ],
-    "margin-top":                   [ "margin-width", "inherit" ],
-    "mark": 1,
-    "mark-after": 1,
-    "mark-before": 1,
-    "marks": 1,
-    "marquee-direction": 1,
-    "marquee-play-count": 1,
-    "marquee-speed": 1,
-    "marquee-style": 1,
-    "max-height":                   [ "length", "percentage", "none | inherit" ],
-    "max-width":                    [ "length", "percentage", "none | inherit" ],
-    "min-height":                   [ "length", "percentage", "inherit" ],
-    "min-width":                    [ "length", "percentage", "inherit" ],
-    "move-to": 1,
+    "margin"                        : { multi: "<margin-width> | inherit", max: 4 },
+    "margin-bottom"                 : "<margin-width> | inherit",
+    "margin-left"                   : "<margin-width> | inherit",
+    "margin-right"                  : "<margin-width> | inherit",
+    "margin-top"                    : "<margin-width> | inherit",
+    "mark"                          : 1,
+    "mark-after"                    : 1,
+    "mark-before"                   : 1,
+    "marks"                         : 1,
+    "marquee-direction"             : 1,
+    "marquee-play-count"            : 1,
+    "marquee-speed"                 : 1,
+    "marquee-style"                 : 1,
+    "max-height"                    : "<length> | <percentage> | none | inherit",
+    "max-width"                     : "<length> | <percentage> | none | inherit",
+    "min-height"                    : "<length> | <percentage> | inherit",
+    "min-width"                     : "<length> | <percentage> | inherit",
+    "move-to"                       : 1,
     
     //N
-    "nav-down": 1,
-    "nav-index": 1,
-    "nav-left": 1,
-    "nav-right": 1,
-    "nav-up": 1,
+    "nav-down"                      : 1,
+    "nav-index"                     : 1,
+    "nav-left"                      : 1,
+    "nav-right"                     : 1,
+    "nav-up"                        : 1,
     
     //O
-    "opacity":                      [ "number", "inherit" ],
-    "orphans":                      [ "integer", "inherit" ],
-    "outline": 1,
-    "outline-color":                [ "color", "invert | inherit" ],
-    "outline-offset": 1,
-    "outline-style":                [ "border-style", "inherit" ],
-    "outline-width":                [ "border-width", "inherit" ],
-    "overflow":                     [ "visible | hidden | scroll | auto | inherit" ],
-    "overflow-style": 1,
-    "overflow-x": 1,
-    "overflow-y": 1,
+    "opacity"                       : "<number> | inherit",
+    "orphans"                       : "<integer> | inherit",
+    "outline"                       : 1,
+    "outline-color"                 : "<color> | invert | inherit",
+    "outline-offset"                : 1,
+    "outline-style"                 : "<border-style> | inherit",
+    "outline-width"                 : "<border-width> | inherit",
+    "overflow"                      : "visible | hidden | scroll | auto | inherit",
+    "overflow-style"                : 1,
+    "overflow-x"                    : 1,
+    "overflow-y"                    : 1,
     
     //P
-    "padding":                      { multi: [ "padding-width", "inherit" ], max: 4 },
-    "padding-bottom":               [ "padding-width", "inherit" ],
-    "padding-left":                 [ "padding-width", "inherit" ],
-    "padding-right":                [ "padding-width", "inherit" ],
-    "padding-top":                  [ "padding-width", "inherit" ],
-    "page": 1,
-    "page-break-after":             [ "auto | always | avoid | left | right | inherit" ],
-    "page-break-before":            [ "auto | always | avoid | left | right | inherit" ],
-    "page-break-inside":            [ "auto | avoid | inherit" ],
-    "page-policy": 1,
-    "pause": 1,
-    "pause-after": 1,
-    "pause-before": 1,
-    "perspective": 1,
-    "perspective-origin": 1,
-    "phonemes": 1,
-    "pitch": 1,
-    "pitch-range": 1,
-    "play-during": 1,
-    "position":                     [ "static | relative | absolute | fixed | inherit" ],
-    "presentation-level": 1,
-    "punctuation-trim": 1,
+    "padding"                       : { multi: "<padding-width> | inherit", max: 4 },
+    "padding-bottom"                : "<padding-width> | inherit",
+    "padding-left"                  : "<padding-width> | inherit",
+    "padding-right"                 : "<padding-width> | inherit",
+    "padding-top"                   : "<padding-width> | inherit",
+    "page"                          : 1,
+    "page-break-after"              : "auto | always | avoid | left | right | inherit",
+    "page-break-before"             : "auto | always | avoid | left | right | inherit",
+    "page-break-inside"             : "auto | avoid | inherit",
+    "page-policy"                   : 1,
+    "pause"                         : 1,
+    "pause-after"                   : 1,
+    "pause-before"                  : 1,
+    "perspective"                   : 1,
+    "perspective-origin"            : 1,
+    "phonemes"                      : 1,
+    "pitch"                         : 1,
+    "pitch-range"                   : 1,
+    "play-during"                   : 1,
+    "position"                      : "static | relative | absolute | fixed | inherit",
+    "presentation-level"            : 1,
+    "punctuation-trim"              : 1,
     
     //Q
-    "quotes": 1,
+    "quotes"                        : 1,
     
     //R
-    "rendering-intent": 1,
-    "resize": 1,
-    "rest": 1,
-    "rest-after": 1,
-    "rest-before": 1,
-    "richness": 1,
-    "right":                        [ "margin-width", "inherit" ],
-    "rotation": 1,
-    "rotation-point": 1,
-    "ruby-align": 1,
-    "ruby-overhang": 1,
-    "ruby-position": 1,
-    "ruby-span": 1,
+    "rendering-intent"              : 1,
+    "resize"                        : 1,
+    "rest"                          : 1,
+    "rest-after"                    : 1,
+    "rest-before"                   : 1,
+    "richness"                      : 1,
+    "right"                         : "<margin-width> | inherit",
+    "rotation"                      : 1,
+    "rotation-point"                : 1,
+    "ruby-align"                    : 1,
+    "ruby-overhang"                 : 1,
+    "ruby-position"                 : 1,
+    "ruby-span"                     : 1,
     
     //S
-    "size": 1,
-    "speak":                        [ "normal | none | spell-out | inherit" ],
-    "speak-header":                 [ "once | always | inherit" ],
-    "speak-numeral":                [ "digits | continuous | inherit" ],
-    "speak-punctuation":            [ "code | none | inherit" ],
-    "speech-rate": 1,
-    "src" : 1,
-    "stress": 1,
-    "string-set": 1,
+    "size"                          : 1,
+    "speak"                         : "normal | none | spell-out | inherit",
+    "speak-header"                  : "once | always | inherit",
+    "speak-numeral"                 : "digits | continuous | inherit",
+    "speak-punctuation"             : "code | none | inherit",
+    "speech-rate"                   : 1,
+    "src"                           : 1,
+    "stress"                        : 1,
+    "string-set"                    : 1,
     
-    "table-layout":                 [ "auto | fixed | inherit" ],
-    "tab-size":                     [ "integer", "length" ],
-    "target": 1,
-    "target-name": 1,
-    "target-new": 1,
-    "target-position": 1,
-    "text-align":                   [ "left | right | center | justify | inherit" ],
-    "text-align-last": 1,
-    "text-decoration": 1,
-    "text-emphasis": 1,
-    "text-height": 1,
-    "text-indent":                  [ "length", "percentage", "inherit" ],
-    "text-justify":                 [ "auto | none | inter-word | inter-ideograph | inter-cluster | distribute | kashida" ],
-    "text-outline": 1,
-    "text-overflow": 1,
-    "text-shadow": 1,
-    "text-transform":               [ "capitalize | uppercase | lowercase | none | inherit" ],
-    "text-wrap":                    [ "normal | none | avoid" ],
-    "top":                          [ "margin-width", "inherit" ],
-    "transform": 1,
-    "transform-origin": 1,
-    "transform-style": 1,
-    "transition": 1,
-    "transition-delay": 1,
-    "transition-duration": 1,
-    "transition-property": 1,
-    "transition-timing-function": 1,
+    "table-layout"                  : "auto | fixed | inherit",
+    "tab-size"                      : "<integer> | <length>",
+    "target"                        : 1,
+    "target-name"                   : 1,
+    "target-new"                    : 1,
+    "target-position"               : 1,
+    "text-align"                    : "left | right | center | justify | inherit" ,
+    "text-align-last"               : 1,
+    "text-decoration"               : 1,
+    "text-emphasis"                 : 1,
+    "text-height"                   : 1,
+    "text-indent"                   : "<length> | <percentage> | inherit",
+    "text-justify"                  : "auto | none | inter-word | inter-ideograph | inter-cluster | distribute | kashida",
+    "text-outline"                  : 1,
+    "text-overflow"                 : 1,
+    "text-shadow"                   : 1,
+    "text-transform"                : "capitalize | uppercase | lowercase | none | inherit",
+    "text-wrap"                     : "normal | none | avoid",
+    "top"                           : "<margin-width> | inherit",
+    "transform"                     : 1,
+    "transform-origin"              : 1,
+    "transform-style"               : 1,
+    "transition"                    : 1,
+    "transition-delay"              : 1,
+    "transition-duration"           : 1,
+    "transition-property"           : 1,
+    "transition-timing-function"    : 1,
     
     //U
-    "unicode-bidi":                 [ "normal | embed | bidi-override | inherit" ],
-    "user-modify":                  [ "read-only | read-write | write-only | inherit" ],
-    "user-select":                  [ "none | text | toggle | element | elements | all | inherit" ],
+    "unicode-bidi"                  : "normal | embed | bidi-override | inherit",
+    "user-modify"                   : "read-only | read-write | write-only | inherit",
+    "user-select"                   : "none | text | toggle | element | elements | all | inherit",
     
     //V
-    "vertical-align":               [ "percentage", "length", "baseline | sub | super | top | text-top | middle | bottom | text-bottom | inherit" ],
-    "visibility":                   [ "visible | hidden | collapse | inherit" ],
-    "voice-balance": 1,
-    "voice-duration": 1,
-    "voice-family": 1,
-    "voice-pitch": 1,
-    "voice-pitch-range": 1,
-    "voice-rate": 1,
-    "voice-stress": 1,
-    "voice-volume": 1,
-    "volume": 1,
+    "vertical-align"                : "<percentage> | <length> | baseline | sub | super | top | text-top | middle | bottom | text-bottom | inherit",
+    "visibility"                    : "visible | hidden | collapse | inherit",
+    "voice-balance"                 : 1,
+    "voice-duration"                : 1,
+    "voice-family"                  : 1,
+    "voice-pitch"                   : 1,
+    "voice-pitch-range"             : 1,
+    "voice-rate"                    : 1,
+    "voice-stress"                  : 1,
+    "voice-volume"                  : 1,
+    "volume"                        : 1,
     
     //W
-    "white-space":                  [ "normal | pre | nowrap | pre-wrap | pre-line | inherit" ],
-    "white-space-collapse": 1,
-    "widows":                       [ "integer", "inherit" ],
-    "width":                        [ "length", "percentage", "auto", "inherit" ],
-    "word-break":                   [ "normal | keep-all | break-all" ],
-    "word-spacing":                 [ "length", "normal | inherit" ],
-    "word-wrap": 1,
+    "white-space"                   : "normal | pre | nowrap | pre-wrap | pre-line | inherit",
+    "white-space-collapse"          : 1,
+    "widows"                        : "<integer> | inherit",
+    "width"                         : "<length> | <percentage> | auto | inherit" ,
+    "word-break"                    : "normal | keep-all | break-all",
+    "word-spacing"                  : "<length> | normal | inherit",
+    "word-wrap"                     : 1,
     
     //Z
-    "z-index":                      [ "integer", "auto | inherit" ],
-    "zoom":                         [ "number", "percentage", "normal" ]
+    "z-index"                       : "<integer> | auto | inherit",
+    "zoom"                          : "<number> | <percentage> | normal"
 };
-
-//Create validation functions for strings
-(function(){
-    var prop;
-    for (prop in Properties){
-        if (Properties.hasOwnProperty(prop)){
-            if (Properties[prop] instanceof Array){
-                Properties[prop] = (function(values){
-                    return function(value){
-                        var valid   = false,
-                            msg     = [],
-                            part    = value.parts[0];
-                        
-                        if (value.parts.length != 1){
-                            throw new ValidationError("Expected 1 value but found " + value.parts.length + ".", value.line, value.col);
-                        }
-                        
-                        for (var i=0, len=values.length; i < len && !valid; i++){
-                            if (typeof ValidationType[values[i]] == "undefined"){
-                                valid = valid || ValidationType.identifier(part, values[i]);
-                                msg.push("one of (" + values[i] + ")");
-                            } else {
-                                valid = valid || ValidationType[values[i]](part);
-                                msg.push(values[i]);
-                            }
-                        }
-                        
-                        if (!valid){
-                            throw new ValidationError("Expected " + msg.join(" or ") + " but found '" + value + "'.", value.line, value.col);
-                        }
-                    };
-                })(Properties[prop]);
-            } else if (typeof Properties[prop] == "object"){
-                Properties[prop] = (function(spec){
-                    return function(value){
-                        var valid,
-                            i, len, j, count,
-                            msg,
-                            values,
-                            last,
-                            parts   = value.parts;
-                        
-                        //if there's a maximum set, use it (max can't be 0)
-                        if (spec.max) {
-                            if (parts.length > spec.max){
-                                throw new ValidationError("Expected a max of " + spec.max + " property values but found " + parts.length + ".", value.line, value.col);
-                            }
-                        }
-                        
-                        if (spec.multi){
-                            values = spec.multi;                            
-                        }
-                        
-                        for (i=0, len=parts.length; i < len; i++){
-                            msg = [];
-                            valid = false;
-                            
-                            if (spec.separator && parts[i].type == "operator"){
-                                
-                                //two operators in a row - not allowed?
-                                if ((last && last.type == "operator")){
-                                    msg = msg.concat(values);
-                                } else if (i == len-1){
-                                    msg = msg.concat("end of line");
-                                } else if (parts[i] != spec.separator){
-                                    msg.push("'" + spec.separator + "'");
-                                } else {
-                                    valid = true;
-                                }
-                            } else {
-
-                                for (j=0, count=values.length; j < count; j++){
-                                    if (typeof ValidationType[values[j]] == "undefined"){
-                                        if(ValidationType.identifier(parts[i], values[j])){
-                                            valid = true;
-                                            break;
-                                        }
-                                        msg.push("one of (" + values[j] + ")");
-                                    } else {
-                                        if (ValidationType[values[j]](parts[i])){
-                                            valid = true;
-                                            break;
-                                        }
-                                        msg.push(values[j]);
-                                    }                                   
-                                }
-                            }
-
-                            
-                            if (!valid) {
-                                throw new ValidationError("Expected " + msg.join(" or ") + " but found '" + parts[i] + "'.", value.line, value.col);
-                            }
-                            
-                            
-                            last = parts[i];
-                        }                
-
-                    };
-                })(Properties[prop]);                
-            }
-        }
-    }
-})();
+/*global SyntaxUnit, Parser*/
 /**
  * Represents a selector combinator (whitespace, +, >).
  * @namespace parserlib.css
@@ -3951,6 +3802,8 @@ PropertyName.prototype.constructor = PropertyName;
 PropertyName.prototype.toString = function(){
     return (this.hack ? this.hack : "") + this.text;
 };
+
+/*global SyntaxUnit, Parser*/
 /**
  * Represents a single part of a CSS property value, meaning that it represents
  * just everything single part between ":" and ";". If there are multiple values
@@ -3979,6 +3832,107 @@ function PropertyValue(parts, line, col){
 PropertyValue.prototype = new SyntaxUnit();
 PropertyValue.prototype.constructor = PropertyValue;
 
+
+/*global SyntaxUnit, Parser*/
+/**
+ * A utility class that allows for easy iteration over the various parts of a
+ * property value.
+ * @param {parserlib.css.PropertyValue} value The property value to iterate over.
+ * @namespace parserlib.css
+ * @class PropertyValueIterator
+ * @constructor
+ */
+function PropertyValueIterator(value){
+
+    /** 
+     * Iterator value
+     * @type int
+     * @property _i
+     * @private
+     */
+    this._i = 0;
+    
+    /**
+     * The parts that make up the value.
+     * @type Array
+     * @property _parts
+     * @private
+     */
+    this._parts = value.parts;
+    
+    /**
+     * Keeps track of bookmarks along the way.
+     * @type Array
+     * @property _marks
+     * @private
+     */
+    this._marks = [];
+    
+}
+
+/**
+ * Returns the total number of parts in the value.
+ * @return {int} The total number of parts in the value.
+ * @method count
+ */
+PropertyValueIterator.prototype.count = function(){
+    return this._parts.length;
+};
+
+/**
+ * Indicates if there are more parts of the property value.
+ * @return {Boolean} True if there are more parts, false if not.
+ * @method hasNext
+ */
+PropertyValueIterator.prototype.hasNext = function(){
+    return (this._i < this._parts.length);
+};
+
+/**
+ * Marks the current spot in the iteration so it can be restored to
+ * later on.
+ * @return {void}
+ * @method mark
+ */
+PropertyValueIterator.prototype.mark = function(){
+    this._marks.push(this._i);
+};
+
+/**
+ * Returns the next part of the property value or null if there is no next
+ * part. Does not move the internal counter forward.
+ * @return {parserlib.css.PropertyValuePart} The next part of the property value or null if there is no next
+ * part.
+ * @method peek
+ */
+PropertyValueIterator.prototype.peek = function(count){
+    return this.hasNext() ? this._parts[this._i + (count || 0)] : null;
+};
+
+/**
+ * Returns the next part of the property value or null if there is no next
+ * part.
+ * @return {parserlib.css.PropertyValuePart} The next part of the property value or null if there is no next
+ * part.
+ * @method next
+ */
+PropertyValueIterator.prototype.next = function(){
+    return this.hasNext() ? this._parts[this._i++] : null;
+};
+
+/**
+ * Restores the last saved bookmark.
+ * @return {void}
+ * @method restore
+ */
+PropertyValueIterator.prototype.restore = function(){
+    if (this._marks.length){
+        this._i = this._marks.pop();
+    }
+};
+
+
+/*global SyntaxUnit, Parser, Colors*/
 /**
  * Represents a single part of a CSS property value, meaning that it represents
  * just one part of the data between ":" and ";".
@@ -4112,6 +4066,10 @@ function PropertyValuePart(text, line, col){
     } else if (/^url\(["']?([^\)"']+)["']?\)/i.test(text)){ //URI
         this.type   = "uri";
         this.uri    = RegExp.$1;
+    } else if (/^([^\(]+)\(/i.test(text)){
+        this.type   = "function";
+        this.name   = RegExp.$1;
+        this.value  = text;
     } else if (/^["'][^"']*["']/.test(text)){    //string
         this.type   = "string";
         this.value  = eval(text);
@@ -4132,7 +4090,7 @@ function PropertyValuePart(text, line, col){
 }
 
 PropertyValuePart.prototype = new SyntaxUnit();
-PropertyValuePart.prototype.constructor = PropertyValue;
+PropertyValuePart.prototype.constructor = PropertyValuePart;
 
 /**
  * Create a new syntax unit based solely on the given token.
@@ -4159,6 +4117,7 @@ Pseudos.CLASS = 2;
 Pseudos.isElement = function(pseudo){
     return pseudo.indexOf("::") === 0 || Pseudos[pseudo.toLowerCase()] == Pseudos.ELEMENT;
 };
+/*global SyntaxUnit, Parser, Specificity*/
 /**
  * Represents an entire single selector, including all parts but not
  * including multiple selectors (those separated by commas).
@@ -4193,6 +4152,8 @@ function Selector(parts, line, col){
 Selector.prototype = new SyntaxUnit();
 Selector.prototype.constructor = Selector;
 
+
+/*global SyntaxUnit, Parser*/
 /**
  * Represents a single part of a selector string, meaning a single set of
  * element name and modifiers. This does not include combinators such as
@@ -4234,6 +4195,8 @@ function SelectorPart(elementName, modifiers, text, line, col){
 SelectorPart.prototype = new SyntaxUnit();
 SelectorPart.prototype.constructor = SelectorPart;
 
+
+/*global SyntaxUnit, Parser*/
 /**
  * Represents a selector modifier string, meaning a class name, element name,
  * element ID, pseudo rule, etc.
@@ -4269,6 +4232,8 @@ function SelectorSubPart(text, type, line, col){
 SelectorSubPart.prototype = new SyntaxUnit();
 SelectorSubPart.prototype.constructor = SelectorSubPart;
 
+
+/*global Pseudos, SelectorPart*/
 /**
  * Represents a selector's specificity.
  * @namespace parserlib.css
@@ -4340,14 +4305,16 @@ Specificity.prototype = {
 Specificity.calculate = function(selector){
 
     var i, len,
+        part,
         b=0, c=0, d=0;
         
     function updateValues(part){
     
         var i, j, len, num,
+            elementName = part.elementName ? part.elementName.text : "",
             modifier;
     
-        if (part.elementName && part.text.charAt(part.text.length-1) != "*") {
+        if (elementName && elementName.charAt(elementName.length-1) != "*") {
             d++;
         }    
     
@@ -4390,6 +4357,7 @@ Specificity.calculate = function(selector){
     return new Specificity(0, b, c, d);
 };
 
+/*global Tokens, TokenStreamBase*/
 
 var h = /^[0-9a-fA-F]$/,
     nonascii = /^[\u0080-\uFFFF]$/,
@@ -4401,31 +4369,31 @@ var h = /^[0-9a-fA-F]$/,
 
 
 function isHexDigit(c){
-    return c != null && h.test(c);
+    return c !== null && h.test(c);
 }
 
 function isDigit(c){
-    return c != null && /\d/.test(c);
+    return c !== null && /\d/.test(c);
 }
 
 function isWhitespace(c){
-    return c != null && /\s/.test(c);
+    return c !== null && /\s/.test(c);
 }
 
 function isNewLine(c){
-    return c != null && nl.test(c);
+    return c !== null && nl.test(c);
 }
 
 function isNameStart(c){
-    return c != null && (/[a-z_\u0080-\uFFFF\\]/i.test(c));
+    return c !== null && (/[a-z_\u0080-\uFFFF\\]/i.test(c));
 }
 
 function isNameChar(c){
-    return c != null && (isNameStart(c) || /[0-9\-\\]/.test(c));
+    return c !== null && (isNameStart(c) || /[0-9\-\\]/.test(c));
 }
 
 function isIdentStart(c){
-    return c != null && (isNameStart(c) || /\-\\/.test(c));
+    return c !== null && (isNameStart(c) || /\-\\/.test(c));
 }
 
 function mix(receiver, supplier){
@@ -4616,8 +4584,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
                         token = this.unicodeRangeToken(c, startLine, startCol);
                         break;
                     }
-                    /*falls through*/
-
+                    /* falls through */
                 default:
 
                     /*
@@ -4670,11 +4637,9 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
             //make sure this token is wanted
             //TODO: check channel
             break;
-
-            c = reader.read();
         }
 
-        if (!token && c == null){
+        if (!token && c === null){
             token = this.createToken(Tokens.EOF,null,startLine,startCol);
         }
 
@@ -4753,9 +4718,13 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
 
         //if it's not valid, use the first character only and reset the reader
         if (tt == Tokens.CHAR || tt == Tokens.UNKNOWN){
-            tt = Tokens.CHAR;
-            rule = first;
-            reader.reset();
+            if (rule.length > 1){
+                tt = Tokens.UNKNOWN_SYM;                
+            } else {
+                tt = Tokens.CHAR;
+                rule = first;
+                reader.reset();
+            }
         }
 
         return this.createToken(tt, rule, startLine, startCol);
@@ -4954,7 +4923,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
                     break;
                 } else {
                     temp = this.readComment(c);
-                    if (temp == ""){    //broken!
+                    if (temp === ""){    //broken!
                         break;
                     }
                 }
@@ -5095,7 +5064,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
         }
 
         //if c is null, that means we're out of input and the string was never closed
-        if (c == null){
+        if (c === null){
             tt = Tokens.INVALID;
         }
 
@@ -5260,7 +5229,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
         }
 
         //if c is null, that means we're out of input and the string was never closed
-        if (c == null){
+        if (c === null){
             string = "";
         }
 
@@ -5296,7 +5265,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
         }
 
         //if there was no inner value or the next character isn't closing paren, it's not a URI
-        if (inner == "" || c != ")"){
+        if (inner === "" || c != ")"){
             uri = first;
             reader.reset();
         } else {
@@ -5388,6 +5357,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
     }
 });
 
+
 var Tokens  = [
 
     /*
@@ -5421,6 +5391,7 @@ var Tokens  = [
     { name: "FONT_FACE_SYM", text: "@font-face"},
     { name: "CHARSET_SYM", text: "@charset"},
     { name: "NAMESPACE_SYM", text: "@namespace"},
+    { name: "UNKNOWN_SYM" },
     //{ name: "ATKEYWORD"},
     
     //CSS3 animations
@@ -5594,6 +5565,532 @@ var Tokens  = [
 
 
 
+
+//This file will likely change a lot! Very experimental!
+/*global Properties, ValidationError, PropertyValueIterator */
+var Validation = {
+
+    validate: function(property, value){
+    
+        //normalize name
+        var name        = property.toString().toLowerCase(),
+            parts       = value.parts,
+            expression  = new PropertyValueIterator(value),
+            spec        = Properties[name],
+            part,
+            valid,            
+            j, count,
+            msg,
+            types,
+            last,
+            literals,
+            max, multi, group;
+            
+        if (!spec) {
+            if (name.indexOf("-") !== 0){    //vendor prefixed are ok
+                throw new ValidationError("Unknown property '" + property + "'.", property.line, property.col);
+            }
+        } else if (typeof spec != "number"){
+        
+            //initialization
+            if (typeof spec == "string"){
+                types = spec.split(/\s\|\s/g);
+                max = 1;
+            } else if (spec.multi) {
+                types = spec.multi.split(/\s\|\s/g);
+                max = spec.max;
+            } else if (spec.single) {
+                types = spec.single.split(/\s\|\s/g);
+            } else if (spec.group){
+                types = spec.group.split(/\s\|\|\s/g);
+                group = { total: 0 };
+            }
+
+            //Start validation----        
+            //TODO: Clean up once I figure out the best way to do this
+            //Check for complex validations first
+            if (spec.complex) {
+                if (spec.multi) {
+                    Validation.types.multiProperty(types[0], value);
+                } else {
+                    Validation.types.singleProperty(types[0], value);
+                }
+            } else if (spec.property) {
+                Validation.properties[name](value);
+            } else {
+
+                //if there's a maximum set, use it (max can't be 0)
+                if (max) {
+                    if (parts.length > max){
+                        throw new ValidationError("Expected a max of " + max + " property value(s) but found " + parts.length + ".", value.line, value.col);
+                    }
+                }                
+
+                while (expression.hasNext()){
+                    part = expression.peek();
+                    msg = [];
+                    valid = false;
+                    
+                    if (spec.separator && part.type == "operator"){
+                        
+                        //two operators in a row - not allowed?
+                        if ((last && last.type == "operator")){
+                            msg = msg.concat(types);
+                        } else if (!expression.peek(1)){
+                            msg = msg.concat("end of line");
+                        } else if (part != spec.separator){
+                            msg.push("'" + spec.separator + "'");
+                        } else {
+                            valid = true;
+                            expression.next();
+                            
+                            //if it's a group, reset the tracker
+                            if (group) {
+                                group = { total: 0 };
+                            }
+                        }
+                    } else {
+
+                        literals = [];
+
+                        for (j=0, count=types.length; j < count; j++){
+                        
+                            //if it's a group and one of the values has been found, skip it
+                            if (group && group[types[j]]){
+                                continue;
+                            }                   
+                            
+                            expression.mark();
+                            if (typeof Validation.types[types[j]] == "undefined"){
+                                valid = Validation.types.literal(expression.next(), types[j]);
+                                literals.push(types[j]);
+                            } else {
+                                valid = Validation.types[types[j]](expression.next());
+                                msg.push(types[j]);
+                            }
+
+                            if (valid) {
+                                if (group){
+                                    group[types[j]] = 1;
+                                    group.total++;
+                                }
+                                break;  
+                            } else {
+                                expression.restore();
+                            }
+                        }
+                    }
+
+                    
+                    if (!valid) {
+                        if (literals.length) {
+                            msg.push("one of (" + literals.join(" | ") + ")");
+                        }
+                        throw new ValidationError("Expected " + msg.join(" or ") + " but found '" + part + "'.", value.line, value.col);
+                    }
+                    
+                    
+                    last = part;
+                }                          
+            }
+            
+            //for groups, make sure all items are there
+            if (group && group.total != types.length){
+                throw new ValidationError("Expected all of (" + types.join(", ") + ") but found '" + value + "'.", value.line, value.col);
+            }
+        }
+
+    },
+
+    types: {
+    
+        any: function(part, spec) {
+            var types = spec.split(/\s\|\s/g),
+                result = false,
+                i, len;
+                
+            for (i=0, len=types.length; i < len && !result; i++){
+                if (this[types[i]]){
+                    result = this[types[i]](part);
+                } else {
+                    result = this.literal(part, types[i]);
+                }
+            }
+            
+            return result;
+        },
+
+        "<absolute-size>": function(part){
+            return this.literal(part, "xx-small | x-small | small | medium | large | x-large | xx-large");
+        },
+        
+        "<attachment>": function(part){
+            return this.literal(part, "scroll | fixed | local");
+        },
+        
+        "<attr>": function(part){
+            return part.type == "function" && part.name == "attr";
+        },
+                
+        "<bg-image>": function(part){
+            return this["<image>"](part) || part == "none";
+        },        
+        
+        "<box>": function(part){
+            return this.literal(part, "padding-box | border-box | content-box");
+        },
+        
+        "<content>": function(part){
+            return part.type == "function" && part.name == "content";
+        },        
+        
+        "<relative-size>": function(part){
+            return this.literal(part, "smaller | larger");
+        },
+        
+        //any identifier
+        "<ident>": function(part){
+            return part.type == "identifier";
+        },
+        
+        //specific identifiers
+        "literal": function(part, options){
+            var text = part.text.toString().toLowerCase(),
+                args = options.split(" | "),
+                i, len, found = false;
+
+            
+            for (i=0,len=args.length; i < len && !found; i++){
+                if (text == args[i]){
+                    found = true;
+                }
+            }
+            
+            return found;
+        },
+        
+        "<length>": function(part){
+            return part.type == "length" || part.type == "number" || part.type == "integer" || part == "0";
+        },
+        
+        "<color>": function(part){
+            return part.type == "color" || part == "transparent";
+        },
+        
+        "<number>": function(part){
+            return part.type == "number" || this["<integer>"](part);
+        },
+        
+        "<integer>": function(part){
+            return part.type == "integer";
+        },
+        
+        "<line>": function(part){
+            return part.type == "integer";
+        },
+        
+        "<angle>": function(part){
+            return part.type == "angle";
+        },        
+        
+        "<uri>": function(part){
+            return part.type == "uri";
+        },
+        
+        "<image>": function(part){
+            return this["<uri>"](part);
+        },
+        
+        "<percentage>": function(part){
+            return part.type == "percentage" || part == "0";
+        },
+
+        "<border-width>": function(part){
+            return this["<length>"](part) || this.literal(part, "thin | medium | thick");
+        },
+        
+        "<border-style>": function(part){
+            return this.literal(part, "none | hidden | dotted | dashed | solid | double | groove | ridge | inset | outset");
+        },
+        
+        "<margin-width>": function(part){
+            return this["<length>"](part) || this["<percentage>"](part) || this.literal(part, "auto");
+        },
+        
+        "<padding-width>": function(part){
+            return this["<length>"](part) || this["<percentage>"](part);
+        },
+        
+        "<shape>": function(part){
+            return part.type == "function" && (part.name == "rect" || part.name == "inset-rect");
+        },
+
+        //---------------------------------------------------------------------
+        // Complex Types
+        //---------------------------------------------------------------------        
+    
+        "<bg-position>": function(expression){
+            var types   = this,
+                result  = false,
+                numeric = "<percentage> | <length>",
+                xDir    = "left | center | right",
+                yDir    = "top | center | bottom",
+                part,
+                i, len;
+            
+            if (expression.hasNext()){
+            
+                part = expression.next();
+                
+                if (types.literal(part, "top | bottom")) {
+                    result = true;
+                } else {
+                    
+                    //must be two-part
+                    if (types.any(part, numeric)){
+                        if (expression.hasNext()){
+                            part = expression.next();                            
+                            result = types.any(part, numeric + " | " + yDir);
+                        }
+                    } else if (types.any(part, xDir)){
+                        if (expression.hasNext()){
+                            part = expression.next();
+                            
+                            //two- or three-part
+                            if (types.any(part, yDir)){
+                                 result = true;
+                          
+                                if (expression.hasNext() && types.any(expression.peek(), numeric)) {
+                                    expression.next();
+                                } 
+
+                            } else if (types.any(part, numeric)){
+                            
+                                //could also be two-part, so check the next part
+                                if (expression.hasNext() && types.any(expression.peek(), yDir)){
+                                        expression.next();  //skip, already tested
+                                        part = expression.next();
+                                        
+                                        if (expression.hasNext() && types.any(expression.peek(), numeric)){
+                                            expression.next();
+                                            result = true;
+                                        } else {
+                                            result = true;
+                                        }
+                                   
+                                } else {
+                                    result = true;  //it's two-part
+                                }
+                            }
+                        }
+                    }                                 
+                }            
+            }
+            
+            return result;
+        },
+
+        "<bg-size>": function(expression){
+            //<bg-size> = [ <length> | <percentage> | auto ]{1,2} | cover | contain
+            var types   = this,
+                result  = false,
+                numeric = "<percentage> | <length> | auto",
+                part,
+                i, len;      
+      
+            if (expression.hasNext()){
+                part = expression.next();
+                
+                if (types.literal(part, "cover | contain")) {
+                    result = true;
+                } else if (types.any(part, numeric)) {
+                    result = true;
+                    
+                    if (expression.hasNext() && types.any(expression.peek(), numeric)) {
+                        expression.next();
+                    }
+                }
+            }          
+            
+            return result;
+        },
+        
+        "<repeat-style>": function(expression){
+            //repeat-x | repeat-y | [repeat | space | round | no-repeat]{1,2}
+            var result  = false,
+                values  = "repeat | space | round | no-repeat",
+                part;
+            
+            if (expression.hasNext()){
+                part = expression.next();
+                
+                if (this.literal(part, "repeat-x | repeat-y")) {
+                    result = true;                    
+                } else if (this.literal(part, values)) {
+                    result = true;
+
+                    if (expression.hasNext() && this.literal(expression.peek(), values)) {
+                        expression.next();
+                    }
+                }
+            }
+            
+            return result;
+            
+        },
+        
+        "<shadow>": function(expression) {
+            //inset? && [ <length>{2,4} && <color>? ]
+            var result  = false,
+                count   = 0,
+                part;
+                
+            if (expression.hasNext()) {            
+                part = expression.peek();
+                
+                if (this.literal(part, "inset")){
+                    expression.next();
+                    part = expression.peek();
+                }
+                
+                while (part && this["<length>"](part) && count < 4) {
+                    count++;
+                    expression.next();                    
+                    part = expression.peek();
+                }
+                
+                
+                if (part) {
+                    if (this["<color>"](part)) {
+                        expression.next();
+                    }
+                }
+                
+                result = (count >= 2 && count <= 4);
+            
+            }
+            
+            return result;
+        },
+        
+        "<x-one-radius>": function(expression) {
+            //[ <length> | <percentage> ] [ <length> | <percentage> ]?
+            var result  = false,
+                count   = 0,
+                numeric = "<length> | <percentage>",
+                part;
+                
+            if (expression.hasNext()) {            
+                part = expression.peek();
+                
+                if (this.any(part, numeric)){
+                    result = true;
+                    expression.next();
+                    part = expression.peek();
+                    
+                    if (part && this.any(part, numeric)){
+                        expression.next();
+                    }
+                }                
+            
+            }
+            
+            return result;
+        },        
+        
+        //---------------------------------------------------------------------
+        // Properties
+        //---------------------------------------------------------------------
+        
+        singleProperty: function ( type, value, expression, partial ) {
+            //so ashamed...
+            expression  = expression || new PropertyValueIterator(value);
+            
+            var result      = false,
+                part;
+                
+            if (expression.hasNext()) {
+                if ( this[type](expression) ) {
+                    result = true;
+                } 
+            }
+            
+            if (!result) {
+                throw new ValidationError("Expected " + type + " but found '" + value + "'.", value.line, value.col);
+            } else if (expression.hasNext() && !partial) {
+                part = expression.next();
+                throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
+            }             
+        },
+        
+        multiProperty: function ( type, value, expression, partial ) {
+        
+            //so ashamed...
+            expression  = expression || new PropertyValueIterator(value);
+            
+            var result      = false,
+                part;
+                
+            while(expression.hasNext() && !result) {
+                if ( this[type]( expression ) ) {
+                    
+                    if (!expression.hasNext()) {
+                        result = true;
+                    } else if (expression.peek() == ",") {
+                        expression.next();
+                    } else {
+                        result = true;
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            }
+            
+            if (!result) {
+                throw new ValidationError("Expected " + type + " but found '" + value + "'.", value.line, value.col);
+            } else if (expression.hasNext() && !partial) {
+                part = expression.next();
+                throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
+            }           
+        }
+    
+    
+    },
+    
+    properties: {
+    
+        "box-shadow": function (value) {
+            var expression  = new PropertyValueIterator(value),
+                result      = false,
+                part;
+                
+            if (expression.hasNext()){
+                part = expression.peek();
+                
+                if (!Validation.types.literal(part, "none")) {
+                    Validation.types.multiProperty("<shadow>", value, expression);                       
+                } else {
+                    expression.next();
+                    if (expression.hasNext()) {
+                        part = expression.next();
+                        throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
+                    }   
+                }
+            }
+            
+        },
+        
+        "border-one-radius": function (value) {
+            this.singleProperty("<x-one-radius>", value);
+        }
+    
+    
+    }
+    
+    
+
+};
 /**
  * Type to use when a validation error occurs.
  * @class ValidationError
@@ -5631,6 +6128,7 @@ function ValidationError(message, line, col){
 //inherit from Error
 ValidationError.prototype = new Error();
 
+
 parserlib.css = {
 Colors              :Colors,    
 Combinator          :Combinator,                
@@ -5649,6 +6147,9 @@ Tokens              :Tokens,
 ValidationError     :ValidationError
 };
 })();
+
+
+
 /**
  * Main CSSLint object.
  * @class CSSLint
@@ -5662,7 +6163,7 @@ var CSSLint = (function(){
         formatters = [],
         api        = new parserlib.util.EventTarget();
         
-    api.version = "0.8.5";
+    api.version = "0.9.0";
 
     //-------------------------------------------------------------------------
     // Rule Management
@@ -5830,6 +6331,7 @@ var CSSLint = (function(){
     return api;
 
 })();
+
 /*global CSSLint*/
 /**
  * An instance of Report is used to report results of the
@@ -6227,15 +6729,15 @@ CSSLint.addRule({
 
         // See http://peter.sh/experiments/vendor-prefixed-css-property-overview/ for details
         compatiblePrefixes = {
-            "animation"                  : "webkit moz",
-            "animation-delay"            : "webkit moz",
-            "animation-direction"        : "webkit moz",
-            "animation-duration"         : "webkit moz",
-            "animation-fill-mode"        : "webkit moz",
-            "animation-iteration-count"  : "webkit moz",
-            "animation-name"             : "webkit moz",
-            "animation-play-state"       : "webkit moz",
-            "animation-timing-function"  : "webkit moz",
+            "animation"                  : "webkit moz ms",
+            "animation-delay"            : "webkit moz ms",
+            "animation-direction"        : "webkit moz ms",
+            "animation-duration"         : "webkit moz ms",
+            "animation-fill-mode"        : "webkit moz ms",
+            "animation-iteration-count"  : "webkit moz ms",
+            "animation-name"             : "webkit moz ms",
+            "animation-play-state"       : "webkit moz ms",
+            "animation-timing-function"  : "webkit moz ms",
             "appearance"                 : "webkit moz",
             "border-end"                 : "webkit moz",
             "border-end-color"           : "webkit moz",
@@ -6256,13 +6758,13 @@ CSSLint.addRule({
             "box-pack"                   : "webkit moz ms",
             "box-sizing"                 : "webkit moz",
             "box-shadow"                 : "webkit moz",
-            "column-count"               : "webkit moz",
-            "column-gap"                 : "webkit moz",
-            "column-rule"                : "webkit moz",
-            "column-rule-color"          : "webkit moz",
-            "column-rule-style"          : "webkit moz",
-            "column-rule-width"          : "webkit moz",
-            "column-width"               : "webkit moz",
+            "column-count"               : "webkit moz ms",
+            "column-gap"                 : "webkit moz ms",
+            "column-rule"                : "webkit moz ms",
+            "column-rule-color"          : "webkit moz ms",
+            "column-rule-style"          : "webkit moz ms",
+            "column-rule-width"          : "webkit moz ms",
+            "column-width"               : "webkit moz ms",
             "hyphens"                    : "epub moz",
             "line-break"                 : "webkit ms",
             "margin-end"                 : "webkit moz",
@@ -6275,13 +6777,13 @@ CSSLint.addRule({
             "text-size-adjust"           : "webkit ms",
             "transform"                  : "webkit moz ms o",
             "transform-origin"           : "webkit moz ms o",
-            "transition"                 : "webkit moz o",
-            "transition-delay"           : "webkit moz o",
-            "transition-duration"        : "webkit moz o",
-            "transition-property"        : "webkit moz o",
-            "transition-timing-function" : "webkit moz o",
+            "transition"                 : "webkit moz o ms",
+            "transition-delay"           : "webkit moz o ms",
+            "transition-duration"        : "webkit moz o ms",
+            "transition-property"        : "webkit moz o ms",
+            "transition-timing-function" : "webkit moz o ms",
             "user-modify"                : "webkit moz",
-            "user-select"                : "webkit moz",
+            "user-select"                : "webkit moz ms",
             "word-break"                 : "epub ms",
             "writing-mode"               : "epub ms"
         };
@@ -6485,6 +6987,43 @@ CSSLint.addRule({
 
 });
 /*
+ * Rule: Disallow duplicate background-images (using url).
+ */
+/*global CSSLint*/
+CSSLint.addRule({
+
+    //rule information
+    id: "duplicate-background-images",
+    name: "Disallow duplicate background images",
+    desc: "Every background-image should be unique. Use a common class for e.g. sprites.",
+    browsers: "All",
+
+    //initialization
+    init: function(parser, reporter){
+        var rule = this,
+            stack = {};
+
+        parser.addListener("property", function(event){
+            var name = event.property.text,
+                value = event.value,
+                i, len;
+
+            if (name.match(/background/i)) {
+                for (i=0, len=value.parts.length; i < len; i++) {
+                    if (value.parts[i].type == 'uri') {
+                        if (typeof stack[value.parts[i].uri] === 'undefined') {
+                            stack[value.parts[i].uri] = event;
+                        }
+                        else {
+                            reporter.report("Background image '" + value.parts[i].uri + "' was used multiple times, first declared at line " + stack[value.parts[i].uri].line + ", col " + stack[value.parts[i].uri].col + ".", event.line, event.col, rule);
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+/*
  * Rule: Duplicate properties must appear one after the other. If an already-defined
  * property appears somewhere else in the rule, then it's likely an error.
  */
@@ -6584,6 +7123,73 @@ CSSLint.addRule({
             reporter.error(event.message, event.line, event.col, rule);
         });
 
+    }
+
+});
+
+/*global CSSLint*/
+CSSLint.addRule({
+
+    //rule information
+    id: "fallback-colors",
+    name: "Require fallback colors",
+    desc: "For older browsers that don't support RGBA, HSL, or HSLA, provide a fallback color.",
+    browsers: "IE6,IE7,IE8",
+
+    //initialization
+    init: function(parser, reporter){
+        var rule = this,
+            lastProperty,
+            propertiesToCheck = {
+                color: 1,
+                background: 1,
+                "background-color": 1                
+            },
+            properties;
+        
+        function startRule(event){
+            properties = {};    
+            lastProperty = null;    
+        }
+        
+        parser.addListener("startrule", startRule);
+        parser.addListener("startfontface", startRule);
+        parser.addListener("startpage", startRule);
+        parser.addListener("startpagemargin", startRule);
+        parser.addListener("startkeyframerule", startRule);        
+        
+        parser.addListener("property", function(event){
+            var property = event.property,
+                name = property.text.toLowerCase(),
+                parts = event.value.parts,
+                i = 0, 
+                colorType = "",
+                len = parts.length;                
+                        
+            if(propertiesToCheck[name]){
+                while(i < len){
+                    if (parts[i].type == "color"){
+                        if ("alpha" in parts[i] || "hue" in parts[i]){
+                            
+                            if (/([^\)]+)\(/.test(parts[i])){
+                                colorType = RegExp.$1.toUpperCase();
+                            }
+                            
+                            if (!lastProperty || (lastProperty.property.text.toLowerCase() != name || lastProperty.colorType != "compat")){
+                                reporter.report("Fallback " + name + " (hex or RGB) should precede " + colorType + " " + name + ".", event.line, event.col, rule);
+                            }
+                        } else {
+                            event.colorType = "compat";
+                        }
+                    }
+                    
+                    i++;
+                }
+            }
+
+            lastProperty = event;
+        });        
+         
     }
 
 });
@@ -6709,6 +7315,7 @@ CSSLint.addRule({
             gradients = {
                 moz: 0,
                 webkit: 0,
+                oldWebkit: 0,
                 ms: 0,
                 o: 0
             };
@@ -6716,8 +7323,10 @@ CSSLint.addRule({
 
         parser.addListener("property", function(event){
 
-            if (/\-(moz|ms|o|webkit)(?:\-(?:linear|radial))\-gradient/.test(event.value)){
+            if (/\-(moz|ms|o|webkit)(?:\-(?:linear|radial))\-gradient/i.test(event.value)){
                 gradients[RegExp.$1] = 1;
+            } else if (/\-webkit\-gradient/i.test(event.value)){
+                gradients.oldWebkit = 1;
             }
 
         });
@@ -6730,7 +7339,11 @@ CSSLint.addRule({
             }
 
             if (!gradients.webkit){
-                missing.push("Webkit (Safari, Chrome)");
+                missing.push("Webkit (Safari 5+, Chrome)");
+            }
+            
+            if (!gradients.oldWebkit){
+                missing.push("Old Webkit (Safari 4+, Chrome)");
             }
 
             if (!gradients.ms){
@@ -6741,7 +7354,7 @@ CSSLint.addRule({
                 missing.push("Opera 11.1+");
             }
 
-            if (missing.length && missing.length < 4){            
+            if (missing.length && missing.length < 5){            
                 reporter.report("Missing vendor-prefixed CSS gradients for " + missing.join(", ") + ".", event.selectors[0].line, event.selectors[0].col, rule); 
             }
 
@@ -7536,7 +8149,7 @@ CSSLint.addRule({
         //event handler for end of rules
         function endRule(event){
             if (textIndent){
-                reporter.report("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set text-direction for that item to ltr.", textIndent.line, textIndent.col, rule);
+                reporter.report("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set direction for that item to ltr.", textIndent.line, textIndent.col, rule);
             }
         }        
         
@@ -8186,8 +8799,11 @@ CSSLint.addFormatter({
     }
 });
 
+
 return CSSLint;
 })();
+
+
 /*
  * Encapsulates all of the CLI functionality. The api argument simply
  * provides environment-specific functionality.
@@ -8261,6 +8877,7 @@ function cli(api){
             result = CSSLint.verify(input, gatherRules(options)),
             formatter = CSSLint.getFormatter(options.format || "text"),
             messages = result.messages || [],
+            output,
             exitCode = 0;
 
         if (!input) {
@@ -8269,8 +8886,11 @@ function cli(api){
         } else {
             //var relativeFilePath = getRelativePath(api.getWorkingDirectory(), fullFilePath);
             options.fullPath = api.getFullPath(relativeFilePath);
-            api.print(formatter.formatResults(result, relativeFilePath, options));
-
+            output = formatter.formatResults(result, relativeFilePath, options);
+            if (output){
+                api.print(output);
+            }
+            
             if (messages.length > 0 && pluckByType(messages, "error").length > 0) {
                 exitCode = 1;
             }
@@ -8393,8 +9013,6 @@ function cli(api){
         api.quit(0);
     }
 
-    //files = api.fixFilenames(files);
-
     api.quit(processFiles(files,options));
 }
 /*
@@ -8432,10 +9050,6 @@ cli({
         traverse(new File(dir));
 
         return files;    
-    },
-    
-    fixFilenames: function(files){
-        return files;
     },
 
     getWorkingDirectory: function() {

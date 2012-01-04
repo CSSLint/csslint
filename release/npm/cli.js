@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-/* Build time: 15-November-2011 07:33:18 */
+/* Build time: 4-January-2012 09:27:30 */
+
 /*
  * Encapsulates all of the CLI functionality. The api argument simply
  * provides environment-specific functionality.
@@ -73,6 +74,7 @@ function cli(api){
             result = CSSLint.verify(input, gatherRules(options)),
             formatter = CSSLint.getFormatter(options.format || "text"),
             messages = result.messages || [],
+            output,
             exitCode = 0;
 
         if (!input) {
@@ -81,8 +83,11 @@ function cli(api){
         } else {
             //var relativeFilePath = getRelativePath(api.getWorkingDirectory(), fullFilePath);
             options.fullPath = api.getFullPath(relativeFilePath);
-            api.print(formatter.formatResults(result, relativeFilePath, options));
-
+            output = formatter.formatResults(result, relativeFilePath, options);
+            if (output){
+                api.print(output);
+            }
+            
             if (messages.length > 0 && pluckByType(messages, "error").length > 0) {
                 exitCode = 1;
             }
@@ -205,8 +210,6 @@ function cli(api){
         api.quit(0);
     }
 
-    //files = api.fixFilenames(files);
-
     api.quit(processFiles(files,options));
 }
 /*
@@ -272,13 +275,7 @@ cli({
         traverse(dir, []);
 
         return files;
-    },
-    
-    fixFilenames: function(files){
-        return files.map(function(filename){
-            return path.resolve(process.cwd(), filename);
-        });
-    },
+    },    
 
     getWorkingDirectory: function() {
         return process.cwd();
@@ -292,4 +289,6 @@ cli({
         return fs.readFileSync(filename, "utf-8");    
     }
 });
+
+
 

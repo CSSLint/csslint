@@ -8803,3 +8803,349 @@ CSSLint.addFormatter({
 return CSSLint;
 })();
 
+
+/*
+ * Encapsulates all of the CLI functionality. The api argument simply
+ * provides environment-specific functionality.
+ */
+/*global CSSLint*/
+function cli(api){
+
+    //-------------------------------------------------------------------------
+    // Helper functions
+    //-------------------------------------------------------------------------
+    
+    /**
+     * Returns an array of messages for a particular type.
+     * @param messages {Array} Array of CSS Lint messages.
+     * @param type {String} The type of message to filter on.
+     * @return {Array} An array of matching messages.
+     */
+    function pluckByType(messages, type){
+        return messages.filter(function(message) {
+            return message.type === type;
+        });        
+    }
+
+    /**
+     * Returns a ruleset object based on the CLI options.
+     * @param options {Object} The CLI options.
+     * @return {Object} A ruleset object.
+     */
+    function gatherRules(options){
+        var ruleset,
+            warnings = options.rules || options.warnings,
+            errors = options.errors;
+        
+        if (warnings){
+            ruleset = ruleset || {};
+            warnings.split(",").forEach(function(value){
+                ruleset[value] = 1;
+            });
+        }
+        
+        if (errors){
+            ruleset = ruleset || {};
+            errors.split(",").forEach(function(value){
+                ruleset[value] = 2;
+            });
+        }
+        
+        return ruleset;
+    }
+
+    /**
+     * Outputs all available rules to the CLI.
+     * @return {void}
+     */
+    function printRules(){
+        api.print("");
+        var rules = CSSLint.getRules();
+        rules.forEach(function(rule){
+            api.print(rule.id + "\n" + rule.desc + "\n");
+        });
+    }
+
+    /**
+     * Given a file name and options, run verification and print formatted output.
+     * @param {String} relativeFilePath absolute file location
+     * @param {Object} options for processing
+     * @return {Number} exit code
+     */
+    function processFile(relativeFilePath, options) {
+        var input = api.readFile(relativeFilePath),
+            result = CSSLint.verify(input, gatherRules(options)),
+            formatter = CSSLint.getFormatter(options.format || "text"),
+            messages = result.messages || [],
+            output,
+            exitCode = 0;
+
+        if (!input) {
+            api.print("csslint: Could not read file data in " + relativeFilePath + ". Is the file empty?");
+            exitCode = 1;
+        } else {
+            //var relativeFilePath = getRelativePath(api.getWorkingDirectory(), fullFilePath);
+            options.fullPath = api.getFullPath(relativeFilePath);
+            output = formatter.formatResults(result, relativeFilePath, options);
+            if (output){
+                api.print(output);
+            }
+            
+            if (messages.length > 0 && pluckByType(messages, "error").length > 0) {
+                exitCode = 1;
+            }
+        }
+        
+        return exitCode;
+    }
+
+
+    /**
+     * Outputs the help screen to the CLI.
+     * @return {void}
+     */
+    function outputHelp(){
+        api.print([
+            "\nUsage: csslint-rhino.js [options]* [file|dir]*",
+            " ",
+            "Global Options",
+            "  --help                    Displays this information.",
+            "  --format=<format>         Indicate which format to use for output.",
+            "  --list-rules              Outputs all of the rules available.",
+            "  --quiet                   Only output when errors are present.",
+            "  --errors=<rule[,rule]+>   Indicate which rules to include as errors.",
+            "  --warnings=<rule[,rule]+> Indicate which rules to include as warnings.",
+            "  --version                 Outputs the current version number."
+        ].join("\n") + "\n");
+    }
+
+    /**
+     * Given an Array of filenames, print wrapping output and process them.
+     * @param files {Array} filenames list
+     * @param options {Object} options object
+     * @return {Number} exit code
+     */
+    function processFiles(files, options){
+        var exitCode = 0,
+            formatId = options.format || "text",
+            formatter,
+            output;
+            
+        if (!files.length) {
+            api.print("csslint: No files specified.");
+            exitCode = 1;
+        } else {
+            if (!CSSLint.hasFormat(formatId)){
+                api.print("csslint: Unknown format '" + formatId + "'. Cannot proceed.");
+                exitCode = 1; 
+            } else {
+                formatter = CSSLint.getFormatter(formatId);
+                
+                output = formatter.startFormat();
+                if (output){
+                    api.print(output);
+                }
+
+                files.forEach(function(file){
+                    if (exitCode === 0) {
+                        exitCode = processFile(file,options);
+                    } else {
+                        processFile(file,options);
+                    }
+                });
+                
+                output = formatter.endFormat();
+                if (output){
+                    api.print(output);
+                }
+            }
+        }
+        return exitCode;
+    }    
+
+    //-----------------------------------------------------------------------------
+    // Process command line
+    //-----------------------------------------------------------------------------
+
+    var args     = api.args,
+        argName,
+        parts,
+        arg      = args.shift(),
+        options  = {},
+        files    = [];
+
+    while(arg){
+        if (arg.indexOf("--") === 0){
+            argName = arg.substring(2);
+            options[argName] = true;
+            
+            if (argName.indexOf("=") > -1){
+                parts = argName.split("=");
+                options[parts[0]] = parts[1];
+            } else {
+                options[argName] = true;
+            }
+
+        } else {
+            
+            //see if it's a directory or a file
+            if (api.isDirectory(arg)){
+                files = files.concat(api.getFiles(arg));
+            } else {
+                files.push(arg);
+            }
+        }
+        arg = args.shift();
+    }
+
+    if (options.help || arguments.length === 0){
+        outputHelp();
+        api.quit(0);
+    }
+
+    if (options.version){
+        api.print("v" + CSSLint.version);
+        api.quit(0);
+    }
+
+    if (options["list-rules"]){
+        printRules();
+        api.quit(0);
+    }
+
+    api.quit(processFiles(files,options));
+}
+/*
+ * Windows Script Host Command Line Interface
+ */
+/*global ActiveXObject, WScript, Enumerator, cli*/
+//TODO: This file needs major cleanup!!!
+
+var wshapi = (function(){
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    var shell = WScript.CreateObject("WScript.Shell");
+    var finalArgs = [], i, args = WScript.Arguments;
+
+    if (typeof Array.prototype.forEach !== "function") {
+        Array.prototype.forEach = function(f,m) {
+            for (var i=0, L=this.length; i<L; ++i) {
+                f(this[i], i, m);
+            }
+        };
+    }
+
+    if (typeof Array.prototype.filter !== "function") {
+        Array.prototype.filter = function(fn /*, thisp*/) {
+            if (typeof fn != "function") {
+                throw new Error("not a function");
+            }
+            var res = [], val, thisp = finalArgs[1];
+            for (var i = 0, L = this.length; i < L; i++) {
+                if (i in this) {
+                    val = this[i]; // in case fun mutates this
+                    if (fn.call(thisp, val, i, this)){
+                        res.push(val);
+                    }
+                }
+            }
+
+            return res;
+        };
+    }
+
+    if (!Array.prototype.indexOf) {
+        Array.prototype.indexOf = function (searchElement /*, fromIndex */ ) {
+            "use strict";
+            if (this === void 0 || this === null) {
+                throw new Error("unknown instance");
+            }
+            var t = this;
+            var len = t.length >>> 0;
+            if (len === 0) {
+                return -1;
+            }
+            var n = 0;
+            if (finalArgs.length > 0) {
+                n = Number(finalArgs[1]);
+                if (n !== n) { // shortcut for verifying if it's NaN
+                    n = 0;
+                } else if (n !== 0 && n !== Infinity && n !== -Infinity) {
+                    n = (n > 0 || -1) * Math.floor(Math.abs(n));
+                }
+            }
+            if (n >= len) {
+                return -1;
+            }
+            var k = n >= 0 ? n : Math.max(len - Math.abs(n), 0);
+            for (; k < len; k++) {
+                if (k in t && t[k] === searchElement) {
+                    return k;
+                }
+            }
+            return -1;
+        };
+    }
+
+    function traverseDir(files, path) {
+        var filename, folder = fso.GetFolder(path),
+            subFlds, fc = new Enumerator(folder.files);
+
+        for (; !fc.atEnd(); fc.moveNext()) {
+            filename = fc.item();
+            if (/\.css$/.test(filename)) {
+                files.push(filename);
+            }
+        }
+
+        subFlds = new Enumerator(folder.SubFolders);
+        for (; !subFlds.atEnd(); subFlds.moveNext()) {
+            traverseDir(files, subFlds.item());
+        }
+    }
+
+    // turn the WScript.Arguments thing into a regular array
+    if (args.Length > 0) {
+        for (i = 0; i < args.Length; i++) {
+            finalArgs.push(args(i));
+        }
+    }
+
+    return {
+        args: finalArgs,
+        print: function(s) { WScript.Echo(s);},
+        quit: function (v) { WScript.Quit(v);},
+
+        isDirectory: function(name){
+            return fso.FolderExists(name);
+        },
+
+        getFiles: function(dir){
+            var files = [];
+            traverseDir(files, dir);
+            return files;
+        },
+
+        fixFilenames: function(files){
+            return files;
+        },
+
+        getWorkingDirectory: function() {
+            return shell.CurrentDirectory;
+        },
+
+        getFullPath: function(filename){
+            return fso.GetAbsolutePathName(filename);
+        },
+
+        readFile: function(path){
+            var forReading = 1;
+            var tf = fso.OpenTextFile(path, forReading);
+            var allText = tf.ReadAll();
+            tf.Close();
+            return allText;
+        }
+    };
+
+}());
+
+cli(wshapi);

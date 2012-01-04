@@ -1,3 +1,26 @@
+January 4, 2012 - v0.9.0
+
+* Updated parser color names (fixes #217) (Nicholas C. Zakas)
+* Updated contributor list. (Nicholas C. Zakas)
+* Updated compatible vendor prefix rule to support -ms-user-select (Nicholas C. Zakas)
+* Cleanup of text-indent rule and tests (Nicholas C. Zakas)
+* More tests for gradients rule (Nicholas C. Zakas)
+* Updated gradients rule with better messaging on warnings (Nicholas C. Zakas)
+* Updated compatible vendor prefix rules for IE10 (Nicholas C. Zakas)
+* Merge fixes (Nicholas C. Zakas)
+* Updated parser (fixes #212) (Nicholas C. Zakas)
+* Updated parser to fix a few small parsing bugs (Nicholas C. Zakas)
+* Fixed issue with extra whitespace being output in quiet mode for CLI (Nicholas C. Zakas)
+* Added Windows Script Host CLI (fixes #198) (Nicholas C. Zakas)
+* Updated parser with support for unknown @ rule error recovery (fixes #211) (Nicholas C. Zakas)
+* Further cleanup of background images rule (Nicholas C. Zakas)
+* Created rule to check for fallback colors when CSS3 colors are in use (fixes #207) (Nicholas C. Zakas)
+* Cleanup of hpbuniat's rule (Nicholas C. Zakas)
+* Merge pull request #200 from hpbuniat/duplicate-background-url (Nicholas C. Zakas)
+* use the power of parser-lib, as mentioned by nzakas (Hans-Peter Buniat)
+* added rule to detect multiple usage of the same background-image (Hans-Peter Buniat)
+
+
 November 15, 2011 - v0.8.5
 
 * Updated parser (fixes #206 and fixes #209) (Nicholas C. Zakas)
@@ -172,6 +195,8 @@ June 18, 2011 - v0.2.0
 June 15, 2011 - v0.1.0
 
 * Initial release
+
+
 
 
 
