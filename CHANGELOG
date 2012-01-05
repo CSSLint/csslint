@@ -1,3 +1,9 @@
+January 4, 2012 - v0.9.1
+
+* Updated parser to fix validation issues (fixes #219) (Nicholas C. Zakas)
+* Fixed license info, incorrectly said it was BSD but is actually MIT (Nicholas C. Zakas)
+
+
 January 4, 2012 - v0.9.0
 
 * Updated parser color names (fixes #217) (Nicholas C. Zakas)
@@ -195,6 +201,8 @@ June 18, 2011 - v0.2.0
 June 15, 2011 - v0.1.0
 
 * Initial release
+
+
 
 
 

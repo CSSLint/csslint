@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 4-January-2012 09:27:30 */
+/* Build time: 4-January-2012 05:18:36 */
 
 /*!
 Parser-Lib
@@ -46,7 +46,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Version v0.1.1, Build time: 4-January-2012 09:10:14 */
+/* Version v0.1.2, Build time: 4-January-2012 05:14:28 */
 var parserlib = {};
 (function(){
 
@@ -956,7 +956,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Version v0.1.1, Build time: 4-January-2012 09:10:14 */
+/* Version v0.1.2, Build time: 4-January-2012 05:14:28 */
 (function(){
 var EventTarget = parserlib.util.EventTarget,
 TokenStreamBase = parserlib.util.TokenStreamBase,
@@ -5685,7 +5685,7 @@ var Validation = {
                         if (literals.length) {
                             msg.push("one of (" + literals.join(" | ") + ")");
                         }
-                        throw new ValidationError("Expected " + msg.join(" or ") + " but found '" + part + "'.", value.line, value.col);
+                        throw new ValidationError("Expected " + (msg.join(" or ") || "end of value") + " but found '" + part + "'.", value.line, value.col);
                     }
                     
                     
@@ -5694,9 +5694,9 @@ var Validation = {
             }
             
             //for groups, make sure all items are there
-            if (group && group.total != types.length){
-                throw new ValidationError("Expected all of (" + types.join(", ") + ") but found '" + value + "'.", value.line, value.col);
-            }
+            //if (group && group.total != types.length){
+            //    throw new ValidationError("Expected all of (" + types.join(", ") + ") but found '" + value + "'.", value.line, value.col);
+            //}
         }
 
     },
@@ -5941,6 +5941,7 @@ var Validation = {
         "<shadow>": function(expression) {
             //inset? && [ <length>{2,4} && <color>? ]
             var result  = false,
+                inset   = false,
                 count   = 0,
                 part;
                 
@@ -5950,6 +5951,7 @@ var Validation = {
                 if (this.literal(part, "inset")){
                     expression.next();
                     part = expression.peek();
+                    inset = true;
                 }
                 
                 while (part && this["<length>"](part) && count < 4) {
@@ -5962,8 +5964,13 @@ var Validation = {
                 if (part) {
                     if (this["<color>"](part)) {
                         expression.next();
+                        part = expression.peek();
                     }
                 }
+                
+                if (part && this.literal(part, "inset") && !inset){
+                    expression.next();
+                }                
                 
                 result = (count >= 2 && count <= 4);
             
@@ -6162,7 +6169,7 @@ var CSSLint = (function(){
         formatters = [],
         api        = new parserlib.util.EventTarget();
         
-    api.version = "0.9.0";
+    api.version = "0.9.1";
 
     //-------------------------------------------------------------------------
     // Rule Management

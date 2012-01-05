@@ -1,6 +1,6 @@
 {
     "name": "csslint",
-    "version": "0.9.0",
+    "version": "0.9.1",
     "description": "CSSLint",
     "author": "Nicholas C. Zakas",
     "os": ["darwin", "linux"],
@@ -19,8 +19,8 @@
     },
     "licenses":[
         {
-            "type" : "BSD",
-            "url" : "http://www.freebsd.org/copyright/freebsd-license.html"
+            "type" : "MIT",
+            "url" : "https://github.com/stubbornella/csslint/blame/master/LICENSE"
         }
     ],
     "repository": {
