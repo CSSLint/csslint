@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 4-January-2012 05:18:36 */
+/* Build time: 5-January-2012 09:26:45 */
 
 /*!
 Parser-Lib
@@ -46,7 +46,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Version v0.1.2, Build time: 4-January-2012 05:14:28 */
+/* Version v0.1.3, Build time: 5-January-2012 09:23:31 */
 var parserlib = {};
 (function(){
 
@@ -956,7 +956,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Version v0.1.2, Build time: 4-January-2012 05:14:28 */
+/* Version v0.1.3, Build time: 5-January-2012 09:23:31 */
 (function(){
 var EventTarget = parserlib.util.EventTarget,
 TokenStreamBase = parserlib.util.TokenStreamBase,
@@ -3475,8 +3475,8 @@ var Properties = {
     "border-bottom-color"           : "<color>",
     "border-bottom-left-radius"     :  { single: "<x-one-radius>", complex: true },
     "border-bottom-right-radius"    :  { single: "<x-one-radius>", complex: true },
-    "border-bottom-style"           : "border-style",
-    "border-bottom-width"           : "border-width",
+    "border-bottom-style"           : "<border-style>",
+    "border-bottom-width"           : "<border-width>",
     "border-collapse"               : "collapse | separate | inherit",
     "border-color"                  : { multi: "<color> | inherit", max: 4 },
     "border-image"                  : 1,
@@ -5942,6 +5942,7 @@ var Validation = {
             //inset? && [ <length>{2,4} && <color>? ]
             var result  = false,
                 inset   = false,
+                color   = false,
                 count   = 0,
                 part;
                 
@@ -5954,6 +5955,14 @@ var Validation = {
                     inset = true;
                 }
                 
+                if (part) {
+                    if (this["<color>"](part)) {
+                        expression.next();
+                        part = expression.peek();
+                        color = true;
+                    }
+                }                
+                
                 while (part && this["<length>"](part) && count < 4) {
                     count++;
                     expression.next();                    
@@ -5962,7 +5971,7 @@ var Validation = {
                 
                 
                 if (part) {
-                    if (this["<color>"](part)) {
+                    if (this["<color>"](part) && !color) {
                         expression.next();
                         part = expression.peek();
                     }
@@ -6169,7 +6178,7 @@ var CSSLint = (function(){
         formatters = [],
         api        = new parserlib.util.EventTarget();
         
-    api.version = "0.9.1";
+    api.version = "0.9.2";
 
     //-------------------------------------------------------------------------
     // Rule Management

@@ -1,3 +1,8 @@
+January 5, 2012 - v0.9.2
+
+* More validations fixes (fixes #219) (Nicholas C. Zakas)
+
+
 January 4, 2012 - v0.9.1
 
 * Updated parser to fix validation issues (fixes #219) (Nicholas C. Zakas)
@@ -201,6 +206,8 @@ June 18, 2011 - v0.2.0
 June 15, 2011 - v0.1.0
 
 * Initial release
+
+
 
 
 
