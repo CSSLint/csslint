@@ -56,7 +56,7 @@ function cli(api){
         api.print("");
         var rules = CSSLint.getRules();
         rules.forEach(function(rule){
-            api.print(rule.id + "\n" + rule.desc + "\n");
+            api.print(rule.id + "\n  " + rule.desc + "\n");
         });
     }
 
