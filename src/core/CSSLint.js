@@ -125,7 +125,7 @@ var CSSLint = (function(){
             parser = new parserlib.css.Parser({ starHack: true, ieFilters: true,
                                                 underscoreHack: true, strict: false });
 
-        lines = text.split(/\n\r?/g);
+        lines = text.replace(/\n\r?/g, "$split$").split('$split$');
         
         if (!ruleset){
             ruleset = {};
