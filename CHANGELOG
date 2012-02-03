@@ -1,3 +1,14 @@
+February 3, 2012 - v0.9.5
+
+* Ensure time values are properly checked (fixes #228) (Nicholas C. Zakas)
+* Implemented rule to avoid unqualified attribute selectors (fixes 218) (Nicholas C. Zakas)
+* Ensure 0s, 0ms don't say to omit the units (fixes #224) (Nicholas C. Zakas)
+* Merge pull request #227 from daniellmb/patch-1 (Nicholas C. Zakas)
+* This is seems to be a bug with the regex use of split, blank lines are not included so the line number used for evidence don't match up. (Daniel Lamb)
+* Merge pull request #225 from Zearin/master (Nicholas C. Zakas)
+* Added 2-space indentation for output of `--list-rules`. (Tony)
+
+
 January 5, 2012 - v0.9.2
 
 * More validations fixes (fixes #219) (Nicholas C. Zakas)
@@ -206,6 +217,8 @@ June 18, 2011 - v0.2.0
 June 15, 2011 - v0.1.0
 
 * Initial release
+
+
 
 
 

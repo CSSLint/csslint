@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Build time: 5-January-2012 09:26:45 */
+/* Build time: 3-February-2012 11:27:02 */
 
 /*
  * Encapsulates all of the CLI functionality. The api argument simply
@@ -59,7 +59,7 @@ function cli(api){
         api.print("");
         var rules = CSSLint.getRules();
         rules.forEach(function(rule){
-            api.print(rule.id + "\n" + rule.desc + "\n");
+            api.print(rule.id + "\n  " + rule.desc + "\n");
         });
     }
 

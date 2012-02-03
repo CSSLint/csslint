@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 5-January-2012 09:26:45 */
+/* Build time: 3-February-2012 11:27:02 */
 
 /*!
 Parser-Lib
@@ -46,7 +46,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Version v0.1.3, Build time: 5-January-2012 09:23:31 */
+/* Version v0.1.4, Build time: 31-January-2012 10:55:24 */
 var parserlib = {};
 (function(){
 
@@ -956,7 +956,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Version v0.1.3, Build time: 5-January-2012 09:23:31 */
+/* Version v0.1.4, Build time: 31-January-2012 10:55:24 */
 (function(){
 var EventTarget = parserlib.util.EventTarget,
 TokenStreamBase = parserlib.util.TokenStreamBase,
@@ -3436,45 +3436,105 @@ nth
          ['-'|'+']? INTEGER | {O}{D}{D} | {E}{V}{E}{N} ] S*
   ;
 */
+/*global Validation, ValidationTypes, ValidationError*/
 var Properties = {
 
     //A
     "alignment-adjust"              : "auto | baseline | before-edge | text-before-edge | middle | central | after-edge | text-after-edge | ideographic | alphabetic | hanging | mathematical | <percentage> | <length>",
     "alignment-baseline"            : "baseline | use-script | before-edge | text-before-edge | after-edge | text-after-edge | central | middle | ideographic | alphabetic | hanging | mathematical",
     "animation"                     : 1,
-    "animation-delay"               : { multi: "<time>", separator: "," },
-    "animation-direction"           : { multi: "normal | alternate", separator: "," },
-    "animation-duration"            : { multi: "<time>", separator: "," },
-    "animation-iteration-count"     : { multi: "<number> | infinite", separator: "," },
-    "animation-name"                : { multi: "none | <ident>", separator: "," },
-    "animation-play-state"          : { multi: "running | paused", separator: "," },
+    "animation-delay"               : { multi: "<time>", comma: true },
+    "animation-direction"           : { multi: "normal | alternate", comma: true },
+    "animation-duration"            : { multi: "<time>", comma: true },
+    "animation-iteration-count"     : { multi: "<number> | infinite", comma: true },
+    "animation-name"                : { multi: "none | <ident>", comma: true },
+    "animation-play-state"          : { multi: "running | paused", comma: true },
     "animation-timing-function"     : 1,
+    
+    //vendor prefixed
+    "-moz-animation-delay"               : { multi: "<time>", comma: true },
+    "-moz-animation-direction"           : { multi: "normal | alternate", comma: true },
+    "-moz-animation-duration"            : { multi: "<time>", comma: true },
+    "-moz-animation-iteration-count"     : { multi: "<number> | infinite", comma: true },
+    "-moz-animation-name"                : { multi: "none | <ident>", comma: true },
+    "-moz-animation-play-state"          : { multi: "running | paused", comma: true },
+    
+    "-ms-animation-delay"               : { multi: "<time>", comma: true },
+    "-ms-animation-direction"           : { multi: "normal | alternate", comma: true },
+    "-ms-animation-duration"            : { multi: "<time>", comma: true },
+    "-ms-animation-iteration-count"     : { multi: "<number> | infinite", comma: true },
+    "-ms-animation-name"                : { multi: "none | <ident>", comma: true },
+    "-ms-animation-play-state"          : { multi: "running | paused", comma: true },
+    
+    "-webkit-animation-delay"               : { multi: "<time>", comma: true },
+    "-webkit-animation-direction"           : { multi: "normal | alternate", comma: true },
+    "-webkit-animation-duration"            : { multi: "<time>", comma: true },
+    "-webkit-animation-iteration-count"     : { multi: "<number> | infinite", comma: true },
+    "-webkit-animation-name"                : { multi: "none | <ident>", comma: true },
+    "-webkit-animation-play-state"          : { multi: "running | paused", comma: true },
+    
+    "-o-animation-delay"               : { multi: "<time>", comma: true },
+    "-o-animation-direction"           : { multi: "normal | alternate", comma: true },
+    "-o-animation-duration"            : { multi: "<time>", comma: true },
+    "-o-animation-iteration-count"     : { multi: "<number> | infinite", comma: true },
+    "-o-animation-name"                : { multi: "none | <ident>", comma: true },
+    "-o-animation-play-state"          : { multi: "running | paused", comma: true },        
+    
     "appearance"                    : "icon | window | desktop | workspace | document | tooltip | dialog | button | push-button | hyperlink | radio-button | checkbox | menu-item | tab | menu | menubar | pull-down-menu | pop-up-menu | list-menu | radio-group | checkbox-group | outline-tree | range | field | combo-box | signature | password | normal | inherit",
-    "azimuth"                       : 1,
+    "azimuth"                       : function (expression) {
+        var simple      = "<angle> | leftwards | rightwards | inherit",
+            direction   = "left-side | far-left | left | center-left | center | center-right | right | far-right | right-side",
+            behind      = false,
+            valid       = false,
+            part;
+        
+        if (!ValidationTypes.isAny(expression, simple)) {
+            if (ValidationTypes.isAny(expression, "behind")) {
+                behind = true;
+                valid = true;
+            }
+            
+            if (ValidationTypes.isAny(expression, direction)) {
+                valid = true;
+                if (!behind) {
+                    ValidationTypes.isAny(expression, "behind");
+                }
+            }
+        }
+        
+        if (expression.hasNext()) {
+            part = expression.next();
+            if (valid) {
+                throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
+            } else {
+                throw new ValidationError("Expected (<'azimuth'>) but found '" + part + "'.", part.line, part.col);
+            }
+        }        
+    },
     
     //B
     "backface-visibility"           : "visible | hidden",
     "background"                    : 1,
-    "background-attachment"         : { multi: "<attachment>", separator: "," },
-    "background-clip"               : { multi: "<box>", separator: "," },
+    "background-attachment"         : { multi: "<attachment>", comma: true },
+    "background-clip"               : { multi: "<box>", comma: true },
     "background-color"              : "<color> | inherit",
-    "background-image"              : { multi: "<bg-image>", separator: "," },
-    "background-origin"             : { multi: "<box>", separator: "," },
-    "background-position"           : { multi: "<bg-position>", separator: ",", complex: true },
-    "background-repeat"             : { multi: "<repeat-style>", complex: true },
-    "background-size"               : { multi: "<bg-size>", separator: ",", complex: true },
-    "baseline-shift"                : "baseline | sub | super | <percentage> <length>",
+    "background-image"              : { multi: "<bg-image>", comma: true },
+    "background-origin"             : { multi: "<box>", comma: true },
+    "background-position"           : { multi: "<bg-position>", comma: true },
+    "background-repeat"             : { multi: "<repeat-style>" },
+    "background-size"               : { multi: "<bg-size>", comma: true },
+    "baseline-shift"                : "baseline | sub | super | <percentage> | <length>",
     "binding"                       : 1,
     "bleed"                         : "<length>",
     "bookmark-label"                : "<content> | <attr> | <string>",
     "bookmark-level"                : "none | <integer>",
     "bookmark-state"                : "open | closed",
     "bookmark-target"               : "none | <uri> | <attr>",
-    "border"                        : { group: "<border-width> || <border-style> || <color>" },
-    "border-bottom"                 : { group: "<border-width> || <border-style> || <color>" },
+    "border"                        : "<border-width> || <border-style> || <color>",
+    "border-bottom"                 : "<border-width> || <border-style> || <color>",
     "border-bottom-color"           : "<color>",
-    "border-bottom-left-radius"     :  { single: "<x-one-radius>", complex: true },
-    "border-bottom-right-radius"    :  { single: "<x-one-radius>", complex: true },
+    "border-bottom-left-radius"     :  "<x-one-radius>",
+    "border-bottom-right-radius"    :  "<x-one-radius>",
     "border-bottom-style"           : "<border-style>",
     "border-bottom-width"           : "<border-width>",
     "border-collapse"               : "collapse | separate | inherit",
@@ -3482,23 +3542,93 @@ var Properties = {
     "border-image"                  : 1,
     "border-image-outset"           : { multi: "<length> | <number>", max: 4 },
     "border-image-repeat"           : { multi: "stretch | repeat | round", max: 2 },
-    "border-image-slice"            : 1,
+    "border-image-slice"            : function(expression) {
+        
+        var valid   = false,
+            numeric = "<number> | <percentage>",
+            fill    = false,
+            count   = 0,
+            max     = 4,
+            part;
+        
+        if (ValidationTypes.isAny(expression, "fill")) {
+            fill = true;
+            valid = true;
+        }
+        
+        while (expression.hasNext() && count < max) {
+            valid = ValidationTypes.isAny(expression, numeric);
+            if (!valid) {
+                break;
+            }
+            count++;
+        }
+        
+        
+        if (!fill) {
+            ValidationTypes.isAny(expression, "fill");
+        } else {
+            valid = true;
+        }
+        
+        if (expression.hasNext()) {
+            part = expression.next();
+            if (valid) {
+                throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
+            } else {
+                throw new ValidationError("Expected ([<number> | <percentage>]{1,4} && fill?) but found '" + part + "'.", part.line, part.col);
+            }
+        }         
+    },
     "border-image-source"           : "<image> | none",
     "border-image-width"            : { multi: "<length> | <percentage> | <number> | auto", max: 4 },
-    "border-left"                   : { group: "<border-width> || <border-style> || <color>" },
+    "border-left"                   : "<border-width> || <border-style> || <color>",
     "border-left-color"             : "<color> | inherit",
     "border-left-style"             : "<border-style>",
     "border-left-width"             : "<border-width>",
-    "border-radius"                 : 1,
-    "border-right"                  : { group: "<border-width> || <border-style> || <color>" },
+    "border-radius"                 : function(expression) {
+        
+        var valid   = false,
+            numeric = "<length> | <percentage>",
+            slash   = false,
+            fill    = false,
+            count   = 0,
+            max     = 8,
+            part;
+
+        while (expression.hasNext() && count < max) {
+            valid = ValidationTypes.isAny(expression, numeric);
+            if (!valid) {
+            
+                if (expression.peek() == "/" && count > 1 && !slash) {
+                    slash = true;
+                    max = count + 5;
+                    expression.next();
+                } else {
+                    break;
+                }
+            }
+            count++;
+        }
+        
+        if (expression.hasNext()) {
+            part = expression.next();
+            if (valid) {
+                throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
+            } else {
+                throw new ValidationError("Expected (<'border-radius'>) but found '" + part + "'.", part.line, part.col);
+            }
+        }         
+    },
+    "border-right"                  : "<border-width> || <border-style> || <color>",
     "border-right-color"            : "<color> | inherit",
     "border-right-style"            : "<border-style>",
     "border-right-width"            : "<border-width>",
     "border-style"                  : { multi: "<border-style>", max: 4 },
-    "border-top"                    : { group: "<border-width> || <border-style> || <color>" },
+    "border-top"                    : "<border-width> || <border-style> || <color>",
     "border-top-color"              : "<color> | inherit",
-    "border-top-left-radius"        : { single: "<x-one-radius>", complex: true },
-    "border-top-right-radius"       : { single: "<x-one-radius>", complex: true },
+    "border-top-left-radius"        : "<x-one-radius>",
+    "border-top-right-radius"       : "<x-one-radius>",
     "border-top-style"              : "<border-style>",
     "border-top-width"              : "<border-width>",
     "border-width"                  : { multi: "<border-width>", max: 4 },
@@ -3512,7 +3642,19 @@ var Properties = {
     "box-ordinal-group"             : "<integer>",
     "box-orient"                    : "horizontal | vertical | inline-axis | block-axis | inherit",
     "box-pack"                      : "start | end | center | justify",
-    "box-shadow"                    : { property: true },
+    "box-shadow"                    : function (expression) {
+        var result      = false,
+            part;
+
+        if (!ValidationTypes.isAny(expression, "none")) {
+            Validation.multiProperty("<shadow>", expression, true, Infinity);                       
+        } else {
+            if (expression.hasNext()) {
+                part = expression.next();
+                throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
+            }   
+        }
+    },
     "box-sizing"                    : "content-box | border-box | inherit",
     "break-after"                   : "auto | always | avoid | left | right | page | column | avoid-page | avoid-column",
     "break-before"                  : "auto | always | avoid | left | right | page | column | avoid-page | avoid-column",
@@ -3527,7 +3669,7 @@ var Properties = {
     "column-count"                  : "<integer> | auto",                      //http://www.w3.org/TR/css3-multicol/
     "column-fill"                   : "auto | balance",
     "column-gap"                    : "<length> | normal",
-    "column-rule"                   : { group: "<border-width> || <border-style> || <color>" },
+    "column-rule"                   : "<border-width> || <border-style> || <color>",
     "column-rule-color"             : "<color>",
     "column-rule-style"             : "<border-style>",
     "column-rule-width"             : "<border-width>",
@@ -3867,6 +4009,13 @@ function PropertyValueIterator(value){
      */
     this._marks = [];
     
+    /**
+     * Holds the original property value.
+     * @type parserlib.css.PropertyValue
+     * @property value
+     */
+    this.value = value;
+    
 }
 
 /**
@@ -3876,6 +4025,15 @@ function PropertyValueIterator(value){
  */
 PropertyValueIterator.prototype.count = function(){
     return this._parts.length;
+};
+
+/**
+ * Indicates if the iterator is positioned at the first item.
+ * @return {Boolean} True if positioned at first item, false if not.
+ * @method isFirst
+ */
+PropertyValueIterator.prototype.isFirst = function(){
+    return this._i === 0;
 };
 
 /**
@@ -3917,6 +4075,17 @@ PropertyValueIterator.prototype.peek = function(count){
  */
 PropertyValueIterator.prototype.next = function(){
     return this.hasNext() ? this._parts[this._i++] : null;
+};
+
+/**
+ * Returns the previous part of the property value or null if there is no
+ * previous part.
+ * @return {parserlib.css.PropertyValuePart} The previous part of the 
+ * property value or null if there is no next part.
+ * @method previous
+ */
+PropertyValueIterator.prototype.previous = function(){
+    return this._i > 0 ? this._parts[--this._i] : null;
 };
 
 /**
@@ -5566,7 +5735,7 @@ var Tokens  = [
 
 
 //This file will likely change a lot! Very experimental!
-/*global Properties, ValidationError, PropertyValueIterator */
+/*global Properties, ValidationTypes, ValidationError, PropertyValueIterator */
 var Validation = {
 
     validate: function(property, value){
@@ -5593,516 +5762,142 @@ var Validation = {
         
             //initialization
             if (typeof spec == "string"){
-                types = spec.split(/\s\|\s/g);
-                max = 1;
-            } else if (spec.multi) {
-                types = spec.multi.split(/\s\|\s/g);
-                max = spec.max;
-            } else if (spec.single) {
-                types = spec.single.split(/\s\|\s/g);
-            } else if (spec.group){
-                types = spec.group.split(/\s\|\|\s/g);
-                group = { total: 0 };
-            }
-
-            //Start validation----        
-            //TODO: Clean up once I figure out the best way to do this
-            //Check for complex validations first
-            if (spec.complex) {
-                if (spec.multi) {
-                    Validation.types.multiProperty(types[0], value);
+                if (spec.indexOf("||") > -1) {
+                    this.groupProperty(spec, expression);
                 } else {
-                    Validation.types.singleProperty(types[0], value);
+                    this.singleProperty(spec, expression, 1);
                 }
-            } else if (spec.property) {
-                Validation.properties[name](value);
-            } else {
 
-                //if there's a maximum set, use it (max can't be 0)
-                if (max) {
-                    if (parts.length > max){
-                        throw new ValidationError("Expected a max of " + max + " property value(s) but found " + parts.length + ".", value.line, value.col);
-                    }
-                }                
-
-                while (expression.hasNext()){
-                    part = expression.peek();
-                    msg = [];
-                    valid = false;
-                    
-                    if (spec.separator && part.type == "operator"){
-                        
-                        //two operators in a row - not allowed?
-                        if ((last && last.type == "operator")){
-                            msg = msg.concat(types);
-                        } else if (!expression.peek(1)){
-                            msg = msg.concat("end of line");
-                        } else if (part != spec.separator){
-                            msg.push("'" + spec.separator + "'");
-                        } else {
-                            valid = true;
-                            expression.next();
-                            
-                            //if it's a group, reset the tracker
-                            if (group) {
-                                group = { total: 0 };
-                            }
-                        }
-                    } else {
-
-                        literals = [];
-
-                        for (j=0, count=types.length; j < count; j++){
-                        
-                            //if it's a group and one of the values has been found, skip it
-                            if (group && group[types[j]]){
-                                continue;
-                            }                   
-                            
-                            expression.mark();
-                            if (typeof Validation.types[types[j]] == "undefined"){
-                                valid = Validation.types.literal(expression.next(), types[j]);
-                                literals.push(types[j]);
-                            } else {
-                                valid = Validation.types[types[j]](expression.next());
-                                msg.push(types[j]);
-                            }
-
-                            if (valid) {
-                                if (group){
-                                    group[types[j]] = 1;
-                                    group.total++;
-                                }
-                                break;  
-                            } else {
-                                expression.restore();
-                            }
-                        }
-                    }
-
-                    
-                    if (!valid) {
-                        if (literals.length) {
-                            msg.push("one of (" + literals.join(" | ") + ")");
-                        }
-                        throw new ValidationError("Expected " + (msg.join(" or ") || "end of value") + " but found '" + part + "'.", value.line, value.col);
-                    }
-                    
-                    
-                    last = part;
-                }                          
+            } else if (spec.multi) {
+                this.multiProperty(spec.multi, expression, spec.comma, spec.max || Infinity);
+            } else if (typeof spec == "function") {
+                spec(expression);
             }
-            
-            //for groups, make sure all items are there
-            //if (group && group.total != types.length){
-            //    throw new ValidationError("Expected all of (" + types.join(", ") + ") but found '" + value + "'.", value.line, value.col);
-            //}
+
         }
 
     },
-
-    types: {
     
-        any: function(part, spec) {
-            var types = spec.split(/\s\|\s/g),
-                result = false,
-                i, len;
-                
-            for (i=0, len=types.length; i < len && !result; i++){
-                if (this[types[i]]){
-                    result = this[types[i]](part);
-                } else {
-                    result = this.literal(part, types[i]);
-                }
-            }
-            
-            return result;
-        },
+    singleProperty: function(types, expression, max, partial) {
 
-        "<absolute-size>": function(part){
-            return this.literal(part, "xx-small | x-small | small | medium | large | x-large | xx-large");
-        },
-        
-        "<attachment>": function(part){
-            return this.literal(part, "scroll | fixed | local");
-        },
-        
-        "<attr>": function(part){
-            return part.type == "function" && part.name == "attr";
-        },
-                
-        "<bg-image>": function(part){
-            return this["<image>"](part) || part == "none";
-        },        
-        
-        "<box>": function(part){
-            return this.literal(part, "padding-box | border-box | content-box");
-        },
-        
-        "<content>": function(part){
-            return part.type == "function" && part.name == "content";
-        },        
-        
-        "<relative-size>": function(part){
-            return this.literal(part, "smaller | larger");
-        },
-        
-        //any identifier
-        "<ident>": function(part){
-            return part.type == "identifier";
-        },
-        
-        //specific identifiers
-        "literal": function(part, options){
-            var text = part.text.toString().toLowerCase(),
-                args = options.split(" | "),
-                i, len, found = false;
-
-            
-            for (i=0,len=args.length; i < len && !found; i++){
-                if (text == args[i]){
-                    found = true;
-                }
-            }
-            
-            return found;
-        },
-        
-        "<length>": function(part){
-            return part.type == "length" || part.type == "number" || part.type == "integer" || part == "0";
-        },
-        
-        "<color>": function(part){
-            return part.type == "color" || part == "transparent";
-        },
-        
-        "<number>": function(part){
-            return part.type == "number" || this["<integer>"](part);
-        },
-        
-        "<integer>": function(part){
-            return part.type == "integer";
-        },
-        
-        "<line>": function(part){
-            return part.type == "integer";
-        },
-        
-        "<angle>": function(part){
-            return part.type == "angle";
-        },        
-        
-        "<uri>": function(part){
-            return part.type == "uri";
-        },
-        
-        "<image>": function(part){
-            return this["<uri>"](part);
-        },
-        
-        "<percentage>": function(part){
-            return part.type == "percentage" || part == "0";
-        },
-
-        "<border-width>": function(part){
-            return this["<length>"](part) || this.literal(part, "thin | medium | thick");
-        },
-        
-        "<border-style>": function(part){
-            return this.literal(part, "none | hidden | dotted | dashed | solid | double | groove | ridge | inset | outset");
-        },
-        
-        "<margin-width>": function(part){
-            return this["<length>"](part) || this["<percentage>"](part) || this.literal(part, "auto");
-        },
-        
-        "<padding-width>": function(part){
-            return this["<length>"](part) || this["<percentage>"](part);
-        },
-        
-        "<shape>": function(part){
-            return part.type == "function" && (part.name == "rect" || part.name == "inset-rect");
-        },
-
-        //---------------------------------------------------------------------
-        // Complex Types
-        //---------------------------------------------------------------------        
-    
-        "<bg-position>": function(expression){
-            var types   = this,
-                result  = false,
-                numeric = "<percentage> | <length>",
-                xDir    = "left | center | right",
-                yDir    = "top | center | bottom",
-                part,
-                i, len;
-            
-            if (expression.hasNext()){
-            
-                part = expression.next();
-                
-                if (types.literal(part, "top | bottom")) {
-                    result = true;
-                } else {
-                    
-                    //must be two-part
-                    if (types.any(part, numeric)){
-                        if (expression.hasNext()){
-                            part = expression.next();                            
-                            result = types.any(part, numeric + " | " + yDir);
-                        }
-                    } else if (types.any(part, xDir)){
-                        if (expression.hasNext()){
-                            part = expression.next();
-                            
-                            //two- or three-part
-                            if (types.any(part, yDir)){
-                                 result = true;
-                          
-                                if (expression.hasNext() && types.any(expression.peek(), numeric)) {
-                                    expression.next();
-                                } 
-
-                            } else if (types.any(part, numeric)){
-                            
-                                //could also be two-part, so check the next part
-                                if (expression.hasNext() && types.any(expression.peek(), yDir)){
-                                        expression.next();  //skip, already tested
-                                        part = expression.next();
-                                        
-                                        if (expression.hasNext() && types.any(expression.peek(), numeric)){
-                                            expression.next();
-                                            result = true;
-                                        } else {
-                                            result = true;
-                                        }
-                                   
-                                } else {
-                                    result = true;  //it's two-part
-                                }
-                            }
-                        }
-                    }                                 
-                }            
-            }
-            
-            return result;
-        },
-
-        "<bg-size>": function(expression){
-            //<bg-size> = [ <length> | <percentage> | auto ]{1,2} | cover | contain
-            var types   = this,
-                result  = false,
-                numeric = "<percentage> | <length> | auto",
-                part,
-                i, len;      
-      
-            if (expression.hasNext()){
-                part = expression.next();
-                
-                if (types.literal(part, "cover | contain")) {
-                    result = true;
-                } else if (types.any(part, numeric)) {
-                    result = true;
-                    
-                    if (expression.hasNext() && types.any(expression.peek(), numeric)) {
-                        expression.next();
-                    }
-                }
-            }          
-            
-            return result;
-        },
-        
-        "<repeat-style>": function(expression){
-            //repeat-x | repeat-y | [repeat | space | round | no-repeat]{1,2}
-            var result  = false,
-                values  = "repeat | space | round | no-repeat",
-                part;
-            
-            if (expression.hasNext()){
-                part = expression.next();
-                
-                if (this.literal(part, "repeat-x | repeat-y")) {
-                    result = true;                    
-                } else if (this.literal(part, values)) {
-                    result = true;
-
-                    if (expression.hasNext() && this.literal(expression.peek(), values)) {
-                        expression.next();
-                    }
-                }
-            }
-            
-            return result;
-            
-        },
-        
-        "<shadow>": function(expression) {
-            //inset? && [ <length>{2,4} && <color>? ]
-            var result  = false,
-                inset   = false,
-                color   = false,
-                count   = 0,
-                part;
-                
-            if (expression.hasNext()) {            
-                part = expression.peek();
-                
-                if (this.literal(part, "inset")){
-                    expression.next();
-                    part = expression.peek();
-                    inset = true;
-                }
-                
-                if (part) {
-                    if (this["<color>"](part)) {
-                        expression.next();
-                        part = expression.peek();
-                        color = true;
-                    }
-                }                
-                
-                while (part && this["<length>"](part) && count < 4) {
-                    count++;
-                    expression.next();                    
-                    part = expression.peek();
-                }
-                
-                
-                if (part) {
-                    if (this["<color>"](part) && !color) {
-                        expression.next();
-                        part = expression.peek();
-                    }
-                }
-                
-                if (part && this.literal(part, "inset") && !inset){
-                    expression.next();
-                }                
-                
-                result = (count >= 2 && count <= 4);
-            
-            }
-            
-            return result;
-        },
-        
-        "<x-one-radius>": function(expression) {
-            //[ <length> | <percentage> ] [ <length> | <percentage> ]?
-            var result  = false,
-                count   = 0,
-                numeric = "<length> | <percentage>",
-                part;
-                
-            if (expression.hasNext()) {            
-                part = expression.peek();
-                
-                if (this.any(part, numeric)){
-                    result = true;
-                    expression.next();
-                    part = expression.peek();
-                    
-                    if (part && this.any(part, numeric)){
-                        expression.next();
-                    }
-                }                
-            
-            }
-            
-            return result;
-        },        
-        
-        //---------------------------------------------------------------------
-        // Properties
-        //---------------------------------------------------------------------
-        
-        singleProperty: function ( type, value, expression, partial ) {
-            //so ashamed...
-            expression  = expression || new PropertyValueIterator(value);
-            
-            var result      = false,
-                part;
-                
-            if (expression.hasNext()) {
-                if ( this[type](expression) ) {
-                    result = true;
-                } 
-            }
-            
+        var result      = false,
+            value       = expression.value,
+            count       = 0,
+            part;
+         
+        while (expression.hasNext() && count < max) {
+            result = ValidationTypes.isAny(expression, types);
             if (!result) {
-                throw new ValidationError("Expected " + type + " but found '" + value + "'.", value.line, value.col);
-            } else if (expression.hasNext() && !partial) {
-                part = expression.next();
+                break;
+            }
+            count++;
+        }
+        
+        if (!result) {
+            if (expression.hasNext() && !expression.isFirst()) {
+                part = expression.peek();
                 throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
-            }             
-        },
-        
-        multiProperty: function ( type, value, expression, partial ) {
-        
-            //so ashamed...
-            expression  = expression || new PropertyValueIterator(value);
+            } else {
+                 throw new ValidationError("Expected (" + types + ") but found '" + value + "'.", value.line, value.col);
+            }        
+        } else if (expression.hasNext()) {
+            part = expression.next();
+            throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
+        }          
+                 
+    },    
+    
+    multiProperty: function (types, expression, comma, max) {
+
+        var result      = false,
+            value       = expression.value,
+            count       = 0,
+            sep         = false,
+            part;
             
-            var result      = false,
-                part;
-                
-            while(expression.hasNext() && !result) {
-                if ( this[type]( expression ) ) {
-                    
-                    if (!expression.hasNext()) {
-                        result = true;
-                    } else if (expression.peek() == ",") {
-                        expression.next();
+        while(expression.hasNext() && !result && count < max) {
+            if (ValidationTypes.isAny(expression, types)) {
+                count++;
+                if (!expression.hasNext()) {
+                    result = true;
+
+                } else if (comma) {
+                    if (expression.peek() == ",") {
+                        part = expression.next();
                     } else {
-                        result = true;
                         break;
                     }
+                }
+            } else {
+                break;
+
+            }
+        }
+        
+        if (!result) {
+            if (expression.hasNext() && !expression.isFirst()) {
+                part = expression.peek();
+                throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
+            } else {
+                part = expression.previous();
+                if (comma && part == ",") {
+                    throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col); 
                 } else {
-                    break;
+                    throw new ValidationError("Expected (" + types + ") but found '" + value + "'.", value.line, value.col);
                 }
             }
-            
-            if (!result) {
-                throw new ValidationError("Expected " + type + " but found '" + value + "'.", value.line, value.col);
-            } else if (expression.hasNext() && !partial) {
-                part = expression.next();
-                throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
-            }           
-        }
-    
-    
+        
+        } else if (expression.hasNext()) {
+            part = expression.next();
+            throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
+        }  
+
     },
     
-    properties: {
-    
-        "box-shadow": function (value) {
-            var expression  = new PropertyValueIterator(value),
-                result      = false,
-                part;
-                
-            if (expression.hasNext()){
-                part = expression.peek();
-                
-                if (!Validation.types.literal(part, "none")) {
-                    Validation.types.multiProperty("<shadow>", value, expression);                       
-                } else {
-                    expression.next();
-                    if (expression.hasNext()) {
-                        part = expression.next();
-                        throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
-                    }   
-                }
-            }
+    groupProperty: function (types, expression, comma) {
+
+        var result      = false,
+            value       = expression.value,
+            typeCount   = types.split("||").length,
+            groups      = { count: 0 },
+            partial     = false,
+            name,
+            part;
             
-        },
-        
-        "border-one-radius": function (value) {
-            this.singleProperty("<x-one-radius>", value);
+        while(expression.hasNext() && !result) {
+            name = ValidationTypes.isAnyOfGroup(expression, types);
+            if (name) {
+            
+                //no dupes
+                if (groups[name]) {
+                    break;
+                } else {
+                    groups[name] = 1;
+                    groups.count++;
+                    partial = true;
+                    
+                    if (groups.count == typeCount || !expression.hasNext()) {
+                        result = true;
+                    }
+                }
+            } else {
+                break;
+            }
         }
-    
-    
+        
+        if (!result) {        
+            if (partial && expression.hasNext()) {
+                    part = expression.peek();
+                    throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
+            } else {
+                throw new ValidationError("Expected (" + types + ") but found '" + value + "'.", value.line, value.col);
+            }
+        } else if (expression.hasNext()) {
+            part = expression.next();
+            throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
+        }           
     }
-    
+
     
 
 };
@@ -6142,6 +5937,336 @@ function ValidationError(message, line, col){
 
 //inherit from Error
 ValidationError.prototype = new Error();
+//This file will likely change a lot! Very experimental!
+/*global Properties, Validation, ValidationError, PropertyValueIterator, console*/
+var ValidationTypes = {
+
+    isLiteral: function (part, literals) {
+        var text = part.text.toString().toLowerCase(),
+            args = literals.split(" | "),
+            i, len, found = false;
+        
+        for (i=0,len=args.length; i < len && !found; i++){
+            if (text == args[i]){
+                found = true;
+            }
+        }
+        
+        return found;    
+    },
+    
+    isSimple: function(type) {
+        return !!this.simple[type];
+    },
+    
+    isComplex: function(type) {
+        return !!this.complex[type];
+    },
+    
+    /**
+     * Determines if the next part(s) of the given expression
+     * are any of the given types.
+     */
+    isAny: function (expression, types) {
+        var args = types.split(" | "),
+            i, len, found = false;
+        
+        for (i=0,len=args.length; i < len && !found && expression.hasNext(); i++){
+            found = this.isType(expression, args[i]);
+        }
+        
+        return found;    
+    },
+    
+    /**
+     * Determines if the next part(s) of the given expresion
+     * are one of a group.
+     */
+    isAnyOfGroup: function(expression, types) {
+        var args = types.split(" || "),
+            i, len, found = false;
+        
+        for (i=0,len=args.length; i < len && !found; i++){
+            found = this.isType(expression, args[i]);
+        }
+        
+        return found ? args[i-1] : false;
+    },
+    
+    /**
+     * Determines if the next part(s) of the given expression
+     * are of a given type.
+     */
+    isType: function (expression, type) {
+        var part = expression.peek(),
+            result = false;
+            
+        if (type.charAt(0) != "<") {
+            result = this.isLiteral(part, type);
+            if (result) {
+                expression.next();
+            }
+        } else if (this.simple[type]) {
+            result = this.simple[type](part);
+            if (result) {
+                expression.next();
+            }
+        } else {
+            result = this.complex[type](expression);
+        }
+        
+        return result;
+    },
+    
+    
+    
+    simple: {
+
+        "<absolute-size>": function(part){
+            return ValidationTypes.isLiteral(part, "xx-small | x-small | small | medium | large | x-large | xx-large");
+        },
+        
+        "<attachment>": function(part){
+            return ValidationTypes.isLiteral(part, "scroll | fixed | local");
+        },
+        
+        "<attr>": function(part){
+            return part.type == "function" && part.name == "attr";
+        },
+                
+        "<bg-image>": function(part){
+            return this["<image>"](part) || this["<gradient>"](part) ||  part == "none";
+        },        
+        
+        "<gradient>": function(part) {
+            return part.type == "function" && /^(?:\-(?:ms|moz|o|webkit)\-)?(?:repeating\-)?(?:radial|linear)\-gradient/i.test(part);
+        },
+        
+        "<box>": function(part){
+            return ValidationTypes.isLiteral(part, "padding-box | border-box | content-box");
+        },
+        
+        "<content>": function(part){
+            return part.type == "function" && part.name == "content";
+        },        
+        
+        "<relative-size>": function(part){
+            return ValidationTypes.isLiteral(part, "smaller | larger");
+        },
+        
+        //any identifier
+        "<ident>": function(part){
+            return part.type == "identifier";
+        },
+        
+        "<length>": function(part){
+            return part.type == "length" || part.type == "number" || part.type == "integer" || part == "0";
+        },
+        
+        "<color>": function(part){
+            return part.type == "color" || part == "transparent";
+        },
+        
+        "<number>": function(part){
+            return part.type == "number" || this["<integer>"](part);
+        },
+        
+        "<integer>": function(part){
+            return part.type == "integer";
+        },
+        
+        "<line>": function(part){
+            return part.type == "integer";
+        },
+        
+        "<angle>": function(part){
+            return part.type == "angle";
+        },        
+        
+        "<uri>": function(part){
+            return part.type == "uri";
+        },
+        
+        "<image>": function(part){
+            return this["<uri>"](part);
+        },
+        
+        "<percentage>": function(part){
+            return part.type == "percentage" || part == "0";
+        },
+
+        "<border-width>": function(part){
+            return this["<length>"](part) || ValidationTypes.isLiteral(part, "thin | medium | thick");
+        },
+        
+        "<border-style>": function(part){
+            return ValidationTypes.isLiteral(part, "none | hidden | dotted | dashed | solid | double | groove | ridge | inset | outset");
+        },
+        
+        "<margin-width>": function(part){
+            return this["<length>"](part) || this["<percentage>"](part) || ValidationTypes.isLiteral(part, "auto");
+        },
+        
+        "<padding-width>": function(part){
+            return this["<length>"](part) || this["<percentage>"](part);
+        },
+        
+        "<shape>": function(part){
+            return part.type == "function" && (part.name == "rect" || part.name == "inset-rect");
+        },
+        
+        "<time>": function(part) {
+            return part.type == "time";
+        }
+    },
+    
+    complex: {
+
+        "<bg-position>": function(expression){
+            var types   = this,
+                result  = false,
+                numeric = "<percentage> | <length>",
+                xDir    = "left | center | right",
+                yDir    = "top | center | bottom",
+                part,
+                i, len;
+            
+                
+            if (ValidationTypes.isAny(expression, "top | bottom")) {
+                result = true;
+            } else {
+                
+                //must be two-part
+                if (ValidationTypes.isAny(expression, numeric)){
+                    if (expression.hasNext()){
+                        result = ValidationTypes.isAny(expression, numeric + " | " + yDir);
+                    }
+                } else if (ValidationTypes.isAny(expression, xDir)){
+                    if (expression.hasNext()){
+                        
+                        //two- or three-part
+                        if (ValidationTypes.isAny(expression, yDir)){
+                            result = true;
+                      
+                            ValidationTypes.isAny(expression, numeric);
+                            
+                        } else if (ValidationTypes.isAny(expression, numeric)){
+                        
+                            //could also be two-part, so check the next part
+                            if (ValidationTypes.isAny(expression, yDir)){                                    
+                                ValidationTypes.isAny(expression, numeric);                               
+                            }
+                            
+                            result = true;
+                        }
+                    }
+                }                                 
+            }            
+
+            
+            return result;
+        },
+
+        "<bg-size>": function(expression){
+            //<bg-size> = [ <length> | <percentage> | auto ]{1,2} | cover | contain
+            var types   = this,
+                result  = false,
+                numeric = "<percentage> | <length> | auto",
+                part,
+                i, len;      
+      
+            if (ValidationTypes.isAny(expression, "cover | contain")) {
+                result = true;
+            } else if (ValidationTypes.isAny(expression, numeric)) {
+                result = true;                
+                ValidationTypes.isAny(expression, numeric);
+            }
+            
+            return result;
+        },
+        
+        "<repeat-style>": function(expression){
+            //repeat-x | repeat-y | [repeat | space | round | no-repeat]{1,2}
+            var result  = false,
+                values  = "repeat | space | round | no-repeat",
+                part;
+            
+            if (expression.hasNext()){
+                part = expression.next();
+                
+                if (ValidationTypes.isLiteral(part, "repeat-x | repeat-y")) {
+                    result = true;                    
+                } else if (ValidationTypes.isLiteral(part, values)) {
+                    result = true;
+
+                    if (expression.hasNext() && ValidationTypes.isLiteral(expression.peek(), values)) {
+                        expression.next();
+                    }
+                }
+            }
+            
+            return result;
+            
+        },
+        
+        "<shadow>": function(expression) {
+            //inset? && [ <length>{2,4} && <color>? ]
+            var result  = false,
+                count   = 0,
+                inset   = false,
+                color   = false,
+                part;
+                
+            if (expression.hasNext()) {            
+                
+                if (ValidationTypes.isAny(expression, "inset")){
+                    inset = true;
+                }
+                
+                if (ValidationTypes.isAny(expression, "<color>")) {
+                    color = true;
+                }                
+                
+                while (ValidationTypes.isAny(expression, "<length>") && count < 4) {
+                    count++;
+                }
+                
+                
+                if (expression.hasNext()) {
+                    if (!color) {
+                        ValidationTypes.isAny(expression, "<color>");
+                    }
+                    
+                    if (!inset) {
+                        ValidationTypes.isAny(expression, "inset");
+                    }
+
+                }
+                
+                result = (count >= 2 && count <= 4);
+            
+            }
+            
+            return result;
+        },
+        
+        "<x-one-radius>": function(expression) {
+            //[ <length> | <percentage> ] [ <length> | <percentage> ]?
+            var result  = false,
+                count   = 0,
+                numeric = "<length> | <percentage>",
+                part;
+                
+            if (ValidationTypes.isAny(expression, numeric)){
+                result = true;
+                
+                ValidationTypes.isAny(expression, numeric);
+            }                
+            
+            return result;
+        }
+    }
+};
 
 
 parserlib.css = {
@@ -6178,7 +6303,7 @@ var CSSLint = (function(){
         formatters = [],
         api        = new parserlib.util.EventTarget();
         
-    api.version = "0.9.2";
+    api.version = "0.9.5";
 
     //-------------------------------------------------------------------------
     // Rule Management
@@ -6292,7 +6417,7 @@ var CSSLint = (function(){
             parser = new parserlib.css.Parser({ starHack: true, ieFilters: true,
                                                 underscoreHack: true, strict: false });
 
-        lines = text.split(/\n\r?/g);
+        lines = text.replace(/\n\r?/g, "$split$").split('$split$');
         
         if (!ruleset){
             ruleset = {};
@@ -8299,6 +8424,48 @@ CSSLint.addRule({
 
 });
 /*
+ * Rule: Don't use unqualified attribute selectors because they're just like universal selectors.
+ */
+/*global CSSLint*/
+CSSLint.addRule({
+
+    //rule information
+    id: "unqualified-attributes",
+    name: "Disallow unqualified attribute selectors",
+    desc: "Unqualified attribute selectors are known to be slow.",
+    browsers: "All",
+
+    //initialization
+    init: function(parser, reporter){
+        var rule = this;
+
+        parser.addListener("startrule", function(event){
+            
+            var selectors = event.selectors,
+                selector,
+                part,
+                modifier,
+                i, j, k;
+
+            for (i=0; i < selectors.length; i++){
+                selector = selectors[i];
+                
+                part = selector.parts[selector.parts.length-1];
+                if (part.type == parser.SELECTOR_PART_TYPE){
+                    for (k=0; k < part.modifiers.length; k++){
+                        modifier = part.modifiers[k];
+                        if (modifier.type == "attribute" && (!modifier.elementName || modifier.elementName == "*")){
+                            reporter.report(rule.desc, modifier.line, modifier.col, rule);                               
+                        }
+                    }
+                }
+                
+            }            
+        });
+    }
+
+});
+/*
  * Rule: When using a vendor-prefixed property, make sure to
  * include the standard one.
  */
@@ -8464,7 +8631,7 @@ CSSLint.addRule({
                 len = parts.length;
 
             while(i < len){
-                if ((parts[i].units || parts[i].type == "percentage") && parts[i].value === 0){
+                if ((parts[i].units || parts[i].type == "percentage") && parts[i].value === 0 && parts[i].type != "time"){
                     reporter.report("Values of 0 shouldn't have units specified.", parts[i].line, parts[i].col, rule);
                 }
                 i++;
