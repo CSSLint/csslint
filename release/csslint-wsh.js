@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 3-February-2012 11:27:02 */
+/* Build time: 10-February-2012 02:23:58 */
 var CSSLint = (function(){
 
 /*!
@@ -47,7 +47,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Version v0.1.4, Build time: 31-January-2012 10:55:24 */
+/* Version v0.1.5, Build time: 10-February-2012 12:59:26 */
 var parserlib = {};
 (function(){
 
@@ -957,7 +957,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Version v0.1.4, Build time: 31-January-2012 10:55:24 */
+/* Version v0.1.5, Build time: 10-February-2012 12:59:26 */
 (function(){
 var EventTarget = parserlib.util.EventTarget,
 TokenStreamBase = parserlib.util.TokenStreamBase,
@@ -3625,6 +3625,7 @@ var Properties = {
     "border-right-color"            : "<color> | inherit",
     "border-right-style"            : "<border-style>",
     "border-right-width"            : "<border-width>",
+    "border-spacing"                : { multi: "<length> | inherit", max: 2 },
     "border-style"                  : { multi: "<border-style>", max: 4 },
     "border-top"                    : "<border-width> || <border-style> || <color>",
     "border-top-color"              : "<color> | inherit",
@@ -5564,7 +5565,7 @@ var Tokens  = [
     //{ name: "ATKEYWORD"},
     
     //CSS3 animations
-    { name: "KEYFRAMES_SYM", text: [ "@keyframes", "@-webkit-keyframes", "@-moz-keyframes" ] },
+    { name: "KEYFRAMES_SYM", text: [ "@keyframes", "@-webkit-keyframes", "@-moz-keyframes", "@-ms-keyframes" ] },
 
     //important symbol
     { name: "IMPORTANT_SYM"},
@@ -6304,7 +6305,7 @@ var CSSLint = (function(){
         formatters = [],
         api        = new parserlib.util.EventTarget();
         
-    api.version = "0.9.5";
+    api.version = "0.9.6";
 
     //-------------------------------------------------------------------------
     // Rule Management
@@ -6634,48 +6635,68 @@ Reporter.prototype = {
 
 //expose for testing purposes
 CSSLint._Reporter = Reporter;
+
+/*global CSSLint*/
+
 /*
  * Utility functions that make life easier.
  */
+CSSLint.Util = {
+    /*
+     * Adds all properties from supplier onto receiver,
+     * overwriting if the same name already exists on
+     * reciever.
+     * @param {Object} The object to receive the properties.
+     * @param {Object} The object to provide the properties.
+     * @return {Object} The receiver
+     */
+    mix: function(receiver, supplier){
+        var prop;
 
-/*
- * Adds all properties from supplier onto receiver,
- * overwriting if the same name already exists on
- * reciever.
- * @param {Object} The object to receive the properties.
- * @param {Object} The object to provide the properties.
- * @return {Object} The receiver
- */
-function mix(receiver, supplier){
-    var prop;
-
-    for (prop in supplier){
-        if (supplier.hasOwnProperty(prop)){
-            receiver[prop] = supplier[prop];
-        }
-    }
-
-    return prop;
-}
-
-/*
- * Polyfill for array indexOf() method.
- * @param {Array} values The array to search.
- * @param {Variant} value The value to search for.
- * @return {int} The index of the value if found, -1 if not.
- */
-function indexOf(values, value){
-    if (values.indexOf){
-        return values.indexOf(value);
-    } else {
-        for (var i=0, len=values.length; i < len; i++){
-            if (values[i] === value){
-                return i;
+        for (prop in supplier){
+            if (supplier.hasOwnProperty(prop)){
+                receiver[prop] = supplier[prop];
             }
         }
-        return -1;
+
+        return prop;
+    },
+
+    /*
+     * Polyfill for array indexOf() method.
+     * @param {Array} values The array to search.
+     * @param {Variant} value The value to search for.
+     * @return {int} The index of the value if found, -1 if not.
+     */
+    indexOf: function(values, value){
+        if (values.indexOf){
+            return values.indexOf(value);
+        } else {
+            for (var i=0, len=values.length; i < len; i++){
+                if (values[i] === value){
+                    return i;
+                }
+            }
+            return -1;
+        }
+    },
+
+    /*
+     * Polyfill for array forEach() method.
+     * @param {Array} values The array to operate on.
+     * @param {Function} func The function to call on each item.
+     * @return {void}
+     */
+    forEach: function(values, func) {
+        if (values.forEach){
+            return values.forEach(func);
+        } else {
+            for (var i=0, len=values.length; i < len; i++){
+                func(values[i], i, values);
+            }
+        }
     }
-}
+};
 /*global CSSLint*/
 /*
  * Rule: Don't use adjoining classes (.foo.bar).
@@ -6929,6 +6950,7 @@ CSSLint.addRule({
             "writing-mode"               : "epub ms"
         };
 
+
         for (prop in compatiblePrefixes) {
             if (compatiblePrefixes.hasOwnProperty(prop)) {
                 variations = [];
@@ -6945,8 +6967,8 @@ CSSLint.addRule({
         });
 
         parser.addListener("property", function (event) {
-            var name = event.property.text;
-            if (applyTo.indexOf(name) > -1) {
+            var name = event.property;
+            if (CSSLint.Util.indexOf(applyTo, name.text) > -1) {
                 properties.push(name);
             }
         });
@@ -6974,15 +6996,17 @@ CSSLint.addRule({
                 for (prop in compatiblePrefixes) {
                     if (compatiblePrefixes.hasOwnProperty(prop)) {
                         variations = compatiblePrefixes[prop];
-                        if (variations.indexOf(name) > -1) {
-                            if (propertyGroups[prop] === undefined) {
+                        if (CSSLint.Util.indexOf(variations, name.text) > -1) {
+                            if (!propertyGroups[prop]) {
                                 propertyGroups[prop] = {
                                     full : variations.slice(0),
-                                    actual : []
+                                    actual : [],
+                                    actualNodes: []
                                 };
                             }
-                            if (propertyGroups[prop].actual.indexOf(name) === -1) {
-                                propertyGroups[prop].actual.push(name);
+                            if (CSSLint.Util.indexOf(propertyGroups[prop].actual, name.text) === -1) {
+                                propertyGroups[prop].actual.push(name.text);
+                                propertyGroups[prop].actualNodes.push(name);
                             }
                         }
                     }
@@ -6998,9 +7022,9 @@ CSSLint.addRule({
                     if (full.length > actual.length) {
                         for (i = 0, len = full.length; i < len; i++) {
                             item = full[i];
-                            if (actual.indexOf(item) === -1) {
+                            if (CSSLint.Util.indexOf(actual, item) === -1) {
                                 propertiesSpecified = (actual.length === 1) ? actual[0] : (actual.length == 2) ? actual.join(" and ") : actual.join(", ");
-                                reporter.report("The property " + item + " is compatible with " + propertiesSpecified + " and should be included as well.", event.selectors[0].line, event.selectors[0].col, rule); 
+                                reporter.report("The property " + item + " is compatible with " + propertiesSpecified + " and should be included as well.", value.actualNodes[0].line, value.actualNodes[0].col, rule); 
                             }
                         }
 
@@ -8710,7 +8734,7 @@ CSSLint.addFormatter({
 
         if (messages.length > 0) {
             output.push("<file name=\""+filename+"\">");
-            messages.forEach(function (message, i) {
+            CSSLint.Util.forEach(messages, function (message, i) {
                 //ignore rollups for now
                 if (!message.rollup) {
                   output.push("<error line=\"" + message.line + "\" column=\"" + message.col + "\" severity=\"" + message.type + "\"" +
@@ -8770,7 +8794,7 @@ CSSLint.addFormatter({
             return options.quiet ? "" : filename + ": Lint Free!";
         }
 
-        messages.forEach(function(message, i) {
+        CSSLint.Util.forEach(messages, function(message, i) {
             if (message.rollup) {
                 output += filename + ": " + capitalize(message.type) + " - " + message.message + "\n";
             } else {
@@ -8835,7 +8859,7 @@ CSSLint.addFormatter({
 
         if (messages.length > 0) {
             output.push("<file name=\""+filename+"\">");
-            messages.forEach(function (message, i) {
+            CSSLint.Util.forEach(messages, function (message, i) {
                 if (message.rollup) {
                     output.push("<issue severity=\"" + message.type + "\" reason=\"" + escapeSpecialCharacters(message.message) + "\" evidence=\"" + escapeSpecialCharacters(message.evidence) + "\"/>");
                 } else {
@@ -8903,7 +8927,7 @@ CSSLint.addFormatter({
         if (messages.length > 0) {
         
             output.push("<file name=\""+filename+"\">");
-            messages.forEach(function (message, i) {
+            CSSLint.Util.forEach(messages, function (message, i) {
                 if (message.rollup) {
                     output.push("<issue severity=\"" + message.type + "\" reason=\"" + escapeSpecialCharacters(message.message) + "\" evidence=\"" + escapeSpecialCharacters(message.evidence) + "\"/>");
                 } else {
@@ -8966,7 +8990,7 @@ CSSLint.addFormatter({
             shortFilename = filename.substring(pos+1);
         }
 
-        messages.forEach(function (message, i) {
+        CSSLint.Util.forEach(messages, function (message, i) {
             output = output + "\n\n" + shortFilename;
             if (message.rollup) {
                 output += "\n" + (i+1) + ": " + message.type;

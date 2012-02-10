@@ -8,10 +8,12 @@
         name: "Vendor Prefix Errors",
 
         "Using -moz-border-radius without border-radius should result in one warning": function(){
-            var result = CSSLint.verify("h1 { -moz-border-radius: 5px; }", { "vendor-prefix": 1 });
+            var result = CSSLint.verify("h1 {\n    -moz-border-radius: 5px; \n}", { "vendor-prefix": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Missing standard property 'border-radius' to go along with '-moz-border-radius'.", result.messages[0].message);
+            Assert.areEqual(2, result.messages[0].line);
+            Assert.areEqual(5, result.messages[0].col);
         },
 
         "Using -webkit-border-radius without border-radius should result in one warning": function(){
@@ -29,10 +31,13 @@
         },
 
         "Using -moz-border-radius after  border-radius should result in one warning": function(){
-            var result = CSSLint.verify("h1 { border-radius: 5px; -moz-border-radius: 5px; }", { "vendor-prefix": 1 });
+            var result = CSSLint.verify("h1 { \nborder-radius: 5px; \n    -moz-border-radius: 5px; }", { "vendor-prefix": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Standard property 'border-radius' should come after vendor-prefixed property '-moz-border-radius'.", result.messages[0].message);
+            Assert.areEqual(3, result.messages[0].line);
+            Assert.areEqual(5, result.messages[0].col);
+            
         },
 
         "Using -webkit-border-bottom-left-radius with border-bottom-left-radius should not result in a warning.": function(){

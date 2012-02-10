@@ -557,6 +557,8 @@
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("The property -moz-border-radius is compatible with -webkit-border-radius and should be included as well.", result.messages[0].message);
+            Assert.areEqual(6, result.messages[0].col);
+            Assert.areEqual(1, result.messages[0].line);
         },
         
         "Using -webkit-transition and -moz-transition should warn to also include -o-transition and -ms-transition.": function(){
@@ -564,8 +566,13 @@
             Assert.areEqual(2, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("The property -o-transition is compatible with -webkit-transition and -moz-transition and should be included as well.", result.messages[0].message);
+            Assert.areEqual(6, result.messages[0].col);
+            Assert.areEqual(1, result.messages[0].line);
             Assert.areEqual("warning", result.messages[1].type);
             Assert.areEqual("The property -ms-transition is compatible with -webkit-transition and -moz-transition and should be included as well.", result.messages[1].message);
+            Assert.areEqual(6, result.messages[1].col);
+            Assert.areEqual(1, result.messages[1].line);
+            
         },
         
         "Using -webkit-transform should warn to also include -moz-transform, -ms-transform, and -o-transform.": function(){
