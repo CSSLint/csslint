@@ -29,8 +29,8 @@ CSSLint.addRule({
                 if (part.type == parser.SELECTOR_PART_TYPE){
                     for (k=0; k < part.modifiers.length; k++){
                         modifier = part.modifiers[k];
-                        if (modifier.type == "attribute" && (!modifier.elementName || modifier.elementName == "*")){
-                            reporter.report(rule.desc, modifier.line, modifier.col, rule);                               
+                        if (modifier.type == "attribute" && (!part.elementName || part.elementName == "*")){
+                            reporter.report(rule.desc, part.line, part.col, rule);                               
                         }
                     }
                 }
