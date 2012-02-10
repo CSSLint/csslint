@@ -102,8 +102,8 @@ CSSLint.addRule({
         });
 
         parser.addListener("property", function (event) {
-            var name = event.property.text;
-            if (CSSLint.Util.indexOf(applyTo, name) > -1) {
+            var name = event.property;
+            if (CSSLint.Util.indexOf(applyTo, name.text) > -1) {
                 properties.push(name);
             }
         });
@@ -131,15 +131,17 @@ CSSLint.addRule({
                 for (prop in compatiblePrefixes) {
                     if (compatiblePrefixes.hasOwnProperty(prop)) {
                         variations = compatiblePrefixes[prop];
-                        if (CSSLint.Util.indexOf(variations, name) > -1) {
-                            if (propertyGroups[prop] === undefined) {
+                        if (CSSLint.Util.indexOf(variations, name.text) > -1) {
+                            if (!propertyGroups[prop]) {
                                 propertyGroups[prop] = {
                                     full : variations.slice(0),
-                                    actual : []
+                                    actual : [],
+                                    actualNodes: []
                                 };
                             }
-                            if (CSSLint.Util.indexOf(propertyGroups[prop].actual, name) === -1) {
-                                propertyGroups[prop].actual.push(name);
+                            if (CSSLint.Util.indexOf(propertyGroups[prop].actual, name.text) === -1) {
+                                propertyGroups[prop].actual.push(name.text);
+                                propertyGroups[prop].actualNodes.push(name);
                             }
                         }
                     }
@@ -157,7 +159,7 @@ CSSLint.addRule({
                             item = full[i];
                             if (CSSLint.Util.indexOf(actual, item) === -1) {
                                 propertiesSpecified = (actual.length === 1) ? actual[0] : (actual.length == 2) ? actual.join(" and ") : actual.join(", ");
-                                reporter.report("The property " + item + " is compatible with " + propertiesSpecified + " and should be included as well.", event.selectors[0].line, event.selectors[0].col, rule); 
+                                reporter.report("The property " + item + " is compatible with " + propertiesSpecified + " and should be included as well.", value.actualNodes[0].line, value.actualNodes[0].col, rule); 
                             }
                         }
 
