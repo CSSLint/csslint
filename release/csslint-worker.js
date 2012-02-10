@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build time: 10-February-2012 02:23:58 */
+/* Build time: 10-February-2012 02:34:15 */
 
 /*!
 Parser-Lib
@@ -8597,11 +8597,11 @@ CSSLint.addRule({
                 actual = needsStandard[i].actual;
 
                 if (!properties[needed]){               
-                    reporter.report("Missing standard property '" + needed + "' to go along with '" + actual + "'.", event.line, event.col, rule);
+                    reporter.report("Missing standard property '" + needed + "' to go along with '" + actual + "'.", properties[actual][0].name.line, properties[actual][0].name.col, rule);
                 } else {
                     //make sure standard property is last
                     if (properties[needed][0].pos < properties[actual][0].pos){
-                        reporter.report("Standard property '" + needed + "' should come after vendor-prefixed property '" + actual + "'.", event.line, event.col, rule);
+                        reporter.report("Standard property '" + needed + "' should come after vendor-prefixed property '" + actual + "'.", properties[actual][0].name.line, properties[actual][0].name.col, rule);
                     }
                 }
             }

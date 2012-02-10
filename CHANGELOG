@@ -1,3 +1,9 @@
+February 10, 2012 - v0.9.6
+
+* Make sure line numbers are correct for vendor-prefix rule (fixes #238) (Nicholas C. Zakas)
+* fix line and column numbers for compatible vendor prefixes rule (fixes #236) (Nicholas C. Zakas)
+* Fixed JavaScript compatibility issues in several places. Everything now works in IE < 9. (Nicholas C. Zakas)
+* Updated parser (fixes #234) (Nicholas C. Zakas)
 
 February 3, 2012 - v0.9.5
 
@@ -217,6 +223,8 @@ June 18, 2011 - v0.2.0
 June 15, 2011 - v0.1.0
 
 * Initial release
+
+
 
 
 
