@@ -51,7 +51,7 @@ CSSLint.addFormatter({
 
         if (messages.length > 0) {
             output.push("<file name=\""+filename+"\">");
-            messages.forEach(function (message, i) {
+            CSSLint.Util.forEach(messages, function (message, i) {
                 if (message.rollup) {
                     output.push("<issue severity=\"" + message.type + "\" reason=\"" + escapeSpecialCharacters(message.message) + "\" evidence=\"" + escapeSpecialCharacters(message.evidence) + "\"/>");
                 } else {

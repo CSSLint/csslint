@@ -85,6 +85,7 @@ CSSLint.addRule({
             "writing-mode"               : "epub ms"
         };
 
+
         for (prop in compatiblePrefixes) {
             if (compatiblePrefixes.hasOwnProperty(prop)) {
                 variations = [];
@@ -102,7 +103,7 @@ CSSLint.addRule({
 
         parser.addListener("property", function (event) {
             var name = event.property.text;
-            if (applyTo.indexOf(name) > -1) {
+            if (CSSLint.Util.indexOf(applyTo, name) > -1) {
                 properties.push(name);
             }
         });
@@ -130,14 +131,14 @@ CSSLint.addRule({
                 for (prop in compatiblePrefixes) {
                     if (compatiblePrefixes.hasOwnProperty(prop)) {
                         variations = compatiblePrefixes[prop];
-                        if (variations.indexOf(name) > -1) {
+                        if (CSSLint.Util.indexOf(variations, name) > -1) {
                             if (propertyGroups[prop] === undefined) {
                                 propertyGroups[prop] = {
                                     full : variations.slice(0),
                                     actual : []
                                 };
                             }
-                            if (propertyGroups[prop].actual.indexOf(name) === -1) {
+                            if (CSSLint.Util.indexOf(propertyGroups[prop].actual, name) === -1) {
                                 propertyGroups[prop].actual.push(name);
                             }
                         }
@@ -154,7 +155,7 @@ CSSLint.addRule({
                     if (full.length > actual.length) {
                         for (i = 0, len = full.length; i < len; i++) {
                             item = full[i];
-                            if (actual.indexOf(item) === -1) {
+                            if (CSSLint.Util.indexOf(actual, item) === -1) {
                                 propertiesSpecified = (actual.length === 1) ? actual[0] : (actual.length == 2) ? actual.join(" and ") : actual.join(", ");
                                 reporter.report("The property " + item + " is compatible with " + propertiesSpecified + " and should be included as well.", event.selectors[0].line, event.selectors[0].col, rule); 
                             }

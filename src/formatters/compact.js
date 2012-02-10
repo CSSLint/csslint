@@ -45,7 +45,7 @@ CSSLint.addFormatter({
             return options.quiet ? "" : filename + ": Lint Free!";
         }
 
-        messages.forEach(function(message, i) {
+        CSSLint.Util.forEach(messages, function(message, i) {
             if (message.rollup) {
                 output += filename + ": " + capitalize(message.type) + " - " + message.message + "\n";
             } else {

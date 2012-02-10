@@ -47,7 +47,7 @@ CSSLint.addFormatter({
             shortFilename = filename.substring(pos+1);
         }
 
-        messages.forEach(function (message, i) {
+        CSSLint.Util.forEach(messages, function (message, i) {
             output = output + "\n\n" + shortFilename;
             if (message.rollup) {
                 output += "\n" + (i+1) + ": " + message.type;
