@@ -23,8 +23,8 @@
                 ], stats: [] },
 
                 file = "<testsuite time=\"0\" tests=\"2\" skipped=\"0\" errors=\"2\" failures=\"0\" package=\"net.csslint\" name=\"FILE\">",
-                error1 = "<testcase time=\"0\" name=\"net.csslint.ARule\"><error message=\"BOGUS\">1:1:ALSO BOGUS</error></testcase>",
-                error2 = "<testcase time=\"0\" name=\"net.csslint.SomeOtherRule\"><error message=\"BOGUS\">2:1:ALSO BOGUS</error></testcase>",
+                error1 = "<testcase time=\"0\" name=\"net.csslint.ARule\"><error message=\"BOGUS\"><![CDATA[1:1:ALSO BOGUS]]></error></testcase>",
+                error2 = "<testcase time=\"0\" name=\"net.csslint.SomeOtherRule\"><error message=\"BOGUS\"><![CDATA[2:1:ALSO BOGUS]]></error></testcase>",
                 expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites>" + file + error1 + error2 + "</testsuite></testsuites>",
                 actual = CSSLint.format(result, "FILE", "junit-xml");
 
@@ -41,8 +41,8 @@
                 ], stats: [] },
 
                 file = "<testsuite time=\"0\" tests=\"2\" skipped=\"0\" errors=\"2\" failures=\"0\" package=\"net.csslint\" name=\"FILE\">",
-                error1 = "<testcase time=\"0\" name=\"\"><error message=\"sneaky, 'sneaky', &lt;sneaky&gt;\">1:1:ALSO BOGUS</error></testcase>",
-                error2 = "<testcase time=\"0\" name=\"\"><error message=\"sneaky, 'sneaky', &lt;sneaky&gt;\">2:1:ALSO BOGUS</error></testcase>",
+                error1 = "<testcase time=\"0\" name=\"\"><error message=\"sneaky, 'sneaky', &lt;sneaky&gt;\"><![CDATA[1:1:ALSO BOGUS]]></error></testcase>",
+                error2 = "<testcase time=\"0\" name=\"\"><error message=\"sneaky, 'sneaky', &lt;sneaky&gt;\"><![CDATA[2:1:ALSO BOGUS]]></error></testcase>",
                 expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites>" + file + error1 + error2 + "</testsuite></testsuites>",
                 actual = CSSLint.format(result, "FILE", "junit-xml");
 
