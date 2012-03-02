@@ -1,3 +1,8 @@
+March 2, 2012 - v0.9.7
+
+* Fix unqualified attribute issue (fixes #237) (Nicholas C. Zakas)
+
+
 February 10, 2012 - v0.9.6
 
 * Make sure line numbers are correct for vendor-prefix rule (fixes #238) (Nicholas C. Zakas)
@@ -223,6 +228,8 @@ June 18, 2011 - v0.2.0
 June 15, 2011 - v0.1.0
 
 * Initial release
+
+
 
 
 
