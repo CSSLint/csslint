@@ -29,7 +29,7 @@ CSSLint.addRule({
         parser.addListener("endstylesheet", function(){
             reporter.stat("important", count);
             if (count >= 10){
-                reporter.rollupWarn("Too many !important declarations (" + count + "), try to use less than 10 to avoid specifity issues.", rule);
+                reporter.rollupWarn("Too many !important declarations (" + count + "), try to use less than 10 to avoid specificity issues.", rule);
             }
         });
     }
