@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>CSSLint Demo</title>
-    <script type="text/javascript" src="../build/csslint.js"></script>
+    <script type="text/javascript" src="../release/csslint.js"></script>
     <style type="text/css">
         .error { color: red; }
     </style>
@@ -12,7 +12,7 @@
     <textarea rows="50" cols="100" id="input">
 @charset "UTF-8";
 
-@import url("booya.css") print,screen;
+@import url("booya.css") print, screen;
 @import "whatup.css" screen;
 @import "wicked.css";
 
@@ -78,17 +78,17 @@ li.last {
     <script>
     (function(){
 
-        document.body.onclick = function(event){
+        document.body.onclick = function(event) {
             event = event || window.event;
             var target = event.target || event.srcElement,
                 results, messages, i, len;
 
 
-            if (target.id == "lint-btn"){
+            if (target.id == "lint-btn") {
                 document.getElementById("output").innerHTML = "";
                 results = CSSLint.verify(document.getElementById("input").value);
                 messages = results.messages;
-                for (i=0, len=messages.length; i < len; i++){
+                for (i=0, len=messages.length; i < len; i++) {
                     log(messages[i].message + " (line " + messages[i].line + ", col " + messages[i].col + ")", messages[i].type);
                 }
 

@@ -3,7 +3,7 @@
     "version": "@VERSION@",
     "description": "CSSLint",
     "author": "Nicholas C. Zakas",
-    "os": ["darwin", "linux"],
+    "os": ["darwin", "linux", "win32"],
     "contributors": [
         "Nicole Sullivan"
     ],
