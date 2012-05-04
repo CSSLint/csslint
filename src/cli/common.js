@@ -75,7 +75,11 @@ function cli(api){
             exitCode = 0;
 
         if (!input) {
-            api.print("csslint: Could not read file data in " + relativeFilePath + ". Is the file empty?");
+            if (formatter.readError) {
+                api.print(formatter.readError(relativeFilePath, "Could not read file data. Is the file empty?"));
+            } else {
+                api.print("csslint: Could not read file data in " + relativeFilePath + ". Is the file empty?");
+            }
             exitCode = 1;
         } else {
             //var relativeFilePath = getRelativePath(api.getWorkingDirectory(), fullFilePath);

@@ -33,8 +33,8 @@
                      { type: "error", line: 2, col: 1, message: specialCharsSting, evidence: "ALSO BOGUS", rule: [] }
                 ], stats: [] },
                 file = "<file name=\"FILE\">",
-                error1 = "<error line=\"1\" column=\"1\" severity=\"warning\" message=\"sneaky, 'sneaky', &lt;sneaky&gt;, sneak &amp; sneaky\" source=\"\"/>",
-                error2 = "<error line=\"2\" column=\"1\" severity=\"error\" message=\"sneaky, 'sneaky', &lt;sneaky&gt;, sneak &amp; sneaky\" source=\"\"/>",
+                error1 = "<error line=\"1\" column=\"1\" severity=\"warning\" message=\"sneaky, &quot;sneaky&quot;, &lt;sneaky&gt;, sneak &amp; sneaky\" source=\"\"/>",
+                error2 = "<error line=\"2\" column=\"1\" severity=\"error\" message=\"sneaky, &quot;sneaky&quot;, &lt;sneaky&gt;, sneak &amp; sneaky\" source=\"\"/>",
                 expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><checkstyle>" + file + error1 + error2 + "</file></checkstyle>",
                 actual = CSSLint.format(result, "FILE", "checkstyle-xml");
             Assert.areEqual(expected, actual);

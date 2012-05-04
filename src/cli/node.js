@@ -29,7 +29,11 @@ cli({
     },
     
     isDirectory: function(name){
-        return fs.statSync(name).isDirectory();
+        try {
+            return fs.statSync(name).isDirectory();
+        } catch (ex) {
+            return false;
+        }
     },
 
     getFiles: function(dir){
@@ -72,7 +76,11 @@ cli({
     },
 
     readFile: function(filename){
-        return fs.readFileSync(filename, "utf-8");    
+        try {
+            return fs.readFileSync(filename, "utf-8");    
+        } catch (ex) {
+            return "";
+        }
     }
 });
 
