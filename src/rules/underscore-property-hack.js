@@ -17,9 +17,9 @@ CSSLint.addRule({
 
         //check if property name starts with "_"
         parser.addListener("property", function(event){
-            var name = event.property.toString();
+            var property = event.property;
 
-            if (name.charAt(0) == "_"){
+            if (property.hack == "_") {
                 reporter.report("Property with underscore prefix found.", event.property.line, event.property.col, rule);
             }
         });

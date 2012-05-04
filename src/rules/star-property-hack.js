@@ -17,9 +17,9 @@ CSSLint.addRule({
 
         //check if property name starts with "*"
         parser.addListener("property", function(event){
-            var name = event.property.toString();
+            var property = event.property;
 
-            if (name.charAt(0) == "*"){
+            if (property.hack == "*") {
                 reporter.report("Property with star prefix found.", event.property.line, event.property.col, rule);
             }
         });
