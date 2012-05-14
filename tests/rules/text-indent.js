@@ -14,8 +14,13 @@
             Assert.areEqual("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set direction for that item to ltr.", result.messages[0].message);
         },
 
-        "-98px text-indent should not result in a warning": function(){
-            var result = CSSLint.verify(".foo{text-indent: -98px;} ", {"text-indent": 1 });
+        "-99px text-indent should not result in a warning": function(){
+            var result = CSSLint.verify(".foo{text-indent: -99px;} ", {"text-indent": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "-99em text-indent should not result in a warning": function(){
+            var result = CSSLint.verify(".foo{text-indent: -99em;} ", {"text-indent": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
@@ -26,8 +31,8 @@
             Assert.areEqual(0, result.messages.length);
         },
 
-        "-100px text-indent with RTL should result in a warning": function(){
-            var result = CSSLint.verify(".foo{text-indent: -100px; direction: rtl; }", {"text-indent": 1 });
+        "-100em text-indent with RTL should result in a warning": function(){
+            var result = CSSLint.verify(".foo{text-indent: -100em; direction: rtl; }", {"text-indent": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set direction for that item to ltr.", result.messages[0].message);
