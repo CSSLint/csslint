@@ -1,3 +1,28 @@
+May 14, 2012 - v0.9.8
+
+* Merge pull request #272 from mahonnaise/text-indent (Nicholas C. Zakas)
+* Changed the -98px test to -99px (the exact threshold value). Added -99em and -100em tests in order to increase test coverage and to document the current (actually desired) behavior (see #133). (Jos Hirth)
+* Ensure proper output flushing for Node.js (Nicholas C. Zakas)
+* Fix output for checkstyle when a file can't be read (fixes #253) (Nicholas C. Zakas)
+* Merge branch 'master' of github.com:stubbornella/csslint (Nicholas C. Zakas)
+* Updated parser (fixes #261, fixes #259, fixes #242) (Nicholas C. Zakas)
+* Merge pull request #269 from mahonnaise/master (Nicholas C. Zakas)
+* Merge pull request #270 from huangyingjie/master (Nicholas C. Zakas)
+* cannot find csslint.js (huangyingjie)
+* use the parser's "hack" property instead of redoing this step again (Jos Hirth)
+* +2 rules which detected star (IE6/7) and underscore (IE6) property hacks (Jos Hirth)
+* Merge pull request #268 from frvge/patch-1 (Nicholas C. Zakas)
+* Fix typo (Frank van Gemeren)
+* Merge pull request #265 from frvge/patch-1 (Nicholas C. Zakas)
+* Fix typo (Frank van Gemeren)
+* Merge pull request #252 from aaronpowell/master (Nicholas C. Zakas)
+* Merge pull request #260 from mahonnaise/master (Nicholas C. Zakas)
+* use separate flags for text-indent and direction. fixes #249 (Jos Hirth)
+* Merge pull request #256 from khoomeister/master (Nicholas C. Zakas)
+* updated xml formatters to escape ampersand character, updated tests to check ampersand and fixed other tests to check angled brackets as well (Jenkins)
+* Update npm/package.json (Aaron Powell)
+
+
 March 2, 2012 - v0.9.7
 
 * Fix unqualified attribute issue (fixes #237) (Nicholas C. Zakas)
@@ -228,6 +253,8 @@ June 18, 2011 - v0.2.0
 June 15, 2011 - v0.1.0
 
 * Initial release
+
+
 
 
 

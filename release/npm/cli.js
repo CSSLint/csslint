@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Build time: 2-March-2012 02:47:11 */
+/* Build time: 14-May-2012 10:24:48 */
 
 /*
  * Encapsulates all of the CLI functionality. The api argument simply
@@ -78,7 +78,11 @@ function cli(api){
             exitCode = 0;
 
         if (!input) {
-            api.print("csslint: Could not read file data in " + relativeFilePath + ". Is the file empty?");
+            if (formatter.readError) {
+                api.print(formatter.readError(relativeFilePath, "Could not read file data. Is the file empty?"));
+            } else {
+                api.print("csslint: Could not read file data in " + relativeFilePath + ". Is the file empty?");
+            }
             exitCode = 1;
         } else {
             //var relativeFilePath = getRelativePath(api.getWorkingDirectory(), fullFilePath);
@@ -233,7 +237,8 @@ cli({
     quit: function(code){
     
         //Workaround for https://github.com/joyent/node/issues/1669
-        if (!process.stdout.flush || !process.stdout.flush()) {
+        
+        if ((!process.stdout.flush || !process.stdout.flush()) && (parseFloat(process.versions.node) < 0.5)) {
             process.once("drain", function () {
                 process.exit(code || 0);
             });
@@ -243,7 +248,11 @@ cli({
     },
     
     isDirectory: function(name){
-        return fs.statSync(name).isDirectory();
+        try {
+            return fs.statSync(name).isDirectory();
+        } catch (ex) {
+            return false;
+        }
     },
 
     getFiles: function(dir){
@@ -286,7 +295,11 @@ cli({
     },
 
     readFile: function(filename){
-        return fs.readFileSync(filename, "utf-8");    
+        try {
+            return fs.readFileSync(filename, "utf-8");    
+        } catch (ex) {
+            return "";
+        }
     }
 });
 

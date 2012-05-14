@@ -87,14 +87,14 @@
         },
 
         "Formatter should escape special characters": function() {
-            var specialCharsSting = 'sneaky, "sneaky", <sneaky>',
+            var specialCharsSting = 'sneaky, "sneaky", <sneaky>, sneak & sneaky',
                 result = { messages: [
                      { type: "warning", line: 1, col: 1, message: specialCharsSting, evidence: "ALSO BOGUS", rule: [] },
                      { type: "error", line: 2, col: 1, message: specialCharsSting, evidence: "ALSO BOGUS", rule: [] }
                 ], stats: [] },
                 file = "<file name=\"FILE\">",
-                error1 = "<error line=\"1\" column=\"1\" severity=\"warning\" message=\"sneaky, 'sneaky', &lt;sneaky&gt;\" source=\"\"/>",
-                error2 = "<error line=\"2\" column=\"1\" severity=\"error\" message=\"sneaky, 'sneaky', &lt;sneaky&gt;\" source=\"\"/>",
+                error1 = "<error line=\"1\" column=\"1\" severity=\"warning\" message=\"sneaky, &quot;sneaky&quot;, &lt;sneaky&gt;, sneak &amp; sneaky\" source=\"\"/>",
+                error2 = "<error line=\"2\" column=\"1\" severity=\"error\" message=\"sneaky, &quot;sneaky&quot;, &lt;sneaky&gt;, sneak &amp; sneaky\" source=\"\"/>",
                 expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><checkstyle>" + file + error1 + error2 + "</file></checkstyle>",
                 actual = CSSLint.format(result, "FILE", "checkstyle-xml");
             Assert.areEqual(expected, actual);
@@ -179,14 +179,14 @@
         },
 
         "Formatter should escape double quotes": function() {
-            var doubleQuotedEvidence = 'sneaky, "sneaky"',
+            var doubleQuotedEvidence = 'sneaky, "sneaky", <sneaky>, sneak & sneaky',
                 result = { messages: [
                      { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] },
                      { type: "error", line: 2, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] }
                 ], stats: [] },
                 file = "<file name=\"FILE\">",
-                error1 = "<issue line=\"1\" char=\"1\" severity=\"warning\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky'\"/>",
-                error2 = "<issue line=\"2\" char=\"1\" severity=\"error\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky'\"/>",
+                error1 = "<issue line=\"1\" char=\"1\" severity=\"warning\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky', &lt;sneaky&gt;, sneak &amp; sneaky\"/>",
+                error2 = "<issue line=\"2\" char=\"1\" severity=\"error\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky', &lt;sneaky&gt;, sneak &amp; sneaky\"/>",
                 expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><csslint>" + file + error1 + error2 + "</file></csslint>",
                 actual = CSSLint.format(result, "FILE", "csslint-xml");
             Assert.areEqual(expected, actual);
@@ -223,14 +223,14 @@
         },
 
         "Formatter should escape double quotes": function() {
-            var doubleQuotedEvidence = 'sneaky, "sneaky"',
+            var doubleQuotedEvidence = 'sneaky, "sneaky", <sneaky>, sneak & sneaky',
                 result = { messages: [
                      { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] },
                      { type: "error", line: 2, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] }
                 ], stats: [] },
                 file = "<file name=\"FILE\">",
-                error1 = "<issue line=\"1\" char=\"1\" severity=\"warning\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky'\"/>",
-                error2 = "<issue line=\"2\" char=\"1\" severity=\"error\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky'\"/>",
+                error1 = "<issue line=\"1\" char=\"1\" severity=\"warning\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky', &lt;sneaky&gt;, sneak &amp; sneaky\"/>",
+                error2 = "<issue line=\"2\" char=\"1\" severity=\"error\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky', &lt;sneaky&gt;, sneak &amp; sneaky\"/>",
                 expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><lint>" + file + error1 + error2 + "</file></lint>",
                 actual = CSSLint.format(result, "FILE", "lint-xml");
             Assert.areEqual(expected, actual);
@@ -1318,7 +1318,7 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             var result = CSSLint.verify(css, { "important": 1 });
             Assert.areEqual(11, result.messages.length);
             Assert.areEqual("warning", result.messages[10].type);
-            Assert.areEqual("Too many !important declarations (10), try to use less than 10 to avoid specifity issues.", result.messages[10].message);
+            Assert.areEqual("Too many !important declarations (10), try to use less than 10 to avoid specificity issues.", result.messages[10].message);
         }
 
     }));
@@ -1343,6 +1343,16 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 
         "Using a known property should not result in a warning": function(){
             var result = CSSLint.verify("h1 { color: red;}", { "known-properties": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using a known property with the star hack should not result in a warning": function(){
+            var result = CSSLint.verify("h1 { *color: red;}", { "known-properties": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using a known property with the underscore hack should not result in a warning": function(){
+            var result = CSSLint.verify("h1 { _color: red;}", { "known-properties": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
@@ -1569,7 +1579,32 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
-    
+
+        name: "star-property-hack Rule Errors",
+
+        "a property with a star prefix should result in a warning": function(){
+            var result = CSSLint.verify(".foo{*width: 100px;}", {"star-property-hack": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Property with star prefix found.", result.messages[0].message);
+        },
+
+        "a property without a star prefix should not result in a warning": function(){
+            var result = CSSLint.verify(".foo{width: 100px;}", {"star-property-hack": 1 });
+            Assert.areEqual(0, result.messages.length);
+        }
+
+    }));
+
+})();
+
+(function(){
+
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
         name: "text-indent Rule Errors",
 
         "-100px text-indent should result in a warning": function(){
@@ -1579,18 +1614,25 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             Assert.areEqual("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set direction for that item to ltr.", result.messages[0].message);
         },
 
-        "-98px text-indent should not result in a warning": function(){
-            var result = CSSLint.verify(".foo{text-indent: -98px;} ", {"text-indent": 1 });
+        "-99px text-indent should not result in a warning": function(){
+            var result = CSSLint.verify(".foo{text-indent: -99px;} ", {"text-indent": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "-99em text-indent should not result in a warning": function(){
+            var result = CSSLint.verify(".foo{text-indent: -99em;} ", {"text-indent": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
         "-100px text-indent with LTR should not result in a warning": function(){
             var result = CSSLint.verify(".foo{text-indent: -100px; direction: ltr; }", {"text-indent": 1 });
             Assert.areEqual(0, result.messages.length);
+            result = CSSLint.verify(".foo{direction: ltr; text-indent: -100px; }", {"text-indent": 1 });
+            Assert.areEqual(0, result.messages.length);
         },
 
-        "-100px text-indent with RTL should  result in a warning": function(){
-            var result = CSSLint.verify(".foo{text-indent: -100px; direction: rtl; }", {"text-indent": 1 });
+        "-100em text-indent with RTL should result in a warning": function(){
+            var result = CSSLint.verify(".foo{text-indent: -100em; direction: rtl; }", {"text-indent": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set direction for that item to ltr.", result.messages[0].message);
@@ -1600,14 +1642,39 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             var result = CSSLint.verify(".foo{text-indent: 5px;}", {"text-indent": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "This should cause a warning, not an error": function(){
             var result = CSSLint.verify(".top h1 a { background: url(../images/background/logo.png) no-repeat; display: block; height: 44px; position: relative; text-indent: -9999px; width: 250px; }", { "text-indent": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set direction for that item to ltr.", result.messages[0].message);
         }
-				
+
+    }));
+
+})();
+
+(function(){
+
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
+        name: "underscore-property-hack Rule Errors",
+
+        "a property with an underscore prefix should result in a warning": function(){
+            var result = CSSLint.verify(".foo{_width: 100px;}", {"underscore-property-hack": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Property with underscore prefix found.", result.messages[0].message);
+        },
+
+        "a property without an underscore prefix should not result in a warning": function(){
+            var result = CSSLint.verify(".foo{width: 100px;}", {"underscore-property-hack": 1 });
+            Assert.areEqual(0, result.messages.length);
+        }
+
     }));
 
 })();

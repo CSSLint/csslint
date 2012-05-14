@@ -1,9 +1,9 @@
 {
     "name": "csslint",
-    "version": "0.9.7",
+    "version": "0.9.8",
     "description": "CSSLint",
     "author": "Nicholas C. Zakas",
-    "os": ["darwin", "linux"],
+    "os": ["darwin", "linux", "win32"],
     "contributors": [
         "Nicole Sullivan"
     ],
