@@ -16,19 +16,19 @@
         i, len;
 
     for (i=0, len=25; i < len; i++){
-    
+
         (function(i, rules){
 
             suite.add(new YUITest.TestCase({
 
                 name: "General Tests for " + rules[i].id,
-                
+
                 setUp: function(){
                     this.options = {};
                     this.options[rules[i].id] = 1;
                 },
 
-                "Using @keyframes should not result in an error": function(){                
+                "Using @keyframes should not result in an error": function(){
                     var result = CSSLint.verify("@keyframes resize { 0% {padding: 0;} 50% {padding: 0;} 100% {padding: 0;}}", this.options);
                     Assert.areEqual(0, result.messages.length);
                 },
@@ -42,21 +42,21 @@
                     var result = CSSLint.verify("@page { width: 100px; }", this.options);
                     Assert.areEqual(0, result.messages.length);
                 },
-                
+
                 "Using @page @top-left should not result in an error": function(){
                     var result = CSSLint.verify("@page { @top-left { content: ''; } }", this.options);
                     Assert.areEqual(0, result.messages.length);
                 },
-                
+
                 "Using a regular rule should not result in an error": function(){
-                    var result = CSSLint.verify(".foo { width: 100px; }", this.options);
+                    var result = CSSLint.verify("div { width: 100px; }", this.options);
                     Assert.areEqual(0, result.messages.length);
-                }                                    
+                }
 
             }));
-        
+
         })(i, rules);
-        
+
     }
 
     YUITest.TestRunner.add(suite);
