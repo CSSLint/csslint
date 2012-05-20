@@ -49,7 +49,7 @@
                 },
 
                 "Using a regular rule should not result in an error": function(){
-                    var result = CSSLint.verify("div { width: 100px; }", this.options);
+                    var result = CSSLint.verify("body { margin: 0; }", this.options);
                     Assert.areEqual(0, result.messages.length);
                 }
 
