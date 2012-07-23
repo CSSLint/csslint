@@ -45,6 +45,23 @@ var CSSLint = (function(){
             return a.id > b.id ? 1 : 0;
         });
     };
+    
+    /**
+     * Returns a ruleset configuration object with all current rules.
+     * @return A ruleset object.
+     * @method getRuleset
+     */
+    api.getRuleset = function() {
+        var ruleset = {},
+            i = 0,
+            len = rules.length;
+        
+        while (i < len){
+            ruleset[rules[i++].id] = 1;    //by default, everything is a warning
+        }
+        
+        return ruleset;
+    };
 
     //-------------------------------------------------------------------------
     // Formatters
@@ -125,13 +142,11 @@ var CSSLint = (function(){
             parser = new parserlib.css.Parser({ starHack: true, ieFilters: true,
                                                 underscoreHack: true, strict: false });
 
+        // normalize line endings
         lines = text.replace(/\n\r?/g, "$split$").split('$split$');
         
         if (!ruleset){
-            ruleset = {};
-            while (i < len){
-                ruleset[rules[i++].id] = 1;    //by default, everything is a warning
-            }
+            ruleset = this.getRuleset();
         }
         
         reporter = new Reporter(lines, ruleset);
