@@ -21,6 +21,7 @@ CSSLint.addRule({
             prefixed,
             i,
             len,
+            inKeyFrame = false,
             arrayPush = Array.prototype.push,
             applyTo = [];
 
@@ -74,11 +75,11 @@ CSSLint.addRule({
             "text-size-adjust"           : "webkit ms",
             "transform"                  : "webkit moz ms o",
             "transform-origin"           : "webkit moz ms o",
-            "transition"                 : "webkit moz o ms",
-            "transition-delay"           : "webkit moz o ms",
-            "transition-duration"        : "webkit moz o ms",
-            "transition-property"        : "webkit moz o ms",
-            "transition-timing-function" : "webkit moz o ms",
+            "transition"                 : "webkit moz o",
+            "transition-delay"           : "webkit moz o",
+            "transition-duration"        : "webkit moz o",
+            "transition-property"        : "webkit moz o",
+            "transition-timing-function" : "webkit moz o",
             "user-modify"                : "webkit moz",
             "user-select"                : "webkit moz ms",
             "word-break"                 : "epub ms",
@@ -97,14 +98,28 @@ CSSLint.addRule({
                 arrayPush.apply(applyTo, variations);
             }
         }
+                
         parser.addListener("startrule", function () {
             properties = [];
+        });
+
+        parser.addListener("startkeyframes", function (event) {
+            inKeyFrame = event.prefix || true;
+        });
+
+        parser.addListener("endkeyframes", function (event) {
+            inKeyFrame = false;
         });
 
         parser.addListener("property", function (event) {
             var name = event.property;
             if (CSSLint.Util.indexOf(applyTo, name.text) > -1) {
-                properties.push(name);
+            
+                // e.g., -moz-transform is okay to be alone in @-moz-keyframes
+                if (!inKeyFrame || typeof inKeyFrame != "string" || 
+                        name.text.indexOf("-" + inKeyFrame + "-") !== 0) {
+                    properties.push(name);
+                }
             }
         });
 
