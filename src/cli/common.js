@@ -54,9 +54,10 @@ function cli(api){
      */
     function filterRules(options) {
         var ignore = options.ignore,
-            ruleset = CSSLint.getRuleset();
+            ruleset = null;
         
-        if (ignore) {            
+        if (ignore) {
+            ruleset = CSSLint.getRuleset();
             ignore.split(",").forEach(function(value){
                 delete ruleset[value];
             });            
