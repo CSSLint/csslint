@@ -7,7 +7,7 @@
 importPackage(java.io);
 
 cli({
-    args: arguments,
+    args: Array.prototype.concat.call(arguments),
     print: print,
     quit: quit,
     
@@ -43,5 +43,11 @@ cli({
         return (new File(filename)).getCanonicalPath();
     },
 
-    readFile: readFile
+    readFile: function(filename) {
+        try {
+            return readFile(filename);
+        } catch (ex) {
+            return "";
+        }
+    }
 });
