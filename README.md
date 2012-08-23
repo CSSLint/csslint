@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/stubbornella/csslint.png)](http://travis-ci.org/stubbornella/csslint)
 # CSSLint
 
 CSSLint is a tool to help point out problems with your CSS code. It does basic syntax checking as well as applying a set of rules to the code that look for problematic patterns or signs of inefficiency. The rules are all pluggable, so you can easily write your own or omit ones you don't want.
