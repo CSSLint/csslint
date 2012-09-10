@@ -21,7 +21,8 @@ CSSLint.addRule({
         });
 
         parser.addListener("endstylesheet", function(){
-            reporter.stat("rule-count", count);
+            reporter.stat("rules-count", count);
+            reporter.rollupWarn('This CSS contains ' + count + ' rules.');
         });
     }
 
