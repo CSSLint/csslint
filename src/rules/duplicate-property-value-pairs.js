@@ -19,7 +19,7 @@ CSSLint.addRule({
         parser.addListener("property", function(event){
             var prop = event.property.text.toLowerCase(),
                 val  = event.value.text.toLowerCase(),
-                key  = prop + ':' + val;
+                key  = prop + '|' + val;
 
             if (!count[key]) {
                 count[key] = 0;
@@ -44,7 +44,7 @@ CSSLint.addRule({
             });
 
             data = data.map(function (item) {
-                return item[1] + ' => ' + item[0];
+                return item[1] + '|' + item[0];
             }).join('\n');
 
             reporter.rollupWarn('Duplicate property-value-pairs:\n\n' + data);
