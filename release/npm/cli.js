@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Build time: 14-May-2012 10:24:48 */
+/* Build time: 12-September-2012 01:46:26 */
 
 /*
  * Encapsulates all of the CLI functionality. The api argument simply
@@ -29,9 +29,8 @@ function cli(api){
      * @param options {Object} The CLI options.
      * @return {Object} A ruleset object.
      */
-    function gatherRules(options){
-        var ruleset,
-            warnings = options.rules || options.warnings,
+    function gatherRules(options, ruleset){
+        var warnings = options.rules || options.warnings,
             errors = options.errors;
         
         if (warnings){
@@ -46,6 +45,25 @@ function cli(api){
             errors.split(",").forEach(function(value){
                 ruleset[value] = 2;
             });
+        }
+           
+        return ruleset;
+    }
+    
+    /**
+     * Filters out rules using the ignore command line option.
+     * @param options {Object} the CLI options
+     * @return {Object} A ruleset object.
+     */
+    function filterRules(options) {
+        var ignore = options.ignore,
+            ruleset = null;
+        
+        if (ignore) {
+            ruleset = CSSLint.getRuleset();
+            ignore.split(",").forEach(function(value){
+                delete ruleset[value];
+            });            
         }
         
         return ruleset;
@@ -71,7 +89,8 @@ function cli(api){
      */
     function processFile(relativeFilePath, options) {
         var input = api.readFile(relativeFilePath),
-            result = CSSLint.verify(input, gatherRules(options)),
+            ruleset = filterRules(options),
+            result = CSSLint.verify(input, gatherRules(options, ruleset)),
             formatter = CSSLint.getFormatter(options.format || "text"),
             messages = result.messages || [],
             output,
@@ -116,6 +135,7 @@ function cli(api){
             "  --quiet                   Only output when errors are present.",
             "  --errors=<rule[,rule]+>   Indicate which rules to include as errors.",
             "  --warnings=<rule[,rule]+> Indicate which rules to include as warnings.",
+            "  --ignore=<rule,[,rule]+>  Indicate which rules to ignore completely.",
             "  --version                 Outputs the current version number."
         ].join("\n") + "\n");
     }
@@ -162,44 +182,72 @@ function cli(api){
             }
         }
         return exitCode;
-    }    
+    } 
+    
+    
+    function processArguments(args, options) {
+        var arg = args.shift(),
+            argName,
+            parts,
+            files = [];
+        
+        while(arg){
+            if (arg.indexOf("--") === 0){
+                argName = arg.substring(2);
+                options[argName] = true;
+                
+                if (argName.indexOf("=") > -1){
+                    parts = argName.split("=");
+                    options[parts[0]] = parts[1];
+                } else {
+                    options[argName] = true;
+                }
+
+            } else {
+                
+                //see if it's a directory or a file
+                if (api.isDirectory(arg)){
+                    files = files.concat(api.getFiles(arg));
+                } else {
+                    files.push(arg);
+                }
+            }
+            arg = args.shift();
+        }
+        
+        options.files = files;
+        return options;
+    }
+    
+    function readConfigFile(options) {
+        var data = api.readFile(api.getFullPath(".csslintrc"));
+        if (data) {           
+            options = processArguments(data.split(/[\s\n\r]+/m), options);
+            api.print("ignore = " + options.ignore);
+            api.print("errors = " + options.errors);
+            api.print("warnings = " + options.warnings);
+        }
+    
+        return options;
+    }
+    
+    
 
     //-----------------------------------------------------------------------------
     // Process command line
     //-----------------------------------------------------------------------------
 
     var args     = api.args,
-        argName,
-        parts,
-        arg      = args.shift(),
-        options  = {},
-        files    = [];
+        argCount = args.length,
+        options  = {};
+        
+    // first look for config file .csslintrc
+    options = readConfigFile(options);    
+    
+    // Command line arguments override config file
+    options = processArguments(args, options);
 
-    while(arg){
-        if (arg.indexOf("--") === 0){
-            argName = arg.substring(2);
-            options[argName] = true;
-            
-            if (argName.indexOf("=") > -1){
-                parts = argName.split("=");
-                options[parts[0]] = parts[1];
-            } else {
-                options[argName] = true;
-            }
-
-        } else {
-            
-            //see if it's a directory or a file
-            if (api.isDirectory(arg)){
-                files = files.concat(api.getFiles(arg));
-            } else {
-                files.push(arg);
-            }
-        }
-        arg = args.shift();
-    }
-
-    if (options.help || arguments.length === 0){
+    if (options.help || argCount === 0){
         outputHelp();
         api.quit(0);
     }
@@ -214,7 +262,7 @@ function cli(api){
         api.quit(0);
     }
 
-    api.quit(processFiles(files,options));
+    api.quit(processFiles(options.files,options));
 }
 /*
  * CSSLint Node.js Command Line Interface

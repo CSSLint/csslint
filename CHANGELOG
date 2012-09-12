@@ -1,3 +1,29 @@
+September 12, 2012 - v0.9.9
+
+* Fix Travis-CI file (Nicholas C. Zakas)
+* Merge pull request #296 from travis4all/clean (Nicholas C. Zakas)
+* Fix box model rule so there's not a warning when box-sizing is used (fixes #298) (Nicholas C. Zakas)
+* Added config file capability to CLI (fixes #297) (Nicholas C. Zakas)
+* :gem: Travis CI image/link in readme :gem: (travis4all)
+* :gem: Added travis.yml file :gem: (travis4all)
+* Fixed behavior of ignores/warnings/errors to preserve old behavior (Nicholas C. Zakas)
+* Added CLI option for ignoring rules (fixes #231) (Nicholas C. Zakas)
+* Make sure box model rule doesn't warn when width or height are set to auto, etc. (fixes #287) (Nicholas C. Zakas)
+* Merge branch 'master' of github.com:stubbornella/csslint (Nicholas C. Zakas)
+* Fixes to compatible vendor prefixes rule (fixes #285 and fixes #286) (Nicholas C. Zakas)
+* Merge pull request #235 from indieisaconcept/junit-formatter (Nicholas C. Zakas)
+* Updated parser (fixes #276) (Nicholas C. Zakas)
+* Merge pull request #292 from zachleat/patch-1 (Nicholas C. Zakas)
+* Microsoft uses unprefixed CSS3 animations, so this should just rely on the "Require standard property with vendor prefix" rule instead. First noticed on css3please.com, also reported on caniuse.com, and http://msdn.microsoft.com/en-us/library/ie/hh673530(v=vs.85).aspx (Zach Leatherman)
+* Merge pull request #284 from mahonnaise/known-properties (Nicholas C. Zakas)
+* dead code removal, point at parser-lib as authority for known properties, addressed concern from #283 (Jos Hirth)
+* Merge pull request #278 from mahonnaise/all-rules (Nicholas C. Zakas)
+* normalize/reset flavored rule (i.e. the blandest thing I could think of) (Jos Hirth)
+* Use an element rather than a class for the 'regular rule' test. This avoids conflicts with rules about naming conventions. (Jos Hirth)
+* Added CDATA wrapper to evidence output for JUNIT formatter (indieisaconcept)
+* Added junit to the available formatters (indieisaconcept)
+
+
 May 14, 2012 - v0.9.8
 
 * Merge pull request #272 from mahonnaise/text-indent (Nicholas C. Zakas)
@@ -253,6 +279,8 @@ June 18, 2011 - v0.2.0
 June 15, 2011 - v0.1.0
 
 * Initial release
+
+
 
 
 
