@@ -1,35 +1,7 @@
 /*
- * Rule: Warn people with approaching the IE 4095 limit 
+ * Rule: Warn people past the IE 4095 limit 
  */
 /*global CSSLint*/
-CSSLint.addRule({
-
-    //rule information
-    id: "selector-max-approaching",
-    name: "Warn when approaching the 4095 limit for IE",
-    desc: "Will warn when selector count is >= 3800 rules.",
-    browsers: "All",
-
-    //initialization
-    init: function(parser, reporter){
-		var rule = this,
-			count = 0,
-			notFired = true;
-
-		parser.addListener('startrule',function(event){
-			count++;
-			if(count >= 3800 && notFired){
-				notFired=false;
-				var selectors = event.selectors;
-				reporter.report("Rule is the number 3800 and approaching the 4095 IE limit.", selectors[0].line, selectors[0].col, rule);
-			}
-		});
-	}
-
-});
-
-
-
 CSSLint.addRule({
 
     //rule information
@@ -41,15 +13,15 @@ CSSLint.addRule({
     //initialization
     init: function(parser, reporter){
 		var rule = this,
-			count = 0,
-			notFired = true;
+			count = 0;
 
 		parser.addListener('startrule',function(event){
 			count++;
-			if(count >= 4096 && notFired){
-				notFired=false;
-				var selectors = event.selectors;
-				reporter.report("Rule is the number 4096 and past the 4095 IE limit.", selectors[0].line, selectors[0].col, rule);
+		});
+
+		parser.addListener("endstylesheet", function(){
+			if(count>4095){
+				reporter.report("You have "+count+" rules. nternet Explorer supports a maximum of 4095 rules. All additional rules will be ignored by IE. Consider refactoring.",0,0,rule);	
 			}
 		});
 	}

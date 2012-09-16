@@ -8,22 +8,14 @@
 
     YUITest.TestRunner.add(new YUITest.TestCase({
 
-        name: "Selector Max Errors",
+        name: "Selector Max Errors Approaching",
 
         "Using too many selectors": function(){
-            var result = CSSLint.verify(rules4094);
+            var result = CSSLint.verify(rules4094, { "selector-max-approaching": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("You have 4094 rules. Internet Explorer supports a maximum of 4095 rules. Consider refactoring.", result.messages[0].message);
         },
-
-        "Using too many selectors more then": function(){
-        	var result = CSSLint.verify(rules4094+rules2);
-            Assert.areEqual(2, result.messages.length);
-            Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("You have 4096 rules. Internet Explorer supports a maximum of 4095 rules. Consider refactoring.", result.messages[0].message);
-
-        }
 
     }));
 
