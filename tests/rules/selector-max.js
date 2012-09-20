@@ -14,7 +14,7 @@
         	var result = CSSLint.verify(rules4094+rules2, { "selector-max": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("You have 4096 rules. Internet Explorer supports a maximum of 4095 rules. Consider refactoring.", result.messages[0].message);
+            Assert.areEqual("You have 4096 rules. Internet Explorer supports a maximum of 4095 rules. All additional rules will be ignored by IE. Consider refactoring.", result.messages[0].message);
 
         }
 

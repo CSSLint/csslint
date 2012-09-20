@@ -8,7 +8,7 @@ CSSLint.addRule({
     id: "selector-max-approaching",
     name: "Warn when approaching the 4095 limit for IE",
     desc: "Will warn when selector count is >= 3800 rules.",
-    browsers: "All",
+    browsers: "IE",
 
     //initialization
     init: function(parser, reporter){
