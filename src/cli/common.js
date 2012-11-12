@@ -68,18 +68,29 @@ function cli(api){
 
 
     /**
-     * Filters out files using the exclude-files command line option.
+     * Filters out files using the exclude-list command line option.
      * @param files   {Array}  the list of files to check for exclusions
      * @param options {Object} the CLI options
      * @return {Array} A list of files
      */
     function filterFiles(files, options) {
-        var excludeFiles = options["exclude-files"],
+        var excludeList = options["exclude-list"],
+            excludeFiles = [],
             filesToLint = files;
 
 
-        if (excludeFiles) {
-            excludeFiles.split(",").forEach(function(value){
+        if (excludeList) {
+            // Build up the exclude list, expanding any directory exclusions that were passed in
+            excludeList.split(",").forEach(function(value){
+                if (api.isDirectory(value)) {
+                    excludeFiles = excludeFiles.concat(api.getFiles(value));
+                } else {
+                    excludeFiles.push(value);
+                }
+            });
+
+            // Remove the excluded files from the list of files to lint
+            excludeFiles.forEach(function(value){
                 if (filesToLint.indexOf(value) > -1) {
                     filesToLint.splice(filesToLint.indexOf(value),1);
                 }
@@ -149,15 +160,15 @@ function cli(api){
             "\nUsage: csslint-rhino.js [options]* [file|dir]*",
             " ",
             "Global Options",
-            "  --help                          Displays this information.",
-            "  --format=<format>               Indicate which format to use for output.",
-            "  --list-rules                    Outputs all of the rules available.",
-            "  --quiet                         Only output when errors are present.",
-            "  --errors=<rule[,rule]+>         Indicate which rules to include as errors.",
-            "  --warnings=<rule[,rule]+>       Indicate which rules to include as warnings.",
-            "  --ignore=<rule,[,rule]+>        Indicate which rules to ignore completely.",
-            "  --exclude-files=<file,[,file]+> Indicate which files to exclude from being linted.",
-            "  --version                       Outputs the current version number."
+            "  --help                                Displays this information.",
+            "  --format=<format>                     Indicate which format to use for output.",
+            "  --list-rules                          Outputs all of the rules available.",
+            "  --quiet                               Only output when errors are present.",
+            "  --errors=<rule[,rule]+>               Indicate which rules to include as errors.",
+            "  --warnings=<rule[,rule]+>             Indicate which rules to include as warnings.",
+            "  --ignore=<rule[,rule]+>               Indicate which rules to ignore completely.",
+            "  --exclude-list=<file|dir[,file|dir]+> Indicate which files/directories to exclude from being linted.",
+            "  --version                             Outputs the current version number."
         ].join("\n") + "\n");
     }
 
