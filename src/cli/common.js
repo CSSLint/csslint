@@ -257,9 +257,6 @@ function cli(api){
         var data = api.readFile(api.getFullPath(".csslintrc"));
         if (data) {
             options = processArguments(data.split(/[\s\n\r]+/m), options);
-            api.print("ignore = " + options.ignore);
-            api.print("errors = " + options.errors);
-            api.print("warnings = " + options.warnings);
         }
 
         return options;
