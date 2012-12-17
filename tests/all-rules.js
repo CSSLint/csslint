@@ -33,11 +33,6 @@
                     Assert.areEqual(0, result.messages.length);
                 },
 
-                "Using @font-face should not result in an error": function(){
-                    var result = CSSLint.verify("@font-face { src: local(foo); }", this.options);
-                    Assert.areEqual(0, result.messages.length);
-                },
-
                 "Using @page should not result in an error": function(){
                     var result = CSSLint.verify("@page { width: 100px; }", this.options);
                     Assert.areEqual(0, result.messages.length);
