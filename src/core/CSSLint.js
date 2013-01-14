@@ -7,10 +7,11 @@
 /*global parserlib, Reporter*/
 var CSSLint = (function(){
 
-    var rules      = [],
-        formatters = [],
-        api        = new parserlib.util.EventTarget();
-        
+    var rules           = [],
+        formatters      = [],
+        embeddedRuleset = /\/\*csslint([^\*]*)\*\//,
+        api             = new parserlib.util.EventTarget();
+
     api.version = "@VERSION@";
 
     //-------------------------------------------------------------------------
@@ -34,18 +35,18 @@ var CSSLint = (function(){
     api.clearRules = function(){
         rules = [];
     };
-    
+
     /**
      * Returns the rule objects.
      * @return An array of rule objects.
      * @method getRules
      */
     api.getRules = function(){
-        return [].concat(rules).sort(function(a,b){ 
+        return [].concat(rules).sort(function(a,b){
             return a.id > b.id ? 1 : 0;
         });
     };
-    
+
     /**
      * Returns a ruleset configuration object with all current rules.
      * @return A ruleset object.
@@ -55,11 +56,55 @@ var CSSLint = (function(){
         var ruleset = {},
             i = 0,
             len = rules.length;
-        
+
         while (i < len){
             ruleset[rules[i++].id] = 1;    //by default, everything is a warning
         }
-        
+
+        return ruleset;
+    };
+
+    /**
+     * Returns a ruleset configuration object with all current rules, modified by inline embedded rules.
+     * @param {String} text A string of css containing embedded rules.
+     * @return A ruleset object.
+     * @method getEmbeddedRuleset
+     */
+    api.getEmbeddedRuleset = function(text){
+        var valueMap,
+            ruleset = this.getRuleset(),
+            embedded = text && text.match(embeddedRuleset),
+            rules = embedded && embedded[1];
+
+        if (!rules) {
+            return ruleset;
+        }
+
+        valueMap = {
+            'true': 2,  // true is error
+            'false': 0, // false is ignore
+            '2': 2,
+            '1': 1,
+            '0': 0
+        };
+
+        rules.toLowerCase().split(',').forEach(function(rule){
+            var pair = rule.split(':'),
+                property = (pair[0] || '').trim(),        // normalize properties
+                value = valueMap[(pair[1] || '').trim()]; // normalize values
+
+            if (!ruleset.hasOwnProperty(property)){
+                return;
+            }
+
+            if (!value) {
+                delete ruleset[property];
+                return;
+            }
+
+            ruleset[property] = value;
+        });
+
         return ruleset;
     };
 
@@ -76,7 +121,7 @@ var CSSLint = (function(){
         // formatters.push(formatter);
         formatters[formatter.id] = formatter;
     };
-    
+
     /**
      * Retrieves a formatter for use.
      * @param {String} formatId The name of the format to retrieve.
@@ -86,7 +131,7 @@ var CSSLint = (function(){
     api.getFormatter = function(formatId){
         return formatters[formatId];
     };
-    
+
     /**
      * Formats the results in a particular format for a single file.
      * @param {Object} result The results returned from CSSLint.verify().
@@ -99,16 +144,16 @@ var CSSLint = (function(){
     api.format = function(results, filename, formatId, options) {
         var formatter = this.getFormatter(formatId),
             result = null;
-            
+
         if (formatter){
             result = formatter.startFormat();
             result += formatter.formatResults(results, filename, options || {});
             result += formatter.endFormat();
         }
-        
+
         return result;
     };
-    
+
     /**
      * Indicates if the given format is supported.
      * @param {String} formatId The ID of the format to check.
@@ -144,13 +189,18 @@ var CSSLint = (function(){
 
         // normalize line endings
         lines = text.replace(/\n\r?/g, "$split$").split('$split$');
-        
+
+        // always perfer file-level rulesets
+        if (embeddedRuleset.test(text)){
+            ruleset = this.getEmbeddedRuleset(text);
+        }
+
         if (!ruleset){
             ruleset = this.getRuleset();
         }
-        
+
         reporter = new Reporter(lines, ruleset);
-        
+
         ruleset.errors = 2;       //always report parsing errors as errors
         for (i in ruleset){
             if(ruleset.hasOwnProperty(i)){
@@ -170,9 +220,10 @@ var CSSLint = (function(){
 
         report = {
             messages    : reporter.messages,
-            stats       : reporter.stats
+            stats       : reporter.stats,
+            ruleset     : reporter.ruleset
         };
-        
+
         //sort by line numbers, rollups at the bottom
         report.messages.sort(function (a, b){
             if (a.rollup && !b.rollup){
@@ -182,8 +233,8 @@ var CSSLint = (function(){
             } else {
                 return a.line - b.line;
             }
-        });        
-        
+        });
+
         return report;
     };
 
