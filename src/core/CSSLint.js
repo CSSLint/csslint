@@ -79,10 +79,12 @@ var CSSLint = (function(){
         if (rules) {
             valueMap = {
                 "true": 2,  // true is error
+                "": 1,      // blank is warning
                 "false": 0, // false is ignore
-                "2": 2,
-                "1": 1,
-                "0": 0
+
+                "2": 2,     // explicit error
+                "1": 1,     // explicit warning
+                "0": 0      // explicit ignore
             };
 
             rules.toLowerCase().split(",").forEach(function(rule){
