@@ -65,48 +65,37 @@ var CSSLint = (function(){
     };
 
     /**
-     * Returns a ruleset configuration object with all current rules, modified by inline embedded rules.
+     * Returns a ruleset object based on embedded rules.
      * @param {String} text A string of css containing embedded rules.
-     * @return A ruleset object.
+     * @param {Object} ruleset A ruleset object to modify.
+     * @return {Object} A ruleset object.
      * @method getEmbeddedRuleset
      */
-    api.getEmbeddedRuleset = function(text){
+    function applyEmbeddedRuleset(text, ruleset){
         var valueMap,
-            ruleset = this.getRuleset(),
             embedded = text && text.match(embeddedRuleset),
             rules = embedded && embedded[1];
 
-        if (!rules) {
-            return ruleset;
+        if (rules) {
+            valueMap = {
+                "true": 2,  // true is error
+                "false": 0, // false is ignore
+                "2": 2,
+                "1": 1,
+                "0": 0
+            };
+
+            rules.toLowerCase().split(",").forEach(function(rule){
+                var pair = rule.split(":"),
+                    property = pair[0] || "",
+                    value = pair[1] || "";
+
+                ruleset[property.trim()] = valueMap[value.trim()];
+            });
         }
 
-        valueMap = {
-            'true': 2,  // true is error
-            'false': 0, // false is ignore
-            '2': 2,
-            '1': 1,
-            '0': 0
-        };
-
-        rules.toLowerCase().split(',').forEach(function(rule){
-            var pair = rule.split(':'),
-                property = (pair[0] || '').trim(),        // normalize properties
-                value = valueMap[(pair[1] || '').trim()]; // normalize values
-
-            if (!ruleset.hasOwnProperty(property)){
-                return;
-            }
-
-            if (!value) {
-                delete ruleset[property];
-                return;
-            }
-
-            ruleset[property] = value;
-        });
-
         return ruleset;
-    };
+    }
 
     //-------------------------------------------------------------------------
     // Formatters
@@ -190,20 +179,19 @@ var CSSLint = (function(){
         // normalize line endings
         lines = text.replace(/\n\r?/g, "$split$").split('$split$');
 
-        // always perfer file-level rulesets
-        if (embeddedRuleset.test(text)){
-            ruleset = this.getEmbeddedRuleset(text);
-        }
-
         if (!ruleset){
             ruleset = this.getRuleset();
+        }
+
+        if (embeddedRuleset.test(text)){
+            ruleset = applyEmbeddedRuleset(text, ruleset);
         }
 
         reporter = new Reporter(lines, ruleset);
 
         ruleset.errors = 2;       //always report parsing errors as errors
         for (i in ruleset){
-            if(ruleset.hasOwnProperty(i)){
+            if(ruleset.hasOwnProperty(i) && ruleset[i]){
                 if (rules[i]){
                     rules[i].init(parser, reporter);
                 }
