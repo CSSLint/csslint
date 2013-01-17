@@ -7,13 +7,9 @@
     
         name: "Compatible Vendor Prefix Warnings",
 
-        "Using -webkit-border-radius should warn to also include -moz-border-radius.": function(){
+        "Using -webkit-border-radius should not warn to also include -moz-border-radius.": function(){
             var result = CSSLint.verify("h1 { -webkit-border-radius: 5px; }", { "compatible-vendor-prefixes": 1 });
-            Assert.areEqual(1, result.messages.length);
-            Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("The property -moz-border-radius is compatible with -webkit-border-radius and should be included as well.", result.messages[0].message);
-            Assert.areEqual(6, result.messages[0].col);
-            Assert.areEqual(1, result.messages[0].line);
+            Assert.areEqual(0, result.messages.length);
         },
         
         "Using -webkit-transition and -moz-transition should warn to also include -o-transition.": function() {
