@@ -15,7 +15,17 @@ CSSLint.addRule({
             propertiesToCheck = {
                 color: 1,
                 background: 1,
-                "background-color": 1                
+                "border-color": 1,
+                "border-top-color": 1,
+                "border-right-color": 1,
+                "border-bottom-color": 1,
+                "border-left-color": 1,
+                border: 1,
+                "border-top": 1,
+                "border-right": 1,
+                "border-bottom": 1,
+                "border-left": 1,
+                "background-color": 1
             },
             properties;
         

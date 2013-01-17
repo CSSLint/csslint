@@ -6,25 +6,23 @@ CSSLint.addRule({
 
     //rule information
     id: "selector-max-approaching",
-    name: "Warn when approaching the 4095 limit for IE",
-    desc: "Will warn when selector count is >= 3800 rules.",
+    name: "Warn when approaching the 4095 selector limit for IE",
+    desc: "Will warn when selector count is >= 3800 selectors.",
     browsers: "IE",
 
     //initialization
-    init: function(parser, reporter){
-		var rule = this,
-			count = 0;
+    init: function(parser, reporter) {
+        var rule = this, count = 0;
 
-		parser.addListener('startrule',function(event){
-			count++;
-
-		});
-
-		parser.addListener("endstylesheet", function(){
-			if(count >= 3800){
-				reporter.report("You have "+count+" rules. Internet Explorer supports a maximum of 4095 rules. Consider refactoring.",0,0,rule);
-			}            
+        parser.addListener('startrule', function(event) {
+            count += event.selectors.length;
         });
-	}
+
+        parser.addListener("endstylesheet", function() {
+            if (count >= 3800) {
+                reporter.report("You have " + count + " selectors. Internet Explorer supports a maximum of 4095 selectors per stylesheet. Consider refactoring.",0,0,rule); 
+            }
+        });
+    }
 
 });
