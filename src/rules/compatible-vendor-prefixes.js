@@ -42,7 +42,7 @@ CSSLint.addRule({
             "border-end-style"           : "webkit moz",
             "border-end-width"           : "webkit moz",
             "border-image"               : "webkit moz o",
-            "border-radius"              : "webkit moz",
+            "border-radius"              : "webkit",
             "border-start"               : "webkit moz",
             "border-start-color"         : "webkit moz",
             "border-start-style"         : "webkit moz",
