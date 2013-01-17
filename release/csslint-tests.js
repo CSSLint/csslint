@@ -6,21 +6,31 @@
     YUITest.TestRunner.add(new YUITest.TestCase({
 
         name: "CSSLint object tests",
-        
+
         "Adjoining classes should not cause an error": function(){
             var result = CSSLint.verify(".foo.bar{}", { });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "@media (max-width:400px) should not cause an error": function(){
             var result = CSSLint.verify("@media (max-width:400px) {}", { });
             Assert.areEqual(0, result.messages.length);
+        },
+
+        "Embedded ruleset should be honored": function(){
+            var result = CSSLint.verify("/*csslint bogus, adjoining-classes:true, box-sizing:false */\n.foo.bar{}", {
+                'text-indent': 1,
+                'box-sizing': 1
+            });
+
+            Assert.areEqual(2, result.ruleset['adjoining-classes']);
+            Assert.areEqual(1, result.ruleset['text-indent']);
+            Assert.areEqual(0, result.ruleset['box-sizing']);
         }
 
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint, Reporter*/
@@ -57,7 +67,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -102,7 +111,6 @@
 
     }));
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -150,7 +158,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -193,7 +200,6 @@
         }
     }));
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -248,7 +254,6 @@
 
     }));
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -292,7 +297,6 @@
         }
     }));
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -329,7 +333,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -361,7 +364,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -593,7 +595,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -617,7 +618,111 @@
     }));
 
 })();
+(function(){
 
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
+        name: "Bulletproof @font-face syntax tests",
+
+        "Using the official bulletproof syntax should pass": function(){
+            var result = CSSLint.verify("@font-face { font-family: 'MyFontFamily';" +
+                                        "src: url('myfont-webfont.eot?') format('embedded-opentype')," +
+                                             "url('myfont-webfont.woff') format('woff')," +
+                                             "url('myfont-webfont.ttf')  format('truetype')," +
+                                             "url('myfont-webfont.svg#svgFontName') format('svg');}",
+                                        { "bulletproof-font-face": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Skipping the hashtag with the svgFontName and having content after .eot? should also pass": function(){
+            var result = CSSLint.verify("@font-face { font-family: 'MyFontFamily';" +
+                                        "src: url('myfont-webfont.eot?#iefix') format('embedded-opentype')," +
+                                             "url('myfont-webfont.woff') format('woff')," +
+                                             "url('myfont-webfont.ttf')  format('truetype')," +
+                                             "url('myfont-webfont.svg') format('svg');}",
+                                        { "bulletproof-font-face": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "The minified version of the code should pass": function(){
+            var result = CSSLint.verify("@font-face{font-family:'MyFontFamily';" +
+                                            "src:url('myfont-webfont.eot?#iefix') format('embedded-opentype')," +
+                                            "url('myfont-webfont.woff') format('woff')," +
+                                            "url('myfont-webfont.ttf') format('truetype')," +
+                                            "url('myfont-webfont.svg#svgFontName') format('svg')}",
+                                        { "bulletproof-font-face": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Skipping one of the font types should pass": function(){
+            var result = CSSLint.verify("@font-face { font-family: 'MyFontFamily';" +
+                                        "src: url('myfont-webfont.eot?') format('embedded-opentype')," +
+                                             "url('myfont-webfont.woff') format('woff')," +
+                                             "url('myfont-webfont.svg#svgFontName') format('svg');}",
+                                        { "bulletproof-font-face": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+
+        "Supplying the fonts in a different order should pass": function(){
+            var result = CSSLint.verify("@font-face { font-family: 'MyFontFamily';" +
+                                        "src: url('myfont-webfont.eot?#iefix') format('embedded-opentype')," +
+                                             "url('myfont-webfont.ttf')  format('truetype')," +
+                                             "url('myfont-webfont.woff') format('woff')," +
+                                             "url('myfont-webfont.svg#svgFontName') format('svg');}",
+                                        { "bulletproof-font-face": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using mixed double and single quotes should pass": function(){
+            var result = CSSLint.verify("@font-face { font-family: 'MyFontFamily';" +
+                                        "src: url(\"myfont-webfont.eot?#iefix\") format(\"embedded-opentype\")," +
+                                             "url('myfont-webfont.ttf')  format('truetype')," +
+                                             "url(\"myfont-webfont.woff\") format('woff')," +
+                                             "url('myfont-webfont.svg#svgFontName') format('svg');}",
+                                        { "bulletproof-font-face": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Having only one font declaration with the question mark should pass": function(){
+            var result = CSSLint.verify("@font-face{src:url('myfont-webfont.eot?') format('embedded-opentype');}",
+                                        { "bulletproof-font-face": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "When we aren't inside an @font-face declaration the src property should not be checked": function(){
+            var result = CSSLint.verify(".foo .bar{src:url('baz.png');}", { "bulletproof-font-face": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using the advanced syntax with two src properties should pass": function(){
+            var result = CSSLint.verify("@font-face { font-family: 'MyFontFamily';" +
+                                        "src: url('webfont.eot'); /* IE9 Compat Modes */" +
+                                        "src: url('myfont-webfont.eot?') format('embedded-opentype')," +
+                                             "url('myfont-webfont.woff') format('woff')," +
+                                             "url('myfont-webfont.ttf')  format('truetype')," +
+                                             "url('myfont-webfont.svg#svgFontName') format('svg');}",
+                                        { "bulletproof-font-face": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Leaving off the question mark should fail": function(){
+            var result = CSSLint.verify("@font-face { font-family: 'MyFontFamily';" +
+                                        "src: url('myfont-webfont.eot') format('embedded-opentype')," +
+                                             "url('myfont-webfont.woff') format('woff')," +
+                                             "url('myfont-webfont.ttf')  format('truetype')," +
+                                             "url('myfont-webfont.svg#svgFontName') format('svg');}",
+                                        { "bulletproof-font-face": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("@font-face declaration doesn't follow the fontspring bulletproof syntax.", result.messages[0].message);
+        }
+
+    }));
+})();
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -627,13 +732,9 @@
     
         name: "Compatible Vendor Prefix Warnings",
 
-        "Using -webkit-border-radius should warn to also include -moz-border-radius.": function(){
+        "Using -webkit-border-radius should not warn to also include -moz-border-radius.": function(){
             var result = CSSLint.verify("h1 { -webkit-border-radius: 5px; }", { "compatible-vendor-prefixes": 1 });
-            Assert.areEqual(1, result.messages.length);
-            Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("The property -moz-border-radius is compatible with -webkit-border-radius and should be included as well.", result.messages[0].message);
-            Assert.areEqual(6, result.messages[0].col);
-            Assert.areEqual(1, result.messages[0].line);
+            Assert.areEqual(0, result.messages.length);
         },
         
         "Using -webkit-transition and -moz-transition should warn to also include -o-transition.": function() {
@@ -674,7 +775,6 @@
     }));     
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -888,7 +988,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -914,7 +1013,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -969,7 +1067,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -988,7 +1085,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1006,7 +1102,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1159,17 +1254,751 @@
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Fallback background-color (hex or RGB) should precede HSLA background-color.", result.messages[0].message);
-        }
+        },
 
+        // border color tests
 
+        "Using only a named border should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { border: 1px solid red; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only a hex border should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { border: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only rgb() border should not result in a warning": function(){
+            var result = CSSLint.verify(".rgb { border: 1px solid rgb(0, 0, 0); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only rgba() border should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border: 1px solid rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border (hex or RGB) should precede RGBA border.", result.messages[0].message);
+        },
+
+        "Using only hsl() border should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border: 1px solid hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border (hex or RGB) should precede HSL border.", result.messages[0].message);
+        },
+
+        "Using only hsla() border should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border: 1px solid hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border (hex or RGB) should precede HSLA border.", result.messages[0].message);
+        },
+
+        "Using rgba() with a fallback border should not result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border: 1px solid #fff; border: 1px solid rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using hsl() with a fallback border should not result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border: 1px solid #fff; border: 1px solid hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using hsla() with a fallback border should not result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border: 1px solid #fff; border: 1px solid hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using rgba() with fallback border afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border: 1px solid rgba(0, 0, 0, 0.5); border: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border (hex or RGB) should precede RGBA border.", result.messages[0].message);
+        },
+
+        "Using hsl() with fallback border afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border: 1px solid hsl(0, 0%, 0%); border: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border (hex or RGB) should precede HSL border.", result.messages[0].message);
+        },
+
+        "Using hsla() with fallback border afterwards  should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border: 1px solid hsla(0, 0%, 0%, 0.5); border: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border (hex or RGB) should precede HSLA border.", result.messages[0].message);
+        },
+
+        // border-top color tests
+
+        "Using only a named border-top should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { border-top: 1px solid red; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only a hex border-top should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { border-top: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only rgb() border-top should not result in a warning": function(){
+            var result = CSSLint.verify(".rgb { border-top: 1px solid rgb(0, 0, 0); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only rgba() border-top should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-top: 1px solid rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-top (hex or RGB) should precede RGBA border-top.", result.messages[0].message);
+        },
+
+        "Using only hsl() border-top should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-top: 1px solid hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-top (hex or RGB) should precede HSL border-top.", result.messages[0].message);
+        },
+
+        "Using only hsla() border-top should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-top: 1px solid hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-top (hex or RGB) should precede HSLA border-top.", result.messages[0].message);
+        },
+
+        "Using rgba() with a fallback border-top should not result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-top: 1px solid #fff; border-top: 1px solid rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using hsl() with a fallback border-top should not result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-top: 1px solid #fff; border-top: 1px solid hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using hsla() with a fallback border-top should not result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-top: 1px solid #fff; border-top: 1px solid hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using rgba() with fallback border-top afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-top: 1px solid rgba(0, 0, 0, 0.5); border-top: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-top (hex or RGB) should precede RGBA border-top.", result.messages[0].message);
+        },
+
+        "Using hsl() with fallback border-top afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-top: 1px solid hsl(0, 0%, 0%); border-top: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-top (hex or RGB) should precede HSL border-top.", result.messages[0].message);
+        },
+
+        "Using hsla() with fallback border-top afterwards  should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-top: 1px solid hsla(0, 0%, 0%, 0.5); border-top: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-top (hex or RGB) should precede HSLA border-top.", result.messages[0].message);
+        },
         
+        // border-right color tests
 
+        "Using only a named border-right should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { border-right: 1px solid red; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
 
+        "Using only a hex border-right should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { border-right: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
 
+        "Using only rgb() border-right should not result in a warning": function(){
+            var result = CSSLint.verify(".rgb { border-right: 1px solid rgb(0, 0, 0); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only rgba() border-right should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-right: 1px solid rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-right (hex or RGB) should precede RGBA border-right.", result.messages[0].message);
+        },
+
+        "Using only hsl() border-right should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-right: 1px solid hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-right (hex or RGB) should precede HSL border-right.", result.messages[0].message);
+        },
+
+        "Using only hsla() border-right should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-right: 1px solid hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-right (hex or RGB) should precede HSLA border-right.", result.messages[0].message);
+        },
+
+        "Using rgba() with a fallback border-right should not result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-right: 1px solid #fff; border-right: 1px solid rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using hsl() with a fallback border-right should not result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-right: 1px solid #fff; border-right: 1px solid hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using hsla() with a fallback border-right should not result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-right: 1px solid #fff; border-right: 1px solid hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using rgba() with fallback border-right afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-right: 1px solid rgba(0, 0, 0, 0.5); border-right: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-right (hex or RGB) should precede RGBA border-right.", result.messages[0].message);
+        },
+
+        "Using hsl() with fallback border-right afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-right: 1px solid hsl(0, 0%, 0%); border-right: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-right (hex or RGB) should precede HSL border-right.", result.messages[0].message);
+        },
+
+        "Using hsla() with fallback border-right afterwards  should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-right: 1px solid hsla(0, 0%, 0%, 0.5); border-right: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-right (hex or RGB) should precede HSLA border-right.", result.messages[0].message);
+        },
+
+        // border-bottom color tests
+
+        "Using only a named border-bottom should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { border-bottom: 1px solid red; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only a hex border-bottom should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { border-bottom: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only rgb() border-bottom should not result in a warning": function(){
+            var result = CSSLint.verify(".rgb { border-bottom: 1px solid rgb(0, 0, 0); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only rgba() border-bottom should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-bottom: 1px solid rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-bottom (hex or RGB) should precede RGBA border-bottom.", result.messages[0].message);
+        },
+
+        "Using only hsl() border-bottom should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-bottom: 1px solid hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-bottom (hex or RGB) should precede HSL border-bottom.", result.messages[0].message);
+        },
+
+        "Using only hsla() border-bottom should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-bottom: 1px solid hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-bottom (hex or RGB) should precede HSLA border-bottom.", result.messages[0].message);
+        },
+
+        "Using rgba() with a fallback border-bottom should not result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-bottom: 1px solid #fff; border-bottom: 1px solid rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using hsl() with a fallback border-bottom should not result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-bottom: 1px solid #fff; border-bottom: 1px solid hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using hsla() with a fallback border-bottom should not result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-bottom: 1px solid #fff; border-bottom: 1px solid hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using rgba() with fallback border-bottom afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-bottom: 1px solid rgba(0, 0, 0, 0.5); border-bottom: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-bottom (hex or RGB) should precede RGBA border-bottom.", result.messages[0].message);
+        },
+
+        "Using hsl() with fallback border-bottom afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-bottom: 1px solid hsl(0, 0%, 0%); border-bottom: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-bottom (hex or RGB) should precede HSL border-bottom.", result.messages[0].message);
+        },
+
+        "Using hsla() with fallback border-bottom afterwards  should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-bottom: 1px solid hsla(0, 0%, 0%, 0.5); border-bottom: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-bottom (hex or RGB) should precede HSLA border-bottom.", result.messages[0].message);
+        },
+        
+        // border-left color tests
+
+        "Using only a named border-left should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { border-left: 1px solid red; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only a hex border-left should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { border-left: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only rgb() border-left should not result in a warning": function(){
+            var result = CSSLint.verify(".rgb { border-left: 1px solid rgb(0, 0, 0); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only rgba() border-left should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-left: 1px solid rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-left (hex or RGB) should precede RGBA border-left.", result.messages[0].message);
+        },
+
+        "Using only hsl() border-left should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-left: 1px solid hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-left (hex or RGB) should precede HSL border-left.", result.messages[0].message);
+        },
+
+        "Using only hsla() border-left should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-left: 1px solid hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-left (hex or RGB) should precede HSLA border-left.", result.messages[0].message);
+        },
+
+        "Using rgba() with a fallback border-left should not result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-left: 1px solid #fff; border-left: 1px solid rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using hsl() with a fallback border-left should not result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-left: 1px solid #fff; border-left: 1px solid hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using hsla() with a fallback border-left should not result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-left: 1px solid #fff; border-left: 1px solid hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using rgba() with fallback border-left afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-left: 1px solid rgba(0, 0, 0, 0.5); border-left: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-left (hex or RGB) should precede RGBA border-left.", result.messages[0].message);
+        },
+
+        "Using hsl() with fallback border-left afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-left: 1px solid hsl(0, 0%, 0%); border-left: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-left (hex or RGB) should precede HSL border-left.", result.messages[0].message);
+        },
+
+        "Using hsla() with fallback border-left afterwards  should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-left: 1px solid hsla(0, 0%, 0%, 0.5); border-left: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-left (hex or RGB) should precede HSLA border-left.", result.messages[0].message);
+        },
+
+        // border-color color tests
+
+        "Using only a named border-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { border-color: 1px solid red; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only a hex border-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { border-color: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only rgb() border-color should not result in a warning": function(){
+            var result = CSSLint.verify(".rgb { border-color: 1px solid rgb(0, 0, 0); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only rgba() border-color should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-color: 1px solid rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-color (hex or RGB) should precede RGBA border-color.", result.messages[0].message);
+        },
+
+        "Using only hsl() border-color should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-color: 1px solid hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-color (hex or RGB) should precede HSL border-color.", result.messages[0].message);
+        },
+
+        "Using only hsla() border-color should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-color: 1px solid hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-color (hex or RGB) should precede HSLA border-color.", result.messages[0].message);
+        },
+
+        "Using rgba() with a fallback border-color should not result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-color: 1px solid #fff; border-color: 1px solid rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using hsl() with a fallback border-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-color: 1px solid #fff; border-color: 1px solid hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using hsla() with a fallback border-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-color: 1px solid #fff; border-color: 1px solid hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using rgba() with fallback border-color afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-color: 1px solid rgba(0, 0, 0, 0.5); border-color: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-color (hex or RGB) should precede RGBA border-color.", result.messages[0].message);
+        },
+
+        "Using hsl() with fallback border-color afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-color: 1px solid hsl(0, 0%, 0%); border-color: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-color (hex or RGB) should precede HSL border-color.", result.messages[0].message);
+        },
+
+        "Using hsla() with fallback border-color afterwards  should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-color: 1px solid hsla(0, 0%, 0%, 0.5); border-color: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-color (hex or RGB) should precede HSLA border-color.", result.messages[0].message);
+        },
+
+        // border-top-color color tests
+
+        "Using only a named border-top-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { border-top-color: 1px solid red; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only a hex border-top-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { border-top-color: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only rgb() border-top-color should not result in a warning": function(){
+            var result = CSSLint.verify(".rgb { border-top-color: 1px solid rgb(0, 0, 0); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only rgba() border-top-color should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-top-color: 1px solid rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-top-color (hex or RGB) should precede RGBA border-top-color.", result.messages[0].message);
+        },
+
+        "Using only hsl() border-top-color should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-top-color: 1px solid hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-top-color (hex or RGB) should precede HSL border-top-color.", result.messages[0].message);
+        },
+
+        "Using only hsla() border-top-color should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-top-color: 1px solid hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-top-color (hex or RGB) should precede HSLA border-top-color.", result.messages[0].message);
+        },
+
+        "Using rgba() with a fallback border-top-color should not result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-top-color: 1px solid #fff; border-top-color: 1px solid rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using hsl() with a fallback border-top-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-top-color: 1px solid #fff; border-top-color: 1px solid hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using hsla() with a fallback border-top-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-top-color: 1px solid #fff; border-top-color: 1px solid hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using rgba() with fallback border-top-color afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-top-color: 1px solid rgba(0, 0, 0, 0.5); border-top-color: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-top-color (hex or RGB) should precede RGBA border-top-color.", result.messages[0].message);
+        },
+
+        "Using hsl() with fallback border-top-color afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-top-color: 1px solid hsl(0, 0%, 0%); border-top-color: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-top-color (hex or RGB) should precede HSL border-top-color.", result.messages[0].message);
+        },
+
+        "Using hsla() with fallback border-top-color afterwards  should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-top-color: 1px solid hsla(0, 0%, 0%, 0.5); border-top-color: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-top-color (hex or RGB) should precede HSLA border-top-color.", result.messages[0].message);
+        },
+
+        // border-right-color color tests
+
+        "Using only a named border-right-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { border-right-color: 1px solid red; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only a hex border-right-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { border-right-color: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only rgb() border-right-color should not result in a warning": function(){
+            var result = CSSLint.verify(".rgb { border-right-color: 1px solid rgb(0, 0, 0); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only rgba() border-right-color should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-right-color: 1px solid rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-right-color (hex or RGB) should precede RGBA border-right-color.", result.messages[0].message);
+        },
+
+        "Using only hsl() border-right-color should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-right-color: 1px solid hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-right-color (hex or RGB) should precede HSL border-right-color.", result.messages[0].message);
+        },
+
+        "Using only hsla() border-right-color should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-right-color: 1px solid hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-right-color (hex or RGB) should precede HSLA border-right-color.", result.messages[0].message);
+        },
+
+        "Using rgba() with a fallback border-right-color should not result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-right-color: 1px solid #fff; border-right-color: 1px solid rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using hsl() with a fallback border-right-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-right-color: 1px solid #fff; border-right-color: 1px solid hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using hsla() with a fallback border-right-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-right-color: 1px solid #fff; border-right-color: 1px solid hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using rgba() with fallback border-right-color afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-right-color: 1px solid rgba(0, 0, 0, 0.5); border-right-color: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-right-color (hex or RGB) should precede RGBA border-right-color.", result.messages[0].message);
+        },
+
+        "Using hsl() with fallback border-right-color afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-right-color: 1px solid hsl(0, 0%, 0%); border-right-color: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-right-color (hex or RGB) should precede HSL border-right-color.", result.messages[0].message);
+        },
+
+        "Using hsla() with fallback border-right-color afterwards  should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-right-color: 1px solid hsla(0, 0%, 0%, 0.5); border-right-color: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-right-color (hex or RGB) should precede HSLA border-right-color.", result.messages[0].message);
+        },
+
+        // border-bottom-color color tests
+
+        "Using only a named border-bottom-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { border-bottom-color: 1px solid red; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only a hex border-bottom-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { border-bottom-color: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only rgb() border-bottom-color should not result in a warning": function(){
+            var result = CSSLint.verify(".rgb { border-bottom-color: 1px solid rgb(0, 0, 0); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only rgba() border-bottom-color should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-bottom-color: 1px solid rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-bottom-color (hex or RGB) should precede RGBA border-bottom-color.", result.messages[0].message);
+        },
+
+        "Using only hsl() border-bottom-color should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-bottom-color: 1px solid hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-bottom-color (hex or RGB) should precede HSL border-bottom-color.", result.messages[0].message);
+        },
+
+        "Using only hsla() border-bottom-color should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-bottom-color: 1px solid hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-bottom-color (hex or RGB) should precede HSLA border-bottom-color.", result.messages[0].message);
+        },
+
+        "Using rgba() with a fallback border-bottom-color should not result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-bottom-color: 1px solid #fff; border-bottom-color: 1px solid rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using hsl() with a fallback border-bottom-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-bottom-color: 1px solid #fff; border-bottom-color: 1px solid hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using hsla() with a fallback border-bottom-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-bottom-color: 1px solid #fff; border-bottom-color: 1px solid hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using rgba() with fallback border-bottom-color afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-bottom-color: 1px solid rgba(0, 0, 0, 0.5); border-bottom-color: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-bottom-color (hex or RGB) should precede RGBA border-bottom-color.", result.messages[0].message);
+        },
+
+        "Using hsl() with fallback border-bottom-color afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-bottom-color: 1px solid hsl(0, 0%, 0%); border-bottom-color: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-bottom-color (hex or RGB) should precede HSL border-bottom-color.", result.messages[0].message);
+        },
+
+        "Using hsla() with fallback border-bottom-color afterwards  should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-bottom-color: 1px solid hsla(0, 0%, 0%, 0.5); border-bottom-color: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-bottom-color (hex or RGB) should precede HSLA border-bottom-color.", result.messages[0].message);
+        },
+
+        // border-left-color color tests
+
+        "Using only a named border-left-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { border-left-color: 1px solid red; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only a hex border-left-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hex { border-left-color: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only rgb() border-left-color should not result in a warning": function(){
+            var result = CSSLint.verify(".rgb { border-left-color: 1px solid rgb(0, 0, 0); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using only rgba() border-left-color should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-left-color: 1px solid rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-left-color (hex or RGB) should precede RGBA border-left-color.", result.messages[0].message);
+        },
+
+        "Using only hsl() border-left-color should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-left-color: 1px solid hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-left-color (hex or RGB) should precede HSL border-left-color.", result.messages[0].message);
+        },
+
+        "Using only hsla() border-left-color should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-left-color: 1px solid hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-left-color (hex or RGB) should precede HSLA border-left-color.", result.messages[0].message);
+        },
+
+        "Using rgba() with a fallback border-left-color should not result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-left-color: 1px solid #fff; border-left-color: 1px solid rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using hsl() with a fallback border-left-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-left-color: 1px solid #fff; border-left-color: 1px solid hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using hsla() with a fallback border-left-color should not result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-left-color: 1px solid #fff; border-left-color: 1px solid hsla(0, 0%, 0%, 0.5); }", { "fallback-colors": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using rgba() with fallback border-left-color afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".rgba { border-left-color: 1px solid rgba(0, 0, 0, 0.5); border-left-color: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-left-color (hex or RGB) should precede RGBA border-left-color.", result.messages[0].message);
+        },
+
+        "Using hsl() with fallback border-left-color afterwards should result in a warning": function(){
+            var result = CSSLint.verify(".hsl { border-left-color: 1px solid hsl(0, 0%, 0%); border-left-color: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-left-color (hex or RGB) should precede HSL border-left-color.", result.messages[0].message);
+        },
+
+        "Using hsla() with fallback border-left-color afterwards  should result in a warning": function(){
+            var result = CSSLint.verify(".hsla { border-left-color: 1px solid hsla(0, 0%, 0%, 0.5); border-left-color: 1px solid #fff; }", { "fallback-colors": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Fallback border-left-color (hex or RGB) should precede HSLA border-left-color.", result.messages[0].message);
+        }
+        
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1205,7 +2034,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1234,7 +2062,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1265,7 +2092,6 @@
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1278,7 +2104,6 @@ background: -moz-linear-gradient(top, #1e5799 , #2989d8 , #207cca , #7db9e8 );
 background: -webkit-gradient(linear, left top, left bottom, color-stop(,#1e5799), color-stop(,#2989d8), color-stop(,#207cca), color-stop(10,#7db9e8)); 
 background: -webkit-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
-background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 ); 
 
 */
 
@@ -1288,45 +2113,37 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             var result = CSSLint.verify(".foo { background: -moz-linear-gradient(top, #1e5799 , #2989d8 , #207cca , #7db9e8 ); }", {"gradients": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Missing vendor-prefixed CSS gradients for Webkit (Safari 5+, Chrome), Old Webkit (Safari 4+, Chrome), Internet Explorer 10+, Opera 11.1+.", result.messages[0].message);
+            Assert.areEqual("Missing vendor-prefixed CSS gradients for Webkit (Safari 5+, Chrome), Old Webkit (Safari 4+, Chrome), Opera 11.1+.", result.messages[0].message);
         },
 
         "Only using Opera gradients should result in a warning": function(){
             var result = CSSLint.verify(".foo { background: -o-linear-gradient(top, #1e5799 , #2989d8 , #207cca , #7db9e8 ); }", {"gradients": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Missing vendor-prefixed CSS gradients for Firefox 3.6+, Webkit (Safari 5+, Chrome), Old Webkit (Safari 4+, Chrome), Internet Explorer 10+.", result.messages[0].message);
-        },
-
-        "Only using IE gradients should result in a warning": function(){
-            var result = CSSLint.verify(".foo { background: -ms-linear-gradient(top, #1e5799 , #2989d8 , #207cca , #7db9e8 ); }", {"gradients": 1 });
-            Assert.areEqual(1, result.messages.length);
-            Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Missing vendor-prefixed CSS gradients for Firefox 3.6+, Webkit (Safari 5+, Chrome), Old Webkit (Safari 4+, Chrome), Opera 11.1+.", result.messages[0].message);
+            Assert.areEqual("Missing vendor-prefixed CSS gradients for Firefox 3.6+, Webkit (Safari 5+, Chrome), Old Webkit (Safari 4+, Chrome).", result.messages[0].message);
         },
 
         "Only using WebKit gradients should result in a warning": function(){
             var result = CSSLint.verify(".foo { background: -webkit-linear-gradient(top, #1e5799 , #2989d8 , #207cca , #7db9e8 ); }", {"gradients": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Missing vendor-prefixed CSS gradients for Firefox 3.6+, Old Webkit (Safari 4+, Chrome), Internet Explorer 10+, Opera 11.1+.", result.messages[0].message);
+            Assert.areEqual("Missing vendor-prefixed CSS gradients for Firefox 3.6+, Old Webkit (Safari 4+, Chrome), Opera 11.1+.", result.messages[0].message);
         },
 
         "Only using old WebKit gradients should result in a warning": function(){
             var result = CSSLint.verify(".foo { background: -webkit-gradient(linear, left top, left bottom, color-stop(10%,#1e5799), color-stop(20%,#2989d8), color-stop(30%,#207cca), color-stop(100%,#7db9e8)); }", {"gradients": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Missing vendor-prefixed CSS gradients for Firefox 3.6+, Webkit (Safari 5+, Chrome), Internet Explorer 10+, Opera 11.1+.", result.messages[0].message);
+            Assert.areEqual("Missing vendor-prefixed CSS gradients for Firefox 3.6+, Webkit (Safari 5+, Chrome), Opera 11.1+.", result.messages[0].message);
         },
 
         "Using all vendor-prefixed gradients should not result in a warning": function(){
-            var result = CSSLint.verify("div.box {\n    background: -moz-linear-gradient(top,  #1e5799 0%, #7db9e8 100%);\n    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#1e5799), color-   stop(100%,#7db9e8));\n    background: -webkit-linear-gradient(top,  #1e5799 0%,#7db9e8 100%);\n    background: -o-linear-gradient(top,  #1e5799 0%,#7db9e8 100%);\n    background: -ms-linear-gradient(top,  #1e5799 0%,#7db9e8 100%); \n}", { "gradients": 1 });
+            var result = CSSLint.verify("div.box {\n    background: -moz-linear-gradient(top,  #1e5799 0%, #7db9e8 100%);\n    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#1e5799), color-   stop(100%,#7db9e8));\n    background: -webkit-linear-gradient(top,  #1e5799 0%,#7db9e8 100%);\n    background: -o-linear-gradient(top,  #1e5799 0%,#7db9e8 100%);\n}", { "gradients": 1 });
             Assert.areEqual(0, result.messages.length);
         }
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1352,7 +2169,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1371,7 +2187,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1399,7 +2214,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1444,7 +2258,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1495,7 +2308,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1537,7 +2349,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1557,7 +2368,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1610,7 +2420,133 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+(function(){
 
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert, i, j, css1 = "", css2 = "", css3 = "", css4 = "";
+
+    // create css1, which has only 4095 rules and 4095 selectors
+    for (i = 1; i <= 4095; i++) {
+        css1 += ".selector" + i + " { background:red; } ";
+    }
+    
+    // create css2, which has 4096 rules and 4096 selectors
+    for (i = 1; i <= 4096; i++) {
+        css2 += ".selector" + i + " { background:red; } ";
+    }
+    
+    // create css3, which has 1024 and but only 4095 selectors
+    for (i = 0; i <= 1022; i++) {
+        j = i * 4;
+        css3 += ".selector" + (j+1) + ", .selector" + (j+2) + ", .selector" + (j+3) + ", .selector" + (j+4) + " { background:red; } ";
+    }
+    css3 += ".selector4093 { background:red; }.selector4094, .selector4095 { background:red; } "
+
+    // create css4, which has 1024 rules and 4096 selectors
+    for (i = 0; i <= 1023; i++) {
+        j = i * 4;
+        css4 += ".selector" + (j+1) + ", .selector" + (j+2) + ", .selector" + (j+3) + ", .selector" + (j+4) + " { background:red; } ";
+    }
+    
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
+        name: "Selector Max Errors Approaching",
+
+        "Using 4095 or fewer single-selector rules should not result in a warning": function(){
+            var result = CSSLint.verify(css1, { "selector-max-approaching": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("You have 4095 selectors. Internet Explorer supports a maximum of 4095 selectors per stylesheet. Consider refactoring.", result.messages[0].message);
+        },
+        
+        "Using 4096 or more single-selector rules should result in a warning": function(){
+            var result = CSSLint.verify(css2, { "selector-max-approaching": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("You have 4096 selectors. Internet Explorer supports a maximum of 4095 selectors per stylesheet. Consider refactoring.", result.messages[0].message);
+        },
+        
+        "Using 4095 or fewer selectors should not result in a warning": function(){
+            var result = CSSLint.verify(css3, { "selector-max-approaching": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("You have 4095 selectors. Internet Explorer supports a maximum of 4095 selectors per stylesheet. Consider refactoring.", result.messages[0].message);
+        },
+        
+        "Using 4096 or more selectors should result in a warning": function(){
+            var result = CSSLint.verify(css4, { "selector-max-approaching": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("You have 4096 selectors. Internet Explorer supports a maximum of 4095 selectors per stylesheet. Consider refactoring.", result.messages[0].message);
+        },
+        
+        "Using fewer than 3800 selectors should not result in a warning": function() {
+            var result = CSSLint.verify(".selector1 { background: red; }", { "selector-max-approaching": 1 });
+            Assert.areEqual(0, result.messages.length);
+        }
+
+    }));
+
+})();
+(function(){
+
+    /*global YUITest, CSSLint*/
+    var Assert = YUITest.Assert, i, j, css1 = "", css2 = "", css3 = "", css4 = "";
+
+    // create css1, which has only 4095 rules and 4095 selectors
+    for (i = 1; i <= 4095; i++) {
+        css1 += ".selector" + i + " { background:red; } ";
+    }
+    
+    // create css2, which has 4096 rules and 4096 selectors
+    for (i = 1; i <= 4096; i++) {
+        css2 += ".selector" + i + " { background:red; } ";
+    }
+    
+    // create css3, which has 1024 and but only 4095 selectors
+    for (i = 0; i <= 1022; i++) {
+        j = i * 4;
+        css3 += ".selector" + (j+1) + ", .selector" + (j+2) + ", .selector" + (j+3) + ", .selector" + (j+4) + " { background:red; } ";
+    }
+    css3 += ".selector4093 { background:red; }.selector4094, .selector4095 { background:red; } "
+
+    // create css4, which has 1024 rules and 4096 selectors
+    for (i = 0; i <= 1023; i++) {
+        j = i * 4;
+        css4 += ".selector" + (j+1) + ", .selector" + (j+2) + ", .selector" + (j+3) + ", .selector" + (j+4) + " { background:red; } ";
+    }
+    
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
+        name: "Selector Max Errors",
+
+        "Using 4095 or fewer single-selector rules should not result in a warning": function(){
+            var result = CSSLint.verify(css1, { "selector-max": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+        
+        "Using 4096 or more single-selector rules should result in a warning": function(){
+            var result = CSSLint.verify(css2, { "selector-max": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("You have 4096 selectors. Internet Explorer supports a maximum of 4095 selectors per stylesheet. Consider refactoring.", result.messages[0].message);
+        },
+        
+        "Using 4095 or fewer selectors should not result in a warning": function(){
+            var result = CSSLint.verify(css3, { "selector-max": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+        
+        "Using 4096 or more selectors should result in a warning": function(){
+            var result = CSSLint.verify(css4, { "selector-max": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("You have 4096 selectors. Internet Explorer supports a maximum of 4095 selectors per stylesheet. Consider refactoring.", result.messages[0].message);
+        }
+        
+    }));
+
+})();
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1647,7 +2583,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1672,7 +2607,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1728,7 +2662,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1753,7 +2686,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1801,7 +2733,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1833,7 +2764,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1871,7 +2801,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1948,7 +2877,6 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1993,4 +2921,3 @@ background: -ms-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-
