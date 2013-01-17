@@ -26,3 +26,4 @@ CSSLint is a tool to help point out problems with your CSS code. It does basic s
 1. Damien Sennm, https://github.com/topaxi (README fixes)
 1. Jonathan Barnett, http://twitter.com/indieisaconcept (JUnit formatter)
 1. Zach Leatherman, http://www.zachleat.com/ (bug fixes)
+1. Philip Walton, http://philipwalton.com (Rules fixes, bug fixes)
