@@ -59,7 +59,7 @@ function cli(api){
         if (ignore) {
             ruleset = CSSLint.getRuleset();
             ignore.split(",").forEach(function(value){
-                delete ruleset[value];
+                ruleset[value] = 0;
             });
         }
 
