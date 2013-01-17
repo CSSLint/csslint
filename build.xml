@@ -1,7 +1,7 @@
 <project name="csslint" default="build.all">
 
     <!-- version number -->
-    <property name="csslint.version" value="0.9.9" />
+    <property name="csslint.version" value="0.9.10" />
 
     <!-- the directories containing the source files -->
     <property name="src.dir" value="./src" />
@@ -96,7 +96,7 @@
     </target>
 
     <!-- run tests on the command line -->
-    <target name="test" depends="build.all,lint,test.general.rules">
+    <target name="test.rhino" depends="build.all,lint,test.general.rules">
         <exec executable="java" failonerror="true">
             <arg line="-jar"/>
             <arg path="${lib.dir}/js.jar"/>
@@ -118,7 +118,7 @@
     </target>
 
     <!-- tests using Node.js for better performance -->
-    <target name="test.node" depends="build.all,lint">
+    <target name="test" depends="build.all,lint">
         <exec executable="yuitest" failonerror="true">
             <arg line="--webcompat"/>
             <arg path="${build.dir}/${tests.node.build.file}" />
