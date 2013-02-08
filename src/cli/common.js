@@ -76,7 +76,8 @@ function cli(api){
     function filterFiles(files, options) {
         var excludeList = options["exclude-list"],
             excludeFiles = [],
-            filesToLint = files;
+            filesToLint = files.map(api.getFullPath),
+            fullPath;
 
 
         if (excludeList) {
@@ -91,8 +92,9 @@ function cli(api){
 
             // Remove the excluded files from the list of files to lint
             excludeFiles.forEach(function(value){
-                if (filesToLint.indexOf(value) > -1) {
-                    filesToLint.splice(filesToLint.indexOf(value),1);
+                fullPath = api.getFullPath(value);
+                if (filesToLint.indexOf(fullPath) > -1) {
+                    filesToLint.splice(filesToLint.indexOf(fullPath),1);
                 }
             });
         }
