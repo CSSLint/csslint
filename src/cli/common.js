@@ -5,6 +5,18 @@
 /*global CSSLint*/
 function cli(api){
 
+    var globalOptions = {
+        "help"        : { "format" : "",                       "description" : "Displays this information."},
+        "format"      : { "format" : "<format>",               "description" : "Indicate which format to use for output."},
+        "list-rules"  : { "format" : "",                       "description" : "Outputs all of the rules available."},
+        "quiet"       : { "format" : "",                       "description" : "Only output when errors are present."},
+        "errors"      : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to include as errors."},
+        "warnings"    : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to include as warnings."},
+        "ignore"      : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to ignore completely."},
+        "exclude-list": { "format" : "<file|dir[,file|dir]+>", "description" : "Indicate which files/directories to exclude from being linted."},
+        "version"     : { "format" : "",                       "description" : "Outputs the current version number."}
+    };
+
     //-------------------------------------------------------------------------
     // Helper functions
     //-------------------------------------------------------------------------
@@ -158,20 +170,35 @@ function cli(api){
      * @return {void}
      */
     function outputHelp(){
+        var lenToPad = 40,
+            toPrint = '',
+            formatString = '';
+
         api.print([
             "\nUsage: csslint-rhino.js [options]* [file|dir]*",
             " ",
-            "Global Options",
-            "  --help                                Displays this information.",
-            "  --format=<format>                     Indicate which format to use for output.",
-            "  --list-rules                          Outputs all of the rules available.",
-            "  --quiet                               Only output when errors are present.",
-            "  --errors=<rule[,rule]+>               Indicate which rules to include as errors.",
-            "  --warnings=<rule[,rule]+>             Indicate which rules to include as warnings.",
-            "  --ignore=<rule[,rule]+>               Indicate which rules to ignore completely.",
-            "  --exclude-list=<file|dir[,file|dir]+> Indicate which files/directories to exclude from being linted.",
-            "  --version                             Outputs the current version number."
-        ].join("\n") + "\n");
+            "Global Options"
+        ].join("\n"));
+
+        for (var optionName in globalOptions) {
+            if (globalOptions.hasOwnProperty(optionName)) {
+                // Print the option name and the format if present
+                toPrint += "  --" + optionName;
+                if (globalOptions[optionName].format !== "") {
+                    formatString = '=' + globalOptions[optionName].format;
+                    toPrint += formatString;
+                } else {
+                    formatString = '';
+                }
+
+                // Pad out with the appropriate number of spaces
+                toPrint += Array(lenToPad - (optionName.length + formatString.length)).join(' ');
+
+                // Print the description
+                toPrint += globalOptions[optionName].description + "\n";
+            }
+        }
+        api.print(toPrint);
     }
 
     /**
@@ -255,6 +282,16 @@ function cli(api){
         return options;
     }
 
+    function validateOptions(options) {
+        for (var option_key in options) {
+            if (!globalOptions.hasOwnProperty(option_key) && option_key !== 'files') {
+                api.print(option_key + ' is not a valid option. Exiting...');
+                outputHelp();
+                api.quit(0);
+            }
+        }
+    }
+
     function readConfigFile(options) {
         var data = api.readFile(api.getFullPath(".csslintrc"));
         if (data) {
@@ -284,6 +321,9 @@ function cli(api){
         outputHelp();
         api.quit(0);
     }
+
+    // Validate options
+    validateOptions(options);
 
     if (options.version){
         api.print("v" + CSSLint.version);
