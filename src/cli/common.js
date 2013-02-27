@@ -257,7 +257,6 @@ function cli(api){
         while(arg){
             if (arg.indexOf("--") === 0){
                 argName = arg.substring(2);
-                options[argName] = true;
 
                 if (argName.indexOf("=") > -1){
                     parts = argName.split("=");
