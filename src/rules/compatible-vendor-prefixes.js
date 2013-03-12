@@ -2,7 +2,7 @@
  * Rule: Include all compatible vendor prefixes to reach a wider
  * range of users.
  */
-/*global CSSLint*/ 
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -41,7 +41,7 @@ CSSLint.addRule({
             "border-end-color"           : "webkit moz",
             "border-end-style"           : "webkit moz",
             "border-end-width"           : "webkit moz",
-            "border-image"               : "webkit moz o",
+            "border-image"               : "webkit moz",
             "border-radius"              : "webkit",
             "border-start"               : "webkit moz",
             "border-start-color"         : "webkit moz",
@@ -71,15 +71,15 @@ CSSLint.addRule({
             "marquee-style"              : "webkit wap",
             "padding-end"                : "webkit moz",
             "padding-start"              : "webkit moz",
-            "tab-size"                   : "moz o",
+            "tab-size"                   : "moz",
             "text-size-adjust"           : "webkit ms",
-            "transform"                  : "webkit moz ms o",
-            "transform-origin"           : "webkit moz ms o",
-            "transition"                 : "webkit moz o",
-            "transition-delay"           : "webkit moz o",
-            "transition-duration"        : "webkit moz o",
-            "transition-property"        : "webkit moz o",
-            "transition-timing-function" : "webkit moz o",
+            "transform"                  : "webkit moz ms",
+            "transform-origin"           : "webkit moz ms",
+            "transition"                 : "webkit moz",
+            "transition-delay"           : "webkit moz",
+            "transition-duration"        : "webkit moz",
+            "transition-property"        : "webkit moz",
+            "transition-timing-function" : "webkit moz",
             "user-modify"                : "webkit moz",
             "user-select"                : "webkit moz ms",
             "word-break"                 : "epub ms",
@@ -98,7 +98,7 @@ CSSLint.addRule({
                 arrayPush.apply(applyTo, variations);
             }
         }
-                
+
         parser.addListener("startrule", function () {
             properties = [];
         });
@@ -114,9 +114,9 @@ CSSLint.addRule({
         parser.addListener("property", function (event) {
             var name = event.property;
             if (CSSLint.Util.indexOf(applyTo, name.text) > -1) {
-            
+
                 // e.g., -moz-transform is okay to be alone in @-moz-keyframes
-                if (!inKeyFrame || typeof inKeyFrame != "string" || 
+                if (!inKeyFrame || typeof inKeyFrame != "string" ||
                         name.text.indexOf("-" + inKeyFrame + "-") !== 0) {
                     properties.push(name);
                 }
@@ -174,7 +174,7 @@ CSSLint.addRule({
                             item = full[i];
                             if (CSSLint.Util.indexOf(actual, item) === -1) {
                                 propertiesSpecified = (actual.length === 1) ? actual[0] : (actual.length == 2) ? actual.join(" and ") : actual.join(", ");
-                                reporter.report("The property " + item + " is compatible with " + propertiesSpecified + " and should be included as well.", value.actualNodes[0].line, value.actualNodes[0].col, rule); 
+                                reporter.report("The property " + item + " is compatible with " + propertiesSpecified + " and should be included as well.", value.actualNodes[0].line, value.actualNodes[0].col, rule);
                             }
                         }
 
