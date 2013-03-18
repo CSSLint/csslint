@@ -292,8 +292,20 @@ function cli(api){
     }
 
     function readConfigFile(options) {
-        var data = api.readFile(api.getFullPath(".csslintrc"));
+        var data = api.readFile(api.getFullPath(".csslintrc")),
+            json;
         if (data) {
+            if (data.charAt(0) === "{") {
+                try {
+                    json = JSON.parse(data);
+                    data = "";
+                    for (var optionName in json) {
+                        if (json.hasOwnProperty(optionName)) {
+                            data += "--" + optionName + "=" + json[optionName].join();
+                        }
+                    }
+                } catch(e) {}
+            }
             options = processArguments(data.split(/[\s\n\r]+/m), options);
         }
 
