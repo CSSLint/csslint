@@ -129,7 +129,7 @@ module.exports = function(grunt) {
                 src: ['src/**/*.js']
             },
             tests: {
-                src: ['test/**/*.js']
+                src: ['tests/**/*.js']
             }
         },
         watch: {
