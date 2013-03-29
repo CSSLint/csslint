@@ -10,22 +10,39 @@ module.exports = function(grunt) {
             '<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
             '* Copyright (c) <%= grunt.template.today("yyyy") %> Nicole Sullivan and Nicholas C. Zakas;\n' +
             '* Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> <%= _.pluck(pkg.licenses, "url").join(", ") %> */\n',
+        //Parser lib copy for verions that can't user requirejs
+        parserlib: 'node_modules/parserlib/lib/node-parserlib.js',
+        //Core CSSLint files used by most versions
+        csslint_files: [
+            'src/core/CSSLint.js',
+            'src/core/*.js',
+            'src/rules/*.js',
+            'src/formatters/*.js'
+        ],
+        //Core fileset used by most versions
+        core_files: [
+            '<%= parserlib %>',
+            '<%= csslint_files %>'
+        ],
         // Task configuration.
         concat: {
             core: {
                 options: {
-                    banner: '<%= banner %>\nvar CSSLint = (function(){',
+                    banner: '<%= banner %>\n' +
+                            //Hack for using the node version of parserlib
+                            'var exports = exports || {};\n' +
+                            'var CSSLint = (function(){\n',
                     footer: '\nreturn CSSLint;\n})();'
                 },
                 src: [
-                    'src/core/CSSLint.js',
-                    'src/core/*.js',
-                    'src/rules/*.js',
-                    'src/formatters/*.js'
+                    '<%= core_files %>'
                 ],
                 dest: 'build/<%= pkg.name %>.js'
             },//Build environment workers
             rhino: {
+                options: {
+                    banner: 'var exports = exports || {};\n' //Hack for using the node version of parserlib
+                },
                 src: [
                     '<%= concat.core.dest %>',
                     'src/cli/{common, rhino}.js'
@@ -37,13 +54,10 @@ module.exports = function(grunt) {
                     banner: '<%= banner %>',
                     footer: '\nexports.CSSLint = CSSLint;'
                 },
-                src: [
-                    'src/core/CSSLint.js',
-                    'src/core/*.js',
-                    'src/rules/*.js',
-                    'src/formatters/*.js'
-                ],
-                dest: 'build/<%= pkg.name %>-node.js'
+                files: {
+                    'build/<%= pkg.name %>-node.js': ['<%= core_files %>'],
+                    'build/npm/lib/<%= pkg.name %>-node.js': ['<%= core_files %>']
+                }
             },
             node_cli: {
                 options: {
@@ -56,20 +70,24 @@ module.exports = function(grunt) {
             },
             worker: {
                 options: {
-                    banner: '<%= banner %>'
+                    banner: '<%= banner %>\n' +
+                            //Hack for using the node version of parserlib
+                            'var exports = exports || {};\n'
                 },
                 src: [
-                    'src/core/CSSLint.js',
-                    'src/core/*.js',
-                    'src/rules/*.js',
-                    'src/formatters/*.js',
+                    '<%= core_files %>',
                     'src/worker/*.js'
                 ],
                 dest: 'build/<%= pkg.name %>-worker.js'
             },
             whs: {
+                options: {
+                    banner: '<%= banner %>\n' +
+                            //Hack for using the node version of parserlib
+                            'var exports = exports || {};\n'
+                },
                 src: [
-                    '<%= concat.core.dest %>',
+                    '<%= core_files %>',
                     'src/cli/{common, whs}.js'
                 ],
                 dest: 'build/<%= pkg.name %>-whs.js'
@@ -79,14 +97,14 @@ module.exports = function(grunt) {
                     '!tests/all-rules.js',
                     'tests/**/*.js'
                 ],
-                dest: 'build/npm/cli.js'
+                dest: 'build/<%= pkg.name %>-tests.js'
             },
             tests_node: {
                 src: [
                     '<%= concat.core.dest %>',
                     'tests/**/*.js'
                 ],
-                dest: 'build/npm/cli.js'
+                dest: 'build/<%= pkg.name %>-node-tests.js'
             }
         },
         uglify: {
