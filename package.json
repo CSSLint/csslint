@@ -2,9 +2,13 @@
   "name": "csslint",
   "version": "v0.9.11-dev",
   "description": "CSSLint",
-  "author": "Nicholas C. Zakas",
+  "author": {
+    "name": "Nicholas C. Zakas"
+  },
   "contributors": [
-    "Nicole Sullivan"
+    {
+        "name": "Nicole Sullivan"
+    }
   ],
   "engines": {
     "node": ">=0.2.0"

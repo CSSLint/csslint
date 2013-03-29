@@ -8,17 +8,85 @@ module.exports = function(grunt) {
         banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' +
             '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
             '<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
-            '* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
-            ' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */\n',
+            '* Copyright (c) <%= grunt.template.today("yyyy") %> Nicole Sullivan and Nicholas C. Zakas;\n' +
+            '* Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> <%= _.pluck(pkg.licenses, "url").join(", ") %> */\n',
         // Task configuration.
         concat: {
-            options: {
-                banner: '<%= banner %>',
-                stripBanners: true
+            core: {
+                options: {
+                    banner: '<%= banner %>\nvar CSSLint = (function(){',
+                    footer: '\nreturn CSSLint;\n})();'
+                },
+                src: [
+                    'src/core/CSSLint.js',
+                    'src/core/*.js',
+                    'src/rules/*.js',
+                    'src/formatters/*.js'
+                ],
+                dest: 'build/<%= pkg.name %>.js'
+            },//Build environment workers
+            rhino: {
+                src: [
+                    '<%= concat.core.dest %>',
+                    'src/cli/{common, rhino}.js'
+                ],
+                dest: 'build/<%= pkg.name %>-rhino.js'
             },
-            dist: {
-                src: ['lib/<%= pkg.name %>.js'],
-                dest: 'dist/<%= pkg.name %>.js'
+            node: {
+                options: {
+                    banner: '<%= banner %>',
+                    footer: '\nexports.CSSLint = CSSLint;'
+                },
+                src: [
+                    'src/core/CSSLint.js',
+                    'src/core/*.js',
+                    'src/rules/*.js',
+                    'src/formatters/*.js'
+                ],
+                dest: 'build/<%= pkg.name %>-node.js'
+            },
+            node_cli: {
+                options: {
+                    banner: '#!/usr/bin/env node\n<%= banner %>'
+                },
+                src: [
+                    'src/cli/{common, node}.js'
+                ],
+                dest: 'build/npm/cli.js'
+            },
+            worker: {
+                options: {
+                    banner: '<%= banner %>'
+                },
+                src: [
+                    'src/core/CSSLint.js',
+                    'src/core/*.js',
+                    'src/rules/*.js',
+                    'src/formatters/*.js',
+                    'src/worker/*.js'
+                ],
+                dest: 'build/<%= pkg.name %>-worker.js'
+            },
+            whs: {
+                src: [
+                    '<%= concat.core.dest %>',
+                    'src/cli/{common, whs}.js'
+                ],
+                dest: 'build/<%= pkg.name %>-whs.js'
+            },//Build tests
+            tests: {
+                src: [
+                    '!tests/all-rules.js',
+                    'tests/**/*.js'
+                ],
+                dest: 'build/npm/cli.js'
+            },
+            tests_node: {
+                src: [
+                    '<%= concat.core.dest %>',
+                    'tests/**/*.js'
+                ],
+                dest: 'build/npm/cli.js'
             }
         },
         uglify: {
@@ -61,7 +129,7 @@ module.exports = function(grunt) {
                 src: ['src/**/*.js']
             },
             tests: {
-                src: ['lib/**/*.js', 'test/**/*.js']
+                src: ['test/**/*.js']
             }
         },
         watch: {
