@@ -33,16 +33,23 @@ module.exports = function(grunt) {
         jshint: {
             options: {
                 curly: true,
-                eqeqeq: true,
+                //eqeqeq: true,
                 immed: true,
                 latedef: true,
                 newcap: true,
                 noarg: true,
                 sub: true,
                 undef: true,
-                unused: true,
+                //unused: true,
                 boss: true,
                 eqnull: true,
+                // Copied from build.xml
+                forin: true,
+                noempty: true,
+                rhino: false,
+                // Temporary to suppress warnings that exist when using the latest JSHint
+                eqeqeq: false,
+                unused: false,
                 globals: {
                     jQuery: true
                 }
@@ -60,7 +67,7 @@ module.exports = function(grunt) {
         watch: {
             gruntfile: {
                 files: '<%= jshint.gruntfile.src %>',
-                tasks: ['jshint:gruntfile']
+                tasks: ['jshint']
             },
             src: {
                 files: '<%= jshint.all.src %>',

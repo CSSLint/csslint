@@ -192,7 +192,7 @@ function cli(api){
                 }
 
                 // Pad out with the appropriate number of spaces
-                toPrint += Array(lenToPad - (optionName.length + formatString.length)).join(' ');
+                toPrint += new Array(lenToPad - (optionName.length + formatString.length)).join(' ');
 
                 // Print the description
                 toPrint += globalOptions[optionName].description + "\n";
