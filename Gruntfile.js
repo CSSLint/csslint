@@ -68,6 +68,13 @@ module.exports = function(grunt) {
                 ],
                 dest: 'build/npm/cli.js'
             },
+            tests: {
+                src: [
+                    '!tests/all-rules.js',
+                    'tests/**/*.js'
+                ],
+                dest: 'build/<%= pkg.name %>-tests.js'
+            },
             worker: {
                 options: {
                     banner: '<%= banner %>\n' +
