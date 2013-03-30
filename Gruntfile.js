@@ -80,7 +80,7 @@ module.exports = function(grunt) {
                 ],
                 dest: 'build/<%= pkg.name %>-worker.js'
             },
-            whs: {
+            wsh: {
                 options: {
                     banner: '<%= banner %>\n' +
                             //Hack for using the node version of parserlib
@@ -88,18 +88,9 @@ module.exports = function(grunt) {
                 },
                 src: [
                     '<%= core_files %>',
-                    'src/cli/{common, whs}.js'
+                    'src/cli/{common, wsh}.js'
                 ],
-                dest: 'build/<%= pkg.name %>-whs.js'
-            }
-        },
-        uglify: {
-            options: {
-                banner: '<%= banner %>'
-            },
-            dist: {
-                src: '<%= concat.dist.dest %>',
-                dest: 'dist/<%= pkg.name %>.min.js'
+                dest: 'build/<%= pkg.name %>-wsh.js'
             }
         },
         jshint: {
@@ -161,12 +152,11 @@ module.exports = function(grunt) {
 
     // These plugins provide necessary tasks.
     grunt.loadNpmTasks('grunt-contrib-concat');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
 
     // Default task.
-    grunt.registerTask('default', ['test']);
+    grunt.registerTask('default', ['test', 'uglify']);
     
     grunt.registerTask('test', ['jshint', 'concat', 'yuitest']);
 
