@@ -25,6 +25,9 @@ module.exports = function(grunt) {
             '<%= csslint_files %>'
         ],
         // Task configuration.
+        clean: {
+            build: ['build']
+        },
         concat: {
             core: {
                 options: {
@@ -161,11 +164,12 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-clean');
 
     // Default task.
     grunt.registerTask('default', ['test']);
     
-    grunt.registerTask('test', ['jshint', 'concat', 'yuitest']);
+    grunt.registerTask('test', ['clean', 'jshint', 'concat', 'yuitest']);
 
     //Run the YUITest suite
     grunt.registerMultiTask('yuitest', 'Run the YUITests for the project', function() {
