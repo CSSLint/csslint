@@ -6,10 +6,10 @@ module.exports = function(grunt) {
         // Metadata.
         pkg: grunt.file.readJSON('package.json'),
         banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' +
-            '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
-            '<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
-            '* Copyright (c) <%= grunt.template.today("yyyy") %> Nicole Sullivan and Nicholas C. Zakas;\n' +
-            '* Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> <%= _.pluck(pkg.licenses, "url").join(", ") %> */\n',
+                '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
+                '<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
+                '* Copyright (c) <%= grunt.template.today("yyyy") %> Nicole Sullivan and Nicholas C. Zakas;\n' +
+                '* Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> <%= _.pluck(pkg.licenses, "url").join(", ") %> */\n',
         //Parser lib copy for verions that can't user requirejs
         parserlib: 'node_modules/parserlib/lib/node-parserlib.js',
         //Core CSSLint files used by most versions
@@ -91,20 +91,6 @@ module.exports = function(grunt) {
                     'src/cli/{common, whs}.js'
                 ],
                 dest: 'build/<%= pkg.name %>-whs.js'
-            },//Build tests
-            tests: {
-                src: [
-                    '!tests/all-rules.js',
-                    'tests/**/*.js'
-                ],
-                dest: 'build/<%= pkg.name %>-tests.js'
-            },
-            tests_node: {
-                src: [
-                    '<%= concat.core.dest %>',
-                    'tests/**/*.js'
-                ],
-                dest: 'build/<%= pkg.name %>-node-tests.js'
             }
         },
         uglify: {
@@ -163,6 +149,13 @@ module.exports = function(grunt) {
                 files: '<%= jshint.tests.src %>',
                 tasks: ['jshint:tests']
             }
+        },
+        yuitest: {
+            tests: {
+                src: [
+                    'tests/**/*.js'
+                ]
+            }
         }
     });
 
@@ -173,6 +166,63 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
 
     // Default task.
-    grunt.registerTask('default', ['jshint', 'concat', 'uglify']);
+    grunt.registerTask('default', ['test']);
+    
+    grunt.registerTask('test', ['jshint', 'concat', 'yuitest']);
 
+    //Run the YUITest suite
+    grunt.registerMultiTask('yuitest', 'Run the YUITests for the project', function() {
+        /*jshint evil:true, node: true */
+
+        var start = Date.now();
+        var YUITest = require("yuitest");
+        var CSSLint = require('./build/csslint-node').CSSLint;
+        var files = this.filesSrc;
+        var TestRunner = YUITest.TestRunner;
+        var done = this.async();
+        
+        //Eval each file so the tests are brought into this scope were CSSLint and YUITest are loaded already
+        files.forEach(function(filepath) {
+            eval(grunt.file.read(filepath));
+        });
+        
+        //Generic test event handler for individual test
+        function handleTestResult(data){ 
+            switch(data.type) {
+                case TestRunner.TEST_FAIL_EVENT:
+                    grunt.verbose.fail("Test named '" + data.testName + "' failed with message: '" + data.error.message + "'.").or.write(".".red);
+                    break;
+                case TestRunner.TEST_PASS_EVENT:
+                    grunt.verbose.ok("Test named '" + data.testName + "' passed.").or.write(".".green);
+                    break;
+                case TestRunner.TEST_IGNORE_EVENT:
+                    grunt.verbose.warn("Test named '" + data.testName + "' was ignored.").or.write(".".yellow);
+                    break;
+            }
+        }
+
+        //Event to execute after all tests suites are finished
+        function reportResults(allsuites) {
+            var end = Date.now();
+            var elapsed = end - start;
+            grunt.log.writeln().write("Finished in " + (elapsed / 1000) + " seconds").writeln();
+
+            if (allsuites.results.failed > 0) {
+                grunt.fail.warn(allsuites.results.failed + "/" + allsuites.results.total + "tests failed");
+            } else {
+                grunt.log.ok(allsuites.results.passed + "/" + allsuites.results.total + "tests passed");
+                if (allsuites.results.ignored > 0) {
+                    grunt.log.warn("Ignored: " + allsuites.results.ignored);
+                }
+            }
+            //Tell grunt we're done the async testing
+            done();
+        }
+        //Add event listeners
+        TestRunner.subscribe(TestRunner.TEST_FAIL_EVENT, handleTestResult);
+        TestRunner.subscribe(TestRunner.TEST_IGNORE_EVENT, handleTestResult);
+        TestRunner.subscribe(TestRunner.TEST_PASS_EVENT, handleTestResult); 
+        TestRunner.subscribe(TestRunner.COMPLETE_EVENT, reportResults); 
+        TestRunner.run();
+    });
 };
