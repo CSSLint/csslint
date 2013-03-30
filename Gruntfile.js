@@ -26,7 +26,11 @@ module.exports = function(grunt) {
         ],
         // Task configuration.
         clean: {
-            build: ['build']
+            build: ['build'],
+            release: ['release']
+        },
+        changelog: {
+            dest: 'CHANGELOG'
         },
         concat: {
             core: {
@@ -103,6 +107,30 @@ module.exports = function(grunt) {
                 dest: 'build/<%= pkg.name %>-wsh.js'
             }
         },
+        copy: {
+            release: {
+                files: {
+                    'build': 'release',
+                    'release/npm/package.json': 'package.json'
+                }
+            }
+        },
+        includereplace: {
+            release: {
+                options: {
+                    // Global variables available in all files
+                    globals: {
+                        VERSION: '<%= pkg.version %>'
+                    },
+                    prefix: '@',
+                    suffix: '@'
+                },
+                // Files to perform replacements and includes with
+                src: 'build/**/*.*',
+                // Destinaion directory to copy files to
+                dest: 'release/'
+            }
+        },
         jshint: {
             options: {
                 curly: true,
@@ -165,12 +193,16 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-include-replace');
 
     // Default task.
     grunt.registerTask('default', ['test']);
     
-    grunt.registerTask('test', ['clean', 'jshint', 'concat', 'yuitest']);
+    grunt.registerTask('test', ['clean:build', 'jshint', 'concat', 'yuitest']);
 
+    grunt.registerTask('release', ['test', 'clean:release', 'copy:release', 'includereplace', 'changelog']);
+    
     //Run the YUITest suite
     grunt.registerMultiTask('yuitest', 'Run the YUITests for the project', function() {
         /*jshint evil:true, node: true */
@@ -225,5 +257,74 @@ module.exports = function(grunt) {
         TestRunner.subscribe(TestRunner.TEST_PASS_EVENT, handleTestResult); 
         TestRunner.subscribe(TestRunner.COMPLETE_EVENT, reportResults); 
         TestRunner.run();
+    });
+
+    grunt.registerMultiTask('changelog', 'Write the changlog file', function() {
+        var done = this.async();
+        var lastTag;
+        var files = this.filesSrc;
+        
+        
+        grunt.util.spawn({
+            cmd: 'git',
+            args: ['tag']
+        }, function(error, result, code) {
+            //Find the latest git tag
+            var tags = result.stdout.split("\n"),
+                semver = tags[0].replace('v','').split('.'),
+                major = parseInt(semver[0], 10),
+                minor = parseInt(semver[1], 10),
+                patch = parseInt(semver[2], 10);
+            
+            //A simple array sort can't be used because of the comparison of 
+            //the strings '0.9.9' > '0.9.10'
+            for (var i = 1, len = tags.length; i < len; i++) {
+                semver = tags[i].replace('v','').split('.');
+                
+                var currentMajor = parseInt(semver[0], 10);
+                if (currentMajor < major) {
+                    continue;
+                } else if (currentMajor > major) {
+                    major = currentMajor;
+                }
+                
+                var currentMinor = parseInt(semver[1], 10);
+                if (currentMinor < minor) {
+                    continue;
+                } else if (currentMinor > minor) {
+                    minor = currentMinor;
+                }
+                
+                var currentPatch = parseInt(semver[2], 10);
+                if (currentPatch < patch) {
+                    continue;
+                } else if (currentPatch > patch) {
+                    patch = currentPatch;
+                }
+            }
+
+            lastTag = 'v' + major + '.' + minor + '.' + patch;
+            
+            grunt.verbose.write('Last tag: ' + lastTag).writeln();
+            
+            //
+            grunt.util.spawn({
+                cmd: 'git',
+                args: ['log', '--pretty=format:"* %s (%an)"', lastTag + '..HEAD']
+            }, function(error, result, code) {
+                var prettyPrint =  result.stdout.split('\"\n\"').join('\n').replace(/\"$/, '').replace(/^\"/, '');
+
+                grunt.verbose.writeln().write(prettyPrint).writeln();
+
+                var template = '<%= grunt.template.today("mmmm d, yyyy") %> - v<%= pkg.version %>\n\n' +
+                    prettyPrint + '\n\n' +
+                    grunt.file.read(files[0]);
+
+                grunt.file.write(files[0], grunt.template.process(template));
+                
+                done();
+            });         
+        });
+
     });
 };
