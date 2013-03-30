@@ -156,7 +156,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
 
     // Default task.
-    grunt.registerTask('default', ['test', 'uglify']);
+    grunt.registerTask('default', ['test']);
     
     grunt.registerTask('test', ['jshint', 'concat', 'yuitest']);
 

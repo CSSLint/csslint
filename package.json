@@ -20,6 +20,9 @@
   "bin": {
     "csslint": "./cli.js"
   },
+  "scripts": {
+    "test": "grunt test"
+  },
   "licenses": [
     {
       "type": "MIT",
