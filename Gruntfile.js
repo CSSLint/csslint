@@ -47,23 +47,22 @@ module.exports = function(grunt) {
                 dest: 'build/<%= pkg.name %>.js'
             },//Build environment workers
             rhino: {
-                options: {
-                    banner: 'var exports = exports || {};\n' //Hack for using the node version of parserlib
-                },
                 src: [
                     '<%= concat.core.dest %>',
-                    'src/cli/{common, rhino}.js'
+                    'src/cli/common.js',
+                    'src/cli/rhino.js'
                 ],
                 dest: 'build/<%= pkg.name %>-rhino.js'
             },
             node: {
                 options: {
-                    banner: '<%= banner %>',
+                    banner: '<%= banner %>\n' +
+                            'var parserlib = require("parserlib");\n',
                     footer: '\nexports.CSSLint = CSSLint;'
                 },
                 files: {
-                    'build/<%= pkg.name %>-node.js': ['<%= core_files %>'],
-                    'build/npm/lib/<%= pkg.name %>-node.js': ['<%= core_files %>']
+                    'build/<%= pkg.name %>-node.js': ['<%= csslint_files %>'],
+                    'build/npm/lib/<%= pkg.name %>-node.js': ['<%= csslint_files %>']
                 }
             },
             node_cli: {
@@ -71,14 +70,15 @@ module.exports = function(grunt) {
                     banner: '#!/usr/bin/env node\n<%= banner %>'
                 },
                 src: [
-                    'src/cli/{common, node}.js'
+                    'src/cli/common.js',
+                    'src/cli/node.js'
                 ],
                 dest: 'build/npm/cli.js'
             },
             tests: {
                 src: [
-                    '!tests/all-rules.js',
-                    'tests/**/*.js'
+                    'tests/**/*.js',
+                    '!tests/all-rules.js'
                 ],
                 dest: 'build/<%= pkg.name %>-tests.js'
             },
@@ -95,14 +95,10 @@ module.exports = function(grunt) {
                 dest: 'build/<%= pkg.name %>-worker.js'
             },
             wsh: {
-                options: {
-                    banner: '<%= banner %>\n' +
-                            //Hack for using the node version of parserlib
-                            'var exports = exports || {};\n'
-                },
                 src: [
-                    '<%= core_files %>',
-                    'src/cli/{common, wsh}.js'
+                    '<%= concat.core.dest %>',
+                    'src/cli/common.js',
+                    'src/cli/wsh.js'
                 ],
                 dest: 'build/<%= pkg.name %>-wsh.js'
             }
@@ -201,7 +197,7 @@ module.exports = function(grunt) {
     
     grunt.registerTask('test', ['clean:build', 'jshint', 'concat', 'yuitest']);
 
-    grunt.registerTask('release', ['test', 'clean:release', 'copy:release', 'includereplace', 'changelog']);
+    grunt.registerTask('release', ['test', 'clean:release', 'copy:release', 'includereplace:release', 'changelog']);
     
     //Run the YUITest suite
     grunt.registerMultiTask('yuitest', 'Run the YUITests for the project', function() {
