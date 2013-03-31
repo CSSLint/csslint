@@ -181,6 +181,14 @@ module.exports = function(grunt) {
                     'tests/**/*.js'
                 ]
             }
+        },
+        test_rhino: {
+            tests: {
+                src: [
+                    '<%= concat.tests.dest %>',
+                    'tests/all-rules.js'
+                ]
+            }
         }
     });
 
@@ -195,7 +203,9 @@ module.exports = function(grunt) {
     // Default task.
     grunt.registerTask('default', ['test']);
     
+    //Testing
     grunt.registerTask('test', ['clean:build', 'jshint', 'concat', 'yuitest']);
+    grunt.registerTask('rhino', ['clean:build', 'jshint', 'concat', 'test_rhino']);
 
     grunt.registerTask('release', ['test', 'clean:release', 'copy:release', 'includereplace:release', 'changelog']);
     
@@ -232,18 +242,11 @@ module.exports = function(grunt) {
 
         //Event to execute after all tests suites are finished
         function reportResults(allsuites) {
-            var end = Date.now();
-            var elapsed = end - start;
-            grunt.log.writeln().write("Finished in " + (elapsed / 1000) + " seconds").writeln();
-
-            if (allsuites.results.failed > 0) {
-                grunt.fail.warn(allsuites.results.failed + "/" + allsuites.results.total + "tests failed");
-            } else {
-                grunt.log.ok(allsuites.results.passed + "/" + allsuites.results.total + "tests passed");
-                if (allsuites.results.ignored > 0) {
-                    grunt.log.warn("Ignored: " + allsuites.results.ignored);
-                }
-            }
+            var results = allsuites.results;
+                grunt.log.write("\nTotal tests: " + results.total + ", Failures: " +
+                    results.failed + ", Skipped: " + results.ignored +
+                    ", Time: " + (results.duration/1000) + " seconds\n");
+            
             //Tell grunt we're done the async testing
             done();
         }
@@ -322,5 +325,25 @@ module.exports = function(grunt) {
             });         
         });
 
+    });
+
+    //Run test suite through rhino
+    grunt.registerMultiTask('test_rhino', 'Run the test suite through rhino', function() {
+        var done = this.async();
+        var files = this.filesSrc;
+        var progress = files.length;
+        
+        files.forEach(function(filepath) {
+            grunt.util.spawn({
+                cmd: 'java',
+                args: ['-jar', 'lib/js.jar', 'lib/yuitest-rhino-cli.js', 'build/csslint.js', filepath],
+                opts: {stdio: 'inherit'}
+            }, function(error, result, code) {              
+                progress--;
+                if (progress === 0) {
+                    done();
+                }
+            });
+        });
     });
 };
