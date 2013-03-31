@@ -219,42 +219,140 @@ module.exports = function(grunt) {
         var files = this.filesSrc;
         var TestRunner = YUITest.TestRunner;
         var done = this.async();
+        var errors = [],
+            failures = [],
+            stack = [];
         
         //Eval each file so the tests are brought into this scope were CSSLint and YUITest are loaded already
         files.forEach(function(filepath) {
             eval(grunt.file.read(filepath));
         });
         
-        //Generic test event handler for individual test
-        function handleTestResult(data){ 
-            switch(data.type) {
-                case TestRunner.TEST_FAIL_EVENT:
-                    grunt.verbose.fail("Test named '" + data.testName + "' failed with message: '" + data.error.message + "'.").or.write(".".red);
-                    break;
-                case TestRunner.TEST_PASS_EVENT:
-                    grunt.verbose.ok("Test named '" + data.testName + "' passed.").or.write(".".green);
-                    break;
-                case TestRunner.TEST_IGNORE_EVENT:
-                    grunt.verbose.warn("Test named '" + data.testName + "' was ignored.").or.write(".".yellow);
-                    break;
+        // From YUITest Node CLI
+        function filterStackTrace(stackTrace){
+            if (stackTrace){
+                var lines = stackTrace.split("\n"),
+                    result = [],
+                    i, len;
+
+                //skip first line, it's the error
+                for (i=1, len=lines.length; i < len; i++){
+                    if (lines[i].indexOf("yuitest-node") > -1){
+                        break;
+                    } else {
+                        result.push(lines[i]);
+                    }
+                }
+
+                return result.join("\n");
+            } else {
+                return "Unavailable.";
             }
         }
+        
+        // From YUITest Node CLI with minor colourization changes
+        function handleEvent(event){
 
-        //Event to execute after all tests suites are finished
-        function reportResults(allsuites) {
-            var results = allsuites.results;
-                grunt.log.write("\nTotal tests: " + results.total + ", Failures: " +
-                    results.failed + ", Skipped: " + results.ignored +
-                    ", Time: " + (results.duration/1000) + " seconds\n");
-            
-            //Tell grunt we're done the async testing
-            done();
+            var message = "",
+                results = event.results,
+                i, len;
+
+            switch(event.type){
+                case TestRunner.BEGIN_EVENT:
+                    message = "YUITest for Node.js\n";
+
+                    if (TestRunner._groups){
+                        message += "Filtering on groups '" + TestRunner._groups.slice(1,-1) + "'\n";
+                    }
+                    break;
+
+                case TestRunner.COMPLETE_EVENT:
+                    message = "\nTotal tests: " + results.total + ", " +
+                        ("Failures: " + results.failed).red + ", " +
+                        ("Skipped: " + results.ignored).yellow +
+                        ", Time: " + (results.duration/1000) + " seconds\n";
+
+                    if (failures.length){
+                        message += "\nTests failed:\n".red;
+
+                        for (i=0,len=failures.length; i < len; i++){
+                            message += "\n" + (i+1) + ") " + failures[i].name + " : " + failures[i].error.getMessage() + "\n";
+                            message += "Stack trace:\n" + filterStackTrace(failures[i].error.stack) + "\n";
+                        }
+
+                        message += "\n";
+                    }
+
+                    if (errors.length){
+                        message += "\nErrors:\n".red;
+
+                        for (i=0,len=errors.length; i < len; i++){
+                            message += "\n" + (i+1) + ") " + errors[i].name + " : " + errors[i].error.message + "\n";
+                            message += "Stack trace:\n" + filterStackTrace(errors[i].error.stack) + "\n";
+                        }
+
+                        message += "\n";
+                    }
+
+                    message += "\n\n";
+                    //Tell grunt we're done the async operation
+                    done();
+                    break;
+
+                case TestRunner.TEST_FAIL_EVENT:
+                    message = "F".red;
+                    failures.push({
+                        name: stack.concat([event.testName]).join(" > "),
+                        error: event.error
+                    });
+
+                    break;
+
+                case TestRunner.ERROR_EVENT:
+                    errors.push({
+                        name: stack.concat([event.methodName]).join(" > "),
+                        error: event.error
+                    });
+
+                    break;
+
+                case TestRunner.TEST_IGNORE_EVENT:
+                    message = "S".yellow;
+                    break;
+
+                case TestRunner.TEST_PASS_EVENT:
+                    message = ".".green;
+                    break;
+
+                case TestRunner.TEST_SUITE_BEGIN_EVENT:
+                    stack.push(event.testSuite.name);
+                    break;
+
+                case TestRunner.TEST_CASE_COMPLETE_EVENT:
+                case TestRunner.TEST_SUITE_COMPLETE_EVENT:
+                    stack.pop();
+                    break;
+
+                case TestRunner.TEST_CASE_BEGIN_EVENT:
+                    stack.push(event.testCase.name);
+                    break;
+
+                //no default
+            }
+
+            grunt.log.write(message);
         }
         //Add event listeners
-        TestRunner.subscribe(TestRunner.TEST_FAIL_EVENT, handleTestResult);
-        TestRunner.subscribe(TestRunner.TEST_IGNORE_EVENT, handleTestResult);
-        TestRunner.subscribe(TestRunner.TEST_PASS_EVENT, handleTestResult); 
-        TestRunner.subscribe(TestRunner.COMPLETE_EVENT, reportResults); 
+        TestRunner.subscribe(TestRunner.BEGIN_EVENT, handleEvent);
+        TestRunner.subscribe(TestRunner.TEST_FAIL_EVENT, handleEvent);
+        TestRunner.subscribe(TestRunner.TEST_PASS_EVENT, handleEvent);
+        TestRunner.subscribe(TestRunner.ERROR_EVENT, handleEvent);
+        TestRunner.subscribe(TestRunner.TEST_IGNORE_EVENT, handleEvent);
+        TestRunner.subscribe(TestRunner.TEST_CASE_BEGIN_EVENT, handleEvent);
+        TestRunner.subscribe(TestRunner.TEST_CASE_COMPLETE_EVENT, handleEvent);
+        TestRunner.subscribe(TestRunner.TEST_SUITE_BEGIN_EVENT, handleEvent);
+        TestRunner.subscribe(TestRunner.TEST_SUITE_COMPLETE_EVENT, handleEvent);
+        TestRunner.subscribe(TestRunner.COMPLETE_EVENT, handleEvent);
         TestRunner.run();
     });
 
