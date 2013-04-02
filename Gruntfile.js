@@ -10,6 +10,7 @@ module.exports = function(grunt) {
                 '<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
                 '* Copyright (c) <%= grunt.template.today("yyyy") %> Nicole Sullivan and Nicholas C. Zakas;\n' +
                 '* Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> <%= _.pluck(pkg.licenses, "url").join(", ") %> */\n',
+        build_dir: 'build',
         //Parser lib copy for verions that can't user requirejs
         parserlib: 'node_modules/parserlib/lib/node-parserlib.js',
         //Core CSSLint files used by most versions
@@ -26,7 +27,7 @@ module.exports = function(grunt) {
         ],
         // Task configuration.
         clean: {
-            build: ['build'],
+            build: ['<%= build_dir %>'],
             release: ['release']
         },
         changelog: {
@@ -44,7 +45,7 @@ module.exports = function(grunt) {
                 src: [
                     '<%= core_files %>'
                 ],
-                dest: 'build/<%= pkg.name %>.js'
+                dest: '<%= build_dir %>/<%= pkg.name %>.js'
             },//Build environment workers
             rhino: {
                 src: [
@@ -52,7 +53,7 @@ module.exports = function(grunt) {
                     'src/cli/common.js',
                     'src/cli/rhino.js'
                 ],
-                dest: 'build/<%= pkg.name %>-rhino.js'
+                dest: '<%= build_dir %>/<%= pkg.name %>-rhino.js'
             },
             node: {
                 options: {
@@ -61,8 +62,8 @@ module.exports = function(grunt) {
                     footer: '\nexports.CSSLint = CSSLint;'
                 },
                 files: {
-                    'build/<%= pkg.name %>-node.js': ['<%= csslint_files %>'],
-                    'build/npm/lib/<%= pkg.name %>-node.js': ['<%= csslint_files %>']
+                    '<%= build_dir %>/<%= pkg.name %>-node.js': ['<%= csslint_files %>'],
+                    '<%= build_dir %>/npm/lib/<%= pkg.name %>-node.js': ['<%= csslint_files %>']
                 }
             },
             node_cli: {
@@ -73,14 +74,14 @@ module.exports = function(grunt) {
                     'src/cli/common.js',
                     'src/cli/node.js'
                 ],
-                dest: 'build/npm/cli.js'
+                dest: '<%= build_dir %>/npm/cli.js'
             },
             tests: {
                 src: [
                     'tests/**/*.js',
                     '!tests/all-rules.js'
                 ],
-                dest: 'build/<%= pkg.name %>-tests.js'
+                dest: '<%= build_dir %>/<%= pkg.name %>-tests.js'
             },
             worker: {
                 options: {
@@ -92,7 +93,7 @@ module.exports = function(grunt) {
                     '<%= core_files %>',
                     'src/worker/*.js'
                 ],
-                dest: 'build/<%= pkg.name %>-worker.js'
+                dest: '<%= build_dir %>/<%= pkg.name %>-worker.js'
             },
             wsh: {
                 src: [
@@ -100,13 +101,13 @@ module.exports = function(grunt) {
                     'src/cli/common.js',
                     'src/cli/wsh.js'
                 ],
-                dest: 'build/<%= pkg.name %>-wsh.js'
+                dest: '<%= build_dir %>/<%= pkg.name %>-wsh.js'
             }
         },
         copy: {
             release: {
                 files: {
-                    'build': 'release',
+                    '<%= build_dir %>': 'release',
                     'release/npm/package.json': 'package.json'
                 }
             }
@@ -122,7 +123,7 @@ module.exports = function(grunt) {
                     suffix: '@'
                 },
                 // Files to perform replacements and includes with
-                src: 'build/**/*.*',
+                src: '<%= build_dir %>/**/*.*',
                 // Destinaion directory to copy files to
                 dest: 'release/'
             }
