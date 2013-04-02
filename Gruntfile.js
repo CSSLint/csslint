@@ -130,23 +130,20 @@ module.exports = function(grunt) {
         jshint: {
             options: {
                 curly: true,
-                //eqeqeq: true,
+                //eqeqeq: true, TODO: Leaving off due to errors
                 immed: true,
                 latedef: true,
                 newcap: true,
                 noarg: true,
                 sub: true,
                 undef: true,
-                //unused: true,
+                //unused: true, TODO: Leaving off due to errors around unused instances of CSSLint
                 boss: true,
                 eqnull: true,
                 // Copied from build.xml
                 forin: true,
                 noempty: true,
                 rhino: false,
-                // Temporary to suppress warnings that exist when using the latest JSHint
-                eqeqeq: false,
-                unused: false,
                 globals: {
                     jQuery: true
                 }
@@ -203,6 +200,9 @@ module.exports = function(grunt) {
     // Default task.
     grunt.registerTask('default', ['test']);
     
+    //Alias for 
+    grunt.registerTask('lint', ['jshint']);
+    
     //Testing
     grunt.registerTask('test', ['clean:build', 'jshint', 'concat', 'yuitest']);
     grunt.registerTask('rhino', ['clean:build', 'jshint', 'concat', 'test_rhino']);
@@ -223,7 +223,7 @@ module.exports = function(grunt) {
             failures = [],
             stack = [];
         
-        //Eval each file so the tests are brought into this scope were CSSLint and YUITest are loaded already
+        //Eval each file so the tests are brought into this scope where CSSLint and YUITest are loaded already
         files.forEach(function(filepath) {
             eval(grunt.file.read(filepath));
         });
