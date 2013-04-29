@@ -122,9 +122,14 @@ var wshapi = (function(){
 
         readFile: function(path){
             var forReading = 1;
-            var tf = fso.OpenTextFile(path, forReading);
-            var allText = tf.ReadAll();
-            tf.Close();
+            var allText;
+            try {
+                var tf = fso.OpenTextFile(path, forReading);
+                allText = tf.ReadAll();
+                tf.Close();
+            } catch (ex) {
+                return "";
+            }
             return allText;
         }
     };
