@@ -135,7 +135,7 @@ var wshapi = (function(){
                 textFile = fso.OpenTextFile(path, 1);
                 allText = textFile.ReadAll();
             } catch (ex) {
-                // TODO handle this    
+                shell.LogEvent(1, ex.message);
             } finally {
                 textFile.Close();
             }
