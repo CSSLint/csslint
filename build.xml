@@ -186,7 +186,7 @@
 
        <mkdir dir="${build.npm.dir}"/>
        <mkdir dir="${build.npm.dir}/lib"/>
-       <copy file="${npm.dir}/package.json" todir="${build.npm.dir}"/>
+       <copy file="package.json" todir="${build.npm.dir}"/>
        <concat destfile="${build.npm.dir}/cli.js" fixlastline="true">
            <header trimleading="yes">#!/usr/bin/env node
             /* Build time: ${RIGHT_NOW} */

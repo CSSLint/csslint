@@ -217,11 +217,6 @@
         },
 
         "Using height when border-bottom is zero should not result in a warning": function(){
-            var result = CSSLint.verify(".foo { height: 100px; border-bottom: 0px; }", { "box-model": 1 });
-            Assert.areEqual(0, result.messages.length);
-        },
-
-        "Using height when border-bottom is zero should not result in a warning": function(){
             var result = CSSLint.verify(".foo { height: 100px; border-bottom: 0; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
         }

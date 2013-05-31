@@ -18,7 +18,7 @@
         j = i * 4;
         css3 += ".selector" + (j+1) + ", .selector" + (j+2) + ", .selector" + (j+3) + ", .selector" + (j+4) + " { background:red; } ";
     }
-    css3 += ".selector4093 { background:red; }.selector4094, .selector4095 { background:red; } "
+    css3 += ".selector4093 { background:red; }.selector4094, .selector4095 { background:red; } ";
 
     // create css4, which has 1024 rules and 4096 selectors
     for (i = 0; i <= 1023; i++) {
