@@ -26,12 +26,15 @@
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/stubbornella/csslint/blame/master/LICENSE"
+      "url": "https://github.com/stubbornella/csslint/blob/master/LICENSE"
     }
   ],
+  "bugs": {
+    "url": "https://github.com/stubbornella/csslint/issues"
+  },
   "repository": {
     "type": "git",
-    "url": "http://github.com/stubbornella/csslint.git"
+    "url": "https://github.com/stubbornella/csslint.git"
   },
   "dependencies": {
     "parserlib": "~0.2.2"
