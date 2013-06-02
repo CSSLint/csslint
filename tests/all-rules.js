@@ -8,7 +8,7 @@
  * to fail due to Java stack overflow. This must be run separate from other tests.
  */
 (function(){
-
+    /*jshint loopfunc: true */
     /*global YUITest, CSSLint*/
     var Assert = YUITest.Assert,
         suite   = new YUITest.TestSuite("General Tests for all Rules"),
