@@ -32,4 +32,5 @@ CSSLint is a tool to help point out problems with your CSS code. It does basic s
 1. Michael Mattiacci, http://mattiacci.com (Rules fixes)
 1. Jonathan Klein, http://www.jonathanklein.net (Bulletproof font-face rule)
 1. Shannon Moeller, http://shannonmoeller.com (Embedded rulesets)
-1. Nick Schonning, https://github.com/nschonni (Contributing.md)
+1. Nick Schonning, https://github.com/nschonni (Contributing.md, grunt build)
+1. Jared Wyles, https://github.com/jaredwy (Managing pull requests, endless advice)
