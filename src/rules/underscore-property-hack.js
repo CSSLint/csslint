@@ -1,8 +1,8 @@
+/*global CSSLint*/
 /*
  * Rule: Don't use properties with a underscore prefix.
  *
  */
-/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -12,14 +12,16 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function (parser, reporter) {
+        "use strict";
+        
         var rule = this;
 
         //check if property name starts with "_"
-        parser.addListener("property", function(event){
+        parser.addListener("property", function (event) {
             var property = event.property;
 
-            if (property.hack == "_") {
+            if (property.hack === "_") {
                 reporter.report("Property with underscore prefix found.", event.property.line, event.property.col, rule);
             }
         });
