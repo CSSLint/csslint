@@ -1,7 +1,7 @@
+/*global CSSLint*/
 /*
  * Rule: There should be no syntax errors. (Duh.)
  */
-/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -11,10 +11,12 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function (parser, reporter) {
+        "use strict";
+        
         var rule = this;
 
-        parser.addListener("error", function(event){
+        parser.addListener("error", function (event) {
             reporter.error(event.message, event.line, event.col, rule);
         });
 

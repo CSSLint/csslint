@@ -1,8 +1,9 @@
+/*jslint regexp:true*/
+/*global CSSLint*/
 /*
  * Rule: Use the bulletproof @font-face syntax to avoid 404's in old IE
  * (http://www.fontspring.com/blog/the-new-bulletproof-font-face-syntax)
  */
-/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -12,35 +13,39 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function (parser, reporter) {
+        "use strict";
+        
         var rule = this,
             count = 0,
             fontFaceRule = false,
-            firstSrc     = true,
-            ruleFailed    = false,
-            line, col;
+            firstSrc = true,
+            ruleFailed = false,
+            line,
+            col;
 
         // Mark the start of a @font-face declaration so we only test properties inside it
-        parser.addListener("startfontface", function(event){
+        parser.addListener("startfontface", function (event) {
             fontFaceRule = true;
         });
 
-        parser.addListener("property", function(event){
+        parser.addListener("property", function (event) {
             // If we aren't inside an @font-face declaration then just return
             if (!fontFaceRule) {
                 return;
             }
 
             var propertyName = event.property.toString().toLowerCase(),
-                value        = event.value.toString();
+                value = event.value.toString(),
+                regex = /^\s?url\(['"].+\.eot\?.*['"]\)\s*format\(['"]embedded-opentype['"]\).*$/i;
 
             // Set the line and col numbers for use in the endfontface listener
             line = event.line;
-            col  = event.col;
+            col = event.col;
 
             // This is the property that we care about, we can ignore the rest
             if (propertyName === 'src') {
-                var regex = /^\s?url\(['"].+\.eot\?.*['"]\)\s*format\(['"]embedded-opentype['"]\).*$/i;
+               
 
                 // We need to handle the advanced syntax with two src properties
                 if (!value.match(regex) && firstSrc) {
@@ -55,7 +60,7 @@ CSSLint.addRule({
         });
 
         // Back to normal rules that we don't need to test
-        parser.addListener("endfontface", function(event){
+        parser.addListener("endfontface", function (event) {
             fontFaceRule = false;
 
             if (ruleFailed) {
