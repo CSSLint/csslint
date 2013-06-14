@@ -1,7 +1,8 @@
+/*jslint plusplus:true*/
+/*global CSSLint*/
 /*
  * Rule: Total number of rules should not exceed x.
  */
-/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -11,16 +12,18 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function (parser, reporter) {
+        "use strict";
+        
         var rule = this,
             count = 0;
 
         //count each rule
-        parser.addListener("startrule", function(){
+        parser.addListener("startrule", function () {
             count++;
         });
 
-        parser.addListener("endstylesheet", function(){
+        parser.addListener("endstylesheet", function () {
             reporter.stat("rule-count", count);
         });
     }

@@ -1,3 +1,4 @@
+/*global CSSLint*/
 /*
  * Rule: Certain properties don't play well with certain display values. 
  * - float should not be used with inline-block
@@ -5,7 +6,6 @@
  * - vertical-align should not be used with block
  * - margin, float should not be used with table-*
  */
-/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -15,10 +15,11 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
-        var rule = this;
-
-        var propertiesToCheck = {
+    init: function (parser, reporter) {
+        "use strict";
+        
+        var rule = this,
+            propertiesToCheck = {
                 display: 1,
                 "float": "none",
                 height: 1,
@@ -37,59 +38,59 @@ CSSLint.addRule({
             },
             properties;
 
-        function reportProperty(name, display, msg){
-            if (properties[name]){
-                if (typeof propertiesToCheck[name] != "string" || properties[name].value.toLowerCase() != propertiesToCheck[name]){
+        function reportProperty(name, display, msg) {
+            if (properties[name]) {
+                if (typeof propertiesToCheck[name] !== "string" || properties[name].value.toLowerCase() !== propertiesToCheck[name]) {
                     reporter.report(msg || name + " can't be used with display: " + display + ".", properties[name].line, properties[name].col, rule);
                 }
             }
         }
-        
-        function startRule(){
+
+        function startRule() {
             properties = {};
         }
 
-        function endRule(){
+        function endRule() {
 
             var display = properties.display ? properties.display.value : null;
-            if (display){
-                switch(display){
+            if (display) {
+                switch (display) {
 
-                    case "inline":
-                        //height, width, margin-top, margin-bottom, float should not be used with inline
-                        reportProperty("height", display);
-                        reportProperty("width", display);
+                case "inline":
+                    //height, width, margin-top, margin-bottom, float should not be used with inline
+                    reportProperty("height", display);
+                    reportProperty("width", display);
+                    reportProperty("margin", display);
+                    reportProperty("margin-top", display);
+                    reportProperty("margin-bottom", display);
+                    reportProperty("float", display, "display:inline has no effect on floated elements (but may be used to fix the IE6 double-margin bug).");
+                    break;
+
+                case "block":
+                    //vertical-align should not be used with block
+                    reportProperty("vertical-align", display);
+                    break;
+
+                case "inline-block":
+                    //float should not be used with inline-block
+                    reportProperty("float", display);
+                    break;
+
+                default:
+                    //margin, float should not be used with table
+                    if (display.indexOf("table-") === 0) {
                         reportProperty("margin", display);
+                        reportProperty("margin-left", display);
+                        reportProperty("margin-right", display);
                         reportProperty("margin-top", display);
-                        reportProperty("margin-bottom", display);              
-                        reportProperty("float", display, "display:inline has no effect on floated elements (but may be used to fix the IE6 double-margin bug).");
-                        break;
-
-                    case "block":
-                        //vertical-align should not be used with block
-                        reportProperty("vertical-align", display);
-                        break;
-
-                    case "inline-block":
-                        //float should not be used with inline-block
+                        reportProperty("margin-bottom", display);
                         reportProperty("float", display);
-                        break;
+                    }
 
-                    default:
-                        //margin, float should not be used with table
-                        if (display.indexOf("table-") === 0){
-                            reportProperty("margin", display);
-                            reportProperty("margin-left", display);
-                            reportProperty("margin-right", display);
-                            reportProperty("margin-top", display);
-                            reportProperty("margin-bottom", display);
-                            reportProperty("float", display);
-                        }
-
-                        //otherwise do nothing
+                    //otherwise do nothing
                 }
             }
-          
+
         }
 
         parser.addListener("startrule", startRule);
@@ -98,11 +99,15 @@ CSSLint.addRule({
         parser.addListener("startpagemargin", startRule);
         parser.addListener("startpage", startRule);
 
-        parser.addListener("property", function(event){
+        parser.addListener("property", function (event) {
             var name = event.property.text.toLowerCase();
 
-            if (propertiesToCheck[name]){
-                properties[name] = { value: event.value.text, line: event.property.line, col: event.property.col };                    
+            if (propertiesToCheck[name]) {
+                properties[name] = {
+                    value: event.value.text,
+                    line: event.property.line,
+                    col: event.property.col
+                };
             }
         });
 

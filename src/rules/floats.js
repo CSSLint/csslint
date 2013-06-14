@@ -1,8 +1,9 @@
+/*jslint plusplus:true*/
+/*global CSSLint*/
 /*
  * Rule: You shouldn't use more than 10 floats. If you do, there's probably
  * room for some abstraction.
  */
-/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -12,22 +13,24 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
-        var rule = this;
-        var count = 0;
+    init: function (parser, reporter) {
+        "use strict";
+        
+        var rule = this,
+            count = 0;
 
         //count how many times "float" is used
-        parser.addListener("property", function(event){
-            if (event.property.text.toLowerCase() == "float" &&
-                    event.value.text.toLowerCase() != "none"){
+        parser.addListener("property", function (event) {
+            if (event.property.text.toLowerCase() === "float" &&
+                    event.value.text.toLowerCase() !== "none") {
                 count++;
             }
         });
 
         //report the results
-        parser.addListener("endstylesheet", function(){
+        parser.addListener("endstylesheet", function () {
             reporter.stat("floats", count);
-            if (count >= 10){
+            if (count >= 10) {
                 reporter.rollupWarn("Too many floats (" + count + "), you're probably using them for layout. Consider using a grid system instead.", rule);
             }
         });
