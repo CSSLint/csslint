@@ -1,8 +1,23 @@
 /*
- * Rule: You shouldn't use more than 10 floats. If you do, there's probably
- * room for some abstraction.
+ * Rule: ount all the properties and pair values inside a file and return an object
+ *
+ * Result :
+ * "float": {
+ *       "count": 3,
+ *       "values": {
+ *           "left": {
+ *               "count": 1
+ *           },
+ *
+ *           "right": {
+ *               "count": 2
+ *           }
+ *       }
+ *   }
+ *
  */
 /*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
