@@ -42,19 +42,16 @@ CSSLint.addRule({
         parser.addListener("endstylesheet", function (event) {
             reporter.stat("count-properties", {
                 properties : properties,
-                stringResult : JSON.stringify(properties)
+                stringResult : JSON.stringify(properties),
+                html:rule.propertiesToHTML(properties)
             });
-
-            //reporter.report("Stylesheet count result <br>\n" + rule.propertiesToHTML(properties) + '<br>\n', 0, 0, rule);
-
         });
     },
 
     propertiesToHTML : function(properties) {
         var html = [];
-
         for (var name in properties) {
-            if(properties.hasOwnProperty(properties[name])) {
+            if(properties.hasOwnProperty(name)) {
                 var property = properties[name];
                 html.push(name+': '+property.count);
                 for (var valueName in property.values) {
