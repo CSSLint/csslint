@@ -9,23 +9,30 @@
 
         "float count should be equal to 1": function () {
             var result = CSSLint.verify(".foo { float: left; }", { "count-properties": 1});
-            Assert.areEqual(1, result.stats['count-properties'].float.count);
+            Assert.areEqual(1, result.stats['count-properties'].properties.float.count);
         },
 
         "left value count should be equal to 1": function () {
             var result = CSSLint.verify(".foo { float: left; }", { "count-properties": 1});
-            Assert.areEqual(1, result.stats['count-properties'].float.values.left.count);
+            Assert.areEqual(1, result.stats['count-properties'].properties.float.values.left.count);
         },
 
         "right value result object should be equal to null": function () {
             var result = CSSLint.verify(".foo { float: left; }", { "count-properties": 1});
-            Assert.areEqual(null, result.stats['count-properties'].float.values.right);
+            Assert.areEqual(null, result.stats['count-properties'].properties.float.values.right);
         },
 
         "right value result should be equal to 2": function () {
             var result = CSSLint.verify(".foo { float: right; } .bar { float: right; font-size: 12px; } .foobar { float: left }", { "count-properties": 1});
-            Assert.areEqual(2, result.stats['count-properties'].float.values.right.count);
+            Assert.areEqual(2, result.stats['count-properties'].properties.float.values.right.count);
+        },
+
+        'string version of properties result should be equal to : "float":{"count":1,"values":{"left":{"count":1}}}}': function () {
+            var result = CSSLint.verify(".foo { float: left; }", { "count-properties": 1});
+            Assert.areEqual('{"float":{"count":1,"values":{"left":{"count":1}}}}', result.stats['count-properties'].stringResult);
         }
+
+
     }));
 
 })();

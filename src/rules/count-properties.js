@@ -40,8 +40,10 @@ CSSLint.addRule({
 
         //report the results
         parser.addListener("endstylesheet", function () {
-            reporter.stat("count-properties", properties);
-
+            reporter.stat("count-properties", {
+                properties : properties,
+                stringResult : JSON.stringify(properties)
+            });
             /*if (count >= 10) {
              reporter.rollupWarn("Too many floats (" + count + "), you're probably using them for layout. Consider using a grid system instead.", rule);
              }*/
