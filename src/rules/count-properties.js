@@ -56,27 +56,7 @@ CSSLint.addRule({
 
         //report the results
         parser.addListener("endstylesheet", function (event) {
-            reporter.stat("count-properties", {
-                properties : properties,
-                stringResult : JSON.stringify(properties),
-                html:rule.propertiesToHTML(properties)
-            });
+            reporter.stat("count-properties", properties);
         });
-    },
-
-    propertiesToHTML : function(properties) {
-        var html = [];
-        for (var name in properties) {
-            if(properties.hasOwnProperty(name)) {
-                var property = properties[name];
-                html.push(name+': '+property.count);
-                for (var valueName in property.values) {
-                    if(property.values.hasOwnProperty(valueName)) {
-                        html.push(name+':'+valueName+': '+property.values[valueName].count);
-                    }
-                }
-            }
-        }
-        return html.join('<br>\n');
     }
 });
