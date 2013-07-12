@@ -1,5 +1,5 @@
 /*
- * Rule: ount all the properties and pair values inside a file and return an object
+ * Rule: count all the properties and pair values inside a file and return an object
  *
  * Result :
  * "float": {
@@ -35,7 +35,8 @@ CSSLint.addRule({
 
 
         parser.addListener("property", function (event) {
-            var propertyText = event.property.text.toLowerCase();
+            // lower case the property and remove vendor prefix
+            var propertyText = event.property.text.toLowerCase().replace(/^(mso|prince|-[\w\d]+)-/,'');
             var propertyValue = event.value.text.toLowerCase();
             if (!properties[propertyText]) {
                 properties[propertyText] = {
