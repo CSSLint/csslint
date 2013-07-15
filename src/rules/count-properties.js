@@ -21,9 +21,9 @@
 CSSLint.addRule({
 
     //rule information
-    id: "count-properties",
+    id: "count-properties-value",
     name: "Count all the properties and pair values used in a CSS file",
-    desc: "This rule count how many time a property is used in a stylesheet, it count also the value pairs in the stylesheet, example : 'float:left 12'",
+    desc: "This rule count how manys time a property is used in a stylesheet, it count also the value pairs in the stylesheet, example : 'float:left 12'",
     browsers: "All",
 
     //initialization
