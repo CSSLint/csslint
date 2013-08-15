@@ -31,6 +31,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint, Reporter*/
@@ -67,6 +68,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -111,6 +113,7 @@
 
     }));
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -158,6 +161,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -200,6 +204,7 @@
         }
     }));
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -254,6 +259,7 @@
 
     }));
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -297,6 +303,7 @@
         }
     }));
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -333,6 +340,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -364,6 +372,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -583,11 +592,6 @@
         },
 
         "Using height when border-bottom is zero should not result in a warning": function(){
-            var result = CSSLint.verify(".foo { height: 100px; border-bottom: 0px; }", { "box-model": 1 });
-            Assert.areEqual(0, result.messages.length);
-        },
-
-        "Using height when border-bottom is zero should not result in a warning": function(){
             var result = CSSLint.verify(".foo { height: 100px; border-bottom: 0; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
         }
@@ -595,6 +599,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -618,6 +623,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -723,6 +729,7 @@
 
     }));
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -775,6 +782,7 @@
     }));     
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -988,6 +996,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1013,6 +1022,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1067,6 +1077,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1085,6 +1096,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1102,6 +1114,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -1999,6 +2012,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -2034,6 +2048,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -2062,6 +2077,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -2092,6 +2108,7 @@
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -2144,6 +2161,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -2169,6 +2187,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -2187,6 +2206,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -2214,6 +2234,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -2258,6 +2279,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -2308,6 +2330,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -2349,6 +2372,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -2368,6 +2392,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -2420,6 +2445,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -2440,7 +2466,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
         j = i * 4;
         css3 += ".selector" + (j+1) + ", .selector" + (j+2) + ", .selector" + (j+3) + ", .selector" + (j+4) + " { background:red; } ";
     }
-    css3 += ".selector4093 { background:red; }.selector4094, .selector4095 { background:red; } "
+    css3 += ".selector4093 { background:red; }.selector4094, .selector4095 { background:red; } ";
 
     // create css4, which has 1024 rules and 4096 selectors
     for (i = 0; i <= 1023; i++) {
@@ -2508,7 +2534,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
         j = i * 4;
         css3 += ".selector" + (j+1) + ", .selector" + (j+2) + ", .selector" + (j+3) + ", .selector" + (j+4) + " { background:red; } ";
     }
-    css3 += ".selector4093 { background:red; }.selector4094, .selector4095 { background:red; } "
+    css3 += ".selector4093 { background:red; }.selector4094, .selector4095 { background:red; } ";
 
     // create css4, which has 1024 rules and 4096 selectors
     for (i = 0; i <= 1023; i++) {
@@ -2583,6 +2609,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -2607,6 +2634,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -2662,6 +2690,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -2686,6 +2715,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -2733,6 +2763,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -2764,6 +2795,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -2801,6 +2833,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/
@@ -2877,6 +2910,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function(){
 
     /*global YUITest, CSSLint*/

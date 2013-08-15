@@ -1,13 +1,13 @@
 {
   "name": "csslint",
-  "version": "0.9.10",
+  "version": "0.10.0",
   "description": "CSSLint",
   "author": {
-    "name": "Nicholas C. Zakas"
+    "name": "Nicole Sullivan"
   },
   "contributors": [
     {
-      "name": "Nicole Sullivan"
+      "name": "Nicholas C. Zakas"
     }
   ],
   "engines": {

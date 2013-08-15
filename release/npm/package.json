@@ -1,30 +1,52 @@
 {
-    "name": "csslint",
-    "version": "0.9.10",
-    "description": "CSSLint",
-    "author": "Nicholas C. Zakas",
-    "os": ["darwin", "linux", "win32"],
-    "contributors": [
-        "Nicole Sullivan"
-    ],
-    "engines": {
-        "node" : ">=0.2.0"
-    },
-    "directories": {
-        "lib" : "lib"
-    },
-    "main": "./lib/csslint-node.js",
-    "bin": {
-        "csslint": "./cli.js"
-    },
-    "licenses":[
-        {
-            "type" : "MIT",
-            "url" : "https://github.com/stubbornella/csslint/blame/master/LICENSE"
-        }
-    ],
-    "repository": {
-        "type":"git",
-        "url":"http://github.com/stubbornella/csslint.git"
+  "name": "csslint",
+  "version": "0.10.0",
+  "description": "CSSLint",
+  "author": {
+    "name": "Nicole Sullivan"
+  },
+  "contributors": [
+    {
+      "name": "Nicholas C. Zakas"
     }
+  ],
+  "engines": {
+    "node": ">=0.8.0"
+  },
+  "directories": {
+    "lib": "lib"
+  },
+  "main": "./lib/csslint-node.js",
+  "bin": {
+    "csslint": "./cli.js"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/stubbornella/csslint/blob/master/LICENSE"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/stubbornella/csslint/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stubbornella/csslint.git"
+  },
+  "dependencies": {
+    "parserlib": "~0.2.2"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-jshint": "~0.5.4",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-watch": "~0.4.4",
+    "yuitest": "~0.7.9",
+    "grunt-contrib-clean": "~0.4.1",
+    "grunt-contrib-copy": "~0.4.1",
+    "grunt-include-replace": "~0.4.0"
+  }
 }

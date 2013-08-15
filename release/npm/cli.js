@@ -1,11 +1,45 @@
 #!/usr/bin/env node
-/* Build time: 17-January-2013 10:55:01 */
-/*
+/*!
+CSSLint
+Copyright (c) 2013 Nicole Sullivan and Nicholas C. Zakas. All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
+/* Build: v0.10.0 15-August-2013 01:07:22 *//*
  * Encapsulates all of the CLI functionality. The api argument simply
  * provides environment-specific functionality.
  */
 /*global CSSLint*/
 function cli(api){
+
+    var globalOptions = {
+        "help"        : { "format" : "",                       "description" : "Displays this information."},
+        "format"      : { "format" : "<format>",               "description" : "Indicate which format to use for output."},
+        "list-rules"  : { "format" : "",                       "description" : "Outputs all of the rules available."},
+        "quiet"       : { "format" : "",                       "description" : "Only output when errors are present."},
+        "errors"      : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to include as errors."},
+        "warnings"    : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to include as warnings."},
+        "ignore"      : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to ignore completely."},
+        "exclude-list": { "format" : "<file|dir[,file|dir]+>", "description" : "Indicate which files/directories to exclude from being linted."},
+        "version"     : { "format" : "",                       "description" : "Outputs the current version number."}
+    };
 
     //-------------------------------------------------------------------------
     // Helper functions
@@ -78,7 +112,8 @@ function cli(api){
     function filterFiles(files, options) {
         var excludeList = options["exclude-list"],
             excludeFiles = [],
-            filesToLint = files;
+            filesToLint = files.map(api.getFullPath),
+            fullPath;
 
 
         if (excludeList) {
@@ -93,8 +128,9 @@ function cli(api){
 
             // Remove the excluded files from the list of files to lint
             excludeFiles.forEach(function(value){
-                if (filesToLint.indexOf(value) > -1) {
-                    filesToLint.splice(filesToLint.indexOf(value),1);
+                fullPath = api.getFullPath(value);
+                if (filesToLint.indexOf(fullPath) > -1) {
+                    filesToLint.splice(filesToLint.indexOf(fullPath),1);
                 }
             });
         }
@@ -158,20 +194,35 @@ function cli(api){
      * @return {void}
      */
     function outputHelp(){
+        var lenToPad = 40,
+            toPrint = '',
+            formatString = '';
+
         api.print([
             "\nUsage: csslint-rhino.js [options]* [file|dir]*",
             " ",
-            "Global Options",
-            "  --help                                Displays this information.",
-            "  --format=<format>                     Indicate which format to use for output.",
-            "  --list-rules                          Outputs all of the rules available.",
-            "  --quiet                               Only output when errors are present.",
-            "  --errors=<rule[,rule]+>               Indicate which rules to include as errors.",
-            "  --warnings=<rule[,rule]+>             Indicate which rules to include as warnings.",
-            "  --ignore=<rule[,rule]+>               Indicate which rules to ignore completely.",
-            "  --exclude-list=<file|dir[,file|dir]+> Indicate which files/directories to exclude from being linted.",
-            "  --version                             Outputs the current version number."
-        ].join("\n") + "\n");
+            "Global Options"
+        ].join("\n"));
+
+        for (var optionName in globalOptions) {
+            if (globalOptions.hasOwnProperty(optionName)) {
+                // Print the option name and the format if present
+                toPrint += "  --" + optionName;
+                if (globalOptions[optionName].format !== "") {
+                    formatString = '=' + globalOptions[optionName].format;
+                    toPrint += formatString;
+                } else {
+                    formatString = '';
+                }
+
+                // Pad out with the appropriate number of spaces
+                toPrint += new Array(lenToPad - (optionName.length + formatString.length)).join(' ');
+
+                // Print the description
+                toPrint += globalOptions[optionName].description + "\n";
+            }
+        }
+        api.print(toPrint);
     }
 
     /**
@@ -230,7 +281,6 @@ function cli(api){
         while(arg){
             if (arg.indexOf("--") === 0){
                 argName = arg.substring(2);
-                options[argName] = true;
 
                 if (argName.indexOf("=") > -1){
                     parts = argName.split("=");
@@ -253,6 +303,16 @@ function cli(api){
 
         options.files = files;
         return options;
+    }
+
+    function validateOptions(options) {
+        for (var option_key in options) {
+            if (!globalOptions.hasOwnProperty(option_key) && option_key !== 'files') {
+                api.print(option_key + ' is not a valid option. Exiting...');
+                outputHelp();
+                api.quit(0);
+            }
+        }
     }
 
     function readConfigFile(options) {
@@ -285,6 +345,9 @@ function cli(api){
         api.quit(0);
     }
 
+    // Validate options
+    validateOptions(options);
+
     if (options.version){
         api.print("v" + CSSLint.version);
         api.quit(0);
@@ -297,6 +360,7 @@ function cli(api){
 
     api.quit(processFiles(options.files,options));
 }
+
 /*
  * CSSLint Node.js Command Line Interface
  */
@@ -316,16 +380,7 @@ cli({
     },
     
     quit: function(code){
-    
-        //Workaround for https://github.com/joyent/node/issues/1669
-        
-        if ((!process.stdout.flush || !process.stdout.flush()) && (parseFloat(process.versions.node) < 0.5)) {
-            process.once("drain", function () {
-                process.exit(code || 0);
-            });
-        } else {
-            process.exit(code || 0);
-        }
+        process.exit(code || 0);
     },
     
     isDirectory: function(name){
