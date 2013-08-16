@@ -133,6 +133,7 @@ module.exports = function(grunt) {
             release: {
                 files: {
                     '<%= build_dir %>': 'release',
+                    'release/npm/README.md': 'README.md',
                     'release/npm/package.json': 'package.json'
                 }
             }
