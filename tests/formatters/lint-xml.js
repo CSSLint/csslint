@@ -6,7 +6,7 @@
     YUITest.TestRunner.add(new YUITest.TestCase({
 
         name: "Lint XML formatter test",
-        
+
         "File with no problems should say so": function(){
             var result = { messages: [], stats: [] },
                 expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><lint></lint>";
@@ -38,6 +38,25 @@
                 expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><lint>" + file + error1 + error2 + "</file></lint>",
                 actual = CSSLint.format(result, "FILE", "lint-xml");
             Assert.areEqual(expected, actual);
+        },
+
+        "Messages should include rule IDs": function() {
+          var result = { messages: [
+            { type: "error", line: 1, col: 1, message: "X", evidence: "Y", rule: { id: "Z" } }
+          ], stats: [] };
+
+          var expected =
+            '<?xml version="1.0" encoding="utf-8"?>' +
+            '<lint>' +
+              '<file name="FILE">' +
+                '<issue rule="Z" line="1" char="1" severity="error" reason="X" evidence="Y"/>' +
+              '</file>' +
+            '</lint>';
+
+          var actual = CSSLint.format(result, "FILE", "lint-xml");
+
+          Assert.areEqual(expected, actual);
         }
+
     }));
 })();
