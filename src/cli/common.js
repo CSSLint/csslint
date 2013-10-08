@@ -78,42 +78,6 @@ function cli(api){
         return ruleset;
     }
 
-
-    /**
-     * Filters out files using the exclude-list command line option.
-     * @param files   {Array}  the list of files to check for exclusions
-     * @param options {Object} the CLI options
-     * @return {Array} A list of files
-     */
-    function filterFiles(files, options) {
-        var excludeList = options["exclude-list"],
-            excludeFiles = [],
-            filesToLint = files.map(api.getFullPath),
-            fullPath;
-
-
-        if (excludeList) {
-            // Build up the exclude list, expanding any directory exclusions that were passed in
-            excludeList.split(",").forEach(function(value){
-                if (api.isDirectory(value)) {
-                    excludeFiles = excludeFiles.concat(api.getFiles(value));
-                } else {
-                    excludeFiles.push(value);
-                }
-            });
-
-            // Remove the excluded files from the list of files to lint
-            excludeFiles.forEach(function(value){
-                fullPath = api.getFullPath(value);
-                if (filesToLint.indexOf(fullPath) > -1) {
-                    filesToLint.splice(filesToLint.indexOf(fullPath),1);
-                }
-            });
-        }
-
-        return filesToLint;
-    }
-
     /**
      * Outputs all available rules to the CLI.
      * @return {void}
@@ -211,7 +175,7 @@ function cli(api){
         var exitCode = 0,
             formatId = options.format || "text",
             formatter,
-            files = filterFiles(fileArray,options),
+            files = fileArray,
             output;
 
         if (!files.length) {
@@ -267,11 +231,13 @@ function cli(api){
 
             } else {
 
-                //see if it's a directory or a file
-                if (api.isDirectory(arg)){
-                    files = files.concat(api.getFiles(arg));
-                } else {
-                    files.push(arg);
+                if (!isExcluded(arg,options)) {
+                    //see if it's a directory or a file
+                    if (api.isDirectory(arg)){
+                        files = files.concat(api.getFiles(arg));
+                    } else {
+                        files.push(arg);
+                    }
                 }
             }
             arg = args.shift();
@@ -300,7 +266,35 @@ function cli(api){
         return options;
     }
 
+    /**
+     * Checks if path is in the options.exclude-list
+     *
+     * @param {String} name file or directory to check
+     * @param {Object} options
+     * @returns {boolean}
+     */
+    function isExcluded(path, options) {
 
+        var exclude = options['exclude-list'];
+
+        if (!exclude) {
+            return false;
+        } else if (typeof exclude === 'string') {
+            exclude = options['exclude-list'] = exclude.split(',');
+        }
+
+        // get rid off './'
+        path = path.replace(/^\.\//, '');
+
+        for (var i = 0, l = exclude.length; i < l; i++) {
+            if (path.indexOf(exclude[i]) !== -1) {
+                return true;
+            }
+        }
+
+        return false;
+
+    }
 
     //-----------------------------------------------------------------------------
     // Process command line
@@ -309,6 +303,11 @@ function cli(api){
     var args     = api.args,
         argCount = args.length,
         options  = {};
+
+    // pass function to API
+    api.isExcluded = function(name) {
+        return isExcluded(name, options);
+    };
 
     // first look for config file .csslintrc
     options = readConfigFile(options);
