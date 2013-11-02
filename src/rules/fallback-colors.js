@@ -28,35 +28,35 @@ CSSLint.addRule({
                 "background-color": 1
             },
             properties;
-        
+
         function startRule(event){
-            properties = {};    
-            lastProperty = null;    
+            properties = {};
+            lastProperty = null;
         }
-        
+
         parser.addListener("startrule", startRule);
         parser.addListener("startfontface", startRule);
         parser.addListener("startpage", startRule);
         parser.addListener("startpagemargin", startRule);
-        parser.addListener("startkeyframerule", startRule);        
-        
+        parser.addListener("startkeyframerule", startRule);
+
         parser.addListener("property", function(event){
             var property = event.property,
                 name = property.text.toLowerCase(),
                 parts = event.value.parts,
-                i = 0, 
+                i = 0,
                 colorType = "",
-                len = parts.length;                
-                        
+                len = parts.length;
+
             if(propertiesToCheck[name]){
                 while(i < len){
                     if (parts[i].type == "color"){
                         if ("alpha" in parts[i] || "hue" in parts[i]){
-                            
+
                             if (/([^\)]+)\(/.test(parts[i])){
                                 colorType = RegExp.$1.toUpperCase();
                             }
-                            
+
                             if (!lastProperty || (lastProperty.property.text.toLowerCase() != name || lastProperty.colorType != "compat")){
                                 reporter.report("Fallback " + name + " (hex or RGB) should precede " + colorType + " " + name + ".", event.line, event.col, rule);
                             }
@@ -64,14 +64,14 @@ CSSLint.addRule({
                             event.colorType = "compat";
                         }
                     }
-                    
+
                     i++;
                 }
             }
 
             lastProperty = event;
-        });        
-         
+        });
+
     }
 
 });

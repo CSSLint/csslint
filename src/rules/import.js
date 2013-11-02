@@ -13,8 +13,8 @@ CSSLint.addRule({
     //initialization
     init: function(parser, reporter){
         var rule = this;
-        
-        parser.addListener("import", function(event){        
+
+        parser.addListener("import", function(event){
             reporter.report("@import prevents parallel downloads, use <link> instead.", event.line, event.col, rule);
         });
 

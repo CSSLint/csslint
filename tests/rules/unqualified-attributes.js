@@ -4,7 +4,7 @@
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
-    
+
         name: "Unqualified Attributes Errors",
 
         "Using an unqualified attribute selector alone should result in a warning": function(){
@@ -25,13 +25,13 @@
             var result = CSSLint.verify("[type=text] .foo { font-size: 10px; } ", {"unqualified-attributes": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using a qualified attribute selector should not result in a warning": function(){
             var result = CSSLint.verify("input[type=text]  { font-size: 10px; } ", {"unqualified-attributes": 1 });
             Assert.areEqual(0, result.messages.length);
         }
-        
-        
+
+
     }));
 
 })();

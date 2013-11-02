@@ -6,7 +6,7 @@
     YUITest.TestRunner.add(new YUITest.TestCase({
 
         name: "Lint XML formatter test",
-        
+
         "File with no problems should say so": function(){
             var result = { messages: [], stats: [] },
                 expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><lint></lint>";

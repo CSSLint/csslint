@@ -40,27 +40,27 @@
     YUITest.TestRunner.add(new YUITest.TestCase({
 
         name: "Reporter Object Tests",
-        
+
         "Report should cause a warning": function(){
             var reporter = new CSSLint._Reporter([], { "fake-rule": 1});
             reporter.report("Foo", 1, 1, { id: "fake-rule" });
-            
+
             Assert.areEqual(1, reporter.messages.length);
             Assert.areEqual("warning", reporter.messages[0].type);
         },
-        
+
         "Report should cause an error": function(){
             var reporter = new CSSLint._Reporter([], { "fake-rule": 2});
             reporter.report("Foo", 1, 1, { id: "fake-rule" });
-            
+
             Assert.areEqual(1, reporter.messages.length);
             Assert.areEqual("error", reporter.messages[0].type);
         },
-        
+
         "Calling error() should cause an error": function(){
             var reporter = new CSSLint._Reporter([], { "fake-rule": 1});
             reporter.error("Foo", 1, 1, { id: "fake-rule" });
-            
+
             Assert.areEqual(1, reporter.messages.length);
             Assert.areEqual("error", reporter.messages[0].type);
         }
@@ -135,7 +135,7 @@
         },
 
         "File with problems should list them": function() {
-            var result = { messages: [ 
+            var result = { messages: [
                      { type: 'error', line: 2, col: 1, message: 'BOGUS ERROR', evidence: 'BOGUS', rule: [] },
                      { type: 'warning', line: 1, col: 1, message: 'BOGUS WARNING', evidence: 'BOGUS', rule: [] }
                 ], stats: [] },
@@ -147,7 +147,7 @@
         },
 
         "Should output relative file paths": function() {
-            var result = { messages: [ 
+            var result = { messages: [
                     { type: 'error', line: 2, col: 1, message: 'BOGUS ERROR', evidence: 'BOGUS', rule: [] },
                     { type: 'warning', line: 1, col: 1, message: 'BOGUS WARNING', evidence: 'BOGUS', rule: [] }
                 ], stats: [] },
@@ -169,7 +169,7 @@
 
     YUITest.TestRunner.add(new YUITest.TestCase({
         name: "CSSLint XML formatter test",
-        
+
         "File with no problems should say so": function(){
             var result = { messages: [], stats: [] },
                 expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><csslint></csslint>";
@@ -236,7 +236,7 @@
                 actual = CSSLint.format(result, "FILE", "junit-xml");
 
             Assert.areEqual(expected, actual);
-        
+
         },
 
         "Formatter should escape special characters": function() {
@@ -268,7 +268,7 @@
     YUITest.TestRunner.add(new YUITest.TestCase({
 
         name: "Lint XML formatter test",
-        
+
         "File with no problems should say so": function(){
             var result = { messages: [], stats: [] },
                 expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><lint></lint>";
@@ -312,7 +312,7 @@
     YUITest.TestRunner.add(new YUITest.TestCase({
 
         name: "Text formatter",
-        
+
         "File with no problems should say so": function() {
             var result = { messages: [], stats: [] },
                 actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE"});
@@ -326,7 +326,7 @@
         },
 
         "File with problems should list them": function() {
-            var result = { messages: [ 
+            var result = { messages: [
                      { type: 'warning', line: 1, col: 1, message: 'BOGUS', evidence: 'ALSO BOGUS', rule: [] },
                      { type: 'error', line: 2, col: 1, message: 'BOGUS', evidence: 'ALSO BOGUS', rule: [] }
                 ], stats: [] },
@@ -349,7 +349,7 @@
     YUITest.TestRunner.add(new YUITest.TestCase({
 
         name: "Adjoining Selector Rule Errors",
-        
+
         "Adjoining classes should result in a warning": function(){
             var result = CSSLint.verify(".foo.bar { }", { "adjoining-classes": 1 });
             Assert.areEqual(1, result.messages.length);
@@ -393,7 +393,7 @@
             var result = CSSLint.verify(".foo { width: 100px; padding: 0; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
        "Using width:auto with padding should not result in a warning": function(){
             var result = CSSLint.verify(".foo { width: auto; padding: 10px; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
@@ -408,7 +408,7 @@
             var result = CSSLint.verify(".foo { height: auto; padding: 10px; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using width and padding-left should result in a warning": function(){
             var result = CSSLint.verify(".foo { width: 100px; padding-left: 10px; }", { "box-model": 1 });
             Assert.areEqual(1, result.messages.length);
@@ -442,11 +442,11 @@
             var result = CSSLint.verify(".foo { width: 100px; padding-bottom: 10px; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using width and padding-to-bottom should not result in a warning": function(){
             var result = CSSLint.verify(".foo { width: 100px; padding: 10px 0; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
-        },            
+        },
 
         "Using width and border should result in a warning": function(){
             var result = CSSLint.verify(".foo { width: 100px; border: 10px; }", { "box-model": 1 });
@@ -454,12 +454,12 @@
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Using width with border can sometimes make elements larger than you expect.", result.messages[0].message);
         },
-        
+
         "Using width and border with box-sizing should not result in a warning": function(){
             var result = CSSLint.verify(".foo { box-sizing: border-box; width: 100px; border: 10px; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using width and border-left should result in a warning": function(){
             var result = CSSLint.verify(".foo { width: 100px; border-left: 10px; }", { "box-model": 1 });
             Assert.areEqual(1, result.messages.length);
@@ -515,11 +515,11 @@
             var result = CSSLint.verify(".foo { height: 100px; padding-right: 10px; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using height and padding-left-right should not result in a warning": function(){
             var result = CSSLint.verify(".foo { height: 100px; padding: 0 10px; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
-        },    
+        },
 
         "Using height and padding-top should result in a warning": function(){
             var result = CSSLint.verify(".foo { height: 100px; padding-top: 10px; }", { "box-model": 1 });
@@ -734,25 +734,25 @@
 
     /*global YUITest, CSSLint*/
     var Assert = YUITest.Assert;
-    
+
     YUITest.TestRunner.add(new YUITest.TestCase({
-    
+
         name: "Compatible Vendor Prefix Warnings",
 
         "Using -webkit-border-radius should not warn to also include -moz-border-radius.": function(){
             var result = CSSLint.verify("h1 { -webkit-border-radius: 5px; }", { "compatible-vendor-prefixes": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using -webkit-transition and -moz-transition should warn to also include -o-transition.": function() {
             var result = CSSLint.verify("h1 { -webkit-transition: height 20px 1s; -moz-transition: height 20px 1s; }", { "compatible-vendor-prefixes": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("The property -o-transition is compatible with -webkit-transition and -moz-transition and should be included as well.", result.messages[0].message);
             Assert.areEqual(6, result.messages[0].col);
-            Assert.areEqual(1, result.messages[0].line);            
+            Assert.areEqual(1, result.messages[0].line);
         },
-        
+
         "Using -webkit-transform should warn to also include -moz-transform, -ms-transform, and -o-transform.": function() {
             var result = CSSLint.verify("div.box { -webkit-transform: translate(50px, 100px); }", { "compatible-vendor-prefixes": 3 });
             Assert.areEqual(3, result.messages.length);
@@ -763,23 +763,23 @@
             Assert.areEqual("warning", result.messages[2].type);
             Assert.areEqual("The property -o-transform is compatible with -webkit-transform and should be included as well.", result.messages[2].message);
         },
-        
+
         "Using -webkit-transform inside of an @-webkit- block shouldn't cause a warning": function(){
             var result = CSSLint.verify("@-webkit-keyframes spin {0%{ -webkit-transform: rotateX(-10deg) rotateY(0deg); } 100%{ -webkit-transform: rotateX(-10deg) rotateY(-360deg); } }", { "compatible-vendor-prefixes": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using all compatible vendor prefixes for animation should be allowed with no warnings.": function(){
             var result = CSSLint.verify(".next:focus { -moz-animation: 'diagonal-slide' 5s 10; -webkit-animation: 'diagonal-slide' 5s 10; -ms-animation: 'diagonal-slide' 5s 10; }", { "compatible-vendor-prefixes": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using box-shadow with no vendor prefixes should be allowed with no warnings.": function(){
             var result = CSSLint.verify("h1 { box-shadow: 5px 5px 5px #ccc; }", { "compatible-vendor-prefixes": 1 });
             Assert.areEqual(0, result.messages.length);
         }
-                
-    }));     
+
+    }));
 
 })();
 
@@ -890,7 +890,7 @@
         "Padding-bottom with inline should result in a warning": function(){
             var result = CSSLint.verify(".foo { padding-bottom: 100px; display: inline; }", { "display-property-grouping": 1 });
             Assert.areEqual(0, result.messages.length);
-        }, 
+        },
 
         "Vertical-align with block should result in a warning": function(){
             var result = CSSLint.verify(".foo { vertical-align: bottom; display: block; }", { "display-property-grouping": 1 });
@@ -1046,33 +1046,33 @@
             var result = CSSLint.verify("@page :left { margin: 5px; margin: 4px; }", { "duplicate-properties": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Duplicate properties not back-to-back should result in a warning": function(){
             var result = CSSLint.verify(".foo { float: left; margin: 0; float: right }", { "duplicate-properties": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Duplicate property 'float' found.", result.messages[0].message);
         },
-        
+
         "Duplicate properties not back-to-back with same values should result in a warning": function(){
             var result = CSSLint.verify(".foo { float: left; margin: 0; float: left }", { "duplicate-properties": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Duplicate property 'float' found.", result.messages[0].message);
         },
-        
+
         "Duplicate properties back-to-back with same values should result in a warning": function(){
             var result = CSSLint.verify(".foo { float: left; float: left }", { "duplicate-properties": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Duplicate property 'float' found.", result.messages[0].message);
         },
-        
+
         "Duplicate properties in @keyframe rules should not result in a warning": function(){
             var result = CSSLint.verify("@-webkit-keyframes slide_up {  from {  bottom:-91px; } to {  bottom:0; } }", { "duplicate-properties": 1 });
             Assert.areEqual(0, result.messages.length);
         }
-        
+
 
     }));
 
@@ -1128,24 +1128,24 @@
             var result = CSSLint.verify(".hex { color: red; }", { "fallback-colors": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using only a hex color should not result in a warning": function(){
             var result = CSSLint.verify(".hex { color: #fff; }", { "fallback-colors": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using only rgb() should not result in a warning": function(){
             var result = CSSLint.verify(".rgb { color: rgb(0, 0, 0); }", { "fallback-colors": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using only rgba() should result in a warning": function(){
             var result = CSSLint.verify(".rgba { color: rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Fallback color (hex or RGB) should precede RGBA color.", result.messages[0].message);
         },
-        
+
         "Using only hsl() should result in a warning": function(){
             var result = CSSLint.verify(".hsl { color: hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
             Assert.areEqual(1, result.messages.length);
@@ -1164,7 +1164,7 @@
             var result = CSSLint.verify(".rgba { color: #fff; color: rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using hsl() with a fallback should not result in a warning": function(){
             var result = CSSLint.verify(".hsl { color: #fff; color: hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
             Assert.areEqual(0, result.messages.length);
@@ -1181,7 +1181,7 @@
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Fallback color (hex or RGB) should precede RGBA color.", result.messages[0].message);
         },
-        
+
         "Using hsl() with fallback color afterwards should result in a warning": function(){
             var result = CSSLint.verify(".hsl { color: hsl(0, 0%, 0%); color: #fff; }", { "fallback-colors": 1 });
             Assert.areEqual(1, result.messages.length);
@@ -1195,30 +1195,30 @@
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Fallback color (hex or RGB) should precede HSLA color.", result.messages[0].message);
         },
-        
+
 
         "Using only a named background-color should not result in a warning": function(){
             var result = CSSLint.verify(".hex { background-color: red; }", { "fallback-colors": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using only a hex background-color should not result in a warning": function(){
             var result = CSSLint.verify(".hex { background-color: #fff; }", { "fallback-colors": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using only rgb() background-color should not result in a warning": function(){
             var result = CSSLint.verify(".rgb { background-color: rgb(0, 0, 0); }", { "fallback-colors": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using only rgba() background-color should result in a warning": function(){
             var result = CSSLint.verify(".rgba { background-color: rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Fallback background-color (hex or RGB) should precede RGBA background-color.", result.messages[0].message);
         },
-        
+
         "Using only hsl() background-color should result in a warning": function(){
             var result = CSSLint.verify(".hsl { background-color: hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
             Assert.areEqual(1, result.messages.length);
@@ -1237,7 +1237,7 @@
             var result = CSSLint.verify(".rgba { background-color: #fff; background-color: rgba(0, 0, 0, 0.5); }", { "fallback-colors": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using hsl() with a fallback background-color should not result in a warning": function(){
             var result = CSSLint.verify(".hsl { background-color: #fff; background-color: hsl(0, 0%, 0%); }", { "fallback-colors": 1 });
             Assert.areEqual(0, result.messages.length);
@@ -1254,7 +1254,7 @@
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Fallback background-color (hex or RGB) should precede RGBA background-color.", result.messages[0].message);
         },
-        
+
         "Using hsl() with fallback background-color afterwards should result in a warning": function(){
             var result = CSSLint.verify(".hsl { background-color: hsl(0, 0%, 0%); background-color: #fff; }", { "fallback-colors": 1 });
             Assert.areEqual(1, result.messages.length);
@@ -1416,7 +1416,7 @@
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Fallback border-top (hex or RGB) should precede HSLA border-top.", result.messages[0].message);
         },
-        
+
         // border-right color tests
 
         "Using only a named border-right should not result in a warning": function(){
@@ -1564,7 +1564,7 @@
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Fallback border-bottom (hex or RGB) should precede HSLA border-bottom.", result.messages[0].message);
         },
-        
+
         // border-left color tests
 
         "Using only a named border-left should not result in a warning": function(){
@@ -2008,7 +2008,7 @@
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Fallback border-left-color (hex or RGB) should precede HSLA border-left-color.", result.messages[0].message);
         }
-        
+
     }));
 
 })();
@@ -2084,7 +2084,7 @@
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
-    
+
         name: "font-size Rule Errors",
 
         "10 font-sizes should result in a warning": function(){
@@ -2115,10 +2115,10 @@
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
-    
+
 /*
-background: -moz-linear-gradient(top, #1e5799 , #2989d8 , #207cca , #7db9e8 ); 
-background: -webkit-gradient(linear, left top, left bottom, color-stop(,#1e5799), color-stop(,#2989d8), color-stop(,#207cca), color-stop(10,#7db9e8)); 
+background: -moz-linear-gradient(top, #1e5799 , #2989d8 , #207cca , #7db9e8 );
+background: -webkit-gradient(linear, left top, left bottom, color-stop(,#1e5799), color-stop(,#2989d8), color-stop(,#207cca), color-stop(10,#7db9e8));
 background: -webkit-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 
@@ -2196,7 +2196,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     YUITest.TestRunner.add(new YUITest.TestCase({
 
         name: "Import Rule Errors",
-        
+
         "Using @import should result in a warning": function(){
             var result = CSSLint.verify("@import url('foo.css');", { "import": 1 });
             Assert.areEqual(1, result.messages.length);
@@ -2268,12 +2268,12 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 
         "Using a vendor-prefix property should not result in a warning": function(){
             var result = CSSLint.verify("h2 { -moz-border-radius: 5px; }", { "known-properties": 1 });
-            Assert.areEqual(0, result.messages.length);        
+            Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using src in @font-face should not result in a warning": function(){
             var result = CSSLint.verify("@font-face { src: url(foo.otf); }", { "known-properties": 1 });
-            Assert.areEqual(0, result.messages.length);    
+            Assert.areEqual(0, result.messages.length);
         }
 
     }));
@@ -2302,7 +2302,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Outlines should only be modified using :focus.", result.messages[0].message);
         },
-        
+
         "Using outline: none alone with :focus should result in a warning": function(){
             var result = CSSLint.verify(".foo:focus { outline: none; }", { "outline-none": 1 });
             Assert.areEqual(1, result.messages.length);
@@ -2316,7 +2316,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Outlines shouldn't be hidden unless other visual changes are made.", result.messages[0].message);
         },
-        
+
         "Using outline: none with :focus and another property should not result in a warning": function(){
             var result = CSSLint.verify(".foo:focus { outline: none; border: 1px solid black; }", { "outline-none": 1 });
             Assert.areEqual(0, result.messages.length);
@@ -2351,14 +2351,14 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             var result = CSSLint.verify(".foo { float: left;}", { "overqualified-elements": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using a class with an element should result in one warning": function(){
             var result = CSSLint.verify("li.foo { float: left;}", { "overqualified-elements": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Element (li.foo) is overqualified, just use .foo without element name.", result.messages[0].message);
         },
-        
+
         "Using a class with two different elements should not result in a warning": function(){
             var result = CSSLint.verify("li.foo { float: left;} p.foo { float: right; }", { "overqualified-elements": 1 });
             Assert.areEqual(0, result.messages.length);
@@ -2455,12 +2455,12 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     for (i = 1; i <= 4095; i++) {
         css1 += ".selector" + i + " { background:red; } ";
     }
-    
+
     // create css2, which has 4096 rules and 4096 selectors
     for (i = 1; i <= 4096; i++) {
         css2 += ".selector" + i + " { background:red; } ";
     }
-    
+
     // create css3, which has 1024 and but only 4095 selectors
     for (i = 0; i <= 1022; i++) {
         j = i * 4;
@@ -2473,7 +2473,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
         j = i * 4;
         css4 += ".selector" + (j+1) + ", .selector" + (j+2) + ", .selector" + (j+3) + ", .selector" + (j+4) + " { background:red; } ";
     }
-    
+
     YUITest.TestRunner.add(new YUITest.TestCase({
 
         name: "Selector Max Errors Approaching",
@@ -2484,28 +2484,28 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("You have 4095 selectors. Internet Explorer supports a maximum of 4095 selectors per stylesheet. Consider refactoring.", result.messages[0].message);
         },
-        
+
         "Using 4096 or more single-selector rules should result in a warning": function(){
             var result = CSSLint.verify(css2, { "selector-max-approaching": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("You have 4096 selectors. Internet Explorer supports a maximum of 4095 selectors per stylesheet. Consider refactoring.", result.messages[0].message);
         },
-        
+
         "Using 4095 or fewer selectors should not result in a warning": function(){
             var result = CSSLint.verify(css3, { "selector-max-approaching": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("You have 4095 selectors. Internet Explorer supports a maximum of 4095 selectors per stylesheet. Consider refactoring.", result.messages[0].message);
         },
-        
+
         "Using 4096 or more selectors should result in a warning": function(){
             var result = CSSLint.verify(css4, { "selector-max-approaching": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("You have 4096 selectors. Internet Explorer supports a maximum of 4095 selectors per stylesheet. Consider refactoring.", result.messages[0].message);
         },
-        
+
         "Using fewer than 3800 selectors should not result in a warning": function() {
             var result = CSSLint.verify(".selector1 { background: red; }", { "selector-max-approaching": 1 });
             Assert.areEqual(0, result.messages.length);
@@ -2523,12 +2523,12 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     for (i = 1; i <= 4095; i++) {
         css1 += ".selector" + i + " { background:red; } ";
     }
-    
+
     // create css2, which has 4096 rules and 4096 selectors
     for (i = 1; i <= 4096; i++) {
         css2 += ".selector" + i + " { background:red; } ";
     }
-    
+
     // create css3, which has 1024 and but only 4095 selectors
     for (i = 0; i <= 1022; i++) {
         j = i * 4;
@@ -2541,7 +2541,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
         j = i * 4;
         css4 += ".selector" + (j+1) + ", .selector" + (j+2) + ", .selector" + (j+3) + ", .selector" + (j+4) + " { background:red; } ";
     }
-    
+
     YUITest.TestRunner.add(new YUITest.TestCase({
 
         name: "Selector Max Errors",
@@ -2550,26 +2550,26 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             var result = CSSLint.verify(css1, { "selector-max": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using 4096 or more single-selector rules should result in a warning": function(){
             var result = CSSLint.verify(css2, { "selector-max": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("You have 4096 selectors. Internet Explorer supports a maximum of 4095 selectors per stylesheet. Consider refactoring.", result.messages[0].message);
         },
-        
+
         "Using 4095 or fewer selectors should not result in a warning": function(){
             var result = CSSLint.verify(css3, { "selector-max": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using 4096 or more selectors should result in a warning": function(){
             var result = CSSLint.verify(css4, { "selector-max": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("You have 4096 selectors. Internet Explorer supports a maximum of 4095 selectors per stylesheet. Consider refactoring.", result.messages[0].message);
         }
-        
+
     }));
 
 })();
@@ -2579,7 +2579,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
-    
+
         name: "Shorthand Rule Errors",
 
         "All padding properties should result in a warning": function(){
@@ -2605,7 +2605,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             var result = CSSLint.verify(".foo{ margin-top: 8px;} ", {"shorthand": 1 });
             Assert.areEqual(0, result.messages.length);
         }
-				
+
     }));
 
 })();
@@ -2757,7 +2757,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 
         "Defining multiple rules that contain h1 should not result in a warning": function(){
             var result = CSSLint.verify("h2 a, h2 a:active, h2 a:hover, h2 a:visited, h2 a:link { color: red;}", { "unique-headings": 1 });
-            Assert.areEqual(0, result.messages.length);        
+            Assert.areEqual(0, result.messages.length);
         }
 
     }));
@@ -2770,7 +2770,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
-    
+
         name: "Universal Selector Errors",
 
         "Using a universal selector alone should result in a warning": function(){
@@ -2791,7 +2791,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             var result = CSSLint.verify("* .foo { font-size: 10px; } ", {"universal-selector": 1 });
             Assert.areEqual(0, result.messages.length);
         }
-        
+
     }));
 
 })();
@@ -2802,7 +2802,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
-    
+
         name: "Unqualified Attributes Errors",
 
         "Using an unqualified attribute selector alone should result in a warning": function(){
@@ -2823,13 +2823,13 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             var result = CSSLint.verify("[type=text] .foo { font-size: 10px; } ", {"unqualified-attributes": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using a qualified attribute selector should not result in a warning": function(){
             var result = CSSLint.verify("input[type=text]  { font-size: 10px; } ", {"unqualified-attributes": 1 });
             Assert.areEqual(0, result.messages.length);
         }
-        
-        
+
+
     }));
 
 })();
@@ -2873,35 +2873,35 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             Assert.areEqual("Standard property 'border-radius' should come after vendor-prefixed property '-moz-border-radius'.", result.messages[0].message);
             Assert.areEqual(3, result.messages[0].line);
             Assert.areEqual(5, result.messages[0].col);
-            
+
         },
 
         "Using -webkit-border-bottom-left-radius with border-bottom-left-radius should not result in a warning.": function(){
             var result = CSSLint.verify("h1 { -webkit-border-bottom-left-radius: 4px; border-bottom-left-radius: 4px;  }", { "vendor-prefix": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using -moz-border-radius-bottomleft should result in a warning.": function(){
             var result = CSSLint.verify("h1 {  -moz-border-radius-bottomleft: 5px;  }", { "vendor-prefix": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Missing standard property 'border-bottom-left-radius' to go along with '-moz-border-radius-bottomleft'.", result.messages[0].message);
         },
-        
+
         "Using -moz-box-shadow should result in a warning.": function(){
             var result = CSSLint.verify("h1 {  -moz-box-shadow: 5px;  }", { "vendor-prefix": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Missing standard property 'box-shadow' to go along with '-moz-box-shadow'.", result.messages[0].message);
         },
-        
+
         "Using -moz-user-select should result in a warning.": function(){
             var result = CSSLint.verify("h1 {  -moz-user-select:none;  }", { "vendor-prefix": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Missing standard property 'user-select' to go along with '-moz-user-select'.", result.messages[0].message);
         },
-        
+
         "Using @font-face should not result in an error (#90)": function(){
             var result = CSSLint.verify("@font-face { src:url('../fonts/UniversBold.otf');font-family:Univers;advancedAntiAliasing: true;}", { "vendor-prefix": 1 });
             Assert.areEqual(0, result.messages.length);
@@ -2945,13 +2945,13 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             var result = CSSLint.verify("h1 { left: 0; }", { "zero-units": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using 0s for animation-duration should not result in a warning": function(){
             var result = CSSLint.verify("h1 { animation-duration: 0s; }", { "zero-units": 1 });
             Assert.areEqual(0, result.messages.length);
         }
-        
-        
+
+
     }));
 
 })();

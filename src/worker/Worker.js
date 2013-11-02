@@ -18,7 +18,7 @@ self.onmessage = function(event){
     } catch (ex){
         text = data;
     }
-        
+
     results = CSSLint.verify(text, ruleset);
 
     //Not all browsers support structured clone, so JSON stringify results

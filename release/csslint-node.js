@@ -294,7 +294,7 @@ function Reporter(lines, ruleset){
      * @type String[]
      */
     this.lines = lines;
-    
+
     /**
      * Information about the rules. Used to determine whether an issue is an
      * error or warning.
@@ -532,7 +532,7 @@ CSSLint.addRule({
 /*global CSSLint*/
 
 /*
- * Rule: Don't use width or height when using padding or border. 
+ * Rule: Don't use width or height when using padding or border.
  */
 CSSLint.addRule({
 
@@ -571,7 +571,7 @@ CSSLint.addRule({
 
         function endRule(){
             var prop, value;
-            
+
             if (!boxSizing) {
                 if (properties.height){
                     for (prop in heightProperties){
@@ -589,25 +589,25 @@ CSSLint.addRule({
                     for (prop in widthProperties){
                         if (widthProperties.hasOwnProperty(prop) && properties[prop]){
                             value = properties[prop].value;
-                            
+
                             if (!(prop == "padding" && value.parts.length === 2 && value.parts[1].value === 0)){
                                 reporter.report("Using width with " + prop + " can sometimes make elements larger than you expect.", properties[prop].line, properties[prop].col, rule);
                             }
                         }
                     }
-                }   
-            }     
+                }
+            }
         }
 
         parser.addListener("startrule", startRule);
         parser.addListener("startfontface", startRule);
         parser.addListener("startpage", startRule);
         parser.addListener("startpagemargin", startRule);
-        parser.addListener("startkeyframerule", startRule); 
+        parser.addListener("startkeyframerule", startRule);
 
         parser.addListener("property", function(event){
             var name = event.property.text.toLowerCase();
-            
+
             if (heightProperties[name] || widthProperties[name]){
                 if (!/^0\S*$/.test(event.value) && !(name == "border" && event.value == "none")){
                     properties[name] = { line: event.property.line, col: event.property.col, value: event.value };
@@ -619,14 +619,14 @@ CSSLint.addRule({
                     boxSizing = true;
                 }
             }
-            
+
         });
 
         parser.addListener("endrule", endRule);
         parser.addListener("endfontface", endRule);
         parser.addListener("endpage", endRule);
         parser.addListener("endpagemargin", endRule);
-        parser.addListener("endkeyframerule", endRule);         
+        parser.addListener("endkeyframerule", endRule);
     }
 
 });
@@ -650,11 +650,11 @@ CSSLint.addRule({
 
         parser.addListener("property", function(event){
             var name = event.property.text.toLowerCase();
-   
+
             if (name == "box-sizing"){
                 reporter.report("The box-sizing property isn't supported in IE6 and IE7.", event.line, event.col, rule);
             }
-        });       
+        });
     }
 
 });
@@ -728,7 +728,7 @@ CSSLint.addRule({
  * Rule: Include all compatible vendor prefixes to reach a wider
  * range of users.
  */
-/*global CSSLint*/ 
+/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -824,7 +824,7 @@ CSSLint.addRule({
                 arrayPush.apply(applyTo, variations);
             }
         }
-                
+
         parser.addListener("startrule", function () {
             properties = [];
         });
@@ -840,9 +840,9 @@ CSSLint.addRule({
         parser.addListener("property", function (event) {
             var name = event.property;
             if (CSSLint.Util.indexOf(applyTo, name.text) > -1) {
-            
+
                 // e.g., -moz-transform is okay to be alone in @-moz-keyframes
-                if (!inKeyFrame || typeof inKeyFrame != "string" || 
+                if (!inKeyFrame || typeof inKeyFrame != "string" ||
                         name.text.indexOf("-" + inKeyFrame + "-") !== 0) {
                     properties.push(name);
                 }
@@ -900,7 +900,7 @@ CSSLint.addRule({
                             item = full[i];
                             if (CSSLint.Util.indexOf(actual, item) === -1) {
                                 propertiesSpecified = (actual.length === 1) ? actual[0] : (actual.length == 2) ? actual.join(" and ") : actual.join(", ");
-                                reporter.report("The property " + item + " is compatible with " + propertiesSpecified + " and should be included as well.", value.actualNodes[0].line, value.actualNodes[0].col, rule); 
+                                reporter.report("The property " + item + " is compatible with " + propertiesSpecified + " and should be included as well.", value.actualNodes[0].line, value.actualNodes[0].col, rule);
                             }
                         }
 
@@ -911,7 +911,7 @@ CSSLint.addRule({
     }
 });
 /*
- * Rule: Certain properties don't play well with certain display values. 
+ * Rule: Certain properties don't play well with certain display values.
  * - float should not be used with inline-block
  * - height, width, margin-top, margin-bottom, float should not be used with inline
  * - vertical-align should not be used with block
@@ -956,7 +956,7 @@ CSSLint.addRule({
                 }
             }
         }
-        
+
         function startRule(){
             properties = {};
         }
@@ -973,7 +973,7 @@ CSSLint.addRule({
                         reportProperty("width", display);
                         reportProperty("margin", display);
                         reportProperty("margin-top", display);
-                        reportProperty("margin-bottom", display);              
+                        reportProperty("margin-bottom", display);
                         reportProperty("float", display, "display:inline has no effect on floated elements (but may be used to fix the IE6 double-margin bug).");
                         break;
 
@@ -1001,7 +1001,7 @@ CSSLint.addRule({
                         //otherwise do nothing
                 }
             }
-          
+
         }
 
         parser.addListener("startrule", startRule);
@@ -1014,7 +1014,7 @@ CSSLint.addRule({
             var name = event.property.text.toLowerCase();
 
             if (propertiesToCheck[name]){
-                properties[name] = { value: event.value.text, line: event.property.line, col: event.property.col };                    
+                properties[name] = { value: event.value.text, line: event.property.line, col: event.property.col };
             }
         });
 
@@ -1081,32 +1081,32 @@ CSSLint.addRule({
     init: function(parser, reporter){
         var rule = this,
             properties,
-            lastProperty;            
-            
+            lastProperty;
+
         function startRule(event){
-            properties = {};        
+            properties = {};
         }
-        
+
         parser.addListener("startrule", startRule);
         parser.addListener("startfontface", startRule);
         parser.addListener("startpage", startRule);
         parser.addListener("startpagemargin", startRule);
-        parser.addListener("startkeyframerule", startRule);        
-        
+        parser.addListener("startkeyframerule", startRule);
+
         parser.addListener("property", function(event){
             var property = event.property,
                 name = property.text.toLowerCase();
-            
+
             if (properties[name] && (lastProperty != name || properties[name] == event.value.text)){
                 reporter.report("Duplicate property '" + event.property + "' found.", event.line, event.col, rule);
             }
-            
+
             properties[name] = event.value.text;
             lastProperty = name;
-                        
+
         });
-            
-        
+
+
     }
 
 });
@@ -1197,35 +1197,35 @@ CSSLint.addRule({
                 "background-color": 1
             },
             properties;
-        
+
         function startRule(event){
-            properties = {};    
-            lastProperty = null;    
+            properties = {};
+            lastProperty = null;
         }
-        
+
         parser.addListener("startrule", startRule);
         parser.addListener("startfontface", startRule);
         parser.addListener("startpage", startRule);
         parser.addListener("startpagemargin", startRule);
-        parser.addListener("startkeyframerule", startRule);        
-        
+        parser.addListener("startkeyframerule", startRule);
+
         parser.addListener("property", function(event){
             var property = event.property,
                 name = property.text.toLowerCase(),
                 parts = event.value.parts,
-                i = 0, 
+                i = 0,
                 colorType = "",
-                len = parts.length;                
-                        
+                len = parts.length;
+
             if(propertiesToCheck[name]){
                 while(i < len){
                     if (parts[i].type == "color"){
                         if ("alpha" in parts[i] || "hue" in parts[i]){
-                            
+
                             if (/([^\)]+)\(/.test(parts[i])){
                                 colorType = RegExp.$1.toUpperCase();
                             }
-                            
+
                             if (!lastProperty || (lastProperty.property.text.toLowerCase() != name || lastProperty.colorType != "compat")){
                                 reporter.report("Fallback " + name + " (hex or RGB) should precede " + colorType + " " + name + ".", event.line, event.col, rule);
                             }
@@ -1233,14 +1233,14 @@ CSSLint.addRule({
                             event.colorType = "compat";
                         }
                     }
-                    
+
                     i++;
                 }
             }
 
             lastProperty = event;
-        });        
-         
+        });
+
     }
 
 });
@@ -1391,7 +1391,7 @@ CSSLint.addRule({
             if (!gradients.webkit){
                 missing.push("Webkit (Safari 5+, Chrome)");
             }
-            
+
             if (!gradients.oldWebkit){
                 missing.push("Old Webkit (Safari 4+, Chrome)");
             }
@@ -1400,8 +1400,8 @@ CSSLint.addRule({
                 missing.push("Opera 11.1+");
             }
 
-            if (missing.length && missing.length < 4){            
-                reporter.report("Missing vendor-prefixed CSS gradients for " + missing.join(", ") + ".", event.selectors[0].line, event.selectors[0].col, rule); 
+            if (missing.length && missing.length < 4){
+                reporter.report("Missing vendor-prefixed CSS gradients for " + missing.join(", ") + ".", event.selectors[0].line, event.selectors[0].col, rule);
             }
 
         });
@@ -1475,8 +1475,8 @@ CSSLint.addRule({
     //initialization
     init: function(parser, reporter){
         var rule = this;
-        
-        parser.addListener("import", function(event){        
+
+        parser.addListener("import", function(event){
             reporter.report("@import prevents parallel downloads, use <link> instead.", event.line, event.col, rule);
         });
 
@@ -1581,14 +1581,14 @@ CSSLint.addRule({
                 lastRule = null;
             }
         }
-        
+
         function endRule(event){
             if (lastRule){
                 if (lastRule.outline){
                     if (lastRule.selectors.toString().toLowerCase().indexOf(":focus") == -1){
                         reporter.report("Outlines should only be modified using :focus.", lastRule.line, lastRule.col, rule);
                     } else if (lastRule.propCount == 1) {
-                        reporter.report("Outlines shouldn't be hidden unless other visual changes are made.", lastRule.line, lastRule.col, rule);                        
+                        reporter.report("Outlines shouldn't be hidden unless other visual changes are made.", lastRule.line, lastRule.col, rule);
                     }
                 }
             }
@@ -1598,26 +1598,26 @@ CSSLint.addRule({
         parser.addListener("startfontface", startRule);
         parser.addListener("startpage", startRule);
         parser.addListener("startpagemargin", startRule);
-        parser.addListener("startkeyframerule", startRule); 
+        parser.addListener("startkeyframerule", startRule);
 
         parser.addListener("property", function(event){
             var name = event.property.text.toLowerCase(),
-                value = event.value;                
-                
+                value = event.value;
+
             if (lastRule){
                 lastRule.propCount++;
                 if (name == "outline" && (value == "none" || value == "0")){
                     lastRule.outline = true;
-                }            
+                }
             }
-            
+
         });
-        
+
         parser.addListener("endrule", endRule);
         parser.addListener("endfontface", endRule);
         parser.addListener("endpage", endRule);
         parser.addListener("endpagemargin", endRule);
-        parser.addListener("endkeyframerule", endRule); 
+        parser.addListener("endkeyframerule", endRule);
 
     }
 
@@ -1638,7 +1638,7 @@ CSSLint.addRule({
     init: function(parser, reporter){
         var rule = this,
             classes = {};
-            
+
         parser.addListener("startrule", function(event){
             var selectors = event.selectors,
                 selector,
@@ -1657,7 +1657,7 @@ CSSLint.addRule({
                             if (part.elementName && modifier.type == "id"){
                                 reporter.report("Element (" + part + ") is overqualified, just use " + modifier + " without element name.", part.line, part.col, rule);
                             } else if (modifier.type == "class"){
-                                
+
                                 if (!classes[modifier]){
                                     classes[modifier] = [];
                                 }
@@ -1668,19 +1668,19 @@ CSSLint.addRule({
                 }
             }
         });
-        
+
         parser.addListener("endstylesheet", function(){
-        
+
             var prop;
             for (prop in classes){
                 if (classes.hasOwnProperty(prop)){
-                
+
                     //one use means that this is overqualified
                     if (classes[prop].length == 1 && classes[prop][0].part.elementName){
                         reporter.report("Element (" + classes[prop][0].part + ") is overqualified, just use " + classes[prop][0].modifier + " without element name.", classes[prop][0].part.line, classes[prop][0].part.col, rule);
                     }
                 }
-            }        
+            }
         });
     }
 
@@ -1796,7 +1796,7 @@ CSSLint.addRule({
 
 });
 /*
- * Rule: Warn people with approaching the IE 4095 limit 
+ * Rule: Warn people with approaching the IE 4095 limit
  */
 /*global CSSLint*/
 CSSLint.addRule({
@@ -1817,7 +1817,7 @@ CSSLint.addRule({
 
         parser.addListener("endstylesheet", function() {
             if (count >= 3800) {
-                reporter.report("You have " + count + " selectors. Internet Explorer supports a maximum of 4095 selectors per stylesheet. Consider refactoring.",0,0,rule); 
+                reporter.report("You have " + count + " selectors. Internet Explorer supports a maximum of 4095 selectors per stylesheet. Consider refactoring.",0,0,rule);
             }
         });
     }
@@ -1825,7 +1825,7 @@ CSSLint.addRule({
 });
 
 /*
- * Rule: Warn people past the IE 4095 limit 
+ * Rule: Warn people past the IE 4095 limit
  */
 /*global CSSLint*/
 CSSLint.addRule({
@@ -1846,7 +1846,7 @@ CSSLint.addRule({
 
         parser.addListener("endstylesheet", function() {
             if (count > 4095) {
-                reporter.report("You have " + count + " selectors. Internet Explorer supports a maximum of 4095 selectors per stylesheet. Consider refactoring.",0,0,rule); 
+                reporter.report("You have " + count + " selectors. Internet Explorer supports a maximum of 4095 selectors per stylesheet. Consider refactoring.",0,0,rule);
             }
         });
     }
@@ -1854,7 +1854,7 @@ CSSLint.addRule({
 });
 /*
  * Rule: Use shorthand properties where possible.
- * 
+ *
  */
 /*global CSSLint*/
 CSSLint.addRule({
@@ -1864,7 +1864,7 @@ CSSLint.addRule({
     name: "Require shorthand properties",
     desc: "Use shorthand properties where possible.",
     browsers: "All",
-    
+
     //initialization
     init: function(parser, reporter){
         var rule = this,
@@ -1883,10 +1883,10 @@ CSSLint.addRule({
                     "padding-bottom",
                     "padding-left",
                     "padding-right"
-                ]              
+                ]
             };
-            
-        //initialize propertiesToCheck 
+
+        //initialize propertiesToCheck
         for (prop in mapping){
             if (mapping.hasOwnProperty(prop)){
                 for (i=0, len=mapping[prop].length; i < len; i++){
@@ -1894,35 +1894,35 @@ CSSLint.addRule({
                 }
             }
         }
-            
+
         function startRule(event){
             properties = {};
         }
-        
+
         //event handler for end of rules
         function endRule(event){
-            
+
             var prop, i, len, total;
-            
+
             //check which properties this rule has
             for (prop in mapping){
                 if (mapping.hasOwnProperty(prop)){
                     total=0;
-                    
+
                     for (i=0, len=mapping[prop].length; i < len; i++){
                         total += properties[mapping[prop][i]] ? 1 : 0;
                     }
-                    
+
                     if (total == mapping[prop].length){
                         reporter.report("The properties " + mapping[prop].join(", ") + " can be replaced by " + prop + ".", event.line, event.col, rule);
                     }
                 }
             }
-        }        
-        
+        }
+
         parser.addListener("startrule", startRule);
         parser.addListener("startfontface", startRule);
-    
+
         //check for use of "font-size"
         parser.addListener("property", function(event){
             var name = event.property.toString().toLowerCase(),
@@ -1934,7 +1934,7 @@ CSSLint.addRule({
         });
 
         parser.addListener("endrule", endRule);
-        parser.addListener("endfontface", endRule);     
+        parser.addListener("endfontface", endRule);
 
     }
 
@@ -2083,14 +2083,14 @@ CSSLint.addRule({
                 part = selector.parts[selector.parts.length-1];
 
                 if (part.elementName && /(h[1-6])/i.test(part.elementName.toString())){
-                    
+
                     for (j=0; j < part.modifiers.length; j++){
                         if (part.modifiers[j].type == "pseudo"){
                             pseudo = true;
                             break;
                         }
                     }
-                
+
                     if (!pseudo){
                         headings[RegExp.$1]++;
                         if (headings[RegExp.$1] > 1) {
@@ -2100,11 +2100,11 @@ CSSLint.addRule({
                 }
             }
         });
-        
+
         parser.addListener("endstylesheet", function(event){
             var prop,
                 messages = [];
-                
+
             for (prop in headings){
                 if (headings.hasOwnProperty(prop)){
                     if (headings[prop] > 1){
@@ -2112,11 +2112,11 @@ CSSLint.addRule({
                     }
                 }
             }
-            
+
             if (messages.length){
                 reporter.rollupWarn("You have " + messages.join(", ") + " defined in this stylesheet.", rule);
             }
-        });        
+        });
     }
 
 });
@@ -2145,7 +2145,7 @@ CSSLint.addRule({
 
             for (i=0; i < selectors.length; i++){
                 selector = selectors[i];
-                
+
                 part = selector.parts[selector.parts.length-1];
                 if (part.elementName == "*"){
                     reporter.report(rule.desc, part.line, part.col, rule);
@@ -2172,7 +2172,7 @@ CSSLint.addRule({
         var rule = this;
 
         parser.addListener("startrule", function(event){
-            
+
             var selectors = event.selectors,
                 selector,
                 part,
@@ -2181,18 +2181,18 @@ CSSLint.addRule({
 
             for (i=0; i < selectors.length; i++){
                 selector = selectors[i];
-                
+
                 part = selector.parts[selector.parts.length-1];
                 if (part.type == parser.SELECTOR_PART_TYPE){
                     for (k=0; k < part.modifiers.length; k++){
                         modifier = part.modifiers[k];
                         if (modifier.type == "attribute" && (!part.elementName || part.elementName == "*")){
-                            reporter.report(rule.desc, part.line, part.col, rule);                               
+                            reporter.report(rule.desc, part.line, part.col, rule);
                         }
                     }
                 }
-                
-            }            
+
+            }
         });
     }
 
@@ -2221,70 +2221,70 @@ CSSLint.addRule({
                 "-webkit-border-top-right-radius": "border-top-right-radius",
                 "-webkit-border-bottom-left-radius": "border-bottom-left-radius",
                 "-webkit-border-bottom-right-radius": "border-bottom-right-radius",
-                
+
                 "-o-border-radius": "border-radius",
                 "-o-border-top-left-radius": "border-top-left-radius",
                 "-o-border-top-right-radius": "border-top-right-radius",
                 "-o-border-bottom-left-radius": "border-bottom-left-radius",
                 "-o-border-bottom-right-radius": "border-bottom-right-radius",
-                
+
                 "-moz-border-radius": "border-radius",
                 "-moz-border-radius-topleft": "border-top-left-radius",
                 "-moz-border-radius-topright": "border-top-right-radius",
                 "-moz-border-radius-bottomleft": "border-bottom-left-radius",
-                "-moz-border-radius-bottomright": "border-bottom-right-radius",                
-                
+                "-moz-border-radius-bottomright": "border-bottom-right-radius",
+
                 "-moz-column-count": "column-count",
                 "-webkit-column-count": "column-count",
-                
+
                 "-moz-column-gap": "column-gap",
                 "-webkit-column-gap": "column-gap",
-                
+
                 "-moz-column-rule": "column-rule",
                 "-webkit-column-rule": "column-rule",
-                
+
                 "-moz-column-rule-style": "column-rule-style",
                 "-webkit-column-rule-style": "column-rule-style",
-                
+
                 "-moz-column-rule-color": "column-rule-color",
                 "-webkit-column-rule-color": "column-rule-color",
-                
+
                 "-moz-column-rule-width": "column-rule-width",
                 "-webkit-column-rule-width": "column-rule-width",
-                
+
                 "-moz-column-width": "column-width",
                 "-webkit-column-width": "column-width",
-                
+
                 "-webkit-column-span": "column-span",
                 "-webkit-columns": "columns",
-                
+
                 "-moz-box-shadow": "box-shadow",
                 "-webkit-box-shadow": "box-shadow",
-                
+
                 "-moz-transform" : "transform",
                 "-webkit-transform" : "transform",
                 "-o-transform" : "transform",
                 "-ms-transform" : "transform",
-                
+
                 "-moz-transform-origin" : "transform-origin",
                 "-webkit-transform-origin" : "transform-origin",
                 "-o-transform-origin" : "transform-origin",
                 "-ms-transform-origin" : "transform-origin",
-                
+
                 "-moz-box-sizing" : "box-sizing",
                 "-webkit-box-sizing" : "box-sizing",
-                
+
                 "-moz-user-select" : "user-select",
                 "-khtml-user-select" : "user-select",
-                "-webkit-user-select" : "user-select"                
+                "-webkit-user-select" : "user-select"
             };
 
         //event handler for beginning of rules
         function startRule(){
             properties = {};
-            num=1;        
+            num=1;
         }
-        
+
         //event handler for end of rules
         function endRule(event){
             var prop,
@@ -2304,7 +2304,7 @@ CSSLint.addRule({
                 needed = needsStandard[i].needed;
                 actual = needsStandard[i].actual;
 
-                if (!properties[needed]){               
+                if (!properties[needed]){
                     reporter.report("Missing standard property '" + needed + "' to go along with '" + actual + "'.", properties[actual][0].name.line, properties[actual][0].name.col, rule);
                 } else {
                     //make sure standard property is last
@@ -2314,13 +2314,13 @@ CSSLint.addRule({
                 }
             }
 
-        }        
-        
+        }
+
         parser.addListener("startrule", startRule);
         parser.addListener("startfontface", startRule);
         parser.addListener("startpage", startRule);
         parser.addListener("startpagemargin", startRule);
-        parser.addListener("startkeyframerule", startRule);         
+        parser.addListener("startkeyframerule", startRule);
 
         parser.addListener("property", function(event){
             var name = event.property.text.toLowerCase();
@@ -2336,7 +2336,7 @@ CSSLint.addRule({
         parser.addListener("endfontface", endRule);
         parser.addListener("endpage", endRule);
         parser.addListener("endpagemargin", endRule);
-        parser.addListener("endkeyframerule", endRule);         
+        parser.addListener("endkeyframerule", endRule);
     }
 
 });
@@ -2359,7 +2359,7 @@ CSSLint.addRule({
         //count how many times "float" is used
         parser.addListener("property", function(event){
             var parts = event.value.parts,
-                i = 0, 
+                i = 0,
                 len = parts.length;
 
             while(i < len){
@@ -2393,7 +2393,7 @@ CSSLint.addRule({
         if (!str || str.constructor !== String) {
             return "";
         }
-        
+
         return str.replace(/[\"&><]/g, function(match) {
             switch (match) {
                 case "\"":
@@ -2403,7 +2403,7 @@ CSSLint.addRule({
                 case "<":
                     return "&lt;";
                 case ">":
-                    return "&gt;";            
+                    return "&gt;";
             }
         });
     };
@@ -2428,7 +2428,7 @@ CSSLint.addRule({
         endFormat: function(){
             return "</checkstyle>";
         },
-        
+
         /**
          * Returns message when there is a file read error.
          * @param {String} filename The name of the file that caused the error.
@@ -2534,11 +2534,11 @@ CSSLint.addFormatter({
             if (message.rollup) {
                 output += filename + ": " + capitalize(message.type) + " - " + message.message + "\n";
             } else {
-                output += filename + ": " + "line " + message.line + 
+                output += filename + ": " + "line " + message.line +
                     ", col " + message.col + ", " + capitalize(message.type) + " - " + message.message + "\n";
             }
         });
-    
+
         return output;
     }
 });
@@ -2583,7 +2583,7 @@ CSSLint.addFormatter({
          *  - &amp; is the escape sequence for &
          *  - &lt; is the escape sequence for <
          *  - &gt; is the escape sequence for >
-         * 
+         *
          * @param {String} message to escape
          * @return escaped message as {String}
          */
@@ -2756,7 +2756,7 @@ CSSLint.addFormatter({
          *  - &amp; is the escape sequence for &
          *  - &lt; is the escape sequence for <
          *  - &gt; is the escape sequence for >
-         * 
+         *
          * @param {String} message to escape
          * @return escaped message as {String}
          */
@@ -2768,7 +2768,7 @@ CSSLint.addFormatter({
         };
 
         if (messages.length > 0) {
-        
+
             output.push("<file name=\""+filename+"\">");
             CSSLint.Util.forEach(messages, function (message, i) {
                 if (message.rollup) {
@@ -2827,7 +2827,7 @@ CSSLint.addFormatter({
             shortFilename = filename;
 
         if (pos === -1){
-            pos = filename.lastIndexOf("\\");       
+            pos = filename.lastIndexOf("\\");
         }
         if (pos > -1){
             shortFilename = filename.substring(pos+1);
@@ -2844,7 +2844,7 @@ CSSLint.addFormatter({
                 output += "\n" + message.evidence;
             }
         });
-    
+
         return output;
     }
 });

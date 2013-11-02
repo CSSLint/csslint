@@ -10,12 +10,12 @@ cli({
     args: Array.prototype.concat.call(arguments),
     print: print,
     quit: quit,
-    
+
     isDirectory: function(name){
         var dir = new File(name);
         return dir.isDirectory();
     },
-    
+
     getFiles: function(dir){
         var files = [];
 
@@ -32,13 +32,13 @@ cli({
 
         traverse(new File(dir));
 
-        return files;    
+        return files;
     },
 
     getWorkingDirectory: function() {
         return (new File(".")).getCanonicalPath();
     },
-    
+
     getFullPath: function(filename){
         return (new File(filename)).getCanonicalPath();
     },
