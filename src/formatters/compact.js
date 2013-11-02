@@ -50,7 +50,7 @@ CSSLint.addFormatter({
                 output += filename + ": " + capitalize(message.type) + " - " + message.message + "\n";
             } else {
                 output += filename + ": " + "line " + message.line + 
-                    ", col " + message.col + ", " + capitalize(message.type) + " - " + message.message + "\n";
+                    ", col " + message.col + ", " + capitalize(message.type) + " - " + message.message + " (" + message.rule.id + ")\n";
             }
         });
     
