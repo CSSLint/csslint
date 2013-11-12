@@ -179,7 +179,7 @@ var CSSLint = (function(){
                                                 underscoreHack: true, strict: false });
 
         // normalize line endings
-        lines = text.replace(/\n\r?/g, "$split$").split('$split$');
+        lines = text.replace(/\n\r?/g, "$split$").split("$split$");
 
         if (!ruleset){
             ruleset = this.getRuleset();

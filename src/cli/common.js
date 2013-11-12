@@ -171,8 +171,8 @@ function cli(api){
      */
     function outputHelp(){
         var lenToPad = 40,
-            toPrint = '',
-            formatString = '';
+            toPrint = "",
+            formatString = "";
 
         api.print([
             "\nUsage: csslint-rhino.js [options]* [file|dir]*",
@@ -185,14 +185,14 @@ function cli(api){
                 // Print the option name and the format if present
                 toPrint += "  --" + optionName;
                 if (globalOptions[optionName].format !== "") {
-                    formatString = '=' + globalOptions[optionName].format;
+                    formatString = "=" + globalOptions[optionName].format;
                     toPrint += formatString;
                 } else {
-                    formatString = '';
+                    formatString = "";
                 }
 
                 // Pad out with the appropriate number of spaces
-                toPrint += new Array(lenToPad - (optionName.length + formatString.length)).join(' ');
+                toPrint += new Array(lenToPad - (optionName.length + formatString.length)).join(" ");
 
                 // Print the description
                 toPrint += globalOptions[optionName].description + "\n";
@@ -283,8 +283,8 @@ function cli(api){
 
     function validateOptions(options) {
         for (var option_key in options) {
-            if (!globalOptions.hasOwnProperty(option_key) && option_key !== 'files') {
-                api.print(option_key + ' is not a valid option. Exiting...');
+            if (!globalOptions.hasOwnProperty(option_key) && option_key !== "files") {
+                api.print(option_key + " is not a valid option. Exiting...");
                 outputHelp();
                 api.quit(0);
             }

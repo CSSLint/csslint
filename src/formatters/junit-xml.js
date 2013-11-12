@@ -31,8 +31,8 @@ CSSLint.addFormatter({
         var messages = results.messages,
             output = [],
             tests = {
-                'error': 0,
-                'failure': 0
+                "error": 0,
+                "failure": 0
             };
 
         /**
@@ -43,10 +43,10 @@ CSSLint.addFormatter({
          * @return rule source as {String}
          */
         var generateSource = function(rule) {
-            if (!rule || !('name' in rule)) {
+            if (!rule || !("name" in rule)) {
                 return "";
             }
-            return 'net.csslint.' + rule.name.replace(/\s/g,'');
+            return "net.csslint." + rule.name.replace(/\s/g,"");
         };
 
         /**
@@ -76,7 +76,7 @@ CSSLint.addFormatter({
 
                 // since junit has no warning class
                 // all issues as errors
-                var type = message.type === 'warning' ? 'error' : message.type;
+                var type = message.type === "warning" ? "error" : message.type;
 
                 //ignore rollups for now
                 if (!message.rollup) {
@@ -84,7 +84,7 @@ CSSLint.addFormatter({
                     // build the test case seperately, once joined
                     // we'll add it to a custom array filtered by type
                     output.push("<testcase time=\"0\" name=\"" + generateSource(message.rule) + "\">");
-                    output.push("<" + type + " message=\"" + escapeSpecialCharacters(message.message) + "\"><![CDATA[" + message.line + ':' + message.col + ':' + escapeSpecialCharacters(message.evidence)  + "]]></" + type + ">");
+                    output.push("<" + type + " message=\"" + escapeSpecialCharacters(message.message) + "\"><![CDATA[" + message.line + ":" + message.col + ":" + escapeSpecialCharacters(message.evidence)  + "]]></" + type + ">");
                     output.push("</testcase>");
 
                     tests[type] += 1;

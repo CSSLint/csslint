@@ -39,7 +39,7 @@ CSSLint.addRule({
             col  = event.col;
 
             // This is the property that we care about, we can ignore the rest
-            if (propertyName === 'src') {
+            if (propertyName === "src") {
                 var regex = /^\s?url\(['"].+\.eot\?.*['"]\)\s*format\(['"]embedded-opentype['"]\).*$/i;
 
                 // We need to handle the advanced syntax with two src properties

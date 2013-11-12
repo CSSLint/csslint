@@ -9,6 +9,7 @@
     "noarg": true,
     "noempty": true,
     "nonbsp": true,
+    "quotmark": "double",
     "undef": true,
     "globals": {
         "CSSLint": true,
