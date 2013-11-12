@@ -44,7 +44,7 @@ cli({
                 var path = stack.concat([file]).join("/"),
                     stat = fs.statSync(path);
 
-                if (file[0] == ".") {
+                if (file[0] === ".") {
                     return;
                 } else if (stat.isFile() && /\.css$/.test(file)){
                     files.push(path);

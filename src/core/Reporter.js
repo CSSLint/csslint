@@ -87,7 +87,7 @@ Reporter.prototype = {
      */
     report: function(message, line, col, rule){
         this.messages.push({
-            type    : this.ruleset[rule.id] == 2 ? "error" : "warning",
+            type    : this.ruleset[rule.id] === 2 ? "error" : "warning",
             line    : line,
             col     : col,
             message : message,

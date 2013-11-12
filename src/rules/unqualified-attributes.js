@@ -26,10 +26,10 @@ CSSLint.addRule({
                 selector = selectors[i];
 
                 part = selector.parts[selector.parts.length-1];
-                if (part.type == parser.SELECTOR_PART_TYPE){
+                if (part.type === parser.SELECTOR_PART_TYPE){
                     for (k=0; k < part.modifiers.length; k++){
                         modifier = part.modifiers[k];
-                        if (modifier.type == "attribute" && (!part.elementName || part.elementName == "*")){
+                        if (modifier.type === "attribute" && (!part.elementName || part.elementName === "*")){
                             reporter.report(rule.desc, part.line, part.col, rule);
                         }
                     }

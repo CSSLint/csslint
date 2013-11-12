@@ -22,7 +22,7 @@ var wshapi = (function(){
 
     if (typeof Array.prototype.filter !== "function") {
         Array.prototype.filter = function(fn /*, thisp*/) {
-            if (typeof fn != "function") {
+            if (typeof fn !== "function") {
                 throw new Error("not a function");
             }
             var res = [], val, thisp = finalArgs[1];

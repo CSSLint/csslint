@@ -37,7 +37,7 @@ CSSLint.addRule({
                 if (part.elementName && /(h[1-6])/i.test(part.elementName.toString())){
 
                     for (j=0; j < part.modifiers.length; j++){
-                        if (part.modifiers[j].type == "pseudo"){
+                        if (part.modifiers[j].type === "pseudo"){
                             pseudo = true;
                             break;
                         }

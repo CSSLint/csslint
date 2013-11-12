@@ -36,7 +36,7 @@ CSSLint.addFormatter({
         }
 
         output = "\n\ncsslint: There ";
-        if (messages.length == 1) {
+        if (messages.length === 1) {
             output += "is 1 problem";
         } else {
             output += "are " + messages.length  +  " problems";

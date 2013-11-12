@@ -59,7 +59,7 @@ CSSLint.addRule({
                         total += properties[mapping[prop][i]] ? 1 : 0;
                     }
 
-                    if (total == mapping[prop].length){
+                    if (total === mapping[prop].length){
                         reporter.report("The properties " + mapping[prop].join(", ") + " can be replaced by " + prop + ".", event.line, event.col, rule);
                     }
                 }
