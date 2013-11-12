@@ -1,4 +1,7 @@
 [![build status](https://secure.travis-ci.org/stubbornella/csslint.png)](http://travis-ci.org/stubbornella/csslint)
+[![Dependency Status](https://david-dm.org/stubbornella/csslint.png?theme=shields.io)](https://david-dm.org/stubbornella/csslint)
+[![devDependency Status](https://david-dm.org/stubbornella/csslint/dev-status.png?theme=shields.io)](https://david-dm.org/stubbornella/csslint#info=devDependencies)
+
 # CSSLint
 
 CSSLint is a tool to help point out problems with your CSS code.
