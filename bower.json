@@ -1,0 +1,26 @@
+{
+  "name": "csslint",
+  "version": "0.10.0",
+  "homepage": "https://github.com/stubbornella/csslint",
+  "author": "Nicole Sullivan",
+  "main": "release/csslint.js",
+  "ignore": [
+    "**/.*",
+    "bower.json",
+    "build.xml",
+    "CHANGELOG",
+    "CONTRIBUTING.md",
+    "Gruntfile.js",
+    "LICENSE",
+    "package.json",
+    "README.md",
+    "node_modules",
+    "bower_components",
+    "demos",
+    "lib",
+    "src",
+    "tests",
+    "release/npm",
+    "release/csslint-*"
+  ]
+}
