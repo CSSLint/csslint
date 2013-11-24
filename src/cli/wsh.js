@@ -1,8 +1,11 @@
 /*
  * Windows Script Host Command Line Interface
  */
-/*global ActiveXObject, WScript, Enumerator, cli*/
+
 //TODO: This file needs major cleanup!!!
+
+/* jshint wsh:true */
+/* global cli */
 
 var wshapi = (function(){
     var fso = new ActiveXObject("Scripting.FileSystemObject");

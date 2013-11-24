@@ -1,4 +1,3 @@
-/*global YUITest, CSSLint*/
 (function () {
 
     var ruleId = "selector-newline", expectWarning, expectPass;

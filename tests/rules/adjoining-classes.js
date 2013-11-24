@@ -1,6 +1,4 @@
 (function(){
-
-    /*global YUITest, CSSLint*/
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
