@@ -2,8 +2,9 @@
  * CSSLint Node.js Command Line Interface
  */
 
-/*jshint node:true*/
-/*global cli*/
+/* jshint node:true */
+/* global cli */
+/* exported CSSLint */
 
 var fs      = require("fs"),
     path    = require("path"),

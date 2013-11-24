@@ -17,7 +17,7 @@ CSSLint.addRule({
             properties,
             lastProperty;
 
-        function startRule(event){
+        function startRule(){
             properties = {};
         }
 

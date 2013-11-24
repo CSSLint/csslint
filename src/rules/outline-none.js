@@ -31,7 +31,7 @@ CSSLint.addRule({
             }
         }
 
-        function endRule(event){
+        function endRule(){
             if (lastRule){
                 if (lastRule.outline){
                     if (lastRule.selectors.toString().toLowerCase().indexOf(":focus") == -1){

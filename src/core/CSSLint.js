@@ -4,7 +4,10 @@
  * @static
  * @extends parserlib.util.EventTarget
  */
-/*global parserlib, Reporter*/
+
+/* global parserlib, Reporter */
+/* exported CSSLint */
+
 var CSSLint = (function(){
 
     var rules           = [],
@@ -170,8 +173,7 @@ var CSSLint = (function(){
      */
     api.verify = function(text, ruleset){
 
-        var i       = 0,
-            len     = rules.length,
+        var i = 0,
             reporter,
             lines,
             report,

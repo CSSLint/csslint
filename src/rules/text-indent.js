@@ -18,13 +18,13 @@ CSSLint.addRule({
             direction;
 
 
-        function startRule(event){
+        function startRule(){
             textIndent = false;
             direction = "inherit";
         }
 
         //event handler for end of rules
-        function endRule(event){
+        function endRule(){
             if (textIndent && direction != "ltr"){
                 reporter.report("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set direction for that item to ltr.", textIndent.line, textIndent.col, rule);
             }

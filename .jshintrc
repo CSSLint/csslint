@@ -10,6 +10,7 @@
     "noempty": true,
     "nonbsp": true,
     "quotmark": "double",
+    "unused": true,
     "undef": true,
     "globals": {
         "CSSLint": true,

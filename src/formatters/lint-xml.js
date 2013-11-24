@@ -26,7 +26,7 @@ CSSLint.addFormatter({
      * @param options {Object} (UNUSED for now) specifies special handling of output
      * @return {String} output for results
      */
-    formatResults: function(results, filename, options) {
+    formatResults: function(results, filename/*, options*/) {
         var messages = results.messages,
             output = [];
 
@@ -52,7 +52,7 @@ CSSLint.addFormatter({
         if (messages.length > 0) {
 
             output.push("<file name=\""+filename+"\">");
-            CSSLint.Util.forEach(messages, function (message, i) {
+            CSSLint.Util.forEach(messages, function (message) {
                 if (message.rollup) {
                     output.push("<issue severity=\"" + message.type + "\" reason=\"" + escapeSpecialCharacters(message.message) + "\" evidence=\"" + escapeSpecialCharacters(message.evidence) + "\"/>");
                 } else {

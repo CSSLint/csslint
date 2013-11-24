@@ -20,7 +20,7 @@ CSSLint.addRule({
                 selector,
                 part,
                 modifier,
-                i, j, k;
+                i, k;
 
             for (i=0; i < selectors.length; i++){
                 selector = selectors[i];

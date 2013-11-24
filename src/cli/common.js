@@ -3,6 +3,8 @@
  * provides environment-specific functionality.
  */
 
+/* exported cli */
+
 function cli(api){
 
     var globalOptions = {

@@ -41,7 +41,7 @@ CSSLint.addRule({
             }
         }
 
-        function startRule(event){
+        function startRule(){
             properties = {};
         }
 
@@ -71,8 +71,7 @@ CSSLint.addRule({
 
         //check for use of "font-size"
         parser.addListener("property", function(event){
-            var name = event.property.toString().toLowerCase(),
-                value = event.value.parts[0].value;
+            var name = event.property.toString().toLowerCase();
 
             if (propertiesToCheck[name]){
                 properties[name] = 1;
