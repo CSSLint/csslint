@@ -156,24 +156,7 @@ module.exports = function(grunt) {
         },
         jshint: {
             options: {
-                curly: true,
-                //eqeqeq: true, TODO: Leaving off due to errors
-                immed: true,
-                latedef: true,
-                newcap: true,
-                noarg: true,
-                sub: true,
-                undef: true,
-                //unused: true, TODO: Leaving off due to errors around unused instances of CSSLint
-                boss: true,
-                eqnull: true,
-                // Copied from build.xml
-                forin: true,
-                noempty: true,
-                rhino: false,
-                globals: {
-                    jQuery: true
-                }
+                jshintrc: ".jshintrc"
             },
             gruntfile: {
                 src: 'Gruntfile.js'
