@@ -1,6 +1,3 @@
-
-/*global CSSLint*/
-
 /*
  * Utility functions that make life easier.
  */

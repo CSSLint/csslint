@@ -1,5 +1,3 @@
-/*global CSSLint*/
-
 /*
  * Rule: Don't use width or height when using padding or border.
  */

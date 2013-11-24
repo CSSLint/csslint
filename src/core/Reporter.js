@@ -1,4 +1,3 @@
-/*global CSSLint*/
 /**
  * An instance of Report is used to report results of the
  * verification back to the main API.

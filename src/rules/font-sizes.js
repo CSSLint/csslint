@@ -2,7 +2,6 @@
  * Rule: You shouldn't need more than 9 font-size declarations.
  */
 
-/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information

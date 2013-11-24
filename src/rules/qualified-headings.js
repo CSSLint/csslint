@@ -1,7 +1,7 @@
 /*
  * Rule: Headings (h1-h6) should not be qualified (namespaced).
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information

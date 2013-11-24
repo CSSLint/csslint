@@ -1,7 +1,7 @@
 /*
  * Rule: Warn people past the IE 4095 limit
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information

@@ -2,7 +2,7 @@
  * Rule: Include all compatible vendor prefixes to reach a wider
  * range of users.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information

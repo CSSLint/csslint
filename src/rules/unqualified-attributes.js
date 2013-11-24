@@ -1,7 +1,7 @@
 /*
  * Rule: Don't use unqualified attribute selectors because they're just like universal selectors.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information

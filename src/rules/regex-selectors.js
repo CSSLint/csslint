@@ -1,7 +1,7 @@
 /*
  * Rule: Selectors that look like regular expressions are slow and should be avoided.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information

@@ -2,7 +2,7 @@
  * Rule: outline: none or outline: 0 should only be used in a :focus rule
  *       and only if there are other properties in the same rule.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
