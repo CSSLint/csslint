@@ -11,14 +11,14 @@ The rules are all pluggable, so you can easily write your own or omit ones
 you don't want. You can find information about both using CSS Lint and
 contributing to the project in the wiki: https://github.com/stubbornella/csslint/wiki
 
-# Contributors
+## Contributors
 
-## Creators
+### Creators
 
 1. Nicole Sullivan, http://www.stubbornella.org
 1. Nicholas C. Zakas, http://www.nczonline.net
 
-## Contributors
+### Contributors
 
 1. Samori Gorse, https://twitter.com/shinuza (Rules, Non-zero Exit Code for CLI)
 1. Eitan Konigsburg, https://twitter.com/eitanmk (Rhino CLI)
