@@ -34,3 +34,4 @@ CSSLint is a tool to help point out problems with your CSS code. It does basic s
 1. Shannon Moeller, http://shannonmoeller.com (Embedded rulesets)
 1. Nick Schonning, https://github.com/nschonni (Contributing.md, grunt build)
 1. Jared Wyles, https://github.com/jaredwy (Managing pull requests, endless advice)
+1. Scott Gonzalez, https://github.com/scottgonzalez (JSON config)
