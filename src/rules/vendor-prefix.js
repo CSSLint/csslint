@@ -119,6 +119,7 @@ CSSLint.addRule({
         parser.addListener("startpage", startRule);
         parser.addListener("startpagemargin", startRule);
         parser.addListener("startkeyframerule", startRule);
+        parser.addListener("startviewport", startRule);
 
         parser.addListener("property", function(event){
             var name = event.property.text.toLowerCase();
@@ -135,6 +136,7 @@ CSSLint.addRule({
         parser.addListener("endpage", endRule);
         parser.addListener("endpagemargin", endRule);
         parser.addListener("endkeyframerule", endRule);
+        parser.addListener("endviewport", endRule);
     }
 
 });

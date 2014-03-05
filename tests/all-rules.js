@@ -31,6 +31,11 @@
                     this.options[rules[i].id] = 1;
                 },
 
+                "Using @viewport should not result in an error": function(){
+                    var result = CSSLint.verify("@viewport { width: auto; }", this.options);
+                    Assert.areEqual(0, result.messages.length);
+                },
+
                 "Using @keyframes should not result in an error": function(){
                     var result = CSSLint.verify("@keyframes resize { 0% {padding: 0;} 50% {padding: 0;} 100% {padding: 0;}}", this.options);
                     Assert.areEqual(0, result.messages.length);

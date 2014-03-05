@@ -27,6 +27,7 @@ CSSLint.addRule({
         parser.addListener("startpage", startRule);
         parser.addListener("startpagemargin", startRule);
         parser.addListener("startkeyframerule", startRule);
+        parser.addListener("startviewport", startRule);
 
         parser.addListener("property", function(event){
             var property = event.property,
