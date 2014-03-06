@@ -141,7 +141,7 @@ function cli(api){
             output,
             exitCode = 0;
 
-        if (!input) {
+        if (input === null) {
             if (formatter.readError) {
                 api.print(formatter.readError(relativeFilePath, "Could not read file data. Is the file empty?"));
             } else {

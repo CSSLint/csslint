@@ -128,7 +128,7 @@ var wshapi = (function(){
                 allText = tf.ReadAll();
                 tf.Close();
             } catch (ex) {
-                return "";
+                return null;
             }
             return allText;
         }

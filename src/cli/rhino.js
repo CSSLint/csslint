@@ -47,7 +47,7 @@ cli({
         try {
             return readFile(filename);
         } catch (ex) {
-            return "";
+            return null;
         }
     }
 });

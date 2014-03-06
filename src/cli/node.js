@@ -71,7 +71,7 @@ cli({
         try {
             return fs.readFileSync(filename, "utf-8");    
         } catch (ex) {
-            return "";
+            return null;
         }
     }
 });
