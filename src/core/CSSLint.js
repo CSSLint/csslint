@@ -203,7 +203,7 @@ var CSSLint = (function(){
 
         //capture most horrible error type
         try {
-            parser.parse(text);
+            parser.parse(text || "/**/");
         } catch (ex) {
             reporter.error("Fatal error, cannot continue: " + ex.message, ex.line, ex.col, {});
         }
