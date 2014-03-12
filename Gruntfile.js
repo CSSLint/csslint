@@ -39,8 +39,10 @@ module.exports = function(grunt) {
                 "/* Build: v<%= pkg.version %> <%= grunt.template.today('dd-mmmm-yyyy hh:MM:ss') %> */"
         },
         build_dir: "build",
-        //Parser lib copy for versions that can't use requirejs
+        //Parser lib copy for versions that can't user requirejs
         parserlib: "node_modules/parserlib/lib/node-parserlib.js",
+        //clone copy for versions that can't user requirejs
+        clone: "node_modules/clone/clone.js",
         //Core CSSLint files used by most versions
         csslint_files: [
             "src/core/CSSLint.js",
@@ -51,6 +53,7 @@ module.exports = function(grunt) {
         //Core fileset used by most versions
         core_files: [
             "<%= parserlib %>",
+            "<%= clone %>",
             "<%= csslint_files %>"
         ],
         // Task configuration.
@@ -86,6 +89,7 @@ module.exports = function(grunt) {
             node: {
                 options: {
                     banner: "<%= banner.full %>\n" +
+                            "var clone = require('clone');\n" +
                             "var parserlib = require('parserlib');\n",
                     footer: "\nexports.CSSLint = CSSLint;"
                 },
