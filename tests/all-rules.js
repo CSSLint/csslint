@@ -13,9 +13,10 @@
     var Assert = YUITest.Assert,
         suite   = new YUITest.TestSuite("General Tests for all Rules"),
         rules   = CSSLint.getRules(),
-        i, len;
+        len     = rules.length,
+        i;
 
-    for (i=0, len=25; i < len; i++){
+    for (i=0; i < len; i++){
 
         (function(i, rules){
 
