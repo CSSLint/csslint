@@ -1,7 +1,33 @@
 [![build status](https://secure.travis-ci.org/stubbornella/csslint.png)](http://travis-ci.org/stubbornella/csslint)
 # CSSLint
 
-CSSLint is a tool to help point out problems with your CSS code. It does basic syntax checking as well as applying a set of rules to the code that look for problematic patterns or signs of inefficiency. The rules are all pluggable, so you can easily write your own or omit ones you don't want. You can find information about both using CSS Lint and contributing to the project in the wiki: https://github.com/stubbornella/csslint/wiki 
+CSSLint is a tool to help point out problems with your CSS code. It does basic syntax checking as well as applying a set of rules to the code that look for problematic patterns or signs of inefficiency. The rules are all pluggable, so you can easily write your own or omit ones you don't want. 
+
+# Basic Usage
+
+## Online Demo
+
+An online interface that deploys this code is available at http://csslint.net/
+
+## Usage Methods
+
+For more information, see https://github.com/stubbornella/csslint/wiki
+
+1. Command Line Interface
+2. Build System Integration
+3. IDE Integration
+
+### For those in a hurry
+
+For more information, see https://github.com/stubbornella/csslint/wiki/Command-line-interface
+
+    npm install -g csslint # installation
+    csslint [options] [file|dir]* # usage
+    csslint file1.css file2.css # example
+
+# CSSLint Wiki
+
+Detailed information on both csslint usage and ways to contribute to the project are available at https://github.com/stubbornella/csslint/wiki .
 
 # Contributors
 
