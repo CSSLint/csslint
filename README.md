@@ -21,9 +21,9 @@ For more information, see https://github.com/stubbornella/csslint/wiki
 
 For more information, see https://github.com/stubbornella/csslint/wiki/Command-line-interface
 
-    npm install -g csslint # installation
-    csslint [options] [file|dir]* # usage
-    csslint file1.css file2.css # example
+    npm install -g csslint          # installation
+    csslint [options] [file|dir]*   # usage
+    csslint file1.css file2.css     # example
 
 # CSSLint Wiki
 
