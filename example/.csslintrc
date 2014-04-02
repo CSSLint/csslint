@@ -1,0 +1,48 @@
+{
+    // CSSlint Example Configuration File
+    // For more details, see https://github.com/stubbornella/csslint/wiki/Rules
+
+    // Possible Errors
+    "box-model": false,                     // Beware of box model size
+    "display-property-grouping": false,     // Require properties appropriate for display
+    "duplicate-properties": false,          // Disallow duplicate properties
+    "empty-rules": false,                   // Disallow empty rules
+    "known-properties": false,              // Require use of known properties
+
+
+    // Compatibility
+    "adjoining-classes": false,             // Disallow adjoining classes
+    "box-sizing": false,                    // Disallow box-sizing
+    "compatible-vendor-prefixes": false,    // Require compatible vendor prefixes
+    "gradients": false,                     // Require all gradient definitions
+    "text-indent": false,                   // Disallow negative text-indent
+    "vendor-prefix": false,                 // Require standard property with vendor prefix
+    "fallback-colors": false,               // Require fallback colors
+    "star-property-hack": false,            // Disallow star hack
+    "underscore-property-hack": false,      // Disallow underscore hack
+    "bulletproof-font-face": false,         // Bulletproof font-face
+
+    // Performance
+    "font-faces": false,                    // Don't use too many web fonts
+    "import": false,                        // Disallow @import
+    "regex-selectors": false,               // Disallow selectors that look like regular expressions
+    "universal-selector": false,            // Disallow universal selector
+    "unqualified-attributes": false,        // Disallow unqualified attribute selectors
+    "zero-units": false,                    // Disallow units for zero values
+    "overqualified-elements": false,        // Disallow overqualified elements
+    "shorthand": false,                     // Require shorthand properties
+    "duplicate-background-images": false,   // Disallow duplicate background images
+
+    // Maintainability & Duplication
+    "floats": false,                        // Disallow too many floats
+    "font-sizes": false,                    // Don't use too many font-size declarations
+    "ids": false,                           // Disallow IDs in selectors
+    "important": false,                     // Disallow !important
+
+    // Accessibility
+    "outline-none": false,                  // Disallow outline:none
+
+    // OOCSS
+    "qualified-headings": false,            // Disallow qualified headings
+    "unique-headings": false                // Headings should only be defined once
+}

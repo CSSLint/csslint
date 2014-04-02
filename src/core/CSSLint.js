@@ -5,7 +5,8 @@
  * @extends parserlib.util.EventTarget
  */
 /*global parserlib, Reporter*/
-var CSSLint = (function(){
+var CSSLint = (function() {
+    "use strict";
 
     var rules           = [],
         formatters      = [],
