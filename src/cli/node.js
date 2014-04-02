@@ -29,7 +29,8 @@ cli({
     },
 
     getFiles: function(dir){
-        var files = [];
+        var files = [],
+            self = this;
 
         try {
             fs.statSync(dir);
@@ -38,11 +39,20 @@ cli({
         }
 
         function traverse(dir, stack){
+
+            if (self.isExcluded(dir)) {
+                return;
+            }
+
             stack.push(dir);
             fs.readdirSync(stack.join("/")).forEach(function(file){
                 var path = stack.concat([file]).join("/"),
                     stat = fs.statSync(path);
-                
+
+                if (self.isExcluded(path)) {
+                    return;
+                }
+
                 if (file[0] == ".") {
                     return;
                 } else if (stat.isFile() && /\.css$/.test(file)){
