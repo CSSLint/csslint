@@ -13,6 +13,16 @@
             Assert.areEqual("\n\ncsslint: No errors in path/to/FILE.", actual);
         },
 
+        "File with one problem should use proper grammar": function() {
+            var result = { messages: [
+                     { type: 'warning', line: 1, col: 1, message: 'BOGUS', evidence: 'ALSO BOGUS', rule: [] }
+                ], stats: [] },
+                error1 = "\n1: warning at line 1, col 1\nBOGUS\nALSO BOGUS",
+                expected = "\n\ncsslint: There is 1 problem in path/to/FILE.\n\nFILE" + error1,
+                actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE"});
+            Assert.areEqual(expected, actual);
+        },
+
         "Should have no output when quiet option is specified and no errors": function() {
             var result = { messages: [], stats: [] },
                 actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE", quiet: "true"});

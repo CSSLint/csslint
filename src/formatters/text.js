@@ -36,7 +36,14 @@ CSSLint.addFormatter({
             return options.quiet ? "" : "\n\ncsslint: No errors in " + filename + ".";
         }
 
-        output = "\n\ncsslint: There are " + messages.length  +  " problems in " + filename + ".";
+        output = "\n\ncsslint: There ";
+        if (messages.length == 1) {
+            output += "is 1 problem";
+        } else {
+            output += "are " + messages.length  +  " problems";
+        }
+        output += " in " + filename + ".";
+
         var pos = filename.lastIndexOf("/"),
             shortFilename = filename;
 
