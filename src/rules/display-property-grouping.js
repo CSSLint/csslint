@@ -61,8 +61,10 @@ CSSLint.addRule({
                         reportProperty("width", display);
                         reportProperty("margin", display);
                         reportProperty("margin-top", display);
-                        reportProperty("margin-bottom", display);              
-                        reportProperty("float", display, "display:inline has no effect on floated elements (but may be used to fix the IE6 double-margin bug).");
+                        reportProperty("margin-bottom", display);
+                        if(properties.display.hack === null){
+                            reportProperty("float", display, "display:inline has no effect on floated elements.");
+                        }
                         break;
 
                     case "block":
@@ -99,10 +101,11 @@ CSSLint.addRule({
         parser.addListener("startpage", startRule);
 
         parser.addListener("property", function(event){
-            var name = event.property.text.toLowerCase();
+            var property = event.property,
+				name = event.property.text.toLowerCase();
 
             if (propertiesToCheck[name]){
-                properties[name] = { value: event.value.text, line: event.property.line, col: event.property.col };                    
+                properties[name] = { value: event.value.text, line: property.line, col: property.col, hack: property.hack };                    
             }
         });
 

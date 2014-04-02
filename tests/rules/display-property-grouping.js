@@ -24,7 +24,12 @@
             var result = CSSLint.verify(".foo { float: left; display: inline; }", { "display-property-grouping": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("display:inline has no effect on floated elements (but may be used to fix the IE6 double-margin bug).", result.messages[0].message);
+            Assert.areEqual("display:inline has no effect on floated elements.", result.messages[0].message);
+        },
+		
+        "Float with hacked inline should not result in a warning": function(){
+            var result = CSSLint.verify(".foo { float: left; _display: inline; }", { "display-property-grouping": 1 });
+            Assert.areEqual(0, result.messages.length);
         },
 
         "Float:none with inline-block should not result in a warning": function(){
