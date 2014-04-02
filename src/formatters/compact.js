@@ -49,11 +49,11 @@ CSSLint.addFormatter({
             if (message.rollup) {
                 output += filename + ": " + capitalize(message.type) + " - " + message.message + "\n";
             } else {
-                output += filename + ": " + "line " + message.line + 
+                output += filename + ": " + "line " + message.line +
                     ", col " + message.col + ", " + capitalize(message.type) + " - " + message.message + " (" + message.rule.id + ")\n";
             }
         });
-    
+
         return output;
     }
 });

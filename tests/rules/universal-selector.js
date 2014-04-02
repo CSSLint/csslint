@@ -4,7 +4,7 @@
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
-    
+
         name: "Universal Selector Errors",
 
         "Using a universal selector alone should result in a warning": function(){
@@ -25,7 +25,7 @@
             var result = CSSLint.verify("* .foo { font-size: 10px; } ", {"universal-selector": 1 });
             Assert.areEqual(0, result.messages.length);
         }
-        
+
     }));
 
 })();

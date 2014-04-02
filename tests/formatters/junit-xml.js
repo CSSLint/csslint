@@ -29,7 +29,7 @@
                 actual = CSSLint.format(result, "FILE", "junit-xml");
 
             Assert.areEqual(expected, actual);
-        
+
         },
 
         "Formatter should escape special characters": function() {

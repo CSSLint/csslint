@@ -32,13 +32,13 @@
             var result = CSSLint.verify("h1 { left: 0; }", { "zero-units": 1 });
             Assert.areEqual(0, result.messages.length);
         },
-        
+
         "Using 0s for animation-duration should not result in a warning": function(){
             var result = CSSLint.verify("h1 { animation-duration: 0s; }", { "zero-units": 1 });
             Assert.areEqual(0, result.messages.length);
         }
-        
-        
+
+
     }));
 
 })();

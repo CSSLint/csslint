@@ -39,7 +39,7 @@
 
         "Defining multiple rules that contain h1 should not result in a warning": function(){
             var result = CSSLint.verify("h2 a, h2 a:active, h2 a:hover, h2 a:visited, h2 a:link { color: red;}", { "unique-headings": 1 });
-            Assert.areEqual(0, result.messages.length);        
+            Assert.areEqual(0, result.messages.length);
         }
 
     }));

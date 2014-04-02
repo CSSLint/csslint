@@ -217,25 +217,25 @@ module.exports = function(grunt) {
     });
 
     // These plugins provide necessary tasks.
+    grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-include-replace');
 
     // Default task.
     grunt.registerTask('default', ['test']);
-    
-    //Alias for 
+
+    //Alias for
     grunt.registerTask('lint', ['jshint']);
-    
+
     //Testing
     grunt.registerTask('test', ['clean:build', 'jshint', 'concat', 'yuitest']);
     grunt.registerTask('rhino', ['clean:build', 'jshint', 'concat', 'test_rhino']);
 
     grunt.registerTask('release', ['test', 'clean:release', 'copy:release', 'includereplace:release', 'changelog']);
-    
+
     //Run the YUITest suite
     grunt.registerMultiTask('yuitest', 'Run the YUITests for the project', function() {
         /*jshint evil:true, node: true */
@@ -249,12 +249,12 @@ module.exports = function(grunt) {
         var errors = [],
             failures = [],
             stack = [];
-        
+
         //Eval each file so the tests are brought into this scope where CSSLint and YUITest are loaded already
         files.forEach(function(filepath) {
             eval(grunt.file.read(filepath));
         });
-        
+
         // From YUITest Node CLI
         function filterStackTrace(stackTrace){
             if (stackTrace){
@@ -276,7 +276,7 @@ module.exports = function(grunt) {
                 return "Unavailable.";
             }
         }
-        
+
         // From YUITest Node CLI with minor colourization changes
         function handleEvent(event){
 
@@ -387,8 +387,8 @@ module.exports = function(grunt) {
         var done = this.async();
         var lastTag;
         var files = this.filesSrc;
-        
-        
+
+
         grunt.util.spawn({
             cmd: 'git',
             args: ['tag']
@@ -399,26 +399,26 @@ module.exports = function(grunt) {
                 major = parseInt(semver[0], 10),
                 minor = parseInt(semver[1], 10),
                 patch = parseInt(semver[2], 10);
-            
-            //A simple array sort can't be used because of the comparison of 
+
+            //A simple array sort can't be used because of the comparison of
             //the strings '0.9.9' > '0.9.10'
             for (var i = 1, len = tags.length; i < len; i++) {
                 semver = tags[i].replace('v','').split('.');
-                
+
                 var currentMajor = parseInt(semver[0], 10);
                 if (currentMajor < major) {
                     continue;
                 } else if (currentMajor > major) {
                     major = currentMajor;
                 }
-                
+
                 var currentMinor = parseInt(semver[1], 10);
                 if (currentMinor < minor) {
                     continue;
                 } else if (currentMinor > minor) {
                     minor = currentMinor;
                 }
-                
+
                 var currentPatch = parseInt(semver[2], 10);
                 if (currentPatch < patch) {
                     continue;
@@ -428,9 +428,9 @@ module.exports = function(grunt) {
             }
 
             lastTag = 'v' + major + '.' + minor + '.' + patch;
-            
+
             grunt.verbose.write('Last tag: ' + lastTag).writeln();
-            
+
             //
             grunt.util.spawn({
                 cmd: 'git',
@@ -445,9 +445,9 @@ module.exports = function(grunt) {
                     grunt.file.read(files[0]);
 
                 grunt.file.write(files[0], grunt.template.process(template));
-                
+
                 done();
-            });         
+            });
         });
 
     });
@@ -457,13 +457,13 @@ module.exports = function(grunt) {
         var done = this.async();
         var files = this.filesSrc;
         var progress = files.length;
-        
+
         files.forEach(function(filepath) {
             grunt.util.spawn({
                 cmd: 'java',
                 args: ['-jar', 'lib/js.jar', 'lib/yuitest-rhino-cli.js', 'build/csslint.js', filepath],
                 opts: {stdio: 'inherit'}
-            }, function(error, result, code) {              
+            }, function(error, result, code) {
                 progress--;
                 if (progress === 0) {
                     done();

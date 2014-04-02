@@ -19,7 +19,7 @@
         },
 
         "File with problems should list them": function() {
-            var result = { messages: [ 
+            var result = { messages: [
                      { type: 'error', line: 2, col: 1, message: 'BOGUS ERROR', evidence: 'BOGUS', rule: { id: 'BOGUS_RULE_ID' } },
                      { type: 'warning', line: 1, col: 1, message: 'BOGUS WARNING', evidence: 'BOGUS', rule: { id: 'BOGUS_RULE_ID' } }
                 ], stats: [] },
@@ -31,7 +31,7 @@
         },
 
         "Should output relative file paths": function() {
-            var result = { messages: [ 
+            var result = { messages: [
                     { type: 'error', line: 2, col: 1, message: 'BOGUS ERROR', evidence: 'BOGUS', rule: { id: 'BOGUS_RULE_ID' } },
                     { type: 'warning', line: 1, col: 1, message: 'BOGUS WARNING', evidence: 'BOGUS', rule: { id: 'BOGUS_RULE_ID' } }
                 ], stats: [] },

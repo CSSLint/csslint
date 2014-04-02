@@ -39,7 +39,7 @@ CSSLint.addFormatter({
          *  - &amp; is the escape sequence for &
          *  - &lt; is the escape sequence for <
          *  - &gt; is the escape sequence for >
-         * 
+         *
          * @param {String} message to escape
          * @return escaped message as {String}
          */

@@ -31,7 +31,7 @@ function Reporter(lines, ruleset){
      * @type String[]
      */
     this.lines = lines;
-    
+
     /**
      * Information about the rules. Used to determine whether an issue is an
      * error or warning.
