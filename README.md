@@ -1,16 +1,24 @@
 [![build status](https://secure.travis-ci.org/stubbornella/csslint.png)](http://travis-ci.org/stubbornella/csslint)
+[![Dependency Status](https://david-dm.org/stubbornella/csslint.png?theme=shields.io)](https://david-dm.org/stubbornella/csslint)
+[![devDependency Status](https://david-dm.org/stubbornella/csslint/dev-status.png?theme=shields.io)](https://david-dm.org/stubbornella/csslint#info=devDependencies)
+
 # CSSLint
 
-CSSLint is a tool to help point out problems with your CSS code. It does basic syntax checking as well as applying a set of rules to the code that look for problematic patterns or signs of inefficiency. The rules are all pluggable, so you can easily write your own or omit ones you don't want. You can find information about both using CSS Lint and contributing to the project in the wiki: https://github.com/stubbornella/csslint/wiki 
+CSSLint is a tool to help point out problems with your CSS code.
+It does basic syntax checking as well as applying a set of rules
+to the code that look for problematic patterns or signs of inefficiency.
+The rules are all pluggable, so you can easily write your own or omit ones
+you don't want. You can find information about both using CSS Lint and
+contributing to the project in the wiki: https://github.com/stubbornella/csslint/wiki
 
-# Contributors
+## Contributors
 
-## Creators
+### Creators
 
 1. Nicole Sullivan, http://www.stubbornella.org
 1. Nicholas C. Zakas, http://www.nczonline.net
 
-## Contributors
+### Contributors
 
 1. Samori Gorse, https://twitter.com/shinuza (Rules, Non-zero Exit Code for CLI)
 1. Eitan Konigsburg, https://twitter.com/eitanmk (Rhino CLI)
