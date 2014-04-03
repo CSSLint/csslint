@@ -1,4 +1,3 @@
-/*global CSSLint*/
 (function() {
 
     /**

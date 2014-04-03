@@ -2,7 +2,7 @@
  * Encapsulates all of the CLI functionality. The api argument simply
  * provides environment-specific functionality.
  */
-/*global CSSLint*/
+
 function cli(api){
 
     var globalOptions = {

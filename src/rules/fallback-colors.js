@@ -1,5 +1,3 @@
-
-/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information

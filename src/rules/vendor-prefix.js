@@ -2,7 +2,7 @@
  * Rule: When using a vendor-prefixed property, make sure to
  * include the standard one.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information

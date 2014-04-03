@@ -2,7 +2,7 @@
  * Rule: Don't use text-indent for image replacement if you need to support rtl.
  *
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information

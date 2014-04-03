@@ -2,7 +2,7 @@
  * Rule: Don't use properties with a star prefix.
  *
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information

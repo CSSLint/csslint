@@ -1,8 +1,7 @@
-/*global CSSLint*/
-
 /*
  * Rule: box-sizing doesn't work in IE6 and IE7.
  */
+
 CSSLint.addRule({
 
     //rule information

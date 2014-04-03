@@ -1,7 +1,7 @@
 /*
  * Rule: Disallow duplicate background-images (using url).
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information

@@ -1,7 +1,7 @@
-/*global CSSLint*/
 /*
  * Rule: Don't use adjoining classes (.foo.bar).
  */
+
 CSSLint.addRule({
 
     //rule information
