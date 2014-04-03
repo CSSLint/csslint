@@ -1,5 +1,7 @@
 /* jshint camelcase:false, evil:true, node:true */
 
+"use strict";
+
 module.exports = function(grunt) {
 
     // Project configuration.

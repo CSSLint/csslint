@@ -11,6 +11,7 @@ CSSLint.addRule({
 
     //initialization
     init: function(parser, reporter){
+        "use strict";
         var rule = this,
             widthProperties = {
                 border: 1,

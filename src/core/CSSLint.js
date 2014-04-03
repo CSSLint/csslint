@@ -9,6 +9,7 @@
 /* exported CSSLint */
 
 var CSSLint = (function(){
+    "use strict";
 
     var rules           = [],
         formatters      = [],

@@ -1,5 +1,5 @@
 (function () {
-
+    "use strict";
     var ruleId = "selector-newline", expectWarning, expectPass;
 
     expectWarning = function (ruleset, expectedMessage) {

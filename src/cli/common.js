@@ -6,6 +6,7 @@
 /* exported cli */
 
 function cli(api){
+    "use strict";
 
     var globalOptions = {
         "help"        : { "format" : "",                       "description" : "Displays this information."},

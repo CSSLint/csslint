@@ -14,14 +14,17 @@ cli({
     args: process.argv.slice(2),
 
     print: function(message){
+        "use strict";
         fs.writeSync(1, message + "\n");
     },
 
     quit: function(code){
+        "use strict";
         process.exit(code || 0);
     },
 
     isDirectory: function(name){
+        "use strict";
         try {
             return fs.statSync(name).isDirectory();
         } catch (ex) {
@@ -30,6 +33,7 @@ cli({
     },
 
     getFiles: function(dir){
+        "use strict";
         var files = [];
 
         try {
@@ -61,14 +65,17 @@ cli({
     },
 
     getWorkingDirectory: function() {
+        "use strict";
         return process.cwd();
     },
 
     getFullPath: function(filename){
+        "use strict";
         return path.resolve(process.cwd(), filename);
     },
 
     readFile: function(filename){
+        "use strict";
         try {
             return fs.readFileSync(filename, "utf-8");
         } catch (ex) {

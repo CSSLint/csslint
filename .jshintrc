@@ -11,8 +11,9 @@
     "noempty": true,
     "nonbsp": true,
     "quotmark": "double",
-    "unused": true,
+    "strict": true,
     "undef": true,
+    "unused": true,
     "globals": {
         "CSSLint": true,
         "YUITest": true
