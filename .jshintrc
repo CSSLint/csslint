@@ -1,18 +1,16 @@
 {
     "curly": true,
+    "eqnull": true,
+    "forin": true,
     "immed": true,
     "latedef": true,
     "newcap": true,
     "noarg": true,
-    "sub": true,
-    "undef": true,
-    "boss": true,
-    "eqnull": true,
-    "forin": true,
     "noempty": true,
-    "rhino": false,
-    "jquery": true,
+    "nonbsp": true,
+    "undef": true,
     "globals": {
-        "CSSLint": true
+        "CSSLint": true,
+        "YUITest": true
     }
 }
