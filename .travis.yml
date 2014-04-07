@@ -1,9 +1,15 @@
+sudo: false
+
 language: node_js
+
 node_js:
-  - "0.8"
   - "0.10"
-  - "0.11"
-before_install:
-  - '[ "${TRAVIS_NODE_VERSION}" != "0.8" ] || npm install -g npm@1.4.28'
-  - npm install -g npm@latest
+  - "4"
+  - "5"
+
+install:
   - npm install -g grunt-cli
+  - npm install
+
+matrix:
+  fast_finish: true

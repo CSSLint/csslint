@@ -215,13 +215,9 @@ module.exports = function(grunt) {
         }
     });
 
-    // These plugins provide necessary tasks.
-    grunt.loadNpmTasks("grunt-contrib-clean");
-    grunt.loadNpmTasks("grunt-contrib-concat");
-    grunt.loadNpmTasks("grunt-contrib-copy");
-    grunt.loadNpmTasks("grunt-contrib-jshint");
-    grunt.loadNpmTasks("grunt-contrib-watch");
-    grunt.loadNpmTasks("grunt-include-replace");
+    // Load any grunt plugins found in package.json.
+    require("load-grunt-tasks")(grunt, {scope: "devDependencies"});
+    require("time-grunt")(grunt);
 
     // Load custom tasks
     grunt.loadTasks("tasks");
