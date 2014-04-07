@@ -56,7 +56,7 @@ CSSLint.addRule({
 
             if (lastRule){
                 lastRule.propCount++;
-                if (name === "outline" && (value === "none" || value === "0")){
+                if (name === "outline" && (value.toString() === "none" || value.toString() === "0")){
                     lastRule.outline = true;
                 }
             }

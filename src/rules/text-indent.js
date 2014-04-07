@@ -41,7 +41,7 @@ CSSLint.addRule({
 
             if (name === "text-indent" && value.parts[0].value < -99){
                 textIndent = event.property;
-            } else if (name === "direction" && value === "ltr"){
+            } else if (name === "direction" && value.toString() === "ltr"){
                 direction = "ltr";
             }
         });
