@@ -366,7 +366,7 @@ module.exports = function(grunt) {
         TestRunner.run();
     });
 
-    grunt.registerMultiTask("changelog", "Write the changlog file", function() {
+    grunt.registerMultiTask("changelog", "Write the changelog file", function() {
         var done = this.async();
         var lastTag;
         var files = this.filesSrc;
