@@ -1,4 +1,4 @@
-/* jshint evil:true, node:true */
+/* jshint camelcase:false, evil:true, node:true */
 
 module.exports = function(grunt) {
 

@@ -1,4 +1,5 @@
 {
+    "camelcase": true,
     "curly": true,
     "eqnull": true,
     "forin": true,
