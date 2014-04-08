@@ -1,6 +1,6 @@
-[![build status](https://secure.travis-ci.org/stubbornella/csslint.png)](http://travis-ci.org/stubbornella/csslint)
-[![Dependency Status](https://david-dm.org/stubbornella/csslint.png?theme=shields.io)](https://david-dm.org/stubbornella/csslint)
-[![devDependency Status](https://david-dm.org/stubbornella/csslint/dev-status.png?theme=shields.io)](https://david-dm.org/stubbornella/csslint#info=devDependencies)
+[![build status](https://secure.travis-ci.org/CSSLint/csslint.png)](http://travis-ci.org/CSSLint/csslint)
+[![Dependency Status](https://david-dm.org/CSSLint/csslint.png?theme=shields.io)](https://david-dm.org/CSSLint/csslint)
+[![devDependency Status](https://david-dm.org/CSSLint/csslint/dev-status.png?theme=shields.io)](https://david-dm.org/CSSLint/csslint#info=devDependencies)
 
 # CSSLint
 
@@ -9,7 +9,7 @@ It does basic syntax checking as well as applying a set of rules
 to the code that look for problematic patterns or signs of inefficiency.
 The rules are all pluggable, so you can easily write your own or omit ones
 you don't want. You can find information about both using CSS Lint and
-contributing to the project in the wiki: https://github.com/stubbornella/csslint/wiki
+contributing to the project in the wiki: https://github.com/CSSLint/csslint/wiki
 
 ## Contributors
 
