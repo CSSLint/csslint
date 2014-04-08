@@ -38,7 +38,7 @@ module.exports = function(grunt) {
                 "*/\n" +
                 "/* Build: v<%= pkg.version %> <%= grunt.template.today('dd-mmmm-yyyy hh:MM:ss') %> */"
         },
-        build_dir: "build",
+        build_dir: "dist",
         //Parser lib copy for versions that can't use requirejs
         parserlib: "node_modules/parserlib/lib/node-parserlib.js",
         //clone copy for versions that can't use requirejs
@@ -58,8 +58,7 @@ module.exports = function(grunt) {
         ],
         // Task configuration.
         clean: {
-            build: ["<%= build_dir %>"],
-            release: ["release"]
+            dist: "<%= build_dir %>"
         },
         changelog: {
             dest: "CHANGELOG"
@@ -94,8 +93,7 @@ module.exports = function(grunt) {
                     footer: "\nexports.CSSLint = CSSLint;"
                 },
                 files: {
-                    "<%= build_dir %>/<%= pkg.name %>-node.js": ["<%= csslint_files %>"],
-                    "<%= build_dir %>/npm/lib/<%= pkg.name %>-node.js": ["<%= csslint_files %>"]
+                    "<%= build_dir %>/<%= pkg.name %>-node.js": ["<%= csslint_files %>"]
                 }
             },
             node_cli: {
@@ -106,7 +104,7 @@ module.exports = function(grunt) {
                     "src/cli/common.js",
                     "src/cli/node.js"
                 ],
-                dest: "<%= build_dir %>/npm/cli.js"
+                dest: "<%= build_dir %>/cli.js"
             },
             tests: {
                 src: [
@@ -136,21 +134,8 @@ module.exports = function(grunt) {
                 dest: "<%= build_dir %>/<%= pkg.name %>-wsh.js"
             }
         },
-        copy: {
-            build: {
-              expand: true,
-              cwd: "<%= build_dir %>/",
-              src: "**/*",
-              dest: "release/"
-            },
-            npm: {
-              expand: true,
-              src: ["README.md", "package.json"],
-              dest: "release/npm/"
-            }
-        },
         includereplace: {
-            release: {
+            dist: {
                 options: {
                     // Global variables available in all files
                     globals: {
@@ -163,7 +148,7 @@ module.exports = function(grunt) {
                     expand: true,
                     cwd: "<%= build_dir %>/",
                     src: "**/*",
-                    dest: "release/"
+                    dest: "<%= build_dir %>/"
                 }]
             }
         },
@@ -223,14 +208,16 @@ module.exports = function(grunt) {
     grunt.loadTasks("tasks");
 
     // Default task.
-    grunt.registerTask("default", ["test"]);
+    grunt.registerTask("default", ["build", "test"]);
 
-    // Alias for
+    grunt.registerTask("build", ["clean", "concat", "includereplace"]);
+
+    //Alias for
     grunt.registerTask("lint", ["jshint"]);
 
     // Testing
-    grunt.registerTask("test", ["clean:build", "jshint", "concat", "yuitest"]);
-    grunt.registerTask("rhino", ["clean:build", "jshint", "concat", "test_rhino"]);
+    grunt.registerTask("test", ["build", "jshint", "yuitest"]);
+    grunt.registerTask("rhino", ["build", "jshint", "test_rhino"]);
 
-    grunt.registerTask("release", ["test", "clean:release", "copy", "includereplace:release", "changelog"]);
+    grunt.registerTask("release", ["default", "changelog"]);
 };

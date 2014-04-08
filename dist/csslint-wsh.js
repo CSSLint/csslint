@@ -1,9 +1,9 @@
 /*!
 CSSLint
-Copyright (c) 2013 Nicole Sullivan and Nicholas C. Zakas. All rights reserved.
+Copyright (c) 2014 Nicole Sullivan and Nicholas C. Zakas. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
+of this software and associated documentation files (the 'Software'), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
@@ -12,7 +12,7 @@ furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in
 all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build: v0.10.0 15-August-2013 01:07:22 */
+/* Build: v0.10.0 11-April-2014 12:11:52 */
 var exports = exports || {};
 var CSSLint = (function(){
 /*!
@@ -47,7 +47,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Version v0.2.3, Build time: 19-June-2013 11:16:15 */
+/* Version v0.2.4, Build time: 7-January-2014 07:32:49 */
 var parserlib = {};
 (function(){
 
@@ -957,7 +957,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Version v0.2.3, Build time: 19-June-2013 11:16:15 */
+/* Version v0.2.4, Build time: 7-January-2014 07:32:49 */
 (function(){
 var EventTarget = parserlib.util.EventTarget,
 TokenStreamBase = parserlib.util.TokenStreamBase,
@@ -992,6 +992,7 @@ var Colors = {
     darkcyan        :"#008b8b",
     darkgoldenrod   :"#b8860b",
     darkgray        :"#a9a9a9",
+    darkgrey        :"#a9a9a9",
     darkgreen       :"#006400",
     darkkhaki       :"#bdb76b",
     darkmagenta     :"#8b008b",
@@ -1003,11 +1004,13 @@ var Colors = {
     darkseagreen    :"#8fbc8f",
     darkslateblue   :"#483d8b",
     darkslategray   :"#2f4f4f",
+    darkslategrey   :"#2f4f4f",
     darkturquoise   :"#00ced1",
     darkviolet      :"#9400d3",
     deeppink        :"#ff1493",
     deepskyblue     :"#00bfff",
     dimgray         :"#696969",
+    dimgrey         :"#696969",
     dodgerblue      :"#1e90ff",
     firebrick       :"#b22222",
     floralwhite     :"#fffaf0",
@@ -1018,6 +1021,7 @@ var Colors = {
     gold            :"#ffd700",
     goldenrod       :"#daa520",
     gray            :"#808080",
+    grey            :"#808080",
     green           :"#008000",
     greenyellow     :"#adff2f",
     honeydew        :"#f0fff0",
@@ -1035,12 +1039,14 @@ var Colors = {
     lightcyan       :"#e0ffff",
     lightgoldenrodyellow  :"#fafad2",
     lightgray       :"#d3d3d3",
+    lightgrey       :"#d3d3d3",
     lightgreen      :"#90ee90",
     lightpink       :"#ffb6c1",
     lightsalmon     :"#ffa07a",
     lightseagreen   :"#20b2aa",
     lightskyblue    :"#87cefa",
     lightslategray  :"#778899",
+    lightslategrey  :"#778899",
     lightsteelblue  :"#b0c4de",
     lightyellow     :"#ffffe0",
     lime            :"#00ff00",
@@ -1093,6 +1099,7 @@ var Colors = {
     skyblue         :"#87ceeb",
     slateblue       :"#6a5acd",
     slategray       :"#708090",
+    slategrey       :"#708090",
     snow            :"#fffafa",
     springgreen     :"#00ff7f",
     steelblue       :"#4682b4",
@@ -1118,6 +1125,7 @@ var Colors = {
     buttontext          :"Text on push buttons.",
     captiontext         :"Text in caption, size box, and scrollbar arrow box.",
     graytext            :"Grayed (disabled) text. This color is set to #000 if the current display driver does not support a solid gray color.",
+    greytext            :"Greyed (disabled) text. This color is set to #000 if the current display driver does not support a solid grey color.",
     highlight           :"Item(s) selected in a control.",
     highlighttext       :"Text of item(s) selected in a control.",
     inactiveborder      :"Inactive window border.",
@@ -2812,7 +2820,7 @@ Parser.prototype = function(){
 
                 var tokenStream = this._tokenStream,
                     values      = [],
-                    //valueParts    = [],
+					//valueParts	= [],
                     value       = null,
                     operator    = null;
 
@@ -2829,9 +2837,9 @@ Parser.prototype = function(){
                             values.push(operator);
                         } /*else {
                             //if there's not an operator, you have a full value
-                            values.push(new PropertyValue(valueParts, valueParts[0].line, valueParts[0].col));
-                            valueParts = [];
-                        }*/
+							values.push(new PropertyValue(valueParts, valueParts[0].line, valueParts[0].col));
+							valueParts = [];
+						}*/
 
                         value = this._term();
 
@@ -2843,7 +2851,7 @@ Parser.prototype = function(){
                     } while(true);
                 }
 
-                //cleanup
+				//cleanup
                 /*if (valueParts.length){
                     values.push(new PropertyValue(valueParts, valueParts[0].line, valueParts[0].col));
                 }*/
@@ -3534,6 +3542,12 @@ nth
 var Properties = {
 
     //A
+    "align-items"                   : "flex-start | flex-end | center | baseline | stretch",
+    "align-content"                 : "flex-start | flex-end | center | space-between | space-around | stretch",
+    "align-self"                    : "auto | flex-start | flex-end | center | baseline | stretch",
+    "-webkit-align-items"           : "flex-start | flex-end | center | baseline | stretch",
+    "-webkit-align-content"         : "flex-start | flex-end | center | space-between | space-around | stretch",
+    "-webkit-align-self"            : "auto | flex-start | flex-end | center | baseline | stretch",
     "alignment-adjust"              : "auto | baseline | before-edge | text-before-edge | middle | central | after-edge | text-after-edge | ideographic | alphabetic | hanging | mathematical | <percentage> | <length>",
     "alignment-baseline"            : "baseline | use-script | before-edge | text-before-edge | after-edge | text-after-edge | central | middle | ideographic | alphabetic | hanging | mathematical",
     "animation"                     : 1,
@@ -3729,15 +3743,24 @@ var Properties = {
     "border-top-width"              : "<border-width>",
     "border-width"                  : { multi: "<border-width>", max: 4 },
     "bottom"                        : "<margin-width> | inherit",
-    "box-align"                     : "start | end | center | baseline | stretch",        //http://www.w3.org/TR/2009/WD-css3-flexbox-20090723/
-    "box-decoration-break"          : "slice |clone",
-    "box-direction"                 : "normal | reverse | inherit",
-    "box-flex"                      : "<number>",
-    "box-flex-group"                : "<integer>",
-    "box-lines"                     : "single | multiple",
-    "box-ordinal-group"             : "<integer>",
-    "box-orient"                    : "horizontal | vertical | inline-axis | block-axis | inherit",
-    "box-pack"                      : "start | end | center | justify",
+    "-moz-box-align"                : "start | end | center | baseline | stretch",
+    "-moz-box-decoration-break"     : "slice |clone",
+    "-moz-box-direction"            : "normal | reverse | inherit",
+    "-moz-box-flex"                 : "<number>",
+    "-moz-box-flex-group"           : "<integer>",
+    "-moz-box-lines"                : "single | multiple",
+    "-moz-box-ordinal-group"        : "<integer>",
+    "-moz-box-orient"               : "horizontal | vertical | inline-axis | block-axis | inherit",
+    "-moz-box-pack"                 : "start | end | center | justify",
+    "-webkit-box-align"             : "start | end | center | baseline | stretch",
+    "-webkit-box-decoration-break"  : "slice |clone",
+    "-webkit-box-direction"         : "normal | reverse | inherit",
+    "-webkit-box-flex"              : "<number>",
+    "-webkit-box-flex-group"        : "<integer>",
+    "-webkit-box-lines"             : "single | multiple",
+    "-webkit-box-ordinal-group"     : "<integer>",
+    "-webkit-box-orient"            : "horizontal | vertical | inline-axis | block-axis | inherit",
+    "-webkit-box-pack"              : "start | end | center | justify",
     "box-shadow"                    : function (expression) {
         var result      = false,
             part;
@@ -3783,7 +3806,7 @@ var Properties = {
 
     //D
     "direction"                     : "ltr | rtl | inherit",
-    "display"                       : "inline | block | list-item | inline-block | table | inline-table | table-row-group | table-header-group | table-footer-group | table-row | table-column-group | table-column | table-cell | table-caption | box | inline-box | grid | inline-grid | none | inherit | -moz-box | -moz-inline-block | -moz-inline-box | -moz-inline-grid | -moz-inline-stack | -moz-inline-table | -moz-grid | -moz-grid-group | -moz-grid-line | -moz-groupbox | -moz-deck | -moz-popup | -moz-stack | -moz-marker | -webkit-box | -webkit-inline-box",
+    "display"                       : "inline | block | list-item | inline-block | table | inline-table | table-row-group | table-header-group | table-footer-group | table-row | table-column-group | table-column | table-cell | table-caption | grid | inline-grid | none | inherit | -moz-box | -moz-inline-block | -moz-inline-box | -moz-inline-grid | -moz-inline-stack | -moz-inline-table | -moz-grid | -moz-grid-group | -moz-grid-line | -moz-groupbox | -moz-deck | -moz-popup | -moz-stack | -moz-marker | -webkit-box | -webkit-inline-box | -ms-flexbox | -ms-inline-flexbox | flex | -webkit-flex | inline-flex | -webkit-inline-flex",
     "dominant-baseline"             : 1,
     "drop-initial-after-adjust"     : "central | middle | after-edge | text-after-edge | ideographic | alphabetic | mathematical | <percentage> | <length>",
     "drop-initial-after-align"      : "baseline | use-script | before-edge | text-before-edge | after-edge | text-after-edge | central | middle | ideographic | alphabetic | hanging | mathematical",
@@ -3800,6 +3823,26 @@ var Properties = {
     "filter"                        : 1,
     "fit"                           : "fill | hidden | meet | slice",
     "fit-position"                  : 1,
+    "flex"                          : "none | [ <flex-grow> <flex-shrink>? || <flex-basis>",
+    "flex-basis"                    : "<width>",
+    "flex-direction"                : "row | row-reverse | column | column-reverse",
+    "flex-flow"                     : "<flex-direction> || <flex-wrap>",
+    "flex-grow"                     : "<number>",
+    "flex-shrink"                   : "<number>",
+    "flex-wrap"                     : "nowrap | wrap | wrap-reverse",
+    "-webkit-flex"                  : "none | [ <flex-grow> <flex-shrink>? || <flex-basis>",
+    "-webkit-flex-basis"            : "<width>",
+    "-webkit-flex-direction"        : "row | row-reverse | column | column-reverse",
+    "-webkit-flex-flow"             : "<flex-direction> || <flex-wrap>",
+    "-webkit-flex-grow"             : "<number>",
+    "-webkit-flex-shrink"           : "<number>",
+    "-webkit-flex-wrap"             : "nowrap | wrap | wrap-reverse",
+    "-ms-flex"                      : "[[ <number> <number>? ] || [ <length> || <percentage> || auto ] ] | none",
+    "-ms-flex-align"                : "start | end | center | stretch | baseline",
+    "-ms-flex-direction"            : "row | column | row-reverse | column-reverse | inherit",
+    "-ms-flex-order"                : "<number>",
+    "-ms-flex-pack"                 : "start | end | center | justify",
+    "-ms-flex-wrap"                 : "nowrap | wrap | wrap-reverse",
     "float"                         : "left | right | none | inherit",
     "float-offset"                  : 1,
     "font"                          : 1,
@@ -3842,6 +3885,10 @@ var Properties = {
     "image-rendering"               : 1,
     "image-resolution"              : 1,
     "inline-box-align"              : "initial | last | <integer>",
+
+    //J
+    "justify-content"               : "flex-start | flex-end | center | space-between | space-around",
+    "-webkit-justify-content"       : "flex-start | flex-end | center | space-between | space-around",
 
     //L
     "left"                          : "<margin-width> | inherit",
@@ -3886,6 +3933,8 @@ var Properties = {
 
     //O
     "opacity"                       : "<number> | inherit",
+    "order"                         : "<integer>",
+    "-webkit-order"                 : "<integer>",
     "orphans"                       : "<integer> | inherit",
     "outline"                       : 1,
     "outline-color"                 : "<color> | invert | inherit",
@@ -3894,6 +3943,7 @@ var Properties = {
     "outline-width"                 : "<border-width> | inherit",
     "overflow"                      : "visible | hidden | scroll | auto | inherit",
     "overflow-style"                : 1,
+    "overflow-wrap"                 : "normal | break-word",
     "overflow-x"                    : 1,
     "overflow-y"                    : 1,
 
@@ -3971,6 +4021,8 @@ var Properties = {
     "text-transform"                : "capitalize | uppercase | lowercase | none | inherit",
     "text-wrap"                     : "normal | none | avoid",
     "top"                           : "<margin-width> | inherit",
+    "-ms-touch-action"              : "auto | none | pan-x | pan-y",
+    "touch-action"                  : "auto | none | pan-x | pan-y",
     "transform"                     : 1,
     "transform-origin"              : 1,
     "transform-style"               : 1,
@@ -3981,7 +4033,7 @@ var Properties = {
     "transition-timing-function"    : 1,
 
     //U
-    "unicode-bidi"                  : "normal | embed | bidi-override | inherit",
+    "unicode-bidi"                  : "normal | embed | isolate | bidi-override | isolate-override | plaintext | inherit",
     "user-modify"                   : "read-only | read-write | write-only | inherit",
     "user-select"                   : "none | text | toggle | element | elements | all | inherit",
 
@@ -4005,7 +4057,8 @@ var Properties = {
     "width"                         : "<length> | <percentage> | auto | inherit" ,
     "word-break"                    : "normal | keep-all | break-all",
     "word-spacing"                  : "<length> | normal | inherit",
-    "word-wrap"                     : 1,
+    "word-wrap"                     : "normal | break-word",
+    "writing-mode"                  : "horizontal-tb | vertical-rl | vertical-lr | lr-tb | rl-tb | tb-rl | bt-rl | tb-lr | bt-lr | lr-bt | rl-bt | lr | rl | tb | inherit",
 
     //Z
     "z-index"                       : "<integer> | auto | inherit",
@@ -4279,9 +4332,6 @@ function PropertyValuePart(text, line, col){
     } else if (/^([+\-]?[\d\.]+)%$/i.test(text)){  //percentage
         this.type = "percentage";
         this.value = +RegExp.$1;
-    } else if (/^([+\-]?[\d\.]+)%$/i.test(text)){  //percentage
-        this.type = "percentage";
-        this.value = +RegExp.$1;
     } else if (/^([+\-]?\d+)$/i.test(text)){  //integer
         this.type = "integer";
         this.value = +RegExp.$1;
@@ -4375,6 +4425,7 @@ PropertyValuePart.prototype.constructor = PropertyValuePart;
 PropertyValuePart.fromToken = function(token){
     return new PropertyValuePart(token.value, token.startLine, token.startCol);
 };
+
 var Pseudos = {
     ":first-letter": 1,
     ":first-line":   1,
@@ -4668,12 +4719,12 @@ function isIdentStart(c){
 }
 
 function mix(receiver, supplier){
-    for (var prop in supplier){
-        if (supplier.hasOwnProperty(prop)){
-            receiver[prop] = supplier[prop];
-        }
-    }
-    return receiver;
+	for (var prop in supplier){
+		if (supplier.hasOwnProperty(prop)){
+			receiver[prop] = supplier[prop];
+		}
+	}
+	return receiver;
 }
 
 //-----------------------------------------------------------------------------
@@ -4689,7 +4740,7 @@ function mix(receiver, supplier){
  * @namespace parserlib.css
  */
 function TokenStream(input){
-    TokenStreamBase.call(this, input, Tokens);
+	TokenStreamBase.call(this, input, Tokens);
 }
 
 TokenStream.prototype = mix(new TokenStreamBase(), {
@@ -5662,7 +5713,7 @@ var Tokens  = [
     { name: "FONT_FACE_SYM", text: "@font-face"},
     { name: "CHARSET_SYM", text: "@charset"},
     { name: "NAMESPACE_SYM", text: "@namespace"},
-    { name: "VIEWPORT_SYM", text: "@viewport"},
+    { name: "VIEWPORT_SYM", text: ["@viewport", "@-ms-viewport"]},
     { name: "UNKNOWN_SYM" },
     //{ name: "ATKEYWORD"},
 
@@ -6436,7 +6487,10 @@ exports[prop] = parserlib[prop];
  * @static
  * @extends parserlib.util.EventTarget
  */
-/*global parserlib, Reporter*/
+
+/* global parserlib, Reporter */
+/* exported CSSLint */
+
 var CSSLint = (function(){
 
     var rules           = [],
@@ -6602,8 +6656,7 @@ var CSSLint = (function(){
      */
     api.verify = function(text, ruleset){
 
-        var i       = 0,
-            len     = rules.length,
+        var i = 0,
             reporter,
             lines,
             report,
@@ -6611,7 +6664,7 @@ var CSSLint = (function(){
                                                 underscoreHack: true, strict: false });
 
         // normalize line endings
-        lines = text.replace(/\n\r?/g, "$split$").split('$split$');
+        lines = text.replace(/\n\r?/g, "$split$").split("$split$");
 
         if (!ruleset){
             ruleset = this.getRuleset();
@@ -6668,7 +6721,6 @@ var CSSLint = (function(){
 
 })();
 
-/*global CSSLint*/
 /**
  * An instance of Report is used to report results of the
  * verification back to the main API.
@@ -6830,8 +6882,6 @@ Reporter.prototype = {
 //expose for testing purposes
 CSSLint._Reporter = Reporter;
 
-/*global CSSLint*/
-
 /*
  * Utility functions that make life easier.
  */
@@ -6891,10 +6941,11 @@ CSSLint.Util = {
         }
     }
 };
-/*global CSSLint*/
+
 /*
  * Rule: Don't use adjoining classes (.foo.bar).
  */
+
 CSSLint.addRule({
 
     //rule information
@@ -6936,7 +6987,6 @@ CSSLint.addRule({
     }
 
 });
-/*global CSSLint*/
 
 /*
  * Rule: Don't use width or height when using padding or border.
@@ -7037,11 +7087,11 @@ CSSLint.addRule({
     }
 
 });
-/*global CSSLint*/
 
 /*
  * Rule: box-sizing doesn't work in IE6 and IE7.
  */
+
 CSSLint.addRule({
 
     //rule information
@@ -7065,11 +7115,12 @@ CSSLint.addRule({
     }
 
 });
+
 /*
  * Rule: Use the bulletproof @font-face syntax to avoid 404's in old IE
  * (http://www.fontspring.com/blog/the-new-bulletproof-font-face-syntax)
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -7081,14 +7132,13 @@ CSSLint.addRule({
     //initialization
     init: function(parser, reporter){
         var rule = this,
-            count = 0,
             fontFaceRule = false,
             firstSrc     = true,
             ruleFailed    = false,
             line, col;
 
         // Mark the start of a @font-face declaration so we only test properties inside it
-        parser.addListener("startfontface", function(event){
+        parser.addListener("startfontface", function(){
             fontFaceRule = true;
         });
 
@@ -7106,7 +7156,7 @@ CSSLint.addRule({
             col  = event.col;
 
             // This is the property that we care about, we can ignore the rest
-            if (propertyName === 'src') {
+            if (propertyName === "src") {
                 var regex = /^\s?url\(['"].+\.eot\?.*['"]\)\s*format\(['"]embedded-opentype['"]\).*$/i;
 
                 // We need to handle the advanced syntax with two src properties
@@ -7122,7 +7172,7 @@ CSSLint.addRule({
         });
 
         // Back to normal rules that we don't need to test
-        parser.addListener("endfontface", function(event){
+        parser.addListener("endfontface", function(){
             fontFaceRule = false;
 
             if (ruleFailed) {
@@ -7131,11 +7181,12 @@ CSSLint.addRule({
         });
     }
 });
+
 /*
  * Rule: Include all compatible vendor prefixes to reach a wider
  * range of users.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -7223,9 +7274,9 @@ CSSLint.addRule({
         for (prop in compatiblePrefixes) {
             if (compatiblePrefixes.hasOwnProperty(prop)) {
                 variations = [];
-                prefixed = compatiblePrefixes[prop].split(' ');
+                prefixed = compatiblePrefixes[prop].split(" ");
                 for (i = 0, len = prefixed.length; i < len; i++) {
-                    variations.push('-' + prefixed[i] + '-' + prop);
+                    variations.push("-" + prefixed[i] + "-" + prop);
                 }
                 compatiblePrefixes[prop] = variations;
                 arrayPush.apply(applyTo, variations);
@@ -7240,7 +7291,7 @@ CSSLint.addRule({
             inKeyFrame = event.prefix || true;
         });
 
-        parser.addListener("endkeyframes", function (event) {
+        parser.addListener("endkeyframes", function () {
             inKeyFrame = false;
         });
 
@@ -7256,7 +7307,7 @@ CSSLint.addRule({
             }
         });
 
-        parser.addListener("endrule", function (event) {
+        parser.addListener("endrule", function () {
             if (!properties.length) {
                 return;
             }
@@ -7317,6 +7368,7 @@ CSSLint.addRule({
         });
     }
 });
+
 /*
  * Rule: Certain properties don't play well with certain display values.
  * - float should not be used with inline-block
@@ -7324,7 +7376,7 @@ CSSLint.addRule({
  * - vertical-align should not be used with block
  * - margin, float should not be used with table-*
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -7434,10 +7486,11 @@ CSSLint.addRule({
     }
 
 });
+
 /*
  * Rule: Disallow duplicate background-images (using url).
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -7458,8 +7511,8 @@ CSSLint.addRule({
 
             if (name.match(/background/i)) {
                 for (i=0, len=value.parts.length; i < len; i++) {
-                    if (value.parts[i].type == 'uri') {
-                        if (typeof stack[value.parts[i].uri] === 'undefined') {
+                    if (value.parts[i].type == "uri") {
+                        if (typeof stack[value.parts[i].uri] === "undefined") {
                             stack[value.parts[i].uri] = event;
                         }
                         else {
@@ -7471,11 +7524,12 @@ CSSLint.addRule({
         });
     }
 });
+
 /*
  * Rule: Duplicate properties must appear one after the other. If an already-defined
  * property appears somewhere else in the rule, then it's likely an error.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -7490,7 +7544,7 @@ CSSLint.addRule({
             properties,
             lastProperty;
 
-        function startRule(event){
+        function startRule(){
             properties = {};
         }
 
@@ -7517,10 +7571,11 @@ CSSLint.addRule({
     }
 
 });
+
 /*
  * Rule: Style rules without any properties defined should be removed.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -7551,10 +7606,11 @@ CSSLint.addRule({
     }
 
 });
+
 /*
  * Rule: There should be no syntax errors. (Duh.)
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -7575,7 +7631,6 @@ CSSLint.addRule({
 
 });
 
-/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -7605,7 +7660,7 @@ CSSLint.addRule({
             },
             properties;
 
-        function startRule(event){
+        function startRule(){
             properties = {};
             lastProperty = null;
         }
@@ -7651,11 +7706,12 @@ CSSLint.addRule({
     }
 
 });
+
 /*
  * Rule: You shouldn't use more than 10 floats. If you do, there's probably
  * room for some abstraction.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -7687,10 +7743,11 @@ CSSLint.addRule({
     }
 
 });
+
 /*
  * Rule: Avoid too many @font-face declarations in the same stylesheet.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -7717,11 +7774,11 @@ CSSLint.addRule({
     }
 
 });
+
 /*
  * Rule: You shouldn't need more than 9 font-size declarations.
  */
 
-/*global CSSLint*/
 CSSLint.addRule({
 
     //rule information
@@ -7752,10 +7809,11 @@ CSSLint.addRule({
     }
 
 });
+
 /*
  * Rule: When using a vendor-prefixed gradient, make sure to use them all.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -7820,7 +7878,7 @@ CSSLint.addRule({
 /*
  * Rule: Don't use IDs for selectors.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -7867,10 +7925,11 @@ CSSLint.addRule({
     }
 
 });
+
 /*
  * Rule: Don't use @import, use <link> instead.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -7890,12 +7949,13 @@ CSSLint.addRule({
     }
 
 });
+
 /*
  * Rule: Make sure !important is not overused, this could lead to specificity
  * war. Display a warning on !important declarations, an error if it's
  * used more at least 10 times.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -7927,11 +7987,12 @@ CSSLint.addRule({
     }
 
 });
+
 /*
  * Rule: Properties should be known (listed in CSS3 specification) or
  * be a vendor-prefixed property.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -7945,7 +8006,6 @@ CSSLint.addRule({
         var rule = this;
 
         parser.addListener("property", function(event){
-            var name = event.property.text.toLowerCase();
 
             // the check is handled entirely by the parser-lib (https://github.com/nzakas/parser-lib)
             if (event.invalid) {
@@ -7956,11 +8016,58 @@ CSSLint.addRule({
     }
 
 });
+
+/*
+ * Rule: All properties should be in alphabetical order..
+ */
+/*global CSSLint*/
+CSSLint.addRule({
+
+    //rule information
+    id: "order-alphabetical",
+    name: "Alphabetical order",
+    desc: "Assure properties are in alphabetical order",
+    browsers: "All",
+
+    //initialization
+    init: function(parser, reporter){
+        var rule = this,
+            properties;
+
+        var startRule = function () {
+            properties = [];
+        };
+
+        parser.addListener("startrule", startRule);
+        parser.addListener("startfontface", startRule);
+        parser.addListener("startpage", startRule);
+        parser.addListener("startpagemargin", startRule);
+        parser.addListener("startkeyframerule", startRule);
+
+        parser.addListener("property", function(event){
+            var name = event.property.text,
+                lowerCasePrefixLessName = name.toLowerCase().replace(/^-.*?-/, "");
+
+            properties.push(lowerCasePrefixLessName);
+        });
+
+        parser.addListener("endrule", function(event){
+            var currentProperties = properties.join(","),
+                expectedProperties = properties.sort().join(",");
+
+            if (currentProperties !== expectedProperties){
+                reporter.report("Rule doesn't have all its properties in alphabetical ordered.", event.line, event.col, rule);
+            }
+        });
+    }
+
+});
+
 /*
  * Rule: outline: none or outline: 0 should only be used in a :focus rule
  *       and only if there are other properties in the same rule.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -7989,7 +8096,7 @@ CSSLint.addRule({
             }
         }
 
-        function endRule(event){
+        function endRule(){
             if (lastRule){
                 if (lastRule.outline){
                     if (lastRule.selectors.toString().toLowerCase().indexOf(":focus") == -1){
@@ -8029,10 +8136,11 @@ CSSLint.addRule({
     }
 
 });
+
 /*
  * Rule: Don't use classes or IDs with elements (a.foo or a#foo).
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -8092,10 +8200,11 @@ CSSLint.addRule({
     }
 
 });
+
 /*
  * Rule: Headings (h1-h6) should not be qualified (namespaced).
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -8130,10 +8239,11 @@ CSSLint.addRule({
     }
 
 });
+
 /*
  * Rule: Selectors that look like regular expressions are slow and should be avoided.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -8174,10 +8284,11 @@ CSSLint.addRule({
     }
 
 });
+
 /*
  * Rule: Total number of rules should not exceed x.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -8188,8 +8299,7 @@ CSSLint.addRule({
 
     //initialization
     init: function(parser, reporter){
-        var rule = this,
-            count = 0;
+        var count = 0;
 
         //count each rule
         parser.addListener("startrule", function(){
@@ -8202,10 +8312,11 @@ CSSLint.addRule({
     }
 
 });
+
 /*
  * Rule: Warn people with approaching the IE 4095 limit
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -8218,7 +8329,7 @@ CSSLint.addRule({
     init: function(parser, reporter) {
         var rule = this, count = 0;
 
-        parser.addListener('startrule', function(event) {
+        parser.addListener("startrule", function(event) {
             count += event.selectors.length;
         });
 
@@ -8234,7 +8345,7 @@ CSSLint.addRule({
 /*
  * Rule: Warn people past the IE 4095 limit
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -8247,7 +8358,7 @@ CSSLint.addRule({
     init: function(parser, reporter){
         var rule = this, count = 0;
 
-        parser.addListener('startrule',function(event) {
+        parser.addListener("startrule", function(event) {
             count += event.selectors.length;
         });
 
@@ -8259,11 +8370,47 @@ CSSLint.addRule({
     }
 
 });
+
+/*
+ * Rule: Avoid new-line characters in selectors.
+ */
+
+CSSLint.addRule({
+
+    //rule information
+    id: "selector-newline",
+    name: "Disallow new-line characters in selectors",
+    desc: "New-line characters in selectors are usually a forgotten comma and not a descendant combinator.",
+    browsers: "All",
+
+    //initialization
+    init: function(parser, reporter) {
+        var rule = this;
+
+        parser.addListener("startrule", function(event) {
+            var i, len, selector, p, pLen, part, previousLine, currentLine,
+                selectors = event.selectors;
+
+            for (i = 0, len = selectors.length; i < len; i++) {
+                selector = selectors[i];
+                for (p = 0, pLen = selector.parts.length; p < pLen; p++) {
+                    part = selector.parts[p];
+                    currentLine = part.line;
+                    if (currentLine === previousLine) {
+                        reporter.report("newline character found in selector (forgot a comma?)", currentLine, selectors[i].parts[0].col, rule);
+                    }
+                    previousLine = currentLine;
+                }
+            }
+        });
+    }
+});
+
 /*
  * Rule: Use shorthand properties where possible.
  *
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -8302,7 +8449,7 @@ CSSLint.addRule({
             }
         }
 
-        function startRule(event){
+        function startRule(){
             properties = {};
         }
 
@@ -8332,8 +8479,7 @@ CSSLint.addRule({
 
         //check for use of "font-size"
         parser.addListener("property", function(event){
-            var name = event.property.toString().toLowerCase(),
-                value = event.value.parts[0].value;
+            var name = event.property.toString().toLowerCase();
 
             if (propertiesToCheck[name]){
                 properties[name] = 1;
@@ -8346,11 +8492,12 @@ CSSLint.addRule({
     }
 
 });
+
 /*
  * Rule: Don't use properties with a star prefix.
  *
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -8373,11 +8520,12 @@ CSSLint.addRule({
         });
     }
 });
+
 /*
  * Rule: Don't use text-indent for image replacement if you need to support rtl.
  *
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -8393,13 +8541,13 @@ CSSLint.addRule({
             direction;
 
 
-        function startRule(event){
+        function startRule(){
             textIndent = false;
             direction = "inherit";
         }
 
         //event handler for end of rules
-        function endRule(event){
+        function endRule(){
             if (textIndent && direction != "ltr"){
                 reporter.report("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set direction for that item to ltr.", textIndent.line, textIndent.col, rule);
             }
@@ -8426,11 +8574,12 @@ CSSLint.addRule({
     }
 
 });
+
 /*
  * Rule: Don't use properties with a underscore prefix.
  *
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -8453,10 +8602,11 @@ CSSLint.addRule({
         });
     }
 });
+
 /*
  * Rule: Headings (h1-h6) should be defined only once.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -8469,7 +8619,7 @@ CSSLint.addRule({
     init: function(parser, reporter){
         var rule = this;
 
-        var headings =  {
+        var headings = {
                 h1: 0,
                 h2: 0,
                 h3: 0,
@@ -8508,7 +8658,7 @@ CSSLint.addRule({
             }
         });
 
-        parser.addListener("endstylesheet", function(event){
+        parser.addListener("endstylesheet", function(){
             var prop,
                 messages = [];
 
@@ -8527,10 +8677,11 @@ CSSLint.addRule({
     }
 
 });
+
 /*
  * Rule: Don't use universal selector because it's slow.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -8547,8 +8698,7 @@ CSSLint.addRule({
             var selectors = event.selectors,
                 selector,
                 part,
-                modifier,
-                i, j, k;
+                i;
 
             for (i=0; i < selectors.length; i++){
                 selector = selectors[i];
@@ -8562,10 +8712,11 @@ CSSLint.addRule({
     }
 
 });
+
 /*
  * Rule: Don't use unqualified attribute selectors because they're just like universal selectors.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -8584,7 +8735,7 @@ CSSLint.addRule({
                 selector,
                 part,
                 modifier,
-                i, j, k;
+                i, k;
 
             for (i=0; i < selectors.length; i++){
                 selector = selectors[i];
@@ -8604,11 +8755,12 @@ CSSLint.addRule({
     }
 
 });
+
 /*
  * Rule: When using a vendor-prefixed property, make sure to
  * include the standard one.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -8679,11 +8831,7 @@ CSSLint.addRule({
                 "-ms-transform-origin" : "transform-origin",
 
                 "-moz-box-sizing" : "box-sizing",
-                "-webkit-box-sizing" : "box-sizing",
-
-                "-moz-user-select" : "user-select",
-                "-khtml-user-select" : "user-select",
-                "-webkit-user-select" : "user-select"
+                "-webkit-box-sizing" : "box-sizing"
             };
 
         //event handler for beginning of rules
@@ -8693,10 +8841,10 @@ CSSLint.addRule({
         }
 
         //event handler for end of rules
-        function endRule(event){
+        function endRule(){
             var prop,
-                i, len,
-                standard,
+                i,
+                len,
                 needed,
                 actual,
                 needsStandard = [];
@@ -8747,10 +8895,11 @@ CSSLint.addRule({
     }
 
 });
+
 /*
  * Rule: You don't need to specify units when a value is 0.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
     //rule information
@@ -8781,7 +8930,7 @@ CSSLint.addRule({
     }
 
 });
-/*global CSSLint*/
+
 (function() {
 
     /**
@@ -8853,7 +9002,7 @@ CSSLint.addRule({
          * @param options {Object} (UNUSED for now) specifies special handling of output
          * @return {String} output for results
          */
-        formatResults: function(results, filename, options) {
+        formatResults: function(results, filename/*, options*/) {
             var messages = results.messages,
                 output = [];
 
@@ -8865,20 +9014,20 @@ CSSLint.addRule({
              * @return rule source as {String}
              */
             var generateSource = function(rule) {
-                if (!rule || !('name' in rule)) {
+                if (!rule || !("name" in rule)) {
                     return "";
                 }
-                return 'net.csslint.' + rule.name.replace(/\s/g,'');
+                return "net.csslint." + rule.name.replace(/\s/g,"");
             };
 
 
 
             if (messages.length > 0) {
                 output.push("<file name=\""+filename+"\">");
-                CSSLint.Util.forEach(messages, function (message, i) {
+                CSSLint.Util.forEach(messages, function (message) {
                     //ignore rollups for now
                     if (!message.rollup) {
-                      output.push("<error line=\"" + message.line + "\" column=\"" + message.col + "\" severity=\"" + message.type + "\"" +
+                        output.push("<error line=\"" + message.line + "\" column=\"" + message.col + "\" severity=\"" + message.type + "\"" +
                           " message=\"" + xmlEscape(message.message) + "\" source=\"" + generateSource(message.rule) +"\"/>");
                     }
                 });
@@ -8890,7 +9039,7 @@ CSSLint.addRule({
     });
 
 }());
-/*global CSSLint*/
+
 CSSLint.addFormatter({
     //format information
     id: "compact",
@@ -8937,19 +9086,19 @@ CSSLint.addFormatter({
             return options.quiet ? "" : filename + ": Lint Free!";
         }
 
-        CSSLint.Util.forEach(messages, function(message, i) {
+        CSSLint.Util.forEach(messages, function(message) {
             if (message.rollup) {
                 output += filename + ": " + capitalize(message.type) + " - " + message.message + "\n";
             } else {
                 output += filename + ": " + "line " + message.line +
-                    ", col " + message.col + ", " + capitalize(message.type) + " - " + message.message + "\n";
+                    ", col " + message.col + ", " + capitalize(message.type) + " - " + message.message + " (" + message.rule.id + ")\n";
             }
         });
 
         return output;
     }
 });
-/*global CSSLint*/
+
 CSSLint.addFormatter({
     //format information
     id: "csslint-xml",
@@ -8978,7 +9127,7 @@ CSSLint.addFormatter({
      * @param options {Object} (UNUSED for now) specifies special handling of output
      * @return {String} output for results
      */
-    formatResults: function(results, filename, options) {
+    formatResults: function(results, filename/*, options*/) {
         var messages = results.messages,
             output = [];
 
@@ -9003,7 +9152,7 @@ CSSLint.addFormatter({
 
         if (messages.length > 0) {
             output.push("<file name=\""+filename+"\">");
-            CSSLint.Util.forEach(messages, function (message, i) {
+            CSSLint.Util.forEach(messages, function (message) {
                 if (message.rollup) {
                     output.push("<issue severity=\"" + message.type + "\" reason=\"" + escapeSpecialCharacters(message.message) + "\" evidence=\"" + escapeSpecialCharacters(message.evidence) + "\"/>");
                 } else {
@@ -9017,7 +9166,7 @@ CSSLint.addFormatter({
         return output.join("");
     }
 });
-/*global CSSLint*/
+
 CSSLint.addFormatter({
     //format information
     id: "junit-xml",
@@ -9046,13 +9195,13 @@ CSSLint.addFormatter({
      * @param options {Object} (UNUSED for now) specifies special handling of output
      * @return {String} output for results
      */
-    formatResults: function(results, filename, options) {
+    formatResults: function(results, filename/*, options*/) {
 
         var messages = results.messages,
             output = [],
             tests = {
-                'error': 0,
-                'failure': 0
+                "error": 0,
+                "failure": 0
             };
 
         /**
@@ -9063,10 +9212,10 @@ CSSLint.addFormatter({
          * @return rule source as {String}
          */
         var generateSource = function(rule) {
-            if (!rule || !('name' in rule)) {
+            if (!rule || !("name" in rule)) {
                 return "";
             }
-            return 'net.csslint.' + rule.name.replace(/\s/g,'');
+            return "net.csslint." + rule.name.replace(/\s/g,"");
         };
 
         /**
@@ -9092,11 +9241,11 @@ CSSLint.addFormatter({
 
         if (messages.length > 0) {
 
-            messages.forEach(function (message, i) {
+            messages.forEach(function (message) {
 
                 // since junit has no warning class
                 // all issues as errors
-                var type = message.type === 'warning' ? 'error' : message.type;
+                var type = message.type === "warning" ? "error" : message.type;
 
                 //ignore rollups for now
                 if (!message.rollup) {
@@ -9104,7 +9253,7 @@ CSSLint.addFormatter({
                     // build the test case seperately, once joined
                     // we'll add it to a custom array filtered by type
                     output.push("<testcase time=\"0\" name=\"" + generateSource(message.rule) + "\">");
-                    output.push("<" + type + " message=\"" + escapeSpecialCharacters(message.message) + "\"><![CDATA[" + message.line + ':' + message.col + ':' + escapeSpecialCharacters(message.evidence)  + "]]></" + type + ">");
+                    output.push("<" + type + " message=\"" + escapeSpecialCharacters(message.message) + "\"><![CDATA[" + message.line + ":" + message.col + ":" + escapeSpecialCharacters(message.evidence)  + "]]></" + type + ">");
                     output.push("</testcase>");
 
                     tests[type] += 1;
@@ -9122,7 +9271,7 @@ CSSLint.addFormatter({
 
     }
 });
-/*global CSSLint*/
+
 CSSLint.addFormatter({
     //format information
     id: "lint-xml",
@@ -9151,7 +9300,7 @@ CSSLint.addFormatter({
      * @param options {Object} (UNUSED for now) specifies special handling of output
      * @return {String} output for results
      */
-    formatResults: function(results, filename, options) {
+    formatResults: function(results, filename/*, options*/) {
         var messages = results.messages,
             output = [];
 
@@ -9177,7 +9326,7 @@ CSSLint.addFormatter({
         if (messages.length > 0) {
 
             output.push("<file name=\""+filename+"\">");
-            CSSLint.Util.forEach(messages, function (message, i) {
+            CSSLint.Util.forEach(messages, function (message) {
                 if (message.rollup) {
                     output.push("<issue severity=\"" + message.type + "\" reason=\"" + escapeSpecialCharacters(message.message) + "\" evidence=\"" + escapeSpecialCharacters(message.evidence) + "\"/>");
                 } else {
@@ -9191,7 +9340,7 @@ CSSLint.addFormatter({
         return output.join("");
     }
 });
-/*global CSSLint*/
+
 CSSLint.addFormatter({
     //format information
     id: "text",
@@ -9229,7 +9378,14 @@ CSSLint.addFormatter({
             return options.quiet ? "" : "\n\ncsslint: No errors in " + filename + ".";
         }
 
-        output = "\n\ncsslint: There are " + messages.length  +  " problems in " + filename + ".";
+        output = "\n\ncsslint: There ";
+        if (messages.length == 1) {
+            output += "is 1 problem";
+        } else {
+            output += "are " + messages.length  +  " problems";
+        }
+        output += " in " + filename + ".";
+
         var pos = filename.lastIndexOf("/"),
             shortFilename = filename;
 
@@ -9255,13 +9411,16 @@ CSSLint.addFormatter({
         return output;
     }
 });
+
 return CSSLint;
 })();
 /*
  * Encapsulates all of the CLI functionality. The api argument simply
  * provides environment-specific functionality.
  */
-/*global CSSLint*/
+
+/* exported cli */
+
 function cli(api){
 
     var globalOptions = {
@@ -9430,8 +9589,8 @@ function cli(api){
      */
     function outputHelp(){
         var lenToPad = 40,
-            toPrint = '',
-            formatString = '';
+            toPrint = "",
+            formatString = "";
 
         api.print([
             "\nUsage: csslint-rhino.js [options]* [file|dir]*",
@@ -9444,14 +9603,14 @@ function cli(api){
                 // Print the option name and the format if present
                 toPrint += "  --" + optionName;
                 if (globalOptions[optionName].format !== "") {
-                    formatString = '=' + globalOptions[optionName].format;
+                    formatString = "=" + globalOptions[optionName].format;
                     toPrint += formatString;
                 } else {
-                    formatString = '';
+                    formatString = "";
                 }
 
                 // Pad out with the appropriate number of spaces
-                toPrint += new Array(lenToPad - (optionName.length + formatString.length)).join(' ');
+                toPrint += new Array(lenToPad - (optionName.length + formatString.length)).join(" ");
 
                 // Print the description
                 toPrint += globalOptions[optionName].description + "\n";
@@ -9541,9 +9700,9 @@ function cli(api){
     }
 
     function validateOptions(options) {
-        for (var option_key in options) {
-            if (!globalOptions.hasOwnProperty(option_key) && option_key !== 'files') {
-                api.print(option_key + ' is not a valid option. Exiting...');
+        for (var optionKey in options) {
+            if (!globalOptions.hasOwnProperty(optionKey) && optionKey !== "files") {
+                api.print(optionKey + " is not a valid option. Exiting...");
                 outputHelp();
                 api.quit(0);
             }
@@ -9551,8 +9710,20 @@ function cli(api){
     }
 
     function readConfigFile(options) {
-        var data = api.readFile(api.getFullPath(".csslintrc"));
+        var data = api.readFile(api.getFullPath(".csslintrc")),
+            json;
         if (data) {
+            if (data.charAt(0) === "{") {
+                try {
+                    json = JSON.parse(data);
+                    data = "";
+                    for (var optionName in json) {
+                        if (json.hasOwnProperty(optionName)) {
+                            data += "--" + optionName + "=" + json[optionName].join();
+                        }
+                    }
+                } catch(e) {}
+            }
             options = processArguments(data.split(/[\s\n\r]+/m), options);
         }
 
@@ -9597,55 +9768,144 @@ function cli(api){
 }
 
 /*
- * CSSLint Rhino Command Line Interface
+ * Windows Script Host Command Line Interface
  */
-/*jshint rhino:true*/
-/*global cli, File*/
 
-importPackage(java.io);
+//TODO: This file needs major cleanup!!!
 
-cli({
-    args: Array.prototype.concat.call(arguments),
-    print: print,
-    quit: quit,
+/* jshint wsh:true */
+/* global cli */
 
-    isDirectory: function(name){
-        var dir = new File(name);
-        return dir.isDirectory();
-    },
+var wshapi = (function(){
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    var shell = WScript.CreateObject("WScript.Shell");
+    var finalArgs = [], i, args = WScript.Arguments;
 
-    getFiles: function(dir){
-        var files = [];
+    if (typeof Array.prototype.forEach !== "function") {
+        Array.prototype.forEach = function(f,m) {
+            for (var i=0, L=this.length; i<L; ++i) {
+                f(this[i], i, m);
+            }
+        };
+    }
 
-        function traverse(dir) {
-            var dirList = dir.listFiles();
-            dirList.forEach(function (file) {
-                if (/\.css$/.test(file)) {
-                    files.push(file.toString());
-                } else if (file.isDirectory()) {
-                    traverse(file);
+    if (typeof Array.prototype.filter !== "function") {
+        Array.prototype.filter = function(fn /*, thisp*/) {
+            if (typeof fn != "function") {
+                throw new Error("not a function");
+            }
+            var res = [], val, thisp = finalArgs[1];
+            for (var i = 0, L = this.length; i < L; i++) {
+                if (i in this) {
+                    val = this[i]; // in case fun mutates this
+                    if (fn.call(thisp, val, i, this)){
+                        res.push(val);
+                    }
                 }
-            });
+            }
+
+            return res;
+        };
+    }
+
+    if (!Array.prototype.indexOf) {
+        Array.prototype.indexOf = function (searchElement /*, fromIndex */ ) {
+            "use strict";
+            if (this === void 0 || this === null) {
+                throw new Error("unknown instance");
+            }
+            var t = this;
+            var len = t.length >>> 0;
+            if (len === 0) {
+                return -1;
+            }
+            var n = 0;
+            if (finalArgs.length > 0) {
+                n = Number(finalArgs[1]);
+                if (n !== n) { // shortcut for verifying if it's NaN
+                    n = 0;
+                } else if (n !== 0 && n !== Infinity && n !== -Infinity) {
+                    n = (n > 0 || -1) * Math.floor(Math.abs(n));
+                }
+            }
+            if (n >= len) {
+                return -1;
+            }
+            var k = n >= 0 ? n : Math.max(len - Math.abs(n), 0);
+            for (; k < len; k++) {
+                if (k in t && t[k] === searchElement) {
+                    return k;
+                }
+            }
+            return -1;
+        };
+    }
+
+    function traverseDir(files, path) {
+        var filename, folder = fso.GetFolder(path),
+            subFlds, fc = new Enumerator(folder.files);
+
+        for (; !fc.atEnd(); fc.moveNext()) {
+            filename = fc.item();
+            if (/\.css$/.test(filename)) {
+                files.push(filename);
+            }
         }
 
-        traverse(new File(dir));
-
-        return files;
-    },
-
-    getWorkingDirectory: function() {
-        return (new File(".")).getCanonicalPath();
-    },
-
-    getFullPath: function(filename){
-        return (new File(filename)).getCanonicalPath();
-    },
-
-    readFile: function(filename) {
-        try {
-            return readFile(filename);
-        } catch (ex) {
-            return "";
+        subFlds = new Enumerator(folder.SubFolders);
+        for (; !subFlds.atEnd(); subFlds.moveNext()) {
+            traverseDir(files, subFlds.item());
         }
     }
-});
+
+    // turn the WScript.Arguments thing into a regular array
+    if (args.Length > 0) {
+        for (i = 0; i < args.Length; i++) {
+            finalArgs.push(args(i));
+        }
+    }
+
+    return {
+        args: finalArgs,
+        print: function(s) { WScript.Echo(s);},
+        quit: function (v) { WScript.Quit(v);},
+
+        isDirectory: function(name){
+            return fso.FolderExists(name);
+        },
+
+        getFiles: function(dir){
+            var files = [];
+            traverseDir(files, dir);
+            return files;
+        },
+
+        fixFilenames: function(files){
+            return files;
+        },
+
+        getWorkingDirectory: function() {
+            return shell.CurrentDirectory;
+        },
+
+        getFullPath: function(filename){
+            return fso.GetAbsolutePathName(filename);
+        },
+
+        readFile: function(path){
+            var forReading = 1;
+            var allText;
+            try {
+                var tf = fso.OpenTextFile(path, forReading);
+                allText = tf.ReadAll();
+                tf.Close();
+            } catch (ex) {
+                return "";
+            }
+            return allText;
+        }
+    };
+
+}());
+
+cli(wshapi);

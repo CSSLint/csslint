@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /*!
 CSSLint
-Copyright (c) 2013 Nicole Sullivan and Nicholas C. Zakas. All rights reserved.
+Copyright (c) 2014 Nicole Sullivan and Nicholas C. Zakas. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
+of this software and associated documentation files (the 'Software'), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
@@ -13,7 +13,7 @@ furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in
 all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -22,11 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build: v0.10.0 15-August-2013 01:07:22 *//*
+/* Build: v0.10.0 11-April-2014 12:11:52 *//*
  * Encapsulates all of the CLI functionality. The api argument simply
  * provides environment-specific functionality.
  */
-/*global CSSLint*/
+
+/* exported cli */
+
 function cli(api){
 
     var globalOptions = {
@@ -195,8 +197,8 @@ function cli(api){
      */
     function outputHelp(){
         var lenToPad = 40,
-            toPrint = '',
-            formatString = '';
+            toPrint = "",
+            formatString = "";
 
         api.print([
             "\nUsage: csslint-rhino.js [options]* [file|dir]*",
@@ -209,14 +211,14 @@ function cli(api){
                 // Print the option name and the format if present
                 toPrint += "  --" + optionName;
                 if (globalOptions[optionName].format !== "") {
-                    formatString = '=' + globalOptions[optionName].format;
+                    formatString = "=" + globalOptions[optionName].format;
                     toPrint += formatString;
                 } else {
-                    formatString = '';
+                    formatString = "";
                 }
 
                 // Pad out with the appropriate number of spaces
-                toPrint += new Array(lenToPad - (optionName.length + formatString.length)).join(' ');
+                toPrint += new Array(lenToPad - (optionName.length + formatString.length)).join(" ");
 
                 // Print the description
                 toPrint += globalOptions[optionName].description + "\n";
@@ -306,9 +308,9 @@ function cli(api){
     }
 
     function validateOptions(options) {
-        for (var option_key in options) {
-            if (!globalOptions.hasOwnProperty(option_key) && option_key !== 'files') {
-                api.print(option_key + ' is not a valid option. Exiting...');
+        for (var optionKey in options) {
+            if (!globalOptions.hasOwnProperty(optionKey) && optionKey !== "files") {
+                api.print(optionKey + " is not a valid option. Exiting...");
                 outputHelp();
                 api.quit(0);
             }
@@ -316,8 +318,20 @@ function cli(api){
     }
 
     function readConfigFile(options) {
-        var data = api.readFile(api.getFullPath(".csslintrc"));
+        var data = api.readFile(api.getFullPath(".csslintrc")),
+            json;
         if (data) {
+            if (data.charAt(0) === "{") {
+                try {
+                    json = JSON.parse(data);
+                    data = "";
+                    for (var optionName in json) {
+                        if (json.hasOwnProperty(optionName)) {
+                            data += "--" + optionName + "=" + json[optionName].join();
+                        }
+                    }
+                } catch(e) {}
+            }
             options = processArguments(data.split(/[\s\n\r]+/m), options);
         }
 
@@ -365,12 +379,13 @@ function cli(api){
  * CSSLint Node.js Command Line Interface
  */
 
-/*jshint node:true*/
-/*global cli*/
+/* jshint node:true */
+/* global cli */
+/* exported CSSLint */
 
 var fs      = require("fs"),
     path    = require("path"),
-    CSSLint = require("./lib/csslint-node").CSSLint;
+    CSSLint = require("./csslint-node").CSSLint;
 
 cli({
     args: process.argv.slice(2),

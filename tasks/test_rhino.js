@@ -10,7 +10,7 @@ module.exports = function( grunt ) {
         files.forEach(function(filepath) {
             grunt.util.spawn({
                 cmd: "java",
-                args: ["-jar", "lib/js.jar", "lib/yuitest-rhino-cli.js", "build/csslint.js", filepath],
+                args: ["-jar", "lib/js.jar", "lib/yuitest-rhino-cli.js", "dist/csslint.js", filepath],
                 opts: {stdio: "inherit"}
             }, function() {
                 progress--;

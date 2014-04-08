@@ -8,7 +8,7 @@
 
 var fs      = require("fs"),
     path    = require("path"),
-    CSSLint = require("./lib/csslint-node").CSSLint;
+    CSSLint = require("./csslint-node").CSSLint;
 
 cli({
     args: process.argv.slice(2),

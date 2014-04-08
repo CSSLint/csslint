@@ -4,7 +4,7 @@ module.exports = function( grunt ) {
     grunt.registerMultiTask("yuitest", "Run the YUITests for the project", function() {
 
         var YUITest = require("yuitest");
-        var CSSLint = require("../build/csslint-node").CSSLint;  // jshint ignore:line
+        var CSSLint = require("../dist/csslint-node").CSSLint;  // jshint ignore:line
         var files = this.filesSrc;
         var TestRunner = YUITest.TestRunner;
         var done = this.async();
