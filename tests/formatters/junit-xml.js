@@ -18,9 +18,9 @@
         "File with problems should list them": function(){
 
             var result = { messages: [
-                     { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: { name: "A Rule"} },
-                     { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: { name: "Some Other Rule"} }
-                ], stats: [] },
+                { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: { name: "A Rule"} },
+                { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: { name: "Some Other Rule"} }
+            ], stats: [] },
 
                 file = "<testsuite time=\"0\" tests=\"2\" skipped=\"0\" errors=\"2\" failures=\"0\" package=\"net.csslint\" name=\"FILE\">",
                 error1 = "<testcase time=\"0\" name=\"net.csslint.ARule\"><error message=\"BOGUS\"><![CDATA[1:1:ALSO BOGUS]]></error></testcase>",
@@ -36,9 +36,9 @@
 
             var specialCharsSting = 'sneaky, "sneaky", <sneaky>',
                 result = { messages: [
-                     { type: "warning", line: 1, col: 1, message: specialCharsSting, evidence: "ALSO BOGUS", rule: [] },
-                     { type: "error", line: 2, col: 1, message: specialCharsSting, evidence: "ALSO BOGUS", rule: [] }
-                ], stats: [] },
+                { type: "warning", line: 1, col: 1, message: specialCharsSting, evidence: "ALSO BOGUS", rule: [] },
+                { type: "error", line: 2, col: 1, message: specialCharsSting, evidence: "ALSO BOGUS", rule: [] }
+            ], stats: [] },
 
                 file = "<testsuite time=\"0\" tests=\"2\" skipped=\"0\" errors=\"2\" failures=\"0\" package=\"net.csslint\" name=\"FILE\">",
                 error1 = "<testcase time=\"0\" name=\"\"><error message=\"sneaky, 'sneaky', &lt;sneaky&gt;\"><![CDATA[1:1:ALSO BOGUS]]></error></testcase>",

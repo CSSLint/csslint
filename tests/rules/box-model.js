@@ -19,17 +19,17 @@
             Assert.areEqual(0, result.messages.length);
         },
 
-       "Using width:auto with padding should not result in a warning": function(){
+        "Using width:auto with padding should not result in a warning": function(){
             var result = CSSLint.verify(".foo { width: auto; padding: 10px; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
-       "Using width:available with padding should not result in a warning": function(){
+        "Using width:available with padding should not result in a warning": function(){
             var result = CSSLint.verify(".foo { width: available; padding: 10px; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
-       "Using height:auto with padding should not result in a warning": function(){
+        "Using height:auto with padding should not result in a warning": function(){
             var result = CSSLint.verify(".foo { height: auto; padding: 10px; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
         },
