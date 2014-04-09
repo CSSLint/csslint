@@ -221,7 +221,7 @@ module.exports = function(grunt) {
 
     //Run the YUITest suite
     grunt.registerMultiTask("yuitest", "Run the YUITests for the project", function() {
-        /*jshint evil:true, node: true */
+        /*jshint evil:true, node:true*/
 
         var start = Date.now();
         var YUITest = require("yuitest");
