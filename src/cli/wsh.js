@@ -5,11 +5,13 @@
 //TODO: This file needs major cleanup!!!
 
 var wshapi = (function(){
-    var fso = new ActiveXObject("Scripting.FileSystemObject");
-    var shell = WScript.CreateObject("WScript.Shell");
-    var finalArgs = [], i, args = WScript.Arguments;
+    var fso = new ActiveXObject("Scripting.FileSystemObject"),
+        shell = WScript.CreateObject("WScript.Shell"),
+        args = WScript.Arguments,
+        finalArgs = [], 
+        i = 0; 
 
-    if (typeof Array.prototype.forEach !== "function") {
+    if (!Array.prototype.forEach) {
         Array.prototype.forEach = function(f,m) {
             for (var i=0, L=this.length; i<L; ++i) {
                 f(this[i], i, m);
@@ -17,7 +19,7 @@ var wshapi = (function(){
         };
     }
 
-    if (typeof Array.prototype.filter !== "function") {
+    if (!Array.prototype.filter) {
         Array.prototype.filter = function(fn /*, thisp*/) {
             if (typeof fn != "function") {
                 throw new Error("not a function");
@@ -70,33 +72,39 @@ var wshapi = (function(){
     }
 
     function traverseDir(files, path) {
-        var filename, folder = fso.GetFolder(path),
-            subFlds, fc = new Enumerator(folder.files);
+        var filename,
+            folder = fso.GetFolder(path),
+            foldersList = new Enumerator(folder.SubFolders),
+            filesList = new Enumerator(folder.files);
 
-        for (; !fc.atEnd(); fc.moveNext()) {
-            filename = fc.item();
+        for (; !filesList.atEnd(); filesList.moveNext()) {
+            filename = filesList.item();
             if (/\.css$/.test(filename)) {
                 files.push(filename);
             }
         }
 
-        subFlds = new Enumerator(folder.SubFolders);
-        for (; !subFlds.atEnd(); subFlds.moveNext()) {
-            traverseDir(files, subFlds.item());
+        for (; !foldersList.atEnd(); foldersList.moveNext()) {
+            traverseDir(files, foldersList.item());
         }
     }
 
     // turn the WScript.Arguments thing into a regular array
     if (args.Length > 0) {
-        for (i = 0; i < args.Length; i++) {
+        for (; i < args.Length; i++) {
             finalArgs.push(args(i));
         }
     }
 
     return {
         args: finalArgs,
-        print: function(s) { WScript.Echo(s);},
-        quit: function (v) { WScript.Quit(v);},
+        print: function(s) { 
+            WScript.Echo(s);
+        },
+   
+        quit: function (v) { 
+            WScript.Quit(v);
+        },
 
         isDirectory: function(name){
             return fso.FolderExists(name);
@@ -121,14 +129,15 @@ var wshapi = (function(){
         },
 
         readFile: function(path){
-            var forReading = 1;
-            var allText;
+            var textFile,
+                allText = "";
             try {
-                var tf = fso.OpenTextFile(path, forReading);
-                allText = tf.ReadAll();
-                tf.Close();
+                textFile = fso.OpenTextFile(path, 1);
+                allText = textFile.ReadAll();
             } catch (ex) {
-                return "";
+                shell.LogEvent(1, ex.message);
+            } finally {
+                textFile.Close();
             }
             return allText;
         }
