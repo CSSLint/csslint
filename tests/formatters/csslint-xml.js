@@ -26,7 +26,7 @@
         },
 
         "Formatter should escape double quotes": function() {
-            var doubleQuotedEvidence = 'sneaky, "sneaky", <sneaky>, sneak & sneaky',
+            var doubleQuotedEvidence = "sneaky, \"sneaky\", <sneaky>, sneak & sneaky",
                 result = { messages: [
                 { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] },
                 { type: "error", line: 2, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] }

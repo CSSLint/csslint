@@ -34,7 +34,7 @@
 
         "Formatter should escape special characters": function() {
 
-            var specialCharsSting = 'sneaky, "sneaky", <sneaky>',
+            var specialCharsSting = "sneaky, 'sneaky', <sneaky>",
                 result = { messages: [
                 { type: "warning", line: 1, col: 1, message: specialCharsSting, evidence: "ALSO BOGUS", rule: [] },
                 { type: "error", line: 2, col: 1, message: specialCharsSting, evidence: "ALSO BOGUS", rule: [] }

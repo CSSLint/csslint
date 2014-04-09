@@ -33,8 +33,8 @@ CSSLint.addRule({
         });
 
         parser.addListener("endrule", function(event){
-            var currentProperties = properties.join(','),
-                expectedProperties = properties.sort().join(',');
+            var currentProperties = properties.join(","),
+                expectedProperties = properties.sort().join(",");
 
             if (currentProperties !== expectedProperties){
                 reporter.report("Rule doesn't have all its properties in alphabetical ordered.", event.line, event.col, rule);
