@@ -1,6 +1,6 @@
-[![build status](https://secure.travis-ci.org/CSSLint/csslint.png)](http://travis-ci.org/CSSLint/csslint)
-[![Dependency Status](https://david-dm.org/CSSLint/csslint.png?theme=shields.io)](https://david-dm.org/CSSLint/csslint)
-[![devDependency Status](https://david-dm.org/CSSLint/csslint/dev-status.png?theme=shields.io)](https://david-dm.org/CSSLint/csslint#info=devDependencies)
+[![build status](https://secure.travis-ci.org/CSSLint/csslint.svg)](http://travis-ci.org/CSSLint/csslint)
+[![Dependency Status](https://david-dm.org/CSSLint/csslint.svg?theme=shields.io)](https://david-dm.org/CSSLint/csslint)
+[![devDependency Status](https://david-dm.org/CSSLint/csslint/dev-status.svg?theme=shields.io)](https://david-dm.org/CSSLint/csslint#info=devDependencies)
 
 # CSSLint
 
