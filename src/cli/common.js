@@ -284,9 +284,9 @@ function cli(api){
     }
 
     function validateOptions(options) {
-        for (var option_key in options) {
-            if (!globalOptions.hasOwnProperty(option_key) && option_key !== "files") {
-                api.print(option_key + " is not a valid option. Exiting...");
+        for (var optionKey in options) {
+            if (!globalOptions.hasOwnProperty(optionKey) && optionKey !== "files") {
+                api.print(optionKey + " is not a valid option. Exiting...");
                 outputHelp();
                 api.quit(0);
             }
