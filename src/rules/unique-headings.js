@@ -53,7 +53,7 @@ CSSLint.addRule({
             }
         });
 
-        parser.addListener("endstylesheet", function(event){
+        parser.addListener("endstylesheet", function(){
             var prop,
                 messages = [];
 

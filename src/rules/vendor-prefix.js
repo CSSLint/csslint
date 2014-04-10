@@ -83,10 +83,10 @@ CSSLint.addRule({
         }
 
         //event handler for end of rules
-        function endRule(event){
+        function endRule(){
             var prop,
-                i, len,
-                standard,
+                i,
+                len,
                 needed,
                 actual,
                 needsStandard = [];

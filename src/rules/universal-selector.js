@@ -18,8 +18,7 @@ CSSLint.addRule({
             var selectors = event.selectors,
                 selector,
                 part,
-                modifier,
-                i, j, k;
+                i;
 
             for (i=0; i < selectors.length; i++){
                 selector = selectors[i];

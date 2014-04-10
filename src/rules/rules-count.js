@@ -12,8 +12,7 @@ CSSLint.addRule({
 
     //initialization
     init: function(parser, reporter){
-        var rule = this,
-            count = 0;
+        var count = 0;
 
         //count each rule
         parser.addListener("startrule", function(){

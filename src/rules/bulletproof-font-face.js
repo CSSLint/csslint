@@ -14,14 +14,13 @@ CSSLint.addRule({
     //initialization
     init: function(parser, reporter){
         var rule = this,
-            count = 0,
             fontFaceRule = false,
             firstSrc     = true,
             ruleFailed    = false,
             line, col;
 
         // Mark the start of a @font-face declaration so we only test properties inside it
-        parser.addListener("startfontface", function(event){
+        parser.addListener("startfontface", function(){
             fontFaceRule = true;
         });
 
@@ -55,7 +54,7 @@ CSSLint.addRule({
         });
 
         // Back to normal rules that we don't need to test
-        parser.addListener("endfontface", function(event){
+        parser.addListener("endfontface", function(){
             fontFaceRule = false;
 
             if (ruleFailed) {

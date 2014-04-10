@@ -107,7 +107,7 @@ CSSLint.addRule({
             inKeyFrame = event.prefix || true;
         });
 
-        parser.addListener("endkeyframes", function (event) {
+        parser.addListener("endkeyframes", function () {
             inKeyFrame = false;
         });
 
@@ -123,7 +123,7 @@ CSSLint.addRule({
             }
         });
 
-        parser.addListener("endrule", function (event) {
+        parser.addListener("endrule", function () {
             if (!properties.length) {
                 return;
             }

@@ -69,7 +69,7 @@
          * @param options {Object} (UNUSED for now) specifies special handling of output
          * @return {String} output for results
          */
-        formatResults: function(results, filename, options) {
+        formatResults: function(results, filename/*, options*/) {
             var messages = results.messages,
                 output = [];
 
@@ -91,7 +91,7 @@
 
             if (messages.length > 0) {
                 output.push("<file name=\""+filename+"\">");
-                CSSLint.Util.forEach(messages, function (message, i) {
+                CSSLint.Util.forEach(messages, function (message) {
                     //ignore rollups for now
                     if (!message.rollup) {
                         output.push("<error line=\"" + message.line + "\" column=\"" + message.col + "\" severity=\"" + message.type + "\"" +

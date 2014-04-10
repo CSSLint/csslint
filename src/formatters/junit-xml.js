@@ -26,7 +26,7 @@ CSSLint.addFormatter({
      * @param options {Object} (UNUSED for now) specifies special handling of output
      * @return {String} output for results
      */
-    formatResults: function(results, filename, options) {
+    formatResults: function(results, filename/*, options*/) {
 
         var messages = results.messages,
             output = [],
@@ -72,7 +72,7 @@ CSSLint.addFormatter({
 
         if (messages.length > 0) {
 
-            messages.forEach(function (message, i) {
+            messages.forEach(function (message) {
 
                 // since junit has no warning class
                 // all issues as errors
