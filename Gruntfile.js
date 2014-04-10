@@ -192,7 +192,7 @@ module.exports = function(grunt) {
         yuitest: {
             tests: {
                 src: [
-                    "tests/**/*.js"
+                    ["tests/**/*.js", "!tests/testrunner.js"]
                 ]
             }
         },
