@@ -11,14 +11,8 @@ module.exports = function(grunt) {
     grunt.initConfig({
         // Metadata.
         pkg: grunt.file.readJSON("package.json"),
-        banner: {
-            compact: "/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - " +
-                "<%= grunt.template.today('yyyy-mm-dd') %>\n" +
-                "<%= pkg.homepage ? '* ' + pkg.homepage + '\\n' : '' %>" +
-                "* Copyright (c) <%= grunt.template.today('yyyy') %> Nicole Sullivan and Nicholas C. Zakas;\n" +
-                "* Licensed <%= _.pluck(pkg.licenses, 'type').join(', ') %> <%= _.pluck(pkg.licenses, 'url').join(', ') %> */\n",
-            full: "/*!\n" +
-                "CSSLint\n" +
+        banner: "/*!\n" +
+                "CSSLint v<%= pkg.version %>\n" +
                 "Copyright (c) <%= grunt.template.today('yyyy') %> Nicole Sullivan and Nicholas C. Zakas. All rights reserved.\n" +
                 "\n" +
                 "Permission is hereby granted, free of charge, to any person obtaining a copy\n" +
@@ -38,9 +32,7 @@ module.exports = function(grunt) {
                 "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n" +
                 "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\n" +
                 "THE SOFTWARE.\n\n" +
-                "*/\n" +
-                "/* Build: v<%= pkg.version %> <%= grunt.template.today('dd-mmmm-yyyy hh:MM:ss') %> */"
-        },
+                "*/\n",
         build_dir: "dist",
         //Parser lib copy for versions that can't use requirejs
         parserlib: "node_modules/parserlib/lib/node-parserlib.js",
@@ -69,7 +61,7 @@ module.exports = function(grunt) {
         concat: {
             core: {
                 options: {
-                    banner: "<%= banner.full %>\n" +
+                    banner: "<%= banner %>" +
                             //Hack for using the node version of parserlib
                             "var exports = exports || {};\n" +
                             "var CSSLint = (function(){\n",
@@ -90,7 +82,7 @@ module.exports = function(grunt) {
             },
             node: {
                 options: {
-                    banner: "<%= banner.full %>\n" +
+                    banner: "<%= banner %>" +
                             "var clone = require('clone');\n" +
                             "var parserlib = require('parserlib');\n",
                     footer: "\nexports.CSSLint = CSSLint;"
@@ -101,7 +93,7 @@ module.exports = function(grunt) {
             },
             node_cli: {
                 options: {
-                    banner: "#!/usr/bin/env node\n<%= banner.full %>"
+                    banner: "#!/usr/bin/env node\n<%= banner %>"
                 },
                 src: [
                     "src/cli/common.js",
@@ -118,7 +110,7 @@ module.exports = function(grunt) {
             },
             worker: {
                 options: {
-                    banner: "<%= banner.full %>\n" +
+                    banner: "<%= banner %>" +
                             //Hack for using the node version of parserlib
                             "var exports = exports || {};\n"
                 },
