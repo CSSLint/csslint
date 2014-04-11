@@ -51,13 +51,16 @@ module.exports = function(grunt) {
             "<%= clone %>",
             "<%= csslint_files %>"
         ],
+
         // Task configuration.
         clean: {
             dist: "<%= build_dir %>"
         },
+
         changelog: {
             dest: "CHANGELOG"
         },
+
         concat: {
             core: {
                 options: {
@@ -129,6 +132,7 @@ module.exports = function(grunt) {
                 dest: "<%= build_dir %>/<%= pkg.name %>-wsh.js"
             }
         },
+
         includereplace: {
             dist: {
                 options: {
@@ -147,6 +151,7 @@ module.exports = function(grunt) {
                 }]
             }
         },
+
         jshint: {
             options: {
                 jshintrc: ".jshintrc"
@@ -154,30 +159,32 @@ module.exports = function(grunt) {
             gruntfile: {
                 src: ["Gruntfile.js", "tasks/*.js"]
             },
+            core: {
+                src: "src/**/*.js"
+            },
             demo: {
                 src: "demos/*.js"
-            },
-            all: {
-                src: "src/**/*.js"
             },
             tests: {
                 src: "tests/**/*.js"
             }
         },
+
         watch: {
             gruntfile: {
                 files: "<%= jshint.gruntfile.src %>",
-                tasks: ["jshint"]
+                tasks: "jshint"
             },
             src: {
                 files: "<%= jshint.all.src %>",
-                tasks: ["jshint:all"]
+                tasks: "jshint:core"
             },
             lib_test: {
                 files: "<%= jshint.tests.src %>",
-                tasks: ["jshint:tests"]
+                tasks: "jshint:tests"
             }
         },
+
         yuitest: {
             tests: {
                 src: [
@@ -185,6 +192,7 @@ module.exports = function(grunt) {
                 ]
             }
         },
+
         test_rhino: {
             tests: {
                 src: [
@@ -208,7 +216,8 @@ module.exports = function(grunt) {
     grunt.registerTask("build", ["clean", "concat", "includereplace"]);
 
     //Alias for
-    grunt.registerTask("lint", ["jshint"]);
+    grunt.registerTask("dist", "build");
+    grunt.registerTask("lint", "jshint");
 
     // Testing
     grunt.registerTask("test", ["build", "jshint", "yuitest"]);
