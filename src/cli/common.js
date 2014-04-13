@@ -16,6 +16,7 @@ function cli(api){
         "warnings"    : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to include as warnings."},
         "ignore"      : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to ignore completely."},
         "exclude-list": { "format" : "<file|dir[,file|dir]+>", "description" : "Indicate which files/directories to exclude from being linted."},
+        "config"      : { "format" : "<file>",                 "description" : "Reads csslint options from specified file."},
         "version"     : { "format" : "",                       "description" : "Outputs the current version number."}
     };
 
@@ -250,8 +251,9 @@ function cli(api){
     }
 
 
-    function processArguments(args, options) {
+    function processArguments(args, extend) {
         var arg = args.shift(),
+            options = extend || {},
             argName,
             parts,
             files = [];
@@ -293,9 +295,16 @@ function cli(api){
         }
     }
 
-    function readConfigFile(options) {
-        var data = api.readFile(api.getFullPath(".csslintrc")),
-            json;
+    function readConfigFile(config) {
+        var csslintrc = config || ".csslintrc",
+            data = api.readFile(api.getFullPath(csslintrc));
+        return data;
+    }
+
+    function readConfigData(config) {
+        var data = readConfigFile(config),
+            json,
+            options = {};
         if (data) {
             if (data.charAt(0) === "{") {
                 try {
@@ -308,13 +317,33 @@ function cli(api){
                     }
                 } catch(e) {}
             }
-            options = processArguments(data.split(/[\s\n\r]+/m), options);
+            options = processArguments(data.split(/[\s\n\r]+/m));
         }
 
         return options;
     }
 
+    function mergeOptions(/*arguments*/) {
+        var allOptions = Array.apply(null, arguments).sort(),
+            allOptionsCount = allOptions.length,
+            options = allOptions[0],
+            overrideOptions,
+            overrideOptionix,
+            overrideOption;
 
+        for (var i = 1; i < allOptionsCount; i += 1) {
+            overrideOptions = allOptions[i];
+
+            for (overrideOptionix in overrideOptions) {
+                if (overrideOptions.hasOwnProperty(overrideOptionix)) {
+                    overrideOption = overrideOptions[overrideOptionix];
+                    options[overrideOptionix] = overrideOption;
+                }
+            }
+        }
+
+        return options;
+    }
 
     //-----------------------------------------------------------------------------
     // Process command line
@@ -322,31 +351,36 @@ function cli(api){
 
     var args     = api.args,
         argCount = args.length,
-        options  = {};
+        options,
+        rcOptions,
+        cliOptions;
 
-    // first look for config file .csslintrc
-    options = readConfigFile(options);
+    // Preprocess command line arguments
+    cliOptions = processArguments(args);
 
-    // Command line arguments override config file
-    options = processArguments(args, options);
-
-    if (options.help || argCount === 0){
+    if (cliOptions.help || argCount === 0){
         outputHelp();
         api.quit(0);
     }
 
-    // Validate options
-    validateOptions(options);
-
-    if (options.version){
+    if (cliOptions.version){
         api.print("v" + CSSLint.version);
         api.quit(0);
     }
 
-    if (options["list-rules"]){
+    if (cliOptions["list-rules"]){
         printRules();
         api.quit(0);
     }
+
+    // Look for config file
+    rcOptions = readConfigData(cliOptions.config);
+
+    // Command line arguments override config file
+    options = mergeOptions(rcOptions, cliOptions);
+
+    // Validate options
+    validateOptions(options);
 
     api.quit(processFiles(options.files,options));
 }
