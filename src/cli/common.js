@@ -323,28 +323,6 @@ function cli(api){
         return options;
     }
 
-    function mergeOptions(/*arguments*/) {
-        var allOptions = Array.apply(null, arguments).sort(),
-            allOptionsCount = allOptions.length,
-            options = allOptions[0],
-            overrideOptions,
-            overrideOptionix,
-            overrideOption;
-
-        for (var i = 1; i < allOptionsCount; i += 1) {
-            overrideOptions = allOptions[i];
-
-            for (overrideOptionix in overrideOptions) {
-                if (overrideOptions.hasOwnProperty(overrideOptionix)) {
-                    overrideOption = overrideOptions[overrideOptionix];
-                    options[overrideOptionix] = overrideOption;
-                }
-            }
-        }
-
-        return options;
-    }
-
     //-----------------------------------------------------------------------------
     // Process command line
     //-----------------------------------------------------------------------------
@@ -377,7 +355,11 @@ function cli(api){
     rcOptions = readConfigData(cliOptions.config);
 
     // Command line arguments override config file
-    options = mergeOptions(rcOptions, cliOptions);
+    options = CSSLint.Util.mix(rcOptions, cliOptions);
+
+    // hot fix for CSSLint.Util.mix current behavior
+    // https://github.com/CSSLint/csslint/issues/501
+    options = rcOptions;
 
     // Validate options
     validateOptions(options);
