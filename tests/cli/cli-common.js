@@ -1,5 +1,4 @@
 /*jshint loopfunc:true, node:true */
-// mainly for testing --config cli option
 "use strict";
 function include(path, sandbox) {
     var
