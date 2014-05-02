@@ -14,21 +14,30 @@ CSSLint.addRule({
     init: function(parser, reporter) {
         var rule = this;
 
-        parser.addListener("startrule", function(event) {
-            var i, len, selector, p, pLen, part, previousLine, currentLine,
+        function startRule(event) {
+            var i, len, selector, p, n, pLen, part, part2, type, currentLine, nextLine,
                 selectors = event.selectors;
 
             for (i = 0, len = selectors.length; i < len; i++) {
                 selector = selectors[i];
                 for (p = 0, pLen = selector.parts.length; p < pLen; p++) {
-                    part = selector.parts[p];
-                    currentLine = part.line;
-                    if (currentLine === previousLine) {
-                        reporter.report("newline character found in selector (forgot a comma?)", currentLine, selectors[i].parts[0].col, rule);
+                    for (n = p + 1; n < pLen; n++) {
+                        part = selector.parts[p];
+                        part2 = selector.parts[n];
+                        type = part.type;
+                        currentLine = part.line;
+                        nextLine = part2.line;
+
+                        if (type === "descendant" && nextLine > currentLine) {
+                            reporter.report("newline character found in selector (forgot a comma?)", currentLine, selectors[i].parts[0].col, rule);
+                        }
                     }
-                    previousLine = currentLine;
                 }
+
             }
-        });
+        }
+
+        parser.addListener("startrule", startRule);
+
     }
 });

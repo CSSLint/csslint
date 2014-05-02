@@ -27,6 +27,9 @@
         },
         "a newline between selectors should not result in a warning": function () {
             expectPass(".foo,\n.bar{}");
+        },
+        "'+' or '>' should not result in a warning": function () {
+            expectPass(".foo > .bar,\n.foo + .bar,\n.foo >\n.bar{}");
         }
     }));
 
