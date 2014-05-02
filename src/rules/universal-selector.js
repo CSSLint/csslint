@@ -12,6 +12,7 @@ CSSLint.addRule({
 
     //initialization
     init: function(parser, reporter){
+        "use strict";
         var rule = this;
 
         parser.addListener("startrule", function(event){
@@ -24,7 +25,7 @@ CSSLint.addRule({
                 selector = selectors[i];
 
                 part = selector.parts[selector.parts.length-1];
-                if (part.elementName == "*"){
+                if (part.elementName === "*"){
                     reporter.report(rule.desc, part.line, part.col, rule);
                 }
             }

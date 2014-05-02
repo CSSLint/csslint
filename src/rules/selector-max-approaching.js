@@ -12,6 +12,7 @@ CSSLint.addRule({
 
     //initialization
     init: function(parser, reporter) {
+        "use strict";
         var rule = this, count = 0;
 
         parser.addListener("startrule", function(event) {

@@ -78,6 +78,7 @@ li.last {
     <div id="output"></div>
     <script>
         (function() {
+            "use strict";
 
             document.body.onclick = function(event) {
                 event = event || window.event;
@@ -85,7 +86,7 @@ li.last {
                     results, messages, i, len;
 
 
-                if (target.id == "lint-btn") {
+                if (target.id === "lint-btn") {
                     document.getElementById("output").innerHTML = "";
                     results = CSSLint.verify(document.getElementById("input").value);
                     messages = results.messages;

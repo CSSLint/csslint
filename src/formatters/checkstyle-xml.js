@@ -1,4 +1,5 @@
 (function() {
+    "use strict";
 
     /**
      * Replace special characters before write to output.

@@ -11,6 +11,7 @@
 /*jshint loopfunc: true */
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert,
         suite   = new YUITest.TestSuite("General Tests for all Rules"),
         rules   = CSSLint.getRules(),

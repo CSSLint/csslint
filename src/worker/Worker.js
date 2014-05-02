@@ -4,7 +4,7 @@
 /*global self, JSON*/
 //message indicates to start linting
 self.onmessage = function(event){
-
+    "use strict";
     var data = event.data,
         message,
         text,

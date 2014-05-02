@@ -8,6 +8,8 @@
 /* global cli */
 
 var wshapi = (function(){
+    "use strict";
+
     var fso = new ActiveXObject("Scripting.FileSystemObject");
     var shell = WScript.CreateObject("WScript.Shell");
     var finalArgs = [], i, args = WScript.Arguments;
@@ -22,7 +24,7 @@ var wshapi = (function(){
 
     if (typeof Array.prototype.filter !== "function") {
         Array.prototype.filter = function(fn /*, thisp*/) {
-            if (typeof fn != "function") {
+            if (typeof fn !== "function") {
                 throw new Error("not a function");
             }
             var res = [], val, thisp = finalArgs[1];
@@ -41,7 +43,6 @@ var wshapi = (function(){
 
     if (!Array.prototype.indexOf) {
         Array.prototype.indexOf = function (searchElement /*, fromIndex */ ) {
-            "use strict";
             if (this === void 0 || this === null) {
                 throw new Error("unknown instance");
             }

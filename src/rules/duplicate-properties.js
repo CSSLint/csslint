@@ -13,6 +13,7 @@ CSSLint.addRule({
 
     //initialization
     init: function(parser, reporter){
+        "use strict";
         var rule = this,
             properties,
             lastProperty;
@@ -31,7 +32,7 @@ CSSLint.addRule({
             var property = event.property,
                 name = property.text.toLowerCase();
 
-            if (properties[name] && (lastProperty != name || properties[name] == event.value.text)){
+            if (properties[name] && (lastProperty !== name || properties[name] === event.value.text)){
                 reporter.report("Duplicate property '" + event.property + "' found.", event.line, event.col, rule);
             }
 

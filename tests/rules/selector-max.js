@@ -1,4 +1,5 @@
 (function(){
+    "use strict";
     var Assert = YUITest.Assert, i, j, css1 = "", css2 = "", css3 = "", css4 = "";
 
     // create css1, which has only 4095 rules and 4095 selectors

@@ -13,6 +13,7 @@ CSSLint.addRule({
 
     //initialization
     init: function(parser, reporter){
+        "use strict";
         var rule = this,
             properties,
             num,
@@ -79,7 +80,7 @@ CSSLint.addRule({
         //event handler for beginning of rules
         function startRule(){
             properties = {};
-            num=1;
+            num = 1;
         }
 
         //event handler for end of rules

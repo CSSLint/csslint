@@ -11,6 +11,7 @@ CSSLint.Util = {
      * @return {Object} The receiver
      */
     mix: function(receiver, supplier){
+        "use strict";
         var prop;
 
         for (prop in supplier){
@@ -29,6 +30,7 @@ CSSLint.Util = {
      * @return {int} The index of the value if found, -1 if not.
      */
     indexOf: function(values, value){
+        "use strict";
         if (values.indexOf){
             return values.indexOf(value);
         } else {
@@ -48,6 +50,7 @@ CSSLint.Util = {
      * @return {void}
      */
     forEach: function(values, func) {
+        "use strict";
         if (values.forEach){
             return values.forEach(func);
         } else {

@@ -8,6 +8,7 @@
  *      they are errors or warnings.
  */
 function Reporter(lines, ruleset){
+    "use strict";
 
     /**
      * List of messages being reported.
@@ -54,6 +55,7 @@ Reporter.prototype = {
      * @method error
      */
     error: function(message, line, col, rule){
+        "use strict";
         this.messages.push({
             type    : "error",
             line    : line,
@@ -74,6 +76,7 @@ Reporter.prototype = {
      * @deprecated Use report instead.
      */
     warn: function(message, line, col, rule){
+        "use strict";
         this.report(message, line, col, rule);
     },
 
@@ -86,8 +89,9 @@ Reporter.prototype = {
      * @method report
      */
     report: function(message, line, col, rule){
+        "use strict";
         this.messages.push({
-            type    : this.ruleset[rule.id] == 2 ? "error" : "warning",
+            type    : this.ruleset[rule.id] === 2 ? "error" : "warning",
             line    : line,
             col     : col,
             message : message,
@@ -105,6 +109,7 @@ Reporter.prototype = {
      * @method info
      */
     info: function(message, line, col, rule){
+        "use strict";
         this.messages.push({
             type    : "info",
             line    : line,
@@ -122,6 +127,7 @@ Reporter.prototype = {
      * @method rollupError
      */
     rollupError: function(message, rule){
+        "use strict";
         this.messages.push({
             type    : "error",
             rollup  : true,
@@ -137,6 +143,7 @@ Reporter.prototype = {
      * @method rollupWarn
      */
     rollupWarn: function(message, rule){
+        "use strict";
         this.messages.push({
             type    : "warning",
             rollup  : true,
@@ -152,6 +159,7 @@ Reporter.prototype = {
      * @method stat
      */
     stat: function(name, value){
+        "use strict";
         this.stats[name] = value;
     }
 };

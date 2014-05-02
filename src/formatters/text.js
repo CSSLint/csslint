@@ -8,6 +8,7 @@ CSSLint.addFormatter({
      * @return {String} to prepend before all results
      */
     startFormat: function() {
+        "use strict";
         return "";
     },
 
@@ -16,6 +17,7 @@ CSSLint.addFormatter({
      * @return {String} to append after all results
      */
     endFormat: function() {
+        "use strict";
         return "";
     },
 
@@ -27,6 +29,7 @@ CSSLint.addFormatter({
      * @return {String} output for results
      */
     formatResults: function(results, filename, options) {
+        "use strict";
         var messages = results.messages,
             output = "";
         options = options || {};
@@ -36,7 +39,7 @@ CSSLint.addFormatter({
         }
 
         output = "\n\ncsslint: There ";
-        if (messages.length == 1) {
+        if (messages.length === 1) {
             output += "is 1 problem";
         } else {
             output += "are " + messages.length  +  " problems";
