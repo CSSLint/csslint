@@ -39,9 +39,9 @@ module.exports = function(grunt) {
                 "/* Build: v<%= pkg.version %> <%= grunt.template.today('dd-mmmm-yyyy hh:MM:ss') %> */"
         },
         build_dir: "build",
-        //Parser lib copy for versions that can't user requirejs
+        //Parser lib copy for versions that can't use requirejs
         parserlib: "node_modules/parserlib/lib/node-parserlib.js",
-        //clone copy for versions that can't user requirejs
+        //clone copy for versions that can't use requirejs
         clone: "node_modules/clone/clone.js",
         //Core CSSLint files used by most versions
         csslint_files: [
