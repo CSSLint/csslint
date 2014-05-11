@@ -25,6 +25,18 @@
             Assert.areEqual(2, result.ruleset["adjoining-classes"]);
             Assert.areEqual(1, result.ruleset["text-indent"]);
             Assert.areEqual(0, result.ruleset["box-sizing"]);
+        },
+
+        "Embedded rulesets should not have the side-effect of modifying the ruleset object passed in by the caller of verify()": function(){
+            var ruleset = {
+                "text-indent": 1,
+                "box-sizing": 1
+            };
+            CSSLint.verify("/*csslint bogus, adjoining-classes:true, box-sizing:false */\n.foo.bar{}", ruleset);
+
+            Assert.areEqual(undefined, ruleset["adjoining-classes"]);
+            Assert.areEqual(1, ruleset["text-indent"]);
+            Assert.areEqual(1, ruleset["box-sizing"]);
         }
 
     }));
