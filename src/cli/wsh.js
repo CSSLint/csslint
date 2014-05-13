@@ -77,7 +77,6 @@ var wshapi = (function(){
     if (!Array.prototype.map)
     {
         Array.prototype.map = function(fun /*, thisArg */ ) {
-            "use strict";
 
             if (this === void 0 || this === null) {
                 throw new TypeError();
