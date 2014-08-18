@@ -5,21 +5,56 @@
 
 # CSSLint
 
-CSSLint is a tool to help point out problems with your CSS code.
-It does basic syntax checking as well as applying a set of rules
-to the code that look for problematic patterns or signs of inefficiency.
-The rules are all pluggable, so you can easily write your own or omit ones
-you don't want. You can find information about both using CSS Lint and
-contributing to the project in the wiki: https://github.com/CSSLint/csslint/wiki
+CSSLint is an open source CSS code quality tool originally written by 
+[Nicholas C. Zakas](http://www.nczonline.net/) and 
+[Nicole Sullivan](http://www.stubbornella.org/). It was released in June 2011 at
+the Velocity conference.
+
+A [lint](http://en.wikipedia.org/wiki/Lint_programming_tool) tool performs 
+[static analysis](http://en.wikipedia.org/wiki/Static_code_analysis) of source 
+code and flags patterns that might be errors or otherwise cause problems for the
+developer. 
+
+CSSLint is a tool to help point out problems with your CSS code. It does basic 
+syntax checking as well as applying a set of rules to the code that look for 
+problematic patterns or signs of inefficiency. The rules are all pluggable, so
+you can easily write your own or omit ones you don't want.
+
+## Integration
+
+### Command Line Interface
+
+All about the command line interface for CSSLint. If you'd rather use a CLI 
+program to verify your CSS instead of using the web site, then this guide is 
+your best friend.
+https://github.com/CSSLint/csslint/wiki/Command-line-interface
+
+### Build System 
+
+Once you're familiar with the CSSLint command line interface, the next step is
+to integrate it into your build system. This guide walks through using CSSLint
+as part of your build.
+https://github.com/CSSLint/csslint/wiki/Build-System-Integration
+
+### IDE
+
+You can integrate CSSLint into your favorite IDE to make checking your CSS code
+quality easy. In fact, some IDEs already have CSSLint built in.
+https://github.com/CSSLint/csslint/wiki/IDE-integration
+
+## Rules
+
+Not sure why a rule is important? This guide talks about each of the CSSLint 
+rules and explains how the rule is designed to improve your CSS. 
+https://github.com/CSSLint/csslint/wiki/Rules
+
+## Developer Guide
+
+If you want to contribute to the project, or even just tinker on your own,
+this guide explains how to get the source and work with it.
+https://github.com/CSSLint/csslint/wiki/Developer-Guide
 
 ## Contributors
-
-### Creators
-
-1. Nicole Sullivan, http://www.stubbornella.org
-1. Nicholas C. Zakas, http://www.nczonline.net
-
-### Contributors
 
 1. Samori Gorse, https://twitter.com/shinuza (Rules, Non-zero Exit Code for CLI)
 1. Eitan Konigsburg, https://twitter.com/eitanmk (Rhino CLI)
