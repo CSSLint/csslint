@@ -8,6 +8,7 @@ CSSLint.addRule({
     id: "import",
     name: "Disallow @import",
     desc: "Don't use @import, use <link> instead.",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-%40import",
     browsers: "All",
 
     //initialization

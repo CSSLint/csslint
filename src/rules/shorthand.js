@@ -9,6 +9,7 @@ CSSLint.addRule({
     id: "shorthand",
     name: "Require shorthand properties",
     desc: "Use shorthand properties where possible.",
+    url: "https://github.com/CSSLint/csslint/wiki/Require-shorthand-properties",
     browsers: "All",
 
     //initialization

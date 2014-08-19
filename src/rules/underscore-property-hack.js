@@ -9,6 +9,7 @@ CSSLint.addRule({
     id: "underscore-property-hack",
     name: "Disallow properties with an underscore prefix",
     desc: "Checks for the underscore property hack (targets IE6)",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-underscore-hack",
     browsers: "All",
 
     //initialization

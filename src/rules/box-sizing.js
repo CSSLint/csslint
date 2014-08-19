@@ -8,6 +8,7 @@ CSSLint.addRule({
     id: "box-sizing",
     name: "Disallow use of box-sizing",
     desc: "The box-sizing properties isn't supported in IE6 and IE7.",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-box-sizing",
     browsers: "IE6, IE7",
     tags: ["Compatibility"],
 

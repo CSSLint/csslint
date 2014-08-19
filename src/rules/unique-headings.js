@@ -8,6 +8,7 @@ CSSLint.addRule({
     id: "unique-headings",
     name: "Headings should only be defined once",
     desc: "Headings should be defined only once.",
+    url: "https://github.com/CSSLint/csslint/wiki/Headings-should-only-be-defined-once",
     browsers: "All",
 
     //initialization

@@ -10,6 +10,7 @@ CSSLint.addRule({
     id: "important",
     name: "Disallow !important",
     desc: "Be careful when using !important declaration",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-%21important",
     browsers: "All",
 
     //initialization

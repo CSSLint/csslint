@@ -8,6 +8,7 @@ CSSLint.addRule({
     id: "unqualified-attributes",
     name: "Disallow unqualified attribute selectors",
     desc: "Unqualified attribute selectors are known to be slow.",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-unqualified-attribute-selectors",
     browsers: "All",
 
     //initialization

@@ -9,6 +9,7 @@ CSSLint.addRule({
     id: "compatible-vendor-prefixes",
     name: "Require compatible vendor prefixes",
     desc: "Include all compatible vendor prefixes to reach a wider range of users.",
+    url: "https://github.com/CSSLint/csslint/wiki/Require-compatible-vendor-prefixes",
     browsers: "All",
 
     //initialization

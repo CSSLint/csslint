@@ -9,6 +9,7 @@ CSSLint.addRule({
     id: "outline-none",
     name: "Disallow outline: none",
     desc: "Use of outline: none or outline: 0 should be limited to :focus rules.",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-outline%3Anone",
     browsers: "All",
     tags: ["Accessibility"],
 

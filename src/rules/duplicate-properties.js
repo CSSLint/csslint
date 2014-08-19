@@ -9,6 +9,7 @@ CSSLint.addRule({
     id: "duplicate-properties",
     name: "Disallow duplicate properties",
     desc: "Duplicate properties must appear one after the other.",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-duplicate-properties",
     browsers: "All",
 
     //initialization

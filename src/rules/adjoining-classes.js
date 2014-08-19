@@ -8,6 +8,7 @@ CSSLint.addRule({
     id: "adjoining-classes",
     name: "Disallow adjoining classes",
     desc: "Don't use adjoining classes.",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-adjoining-classes",
     browsers: "IE6",
 
     //initialization
