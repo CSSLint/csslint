@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <title>CSSLint Demo</title>
@@ -8,11 +8,12 @@
         .error { color: #D9534F; font-weight: bold; }
         .warning { color: #F0AD4E; }
     </style>
-    <script src="../release/csslint.js"></script>
+    <script src="../build/csslint.js"></script>
+    <script src="demo.js"></script>
 </head>
 <body>
     <h1>CSSLint Demo</h1>
-    <textarea rows="50" cols="100" id="input">
+    <textarea rows="30" cols="100" id="input">
 @charset "UTF-8";
 
 @import url("booya.css") print, screen;
@@ -73,35 +74,9 @@ li.last {
   }
 }
     </textarea>
-    <input type="button" id="lint-btn" value="Run CSSLint">
+    <br>
+    <button id="lint-btn">Run CSSLint</button>
     <p>(You may want to keep the CSS kinda small, this could take a while.)</p>
     <div id="output"></div>
-    <script>
-        (function() {
-            "use strict";
-
-            document.body.onclick = function(event) {
-                event = event || window.event;
-                var target = event.target || event.srcElement,
-                    results, messages, i, len;
-
-
-                if (target.id === "lint-btn") {
-                    document.getElementById("output").innerHTML = "";
-                    results = CSSLint.verify(document.getElementById("input").value);
-                    messages = results.messages;
-                    for (i=0, len=messages.length; i < len; i++) {
-                        log(messages[i].message + " (line " + messages[i].line + ", col " + messages[i].col + ")", messages[i].type);
-                    }
-
-                }
-            };
-
-            function log(value, level) {
-                    var output = document.getElementById("output");
-                    output.innerHTML += "<span class=\"" + level + "\">" + value.replace(/ /g, "&nbsp;") + "</span><br>";
-            }
-        })();
-    </script>
 </body>
 </html>
