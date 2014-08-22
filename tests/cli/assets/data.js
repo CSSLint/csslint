@@ -45,15 +45,6 @@ module.exports = {
                 "csslint: No errors in dir/b.css.",
                 1
             ]
-        },
-        "version": {
-            "args": [
-                "--version"
-            ],
-            "expecting": [
-                "v@VERSION@",
-                0
-            ]
         }
     },
 
