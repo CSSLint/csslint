@@ -16,15 +16,15 @@ function include(path, sandbox) {
 
     var Assert = YUITest.Assert,
         suite   = new YUITest.TestSuite("General Tests for CLI"),
-        apiStub = require("./tests/cli/assets/apiStub.js"),
-        data = require("./tests/cli/assets/data.js"),
+        apiStub = require("../tests/cli/assets/apiStub.js"),
+        data = require("../tests/cli/assets/data.js"),
         suites = data.suites,
         suiteix,
         sandbox = {
             CSSLint: CSSLint
         };
 
-    include(__dirname + "/src/cli/common.js", sandbox); /* expose sandbox.cli */
+    include("./src/cli/common.js", sandbox); /* expose sandbox.cli */
 
     for (suiteix in suites) {
         if (suites.hasOwnProperty(suiteix)) {
