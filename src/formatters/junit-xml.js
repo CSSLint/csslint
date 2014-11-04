@@ -84,7 +84,7 @@ CSSLint.addFormatter({
                 //ignore rollups for now
                 if (!message.rollup) {
 
-                    // build the test case seperately, once joined
+                    // build the test case separately, once joined
                     // we'll add it to a custom array filtered by type
                     output.push("<testcase time=\"0\" name=\"" + generateSource(message.rule) + "\">");
                     output.push("<" + type + " message=\"" + escapeSpecialCharacters(message.message) + "\"><![CDATA[" + message.line + ":" + message.col + ":" + escapeSpecialCharacters(message.evidence)  + "]]></" + type + ">");
