@@ -6,8 +6,10 @@
  * @param {String[]} lines The text lines of the source.
  * @param {Object} ruleset The set of rules to work with, including if
  *      they are errors or warnings.
+ * @param {Object} explicitly allowed lines
+ * @param {[][]} ingore list of line ranges to be ignored
  */
-function Reporter(lines, ruleset, allow) {
+function Reporter(lines, ruleset, allow, ignore) {
     "use strict";
 
     /**
@@ -48,6 +50,16 @@ function Reporter(lines, ruleset, allow) {
     this.allow = allow;
     if(!this.allow) {
         this.allow = {};
+    }
+
+    /**
+     * Linesets not to include in the report.
+     * @property ignore
+     * @type [][]
+     */
+    this.ignore = ignore;
+    if(!this.ignore) {
+        this.ignore = [];
     }
 }
 
@@ -103,6 +115,16 @@ Reporter.prototype = {
 
         // Check if rule violation should be allowed
         if (this.allow.hasOwnProperty(line) && this.allow[line].hasOwnProperty(rule.id)) {
+            return;
+        }
+
+        var ignore = false;
+        CSSLint.Util.forEach(this.ignore, function (range) {
+            if(range[0] <= line && line <= range[1]) {
+                ignore = true;
+            }
+        });
+        if(ignore) {
             return;
         }
 
