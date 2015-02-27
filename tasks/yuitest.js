@@ -21,7 +21,7 @@ module.exports = function( grunt ) {
 
             var message = "",
                 results = event.results,
-                i, len;
+                i, len, gruntFailMessage;
 
             switch(event.type){
                 case TestRunner.BEGIN_EVENT:
@@ -42,8 +42,9 @@ module.exports = function( grunt ) {
                         grunt.log.writeln("Tests failed:");
 
                         for (i=0,len=failures.length; i < len; i++){
-                            grunt.fail.warn(failures[i].name + "\n" + failures[i].error);
+                            gruntFailMessage += failures[i].name + "\n" + failures[i].error;
                         }
+                        grunt.fail.warn(gruntFailMessage);
                     }
 
                     // Tell grunt we're done the async operation
