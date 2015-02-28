@@ -1,4 +1,4 @@
-/* jshint camelcase:false, evil:true, node:true */
+/* jshint camelcase:false, node:true */
 
 "use strict";
 
@@ -166,7 +166,7 @@ module.exports = function(grunt) {
                 jshintrc: ".jshintrc"
             },
             gruntfile: {
-                src: "Gruntfile.js"
+                src: ["Gruntfile.js","tasks/*.js"]
             },
             demo: {
                 src: "demos/*.js"
@@ -217,6 +217,9 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-contrib-watch");
     grunt.loadNpmTasks("grunt-include-replace");
 
+    // Load custom tasks
+    grunt.loadTasks("tasks");
+
     // Default task.
     grunt.registerTask("default", ["test"]);
 
@@ -228,238 +231,4 @@ module.exports = function(grunt) {
     grunt.registerTask("rhino", ["clean:build", "jshint", "concat", "test_rhino"]);
 
     grunt.registerTask("release", ["test", "clean:release", "copy:release", "includereplace:release", "changelog"]);
-
-    //Run the YUITest suite
-    grunt.registerMultiTask("yuitest", "Run the YUITests for the project", function() {
-
-        var YUITest = require("yuitest");
-        var CSSLint = require("./build/csslint-node").CSSLint;  // jshint ignore:line
-        var files = this.filesSrc;
-        var TestRunner = YUITest.TestRunner;
-        var done = this.async();
-        var errors = [],
-            failures = [],
-            stack = [];
-
-        //Eval each file so the tests are brought into this scope where CSSLint and YUITest are loaded already
-        files.forEach(function(filepath) {
-            eval(grunt.file.read(filepath));
-        });
-
-        // From YUITest Node CLI
-        function filterStackTrace(stackTrace){
-            if (stackTrace){
-                var lines = stackTrace.split("\n"),
-                    result = [],
-                    i, len;
-
-                //skip first line, it's the error
-                for (i=1, len=lines.length; i < len; i++){
-                    if (lines[i].indexOf("yuitest-node") > -1){
-                        break;
-                    } else {
-                        result.push(lines[i]);
-                    }
-                }
-
-                return result.join("\n");
-            } else {
-                return "Unavailable.";
-            }
-        }
-
-        // From YUITest Node CLI with minor colourization changes
-        function handleEvent(event){
-
-            var message = "",
-                results = event.results,
-                i, len;
-
-            switch(event.type){
-                case TestRunner.BEGIN_EVENT:
-                    message = "YUITest for Node.js\n";
-
-                    if (TestRunner._groups){
-                        message += "Filtering on groups '" + TestRunner._groups.slice(1,-1) + "'\n";
-                    }
-                    break;
-
-                case TestRunner.COMPLETE_EVENT:
-                    message = "\nTotal tests: " + results.total + ", " +
-                        ("Failures: " + results.failed).red + ", " +
-                        ("Skipped: " + results.ignored).yellow +
-                        ", Time: " + (results.duration/1000) + " seconds\n";
-
-                    if (failures.length){
-                        message += "\nTests failed:\n".red;
-
-                        for (i=0,len=failures.length; i < len; i++){
-                            message += "\n" + (i+1) + ") " + failures[i].name + " : " + failures[i].error.getMessage() + "\n";
-                            message += "Stack trace:\n" + filterStackTrace(failures[i].error.stack) + "\n";
-                        }
-
-                        message += "\n";
-                    }
-
-                    if (errors.length){
-                        message += "\nErrors:\n".red;
-
-                        for (i=0,len=errors.length; i < len; i++){
-                            message += "\n" + (i+1) + ") " + errors[i].name + " : " + errors[i].error.message + "\n";
-                            message += "Stack trace:\n" + filterStackTrace(errors[i].error.stack) + "\n";
-                        }
-
-                        message += "\n";
-                    }
-
-                    message += "\n\n";
-                    //Tell grunt we're done the async operation
-                    done();
-                    break;
-
-                case TestRunner.TEST_FAIL_EVENT:
-                    message = "F".red;
-                    failures.push({
-                        name: stack.concat([event.testName]).join(" > "),
-                        error: event.error
-                    });
-
-                    break;
-
-                case TestRunner.ERROR_EVENT:
-                    errors.push({
-                        name: stack.concat([event.methodName]).join(" > "),
-                        error: event.error
-                    });
-
-                    break;
-
-                case TestRunner.TEST_IGNORE_EVENT:
-                    message = "S".yellow;
-                    break;
-
-                case TestRunner.TEST_PASS_EVENT:
-                    message = ".".green;
-                    break;
-
-                case TestRunner.TEST_SUITE_BEGIN_EVENT:
-                    stack.push(event.testSuite.name);
-                    break;
-
-                case TestRunner.TEST_CASE_COMPLETE_EVENT:
-                case TestRunner.TEST_SUITE_COMPLETE_EVENT:
-                    stack.pop();
-                    break;
-
-                case TestRunner.TEST_CASE_BEGIN_EVENT:
-                    stack.push(event.testCase.name);
-                    break;
-
-                //no default
-            }
-
-            grunt.log.write(message);
-        }
-        //Add event listeners
-        TestRunner.subscribe(TestRunner.BEGIN_EVENT, handleEvent);
-        TestRunner.subscribe(TestRunner.TEST_FAIL_EVENT, handleEvent);
-        TestRunner.subscribe(TestRunner.TEST_PASS_EVENT, handleEvent);
-        TestRunner.subscribe(TestRunner.ERROR_EVENT, handleEvent);
-        TestRunner.subscribe(TestRunner.TEST_IGNORE_EVENT, handleEvent);
-        TestRunner.subscribe(TestRunner.TEST_CASE_BEGIN_EVENT, handleEvent);
-        TestRunner.subscribe(TestRunner.TEST_CASE_COMPLETE_EVENT, handleEvent);
-        TestRunner.subscribe(TestRunner.TEST_SUITE_BEGIN_EVENT, handleEvent);
-        TestRunner.subscribe(TestRunner.TEST_SUITE_COMPLETE_EVENT, handleEvent);
-        TestRunner.subscribe(TestRunner.COMPLETE_EVENT, handleEvent);
-        TestRunner.run();
-    });
-
-    grunt.registerMultiTask("changelog", "Write the changelog file", function() {
-        var done = this.async();
-        var lastTag;
-        var files = this.filesSrc;
-
-
-        grunt.util.spawn({
-            cmd: "git",
-            args: ["tag"]
-        }, function(error, result) {
-            //Find the latest git tag
-            var tags = result.stdout.split("\n"),
-                semver = tags[0].replace("v","").split("."),
-                major = parseInt(semver[0], 10),
-                minor = parseInt(semver[1], 10),
-                patch = parseInt(semver[2], 10);
-
-            //A simple array sort can't be used because of the comparison of
-            //the strings "0.9.9" > "0.9.10"
-            for (var i = 1, len = tags.length; i < len; i++) {
-                semver = tags[i].replace("v", "").split(".");
-
-                var currentMajor = parseInt(semver[0], 10);
-                if (currentMajor < major) {
-                    continue;
-                } else if (currentMajor > major) {
-                    major = currentMajor;
-                }
-
-                var currentMinor = parseInt(semver[1], 10);
-                if (currentMinor < minor) {
-                    continue;
-                } else if (currentMinor > minor) {
-                    minor = currentMinor;
-                }
-
-                var currentPatch = parseInt(semver[2], 10);
-                if (currentPatch < patch) {
-                    continue;
-                } else if (currentPatch > patch) {
-                    patch = currentPatch;
-                }
-            }
-
-            lastTag = "v" + major + "." + minor + "." + patch;
-
-            grunt.verbose.write("Last tag: " + lastTag).writeln();
-
-            //
-            grunt.util.spawn({
-                cmd: "git",
-                args: ["log", "--pretty=format:'* %s (%an)'", lastTag + "..HEAD"]
-            }, function(error, result) {
-                var prettyPrint =  result.stdout.split("'\n'").join("\n").replace(/\"$/, "").replace(/^\"/, "");
-
-                grunt.verbose.writeln().write(prettyPrint).writeln();
-
-                var template = "<%= grunt.template.today('mmmm d, yyyy') %> - v<%= pkg.version %>\n\n" +
-                    prettyPrint + "\n\n" +
-                    grunt.file.read(files[0]);
-
-                grunt.file.write(files[0], grunt.template.process(template));
-
-                done();
-            });
-        });
-
-    });
-
-    //Run test suite through rhino
-    grunt.registerMultiTask("test_rhino", "Run the test suite through rhino", function() {
-        var done = this.async();
-        var files = this.filesSrc;
-        var progress = files.length;
-
-        files.forEach(function(filepath) {
-            grunt.util.spawn({
-                cmd: "java",
-                args: ["-jar", "lib/js.jar", "lib/yuitest-rhino-cli.js", "build/csslint.js", filepath],
-                opts: {stdio: "inherit"}
-            }, function() {
-                progress--;
-                if (progress === 0) {
-                    done();
-                }
-            });
-        });
-    });
 };

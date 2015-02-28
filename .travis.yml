@@ -4,5 +4,6 @@ node_js:
   - "0.10"
   - "0.11"
 before_install:
-  - npm update npm -g # For "^" dependency compatiblibty in NodeJS 0.8
+  - '[ "${TRAVIS_NODE_VERSION}" != "0.8" ] || npm install -g npm@1.4.28'
+  - npm install -g npm@latest
   - npm install -g grunt-cli

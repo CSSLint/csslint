@@ -20,11 +20,21 @@ CSSLint.addRule({
             properties = [];
         };
 
+        var endRule = function(event){
+            var currentProperties = properties.join(","),
+                expectedProperties = properties.sort().join(",");
+
+            if (currentProperties !== expectedProperties){
+                reporter.report("Rule doesn't have all its properties in alphabetical ordered.", event.line, event.col, rule);
+            }
+          };
+
         parser.addListener("startrule", startRule);
         parser.addListener("startfontface", startRule);
         parser.addListener("startpage", startRule);
         parser.addListener("startpagemargin", startRule);
         parser.addListener("startkeyframerule", startRule);
+        parser.addListener("startviewport", startRule);
 
         parser.addListener("property", function(event){
             var name = event.property.text,
@@ -33,14 +43,12 @@ CSSLint.addRule({
             properties.push(lowerCasePrefixLessName);
         });
 
-        parser.addListener("endrule", function(event){
-            var currentProperties = properties.join(","),
-                expectedProperties = properties.sort().join(",");
-
-            if (currentProperties !== expectedProperties){
-                reporter.report("Rule doesn't have all its properties in alphabetical ordered.", event.line, event.col, rule);
-            }
-        });
+        parser.addListener("endrule", endRule);
+        parser.addListener("endfontface", endRule);
+        parser.addListener("endpage", endRule);
+        parser.addListener("endpagemargin", endRule);
+        parser.addListener("endkeyframerule", endRule);
+        parser.addListener("endviewport", endRule);
     }
 
 });
