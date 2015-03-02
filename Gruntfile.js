@@ -137,12 +137,16 @@ module.exports = function(grunt) {
             }
         },
         copy: {
-            release: {
-                files: {
-                    "<%= build_dir %>": "release",
-                    "release/npm/README.md": "README.md",
-                    "release/npm/package.json": "package.json"
-                }
+            build: {
+              expand: true,
+              cwd: "<%= build_dir %>/",
+              src: "**/*",
+              dest: "release/"
+            },
+            npm: {
+              expand: true,
+              src: ["README.md", "package.json"],
+              dest: "release/npm/"
             }
         },
         includereplace: {
@@ -155,10 +159,12 @@ module.exports = function(grunt) {
                     prefix: "@",
                     suffix: "@"
                 },
-                // Files to perform replacements and includes with
-                src: "<%= build_dir %>/**/*.*",
-                // Destinaion directory to copy files to
-                dest: "release/"
+                files: [{
+                    expand: true,
+                    cwd: "<%= build_dir %>/",
+                    src: "**/*",
+                    dest: "release/"
+                }]
             }
         },
         jshint: {
@@ -166,16 +172,16 @@ module.exports = function(grunt) {
                 jshintrc: ".jshintrc"
             },
             gruntfile: {
-                src: ["Gruntfile.js","tasks/*.js"]
+                src: ["Gruntfile.js", "tasks/*.js"]
             },
             demo: {
                 src: "demos/*.js"
             },
             all: {
-                src: ["src/**/*.js"]
+                src: "src/**/*.js"
             },
             tests: {
-                src: ["tests/**/*.js"]
+                src: "tests/**/*.js"
             }
         },
         watch: {
@@ -223,12 +229,12 @@ module.exports = function(grunt) {
     // Default task.
     grunt.registerTask("default", ["test"]);
 
-    //Alias for
+    // Alias for
     grunt.registerTask("lint", ["jshint"]);
 
-    //Testing
+    // Testing
     grunt.registerTask("test", ["clean:build", "jshint", "concat", "yuitest"]);
     grunt.registerTask("rhino", ["clean:build", "jshint", "concat", "test_rhino"]);
 
-    grunt.registerTask("release", ["test", "clean:release", "copy:release", "includereplace:release", "changelog"]);
+    grunt.registerTask("release", ["test", "clean:release", "copy", "includereplace:release", "changelog"]);
 };

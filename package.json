@@ -26,17 +26,17 @@
     "test": "grunt test"
   },
   "dependencies": {
-    "clone": "~0.1.11",
-    "parserlib": "~0.2.4"
+    "clone": "~1.0.0",
+    "parserlib": "~0.2.5"
   },
   "devDependencies": {
-    "grunt": "~0.4.4",
-    "grunt-contrib-clean": "~0.5.0",
-    "grunt-contrib-concat": "~0.4.0",
-    "grunt-contrib-copy": "~0.5.0",
-    "grunt-contrib-jshint": "~0.10.0",
+    "grunt": "~0.4.5",
+    "grunt-contrib-clean": "~0.6.0",
+    "grunt-contrib-concat": "~0.5.1",
+    "grunt-contrib-copy": "~0.8.0",
+    "grunt-contrib-jshint": "~0.11.0",
     "grunt-contrib-watch": "~0.6.1",
-    "grunt-include-replace": "~1.2.0",
+    "grunt-include-replace": "~3.0.0",
     "yuitest": "~0.7.9"
   },
   "engines": {
