@@ -64,16 +64,17 @@ module.exports = function(grunt) {
         concat: {
             core: {
                 options: {
-                    banner: "<%= banner %>" +
-                            //Hack for using the node version of parserlib
-                            "var exports = exports || {};\n" +
+                    banner: "<%= banner %>\n" +
+                            // Hack for using the node version of parserlib and clone
+                            "var module = module || {},\n" +
+                            "    exports = exports || {};\n\n" +
                             "var CSSLint = (function(){\n",
                     footer: "\nreturn CSSLint;\n})();"
                 },
                 src: [
                     "<%= core_files %>"
                 ],
-                dest: "<%= build_dir %>/<%= pkg.name %>.js"
+                dest: "<%= build_dir %>/csslint.js"
             },//Build environment workers
             rhino: {
                 src: [
@@ -81,7 +82,7 @@ module.exports = function(grunt) {
                     "src/cli/common.js",
                     "src/cli/rhino.js"
                 ],
-                dest: "<%= build_dir %>/<%= pkg.name %>-rhino.js"
+                dest: "<%= build_dir %>/csslint-rhino.js"
             },
             node: {
                 options: {
@@ -91,7 +92,7 @@ module.exports = function(grunt) {
                     footer: "\nexports.CSSLint = CSSLint;"
                 },
                 files: {
-                    "<%= build_dir %>/<%= pkg.name %>-node.js": ["<%= csslint_files %>"]
+                    "<%= build_dir %>/csslint-node.js": ["<%= csslint_files %>"]
                 }
             },
             node_cli: {
@@ -109,7 +110,7 @@ module.exports = function(grunt) {
                     "tests/**/*.js",
                     "!tests/all-rules.js"
                 ],
-                dest: "<%= build_dir %>/<%= pkg.name %>-tests.js"
+                dest: "<%= build_dir %>/csslint-tests.js"
             },
             worker: {
                 options: {
@@ -121,7 +122,7 @@ module.exports = function(grunt) {
                     "<%= core_files %>",
                     "src/worker/*.js"
                 ],
-                dest: "<%= build_dir %>/<%= pkg.name %>-worker.js"
+                dest: "<%= build_dir %>/csslint-worker.js"
             },
             wsh: {
                 src: [
@@ -129,7 +130,7 @@ module.exports = function(grunt) {
                     "src/cli/common.js",
                     "src/cli/wsh.js"
                 ],
-                dest: "<%= build_dir %>/<%= pkg.name %>-wsh.js"
+                dest: "<%= build_dir %>/csslint-wsh.js"
             }
         },
 
