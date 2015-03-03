@@ -1,4 +1,202 @@
+/* jshint node:true */
+"use strict";
+
+var stub = {
+    logbook: function (log) {
+        this.logs.push(log);
+    },
+    readLogs: function () {
+        return this.logs.slice();
+    },
+
+    getFullPath: function (path) {
+        return path;
+    },
+    getFiles: function (dir) {
+        var filesobj = this.fakedFs[dir],
+            fileix,
+            out = [];
+        for (fileix in filesobj) {
+            if (filesobj.hasOwnProperty(fileix) && /\.css$/.test(fileix)) {
+                out.push(dir + "/" + fileix);
+            }
+        }
+        return out;
+    },
+    readFile: function (path) {
+        var spath = path.split("/"),
+            spathLen = spath.length,
+            i,
+            out = this.fakedFs;
+
+        for (i = 0; i < spathLen; i += 1) {
+            out = out[spath[i]];
+        }
+
+        return out;
+    },
+    isDirectory: function (checkit) {
+        var result = this.fakedFs[checkit];
+        return typeof result === "object";
+    },
+    print: function (msg) {
+        this.logbook(msg);
+    },
+    quit: function (signal) {
+        this.logbook(signal);
+    }
+};
+
+module.exports = function (setup) {
+    var api,
+        setix;
+
+    api = Object.create(stub);
+
+    for (setix in setup) {
+        if (setup.hasOwnProperty(setix)) {
+            api[setix] = setup[setix];
+        }
+    }
+
+    api.logs = [];
+    return api;
+};
+
+/* jshint node:true */
+
+module.exports = {
+    "suites": {
+        "config csslintrc override": {
+            "args": [
+                "--config=.rc1",
+                "dir"
+            ],
+            "expecting": [
+                "csslint: No errors in dir/a.css.",
+                "csslint: No errors in dir/b.css.",
+                0
+            ]
+        },
+        "straight linting": {
+            "args": [
+                "dir"
+            ],
+            "expecting": [
+                "csslint: There is 1 problem in dir/a.css.",
+                "csslint: There is 1 problem in dir/b.css.",
+                0
+            ]
+        },
+        "mix of cli options": {
+            "args": [
+                "--config=.rc1",
+                "--ignore=important",
+                "dir"
+            ],
+            "expecting": [
+                "csslint: No errors in dir/a.css.",
+                "csslint: There is 1 problem in dir/b.css.",
+                0
+            ]
+        },
+        "more mixes of cli options": {
+            "args": [
+                "--config=.rc1",
+                "--errors=important",
+                "dir"
+            ],
+            "expecting": [
+                "csslint: There is 1 problem in dir/a.css.",
+                "csslint: No errors in dir/b.css.",
+                1
+            ]
+        }
+    },
+
+    "fakedFs": {
+        ".rc1": "--ignore=important,ids",
+        "dir": {
+            "a.css": ".a {color: red!important;}",
+            "b.css": "#a {color: red;}"
+        }
+    }
+};
+
+/* jshint loopfunc:true, node:true */
+
+"use strict";
+function include(path, sandbox) {
+    var vm = require("vm"),
+        fs = require("fs"),
+        file;
+
+    file = fs.readFileSync(path);
+    vm.runInNewContext(file, sandbox);
+}
+
+
+(function() {
+
+    var Assert  = YUITest.Assert,
+        suite   = new YUITest.TestSuite("General Tests for CLI"),
+        apiStub = require("../tests/cli/assets/apiStub.js"),
+        data    = require("../tests/cli/assets/data.js"),
+        suites  = data.suites,
+        suiteix,
+        sandbox = {
+            CSSLint: CSSLint
+        };
+
+    include("./src/cli/common.js", sandbox); /* expose sandbox.cli */
+
+    for (suiteix in suites) {
+        if (suites.hasOwnProperty(suiteix)) {
+            (function (suiteix) {
+
+                suite.add(new YUITest.TestCase({
+
+                    name: "Test " + suiteix,
+
+                    "Outcome logs should match expected": function (){
+                        var it = suites[suiteix],
+                            expecting = it.expecting,
+                            expectingLen = expecting.length,
+                            outcome,
+                            api,
+                            exp,
+                            out,
+                            i = 0;
+
+                        data.args = it.args.slice();
+                        api = apiStub(data);
+                        sandbox.cli(api);
+                        outcome = api.readLogs();
+
+                        for (i; i < expectingLen; i += 1) {
+                            exp = expecting[i];
+                            out = outcome[i];
+
+                            if ( typeof out === "string") {
+                                out = /^.*/.exec(out.trim())[0];
+                            }
+                            if ( exp !== out ) {
+                                Assert.fail("Expecting: " + exp + " Got: " + out);
+                            }
+                        }
+                        Assert.pass();
+
+                    }
+                }));
+            })(suiteix);
+        }
+    }
+
+    YUITest.TestRunner.add(suite);
+})();
+
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -24,6 +222,18 @@
             Assert.areEqual(2, result.ruleset["adjoining-classes"]);
             Assert.areEqual(1, result.ruleset["text-indent"]);
             Assert.areEqual(0, result.ruleset["box-sizing"]);
+        },
+
+        "Embedded rulesets should not have the side-effect of modifying the ruleset object passed in by the caller of verify()": function(){
+            var ruleset = {
+                "text-indent": 1,
+                "box-sizing": 1
+            };
+            CSSLint.verify("/*csslint bogus, adjoining-classes:true, box-sizing:false */\n.foo.bar{}", ruleset);
+
+            Assert.areEqual(undefined, ruleset["adjoining-classes"]);
+            Assert.areEqual(1, ruleset["text-indent"]);
+            Assert.areEqual(1, ruleset["box-sizing"]);
         }
 
     }));
@@ -31,6 +241,7 @@
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -66,6 +277,7 @@
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -109,6 +321,7 @@
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -155,6 +368,7 @@
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -196,6 +410,7 @@
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -249,6 +464,7 @@
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -291,6 +507,7 @@
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -336,6 +553,7 @@
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -366,6 +584,7 @@
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -591,6 +810,7 @@
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -613,6 +833,7 @@
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -717,6 +938,7 @@
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -768,6 +990,7 @@
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -980,6 +1203,7 @@
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -1004,6 +1228,7 @@
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -1057,6 +1282,7 @@
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -1074,6 +1300,7 @@
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -1090,6 +1317,7 @@
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -1986,6 +2214,7 @@
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2020,6 +2249,7 @@
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2047,6 +2277,7 @@
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2076,6 +2307,7 @@
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2127,6 +2359,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2151,6 +2384,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2168,6 +2402,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2194,6 +2429,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2237,6 +2473,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2272,6 +2509,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2321,6 +2559,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2361,6 +2600,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2379,6 +2619,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2430,6 +2671,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert, i, j, css1 = "", css2 = "", css3 = "", css4 = "";
 
     // create css1, which has only 4095 rules and 4095 selectors
@@ -2496,6 +2738,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 
 })();
 (function(){
+    "use strict";
     var Assert = YUITest.Assert, i, j, css1 = "", css2 = "", css3 = "", css4 = "";
 
     // create css1, which has only 4095 rules and 4095 selectors
@@ -2553,7 +2796,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 
 })();
 (function () {
-
+    "use strict";
     var ruleId = "selector-newline", expectWarning, expectPass;
 
     expectWarning = function (ruleset, expectedMessage) {
@@ -2581,12 +2824,16 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
         },
         "a newline between selectors should not result in a warning": function () {
             expectPass(".foo,\n.bar{}");
+        },
+        "'+' or '>' should not result in a warning": function () {
+            expectPass(".foo > .bar,\n.foo + .bar,\n.foo >\n.bar{}");
         }
     }));
 
 }());
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2622,6 +2869,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2645,6 +2893,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2699,6 +2948,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2722,6 +2972,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2768,6 +3019,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2798,6 +3050,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2834,6 +3087,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2907,6 +3161,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
