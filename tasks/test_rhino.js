@@ -1,6 +1,7 @@
 /* jshint node:true */
+"use strict";
+
 module.exports = function( grunt ) {
-    "use strict";
     // Run test suite through rhino
     grunt.registerMultiTask("test_rhino", "Run the test suite through rhino", function() {
         var done = this.async();

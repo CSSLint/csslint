@@ -1,6 +1,7 @@
 /* jshint evil:true, node:true */
+"use strict";
+
 module.exports = function( grunt ) {
-    "use strict";
     grunt.registerMultiTask("yuitest", "Run the YUITests for the project", function() {
 
         var YUITest = require("yuitest");

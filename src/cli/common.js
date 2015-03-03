@@ -3,6 +3,7 @@
  * provides environment-specific functionality.
  */
 
+/* global JSON */
 /* exported cli */
 
 function cli(api){

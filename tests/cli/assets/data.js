@@ -1,4 +1,5 @@
-/*jshint node:true*/
+/* jshint node:true */
+
 module.exports = {
     "suites": {
         "config csslintrc override": {
@@ -53,6 +54,6 @@ module.exports = {
         "dir": {
             "a.css": ".a {color: red!important;}",
             "b.css": "#a {color: red;}"
-        },
+        }
     }
 };

@@ -1,6 +1,7 @@
 /* jshint node:true */
+"use strict";
+
 module.exports = function( grunt ) {
-    "use strict";
     grunt.registerMultiTask("changelog", "Write the changelog file", function() {
         var done = this.async();
         var lastTag;
