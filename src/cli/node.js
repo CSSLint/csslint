@@ -75,5 +75,7 @@ cli({
         } catch (ex) {
             return "";
         }
-    }
+    },
+
+    isNode: true
 });

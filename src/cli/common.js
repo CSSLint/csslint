@@ -12,6 +12,7 @@ function cli(api) {
     var globalOptions = {
         "help"        : { "format" : "",                       "description" : "Displays this information." },
         "format"      : { "format" : "<format>",               "description" : "Indicate which format to use for output." },
+        "formatter"   : { "format" : "<formatter>",            "description" : "Path to a formatter to load. Only supported in Node.js" },
         "list-rules"  : { "format" : "",                       "description" : "Outputs all of the rules available." },
         "quiet"       : { "format" : "",                       "description" : "Only output when errors are present." },
         "errors"      : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to include as errors." },
@@ -223,6 +224,17 @@ function cli(api) {
             api.print("csslint: No files specified.");
             exitCode = 1;
         } else {
+            if (api.isNode && options.formatter) {
+                /*jshint node:true */
+                var path = require("path");
+                var fullPath = path.resolve(process.cwd(), options.formatter);
+
+                var customFormatter = require(fullPath);
+
+                CSSLint.addFormatter(customFormatter);
+                /*jshint node:false */
+            }
+
             if (!CSSLint.hasFormat(formatId)) {
                 api.print("csslint: Unknown format '" + formatId + "'. Cannot proceed.");
                 exitCode = 1;
