@@ -14,10 +14,7 @@
   "bugs": {
     "url": "https://github.com/CSSLint/csslint/issues"
   },
-  "license": {
-    "type": "MIT",
-    "url": "https://github.com/CSSLint/csslint/blob/master/LICENSE"
-  },
+  "license": "MIT",
   "main": "./lib/csslint-node.js",
   "bin": {
     "csslint": "./cli.js"
