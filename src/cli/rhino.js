@@ -3,8 +3,9 @@
  */
 
 /* jshint rhino:true */
-/* global cli, File */
+/* global cli, File, System, BufferedReader, InputStreamReader */
 
+importPackage(java.lang);
 importPackage(java.io);
 
 cli({
@@ -56,5 +57,23 @@ cli({
         } catch (ex) {
             return "";
         }
+    },
+
+    readStdin: function(cb) {
+        "use strict";
+        var data = "",
+            closed = false,
+            chunk,
+            isr = new InputStreamReader(System["in"]),
+            br = new BufferedReader(isr);
+        while (!closed) {
+            chunk = br.readLine();
+            if (chunk !== null) {
+                data += chunk;
+            } else {
+                closed = true;
+            }
+        }
+        cb(data);
     }
 });
