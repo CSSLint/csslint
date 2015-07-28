@@ -190,6 +190,10 @@ var wshapi = (function() {
                 return "";
             }
             return allText;
+        },
+
+        readStdin: function(cb) {
+            cb(WScript.StdIn.ReadAll());
         }
     };
 
