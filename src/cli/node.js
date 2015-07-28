@@ -18,6 +18,26 @@ cli({
         fs.writeSync(1, message + "\n");
     },
 
+    readStdin: function(cb) {
+        var data = "";
+        process.stdin.setEncoding("utf-8");
+        process.stdin.on("readable", function () {
+            var closed = false,
+                chunk;
+            while (!closed) {
+                chunk = process.stdin.read();
+                if (chunk !== null) {
+                    data += chunk;
+                } else {
+                    closed = true;
+                }
+            }
+        });
+        process.stdin.on("end", function () {
+            cb(data);
+        });
+    },
+
     quit: function(code) {
         process.exit(code || 0);
     },

@@ -137,9 +137,8 @@ function cli(api) {
      * @param {Object} options for processing
      * @return {Number} exit code
      */
-    function processFile(relativeFilePath, options) {
-        var input = api.readFile(relativeFilePath),
-            ruleset = filterRules(options),
+    function processFile(relativeFilePath, input, options) {
+        var ruleset = filterRules(options),
             result = CSSLint.verify(input, gatherRules(options, ruleset)),
             formatter = CSSLint.getFormatter(options.format || "text"),
             messages = result.messages || [],
@@ -154,8 +153,6 @@ function cli(api) {
             }
             exitCode = 1;
         } else {
-            //var relativeFilePath = getRelativePath(api.getWorkingDirectory(), fullFilePath);
-            options.fullPath = api.getFullPath(relativeFilePath);
             output = formatter.formatResults(result, relativeFilePath, options);
             if (output) {
                 api.print(output);
@@ -214,42 +211,66 @@ function cli(api) {
      */
     function processFiles(fileArray, options) {
         var exitCode = 0,
-            formatId = options.format || "text",
-            formatter,
-            files = filterFiles(fileArray, options),
-            output;
+            files = filterFiles(fileArray, options);
 
         if (!files.length) {
             api.print("csslint: No files specified.");
             exitCode = 1;
         } else {
-            if (!CSSLint.hasFormat(formatId)) {
-                api.print("csslint: Unknown format '" + formatId + "'. Cannot proceed.");
-                exitCode = 1;
-            } else {
-                formatter = CSSLint.getFormatter(formatId);
+            files.forEach(function(file){
+                var input = api.readFile(file),
+                    newExitCode = 0;
 
-                output = formatter.startFormat();
-                if (output) {
-                    api.print(output);
+                options.fullPath = api.getFullPath(file);
+                newExitCode = processFile(file, input, options);
+
+                if (exitCode === 0) {
+                    exitCode = newExitCode;
                 }
-
-
-                files.forEach(function(file) {
-                    if (exitCode === 0) {
-                        exitCode = processFile(file, options);
-                    } else {
-                        processFile(file, options);
-                    }
-                });
-
-                output = formatter.endFormat();
-                if (output) {
-                    api.print(output);
-                }
-            }
+            });
         }
+
         return exitCode;
+    }
+
+
+    function processInput(argCount, options, cb){
+        var exitCode = 0,
+            formatId = options.format || "text",
+            formatter,
+            output;
+
+        function exit(newExitCode) {
+            output = formatter.endFormat();
+            if (output){
+                api.print(output);
+            }
+            cb(newExitCode);
+        }
+
+        if (!CSSLint.hasFormat(formatId)){
+            api.print("csslint: Unknown format '" + formatId + "'. Cannot proceed.");
+            exitCode = 1;
+            cb(exitCode);
+        } else {
+            formatter = CSSLint.getFormatter(formatId);
+
+            output = formatter.startFormat();
+            if (output){
+                api.print(output);
+            }
+
+            if (argCount !== 0) {
+                exitCode = processFiles(options.files, options);
+                exit(exitCode);
+            } else {
+                api.readStdin(function (input) {
+                    var exitCode = processFile("<stdin>", input, options);
+                    exit(exitCode);
+                });
+            }
+
+        }
     }
 
 
@@ -346,7 +367,7 @@ function cli(api) {
     // Preprocess command line arguments
     cliOptions = processArguments(args);
 
-    if (cliOptions.help || argCount === 0) {
+    if (cliOptions.help) {
         outputHelp();
         api.quit(0);
     }
@@ -374,5 +395,7 @@ function cli(api) {
     // Validate options
     validateOptions(options);
 
-    api.quit(processFiles(options.files, options));
+    processInput(argCount, options, function (exitCode) {
+        api.quit(exitCode);
+    });
 }
