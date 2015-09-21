@@ -40,7 +40,7 @@ module.exports = function(grunt) {
         },
         build_dir: "build",
         //Parser lib copy for versions that can't use requirejs
-        parserlib: "node_modules/parserlib/lib/node-parserlib.js",
+        parserlib: "node_modules/parserlib-oz/lib/node-parserlib.js",
         //clone copy for versions that can't use requirejs
         clone: "node_modules/clone/clone.js",
         //Core CSSLint files used by most versions
@@ -90,7 +90,7 @@ module.exports = function(grunt) {
                 options: {
                     banner: "<%= banner.full %>\n" +
                             "var clone = require('clone');\n" +
-                            "var parserlib = require('parserlib');\n",
+                            "var parserlib = require('parserlib-oz');\n",
                     footer: "\nexports.CSSLint = CSSLint;"
                 },
                 files: {

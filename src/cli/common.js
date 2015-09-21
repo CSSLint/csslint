@@ -149,7 +149,7 @@ function cli(api){
             if (formatter.readError) {
                 api.print(formatter.readError(relativeFilePath, "Could not read file data. Is the file empty?"));
             } else {
-                api.print("csslint: Could not read file data in " + relativeFilePath + ". Is the file empty?");
+                api.print("csslint-oz: Could not read file data in " + relativeFilePath + ". Is the file empty?");
             }
             exitCode = 1;
         } else {
@@ -179,7 +179,7 @@ function cli(api){
             formatString = "";
 
         api.print([
-            "\nUsage: csslint-rhino.js [options]* [file|dir]*",
+            "\nUsage: csslint-oz-rhino.js [options]* [file|dir]*",
             " ",
             "Global Options"
         ].join("\n"));
@@ -219,11 +219,11 @@ function cli(api){
             output;
 
         if (!files.length) {
-            api.print("csslint: No files specified.");
+            api.print("csslint-oz: No files specified.");
             exitCode = 1;
         } else {
             if (!CSSLint.hasFormat(formatId)){
-                api.print("csslint: Unknown format '" + formatId + "'. Cannot proceed.");
+                api.print("csslint-oz: Unknown format '" + formatId + "'. Cannot proceed.");
                 exitCode = 1;
             } else {
                 formatter = CSSLint.getFormatter(formatId);

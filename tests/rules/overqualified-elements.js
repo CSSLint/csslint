@@ -18,6 +18,11 @@
             Assert.areEqual(0, result.messages.length);
         },
 
+        "Using a dynamic class with an element should not result in a warning": function(){
+            var result = CSSLint.verify("a.ng-hide { float: left;}", { "overqualified-elements": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
         "Using a class with an element should result in one warning": function(){
             var result = CSSLint.verify("li.foo { float: left;}", { "overqualified-elements": 1 });
             Assert.areEqual(1, result.messages.length);
