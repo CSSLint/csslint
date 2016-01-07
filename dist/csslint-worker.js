@@ -1,6 +1,6 @@
 /*!
 CSSLint v0.10.0
-Copyright (c) 2015 Nicole Sullivan and Nicholas C. Zakas. All rights reserved.
+Copyright (c) 2016 Nicole Sullivan and Nicholas C. Zakas. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the 'Software'), to deal
@@ -6551,9 +6551,8 @@ exports[prop] = parserlib[prop];
 }
 })();
 
+var clone = (function() {
 'use strict';
-
-var clone = (function(global) {
 
 /**
  * Clones (copies) an Object using deep copying.
@@ -6573,7 +6572,6 @@ var clone = (function(global) {
  * @param `prototype` - sets the prototype to be used when cloning an object.
  *    (optional - defaults to parent prototype).
 */
-
 function clone(parent, circular, depth, prototype) {
   var filter;
   if (typeof circular === 'object') {
@@ -6610,12 +6608,12 @@ function clone(parent, circular, depth, prototype) {
       return parent;
     }
 
-    if (isArray(parent)) {
+    if (clone.__isArray(parent)) {
       child = [];
-    } else if (isRegExp(parent)) {
-      child = new RegExp(parent.source, clone.getRegExpFlags(parent));
+    } else if (clone.__isRegExp(parent)) {
+      child = new RegExp(parent.source, __getRegExpFlags(parent));
       if (parent.lastIndex) child.lastIndex = parent.lastIndex;
-    } else if (isDate(parent)) {
+    } else if (clone.__isDate(parent)) {
       child = new Date(parent.getTime());
     } else if (useBuffer && Buffer.isBuffer(parent)) {
       child = new Buffer(parent.length);
@@ -6647,7 +6645,7 @@ function clone(parent, circular, depth, prototype) {
       if (proto) {
         attrs = Object.getOwnPropertyDescriptor(proto, i);
       }
-      
+
       if (attrs && attrs.set == null) {
         continue;
       }
@@ -6667,7 +6665,7 @@ function clone(parent, circular, depth, prototype) {
  * USE WITH CAUTION! This may not behave as you wish if you do not know how this
  * works.
  */
-clone.clonePrototype = function(parent) {
+clone.clonePrototype = function clonePrototype(parent) {
   if (parent === null)
     return null;
 
@@ -6676,43 +6674,43 @@ clone.clonePrototype = function(parent) {
   return new c();
 };
 
-function getRegExpFlags(re) {
-  var flags = '';
-  re.global && (flags += 'g');
-  re.ignoreCase && (flags += 'i');
-  re.multiline && (flags += 'm');
-  return flags;
-}
+// private utility functions
 
-function objectToString(o) {
+function __objToStr(o) {
   return Object.prototype.toString.call(o);
-}
+};
+clone.__objToStr = __objToStr;
 
-function isDate(o) {
-  return typeof o === 'object' && objectToString(o) === '[object Date]';
-}
+function __isDate(o) {
+  return typeof o === 'object' && __objToStr(o) === '[object Date]';
+};
+clone.__isDate = __isDate;
 
-function isArray(o) {
-  return typeof o === 'object' && objectToString(o) === '[object Array]';
-}
+function __isArray(o) {
+  return typeof o === 'object' && __objToStr(o) === '[object Array]';
+};
+clone.__isArray = __isArray;
 
-function isRegExp(o) {
-  return typeof o === 'object' && objectToString(o) === '[object RegExp]';
-}
+function __isRegExp(o) {
+  return typeof o === 'object' && __objToStr(o) === '[object RegExp]';
+};
+clone.__isRegExp = __isRegExp;
 
-if (global.TESTING) clone.getRegExpFlags = getRegExpFlags;
-if (global.TESTING) clone.objectToString = objectToString;
-if (global.TESTING) clone.isDate   = isDate;
-if (global.TESTING) clone.isArray  = isArray;
-if (global.TESTING) clone.isRegExp = isRegExp;
+function __getRegExpFlags(re) {
+  var flags = '';
+  if (re.global) flags += 'g';
+  if (re.ignoreCase) flags += 'i';
+  if (re.multiline) flags += 'm';
+  return flags;
+};
+clone.__getRegExpFlags = __getRegExpFlags;
 
 return clone;
+})();
 
-})( typeof(global) === 'object' ? global :
-    typeof(window) === 'object' ? window : this);
-
-if (module && module.exports)
+if (typeof module === 'object' && module.exports) {
   module.exports = clone;
+}
 
 /**
  * Main CSSLint object.
