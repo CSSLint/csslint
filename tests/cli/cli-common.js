@@ -1,8 +1,8 @@
-/*jshint loopfunc:true, node:true */
+/* jshint loopfunc:true, node:true */
+
 "use strict";
 function include(path, sandbox) {
-    var
-        vm = require("vm"),
+    var vm = require("vm"),
         fs = require("fs"),
         file;
 
@@ -11,14 +11,13 @@ function include(path, sandbox) {
 }
 
 
+(function() {
 
-(function(){
-
-    var Assert = YUITest.Assert,
+    var Assert  = YUITest.Assert,
         suite   = new YUITest.TestSuite("General Tests for CLI"),
         apiStub = require("../tests/cli/assets/apiStub.js"),
-        data = require("../tests/cli/assets/data.js"),
-        suites = data.suites,
+        data    = require("../tests/cli/assets/data.js"),
+        suites  = data.suites,
         suiteix,
         sandbox = {
             CSSLint: CSSLint
@@ -35,8 +34,7 @@ function include(path, sandbox) {
                     name: "Test " + suiteix,
 
                     "Outcome logs should match expected": function (){
-                        var
-                            it = suites[suiteix],
+                        var it = suites[suiteix],
                             expecting = it.expecting,
                             expectingLen = expecting.length,
                             outcome,

@@ -1,7 +1,5 @@
-/build/
 /node_modules/
 /npm-debug.log
-/release/npm/README.md
 csslint.pnproj
 
 # Diff files

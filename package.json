@@ -15,9 +15,9 @@
     "url": "https://github.com/CSSLint/csslint/issues"
   },
   "license": "MIT",
-  "main": "./lib/csslint-node.js",
+  "main": "./dist/csslint-node.js",
   "bin": {
-    "csslint": "./cli.js"
+    "csslint": "./dist/cli.js"
   },
   "scripts": {
     "test": "grunt test"
@@ -30,7 +30,6 @@
     "grunt": "~0.4.5",
     "grunt-contrib-clean": "~0.7.0",
     "grunt-contrib-concat": "~0.5.1",
-    "grunt-contrib-copy": "~0.8.0",
     "grunt-contrib-jshint": "~0.11.0",
     "grunt-contrib-watch": "~0.6.1",
     "grunt-include-replace": "~3.2.0",
@@ -43,5 +42,11 @@
   },
   "directories": {
     "test": "tests"
-  }
+  },
+  "files": [
+    "dist/cli.js",
+    "dist/csslint-node.js",
+    "CHANGELOG",
+    "LICENSE"
+  ]
 }

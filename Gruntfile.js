@@ -4,18 +4,15 @@
 
 module.exports = function(grunt) {
 
+    // Force use of Unix newlines
+    grunt.util.linefeed = "\n";
+
     // Project configuration.
     grunt.initConfig({
         // Metadata.
         pkg: grunt.file.readJSON("package.json"),
-        banner: {
-            compact: "/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - " +
-                "<%= grunt.template.today('yyyy-mm-dd') %>\n" +
-                "<%= pkg.homepage ? '* ' + pkg.homepage + '\\n' : '' %>" +
-                "* Copyright (c) <%= grunt.template.today('yyyy') %> Nicole Sullivan and Nicholas C. Zakas;\n" +
-                "* Licensed <%= _.pluck(pkg.licenses, 'type').join(', ') %> <%= _.pluck(pkg.licenses, 'url').join(', ') %> */\n",
-            full: "/*!\n" +
-                "CSSLint\n" +
+        banner: "/*!\n" +
+                "CSSLint v<%= pkg.version %>\n" +
                 "Copyright (c) <%= grunt.template.today('yyyy') %> Nicole Sullivan and Nicholas C. Zakas. All rights reserved.\n" +
                 "\n" +
                 "Permission is hereby granted, free of charge, to any person obtaining a copy\n" +
@@ -35,10 +32,8 @@ module.exports = function(grunt) {
                 "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n" +
                 "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\n" +
                 "THE SOFTWARE.\n\n" +
-                "*/\n" +
-                "/* Build: v<%= pkg.version %> <%= grunt.template.today('dd-mmmm-yyyy hh:MM:ss') %> */"
-        },
-        build_dir: "build",
+                "*/\n",
+        build_dir: "dist",
         //Parser lib copy for versions that can't use requirejs
         parserlib: "node_modules/parserlib/lib/node-parserlib.js",
         //clone copy for versions that can't use requirejs
@@ -56,27 +51,30 @@ module.exports = function(grunt) {
             "<%= clone %>",
             "<%= csslint_files %>"
         ],
+
         // Task configuration.
         clean: {
-            build: ["<%= build_dir %>"],
-            release: ["release"]
+            dist: "<%= build_dir %>"
         },
+
         changelog: {
             dest: "CHANGELOG"
         },
+
         concat: {
             core: {
                 options: {
-                    banner: "<%= banner.full %>\n" +
-                            //Hack for using the node version of parserlib
-                            "var exports = exports || {};\n" +
+                    banner: "<%= banner %>\n" +
+                            // Hack for using the node version of parserlib and clone
+                            "var module = module || {},\n" +
+                            "    exports = exports || {};\n\n" +
                             "var CSSLint = (function(){\n",
                     footer: "\nreturn CSSLint;\n})();"
                 },
                 src: [
                     "<%= core_files %>"
                 ],
-                dest: "<%= build_dir %>/<%= pkg.name %>.js"
+                dest: "<%= build_dir %>/csslint.js"
             },//Build environment workers
             rhino: {
                 src: [
@@ -84,40 +82,39 @@ module.exports = function(grunt) {
                     "src/cli/common.js",
                     "src/cli/rhino.js"
                 ],
-                dest: "<%= build_dir %>/<%= pkg.name %>-rhino.js"
+                dest: "<%= build_dir %>/csslint-rhino.js"
             },
             node: {
                 options: {
-                    banner: "<%= banner.full %>\n" +
+                    banner: "<%= banner %>" +
                             "var clone = require('clone');\n" +
                             "var parserlib = require('parserlib');\n",
                     footer: "\nexports.CSSLint = CSSLint;"
                 },
                 files: {
-                    "<%= build_dir %>/<%= pkg.name %>-node.js": ["<%= csslint_files %>"],
-                    "<%= build_dir %>/npm/lib/<%= pkg.name %>-node.js": ["<%= csslint_files %>"]
+                    "<%= build_dir %>/csslint-node.js": ["<%= csslint_files %>"]
                 }
             },
             node_cli: {
                 options: {
-                    banner: "#!/usr/bin/env node\n<%= banner.full %>"
+                    banner: "#!/usr/bin/env node\n<%= banner %>"
                 },
                 src: [
                     "src/cli/common.js",
                     "src/cli/node.js"
                 ],
-                dest: "<%= build_dir %>/npm/cli.js"
+                dest: "<%= build_dir %>/cli.js"
             },
             tests: {
                 src: [
                     "tests/**/*.js",
                     "!tests/all-rules.js"
                 ],
-                dest: "<%= build_dir %>/<%= pkg.name %>-tests.js"
+                dest: "<%= build_dir %>/csslint-tests.js"
             },
             worker: {
                 options: {
-                    banner: "<%= banner.full %>\n" +
+                    banner: "<%= banner %>" +
                             //Hack for using the node version of parserlib
                             "var exports = exports || {};\n"
                 },
@@ -125,7 +122,7 @@ module.exports = function(grunt) {
                     "<%= core_files %>",
                     "src/worker/*.js"
                 ],
-                dest: "<%= build_dir %>/<%= pkg.name %>-worker.js"
+                dest: "<%= build_dir %>/csslint-worker.js"
             },
             wsh: {
                 src: [
@@ -133,24 +130,12 @@ module.exports = function(grunt) {
                     "src/cli/common.js",
                     "src/cli/wsh.js"
                 ],
-                dest: "<%= build_dir %>/<%= pkg.name %>-wsh.js"
+                dest: "<%= build_dir %>/csslint-wsh.js"
             }
         },
-        copy: {
-            build: {
-              expand: true,
-              cwd: "<%= build_dir %>/",
-              src: "**/*",
-              dest: "release/"
-            },
-            npm: {
-              expand: true,
-              src: ["README.md", "package.json"],
-              dest: "release/npm/"
-            }
-        },
+
         includereplace: {
-            release: {
+            dist: {
                 options: {
                     // Global variables available in all files
                     globals: {
@@ -163,10 +148,11 @@ module.exports = function(grunt) {
                     expand: true,
                     cwd: "<%= build_dir %>/",
                     src: "**/*",
-                    dest: "release/"
+                    dest: "<%= build_dir %>/"
                 }]
             }
         },
+
         jshint: {
             options: {
                 jshintrc: ".jshintrc"
@@ -174,30 +160,35 @@ module.exports = function(grunt) {
             gruntfile: {
                 src: ["Gruntfile.js", "tasks/*.js"]
             },
+            core: {
+                src: "src/**/*.js"
+            },
             demo: {
                 src: "demos/*.js"
             },
-            all: {
-                src: "src/**/*.js"
-            },
             tests: {
+                options: {
+                    jshintrc: "tests/.jshintrc"
+                },
                 src: "tests/**/*.js"
             }
         },
+
         watch: {
             gruntfile: {
                 files: "<%= jshint.gruntfile.src %>",
-                tasks: ["jshint"]
+                tasks: "jshint"
             },
             src: {
                 files: "<%= jshint.all.src %>",
-                tasks: ["jshint:all"]
+                tasks: "jshint:core"
             },
             lib_test: {
                 files: "<%= jshint.tests.src %>",
-                tasks: ["jshint:tests"]
+                tasks: "jshint:tests"
             }
         },
+
         yuitest: {
             tests: {
                 src: [
@@ -205,6 +196,7 @@ module.exports = function(grunt) {
                 ]
             }
         },
+
         test_rhino: {
             tests: {
                 src: [
@@ -223,14 +215,17 @@ module.exports = function(grunt) {
     grunt.loadTasks("tasks");
 
     // Default task.
-    grunt.registerTask("default", ["test"]);
+    grunt.registerTask("default", ["build", "test"]);
 
-    // Alias for
-    grunt.registerTask("lint", ["jshint"]);
+    grunt.registerTask("build", ["clean", "concat", "includereplace"]);
+
+    //Alias for
+    grunt.registerTask("dist", "build");
+    grunt.registerTask("lint", "jshint");
 
     // Testing
-    grunt.registerTask("test", ["clean:build", "jshint", "concat", "yuitest"]);
-    grunt.registerTask("rhino", ["clean:build", "jshint", "concat", "test_rhino"]);
+    grunt.registerTask("test", ["build", "jshint", "yuitest"]);
+    grunt.registerTask("rhino", ["build", "jshint", "test_rhino"]);
 
-    grunt.registerTask("release", ["test", "clean:release", "copy", "includereplace:release", "changelog"]);
+    grunt.registerTask("release", ["default", "changelog"]);
 };

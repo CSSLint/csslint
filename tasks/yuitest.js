@@ -1,10 +1,11 @@
 /* jshint evil:true, node:true */
+"use strict";
+
 module.exports = function( grunt ) {
-    "use strict";
     grunt.registerMultiTask("yuitest", "Run the YUITests for the project", function() {
 
         var YUITest = require("yuitest");
-        var CSSLint = require("../build/csslint-node").CSSLint;  // jshint ignore:line
+        var CSSLint = require("../dist/csslint-node").CSSLint;  // jshint ignore:line
         var files = this.filesSrc;
         var TestRunner = YUITest.TestRunner;
         var done = this.async();

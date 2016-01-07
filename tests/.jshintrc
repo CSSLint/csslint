@@ -1,0 +1,6 @@
+{
+    "extends" : "../.jshintrc",
+    "globals": {
+        "YUITest": true
+    }
+}

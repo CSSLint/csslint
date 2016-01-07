@@ -1,6 +1,202 @@
-(function(){
+/* jshint node:true */
+"use strict";
 
-    /*global YUITest, CSSLint*/
+var stub = {
+    logbook: function (log) {
+        this.logs.push(log);
+    },
+    readLogs: function () {
+        return this.logs.slice();
+    },
+
+    getFullPath: function (path) {
+        return path;
+    },
+    getFiles: function (dir) {
+        var filesobj = this.fakedFs[dir],
+            fileix,
+            out = [];
+        for (fileix in filesobj) {
+            if (filesobj.hasOwnProperty(fileix) && /\.css$/.test(fileix)) {
+                out.push(dir + "/" + fileix);
+            }
+        }
+        return out;
+    },
+    readFile: function (path) {
+        var spath = path.split("/"),
+            spathLen = spath.length,
+            i,
+            out = this.fakedFs;
+
+        for (i = 0; i < spathLen; i += 1) {
+            out = out[spath[i]];
+        }
+
+        return out;
+    },
+    isDirectory: function (checkit) {
+        var result = this.fakedFs[checkit];
+        return typeof result === "object";
+    },
+    print: function (msg) {
+        this.logbook(msg);
+    },
+    quit: function (signal) {
+        this.logbook(signal);
+    }
+};
+
+module.exports = function (setup) {
+    var api,
+        setix;
+
+    api = Object.create(stub);
+
+    for (setix in setup) {
+        if (setup.hasOwnProperty(setix)) {
+            api[setix] = setup[setix];
+        }
+    }
+
+    api.logs = [];
+    return api;
+};
+
+/* jshint node:true */
+
+module.exports = {
+    "suites": {
+        "config csslintrc override": {
+            "args": [
+                "--config=.rc1",
+                "dir"
+            ],
+            "expecting": [
+                "csslint: No errors in dir/a.css.",
+                "csslint: No errors in dir/b.css.",
+                0
+            ]
+        },
+        "straight linting": {
+            "args": [
+                "dir"
+            ],
+            "expecting": [
+                "csslint: There is 1 problem in dir/a.css.",
+                "csslint: There is 1 problem in dir/b.css.",
+                0
+            ]
+        },
+        "mix of cli options": {
+            "args": [
+                "--config=.rc1",
+                "--ignore=important",
+                "dir"
+            ],
+            "expecting": [
+                "csslint: No errors in dir/a.css.",
+                "csslint: There is 1 problem in dir/b.css.",
+                0
+            ]
+        },
+        "more mixes of cli options": {
+            "args": [
+                "--config=.rc1",
+                "--errors=important",
+                "dir"
+            ],
+            "expecting": [
+                "csslint: There is 1 problem in dir/a.css.",
+                "csslint: No errors in dir/b.css.",
+                1
+            ]
+        }
+    },
+
+    "fakedFs": {
+        ".rc1": "--ignore=important,ids",
+        "dir": {
+            "a.css": ".a {color: red!important;}",
+            "b.css": "#a {color: red;}"
+        }
+    }
+};
+
+/* jshint loopfunc:true, node:true */
+
+"use strict";
+function include(path, sandbox) {
+    var vm = require("vm"),
+        fs = require("fs"),
+        file;
+
+    file = fs.readFileSync(path);
+    vm.runInNewContext(file, sandbox);
+}
+
+
+(function() {
+
+    var Assert  = YUITest.Assert,
+        suite   = new YUITest.TestSuite("General Tests for CLI"),
+        apiStub = require("../tests/cli/assets/apiStub.js"),
+        data    = require("../tests/cli/assets/data.js"),
+        suites  = data.suites,
+        suiteix,
+        sandbox = {
+            CSSLint: CSSLint
+        };
+
+    include("./src/cli/common.js", sandbox); /* expose sandbox.cli */
+
+    for (suiteix in suites) {
+        if (suites.hasOwnProperty(suiteix)) {
+            (function (suiteix) {
+
+                suite.add(new YUITest.TestCase({
+
+                    name: "Test " + suiteix,
+
+                    "Outcome logs should match expected": function (){
+                        var it = suites[suiteix],
+                            expecting = it.expecting,
+                            expectingLen = expecting.length,
+                            outcome,
+                            api,
+                            exp,
+                            out,
+                            i = 0;
+
+                        data.args = it.args.slice();
+                        api = apiStub(data);
+                        sandbox.cli(api);
+                        outcome = api.readLogs();
+
+                        for (i; i < expectingLen; i += 1) {
+                            exp = expecting[i];
+                            out = outcome[i];
+
+                            if ( typeof out === "string") {
+                                out = /^.*/.exec(out.trim())[0];
+                            }
+                            if ( exp !== out ) {
+                                Assert.fail("Expecting: " + exp + " Got: " + out);
+                            }
+                        }
+                        Assert.pass();
+
+                    }
+                }));
+            })(suiteix);
+        }
+    }
+
+    YUITest.TestRunner.add(suite);
+})();
+
+(function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -19,13 +215,25 @@
 
         "Embedded ruleset should be honored": function(){
             var result = CSSLint.verify("/*csslint bogus, adjoining-classes:true, box-sizing:false */\n.foo.bar{}", {
-                'text-indent': 1,
-                'box-sizing': 1
+                "text-indent": 1,
+                "box-sizing": 1
             });
 
-            Assert.areEqual(2, result.ruleset['adjoining-classes']);
-            Assert.areEqual(1, result.ruleset['text-indent']);
-            Assert.areEqual(0, result.ruleset['box-sizing']);
+            Assert.areEqual(2, result.ruleset["adjoining-classes"]);
+            Assert.areEqual(1, result.ruleset["text-indent"]);
+            Assert.areEqual(0, result.ruleset["box-sizing"]);
+        },
+
+        "Embedded rulesets should not have the side-effect of modifying the ruleset object passed in by the caller of verify()": function(){
+            var ruleset = {
+                "text-indent": 1,
+                "box-sizing": 1
+            };
+            CSSLint.verify("/*csslint bogus, adjoining-classes:true, box-sizing:false */\n.foo.bar{}", ruleset);
+
+            Assert.areEqual(undefined, ruleset["adjoining-classes"]);
+            Assert.areEqual(1, ruleset["text-indent"]);
+            Assert.areEqual(1, ruleset["box-sizing"]);
         }
 
     }));
@@ -33,8 +241,7 @@
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint, Reporter*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -70,8 +277,7 @@
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -86,9 +292,9 @@
 
         "File with problems should list them": function(){
             var result = { messages: [
-                     { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: { name: "A Rule"} },
-                     { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: { name: "Some Other Rule"} }
-                ], stats: [] },
+                { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: { name: "A Rule"} },
+                { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: { name: "Some Other Rule"} }
+            ], stats: [] },
                 file = "<file name=\"FILE\">",
                 error1 = "<error line=\"1\" column=\"1\" severity=\"warning\" message=\"BOGUS\" source=\"net.csslint.ARule\"/>",
                 error2 = "<error line=\"2\" column=\"1\" severity=\"error\" message=\"BOGUS\" source=\"net.csslint.SomeOtherRule\"/>",
@@ -98,14 +304,14 @@
         },
 
         "Formatter should escape special characters": function() {
-            var specialCharsSting = 'sneaky, "sneaky", <sneaky>, sneak & sneaky',
+            var specialCharsSting = "sneaky, 'sneaky', <sneaky>, sneak & sneaky",
                 result = { messages: [
-                     { type: "warning", line: 1, col: 1, message: specialCharsSting, evidence: "ALSO BOGUS", rule: [] },
-                     { type: "error", line: 2, col: 1, message: specialCharsSting, evidence: "ALSO BOGUS", rule: [] }
-                ], stats: [] },
+                { type: "warning", line: 1, col: 1, message: specialCharsSting, evidence: "ALSO BOGUS", rule: [] },
+                { type: "error", line: 2, col: 1, message: specialCharsSting, evidence: "ALSO BOGUS", rule: [] }
+            ], stats: [] },
                 file = "<file name=\"FILE\">",
-                error1 = "<error line=\"1\" column=\"1\" severity=\"warning\" message=\"sneaky, &quot;sneaky&quot;, &lt;sneaky&gt;, sneak &amp; sneaky\" source=\"\"/>",
-                error2 = "<error line=\"2\" column=\"1\" severity=\"error\" message=\"sneaky, &quot;sneaky&quot;, &lt;sneaky&gt;, sneak &amp; sneaky\" source=\"\"/>",
+                error1 = "<error line=\"1\" column=\"1\" severity=\"warning\" message=\"sneaky, 'sneaky', &lt;sneaky&gt;, sneak &amp; sneaky\" source=\"\"/>",
+                error2 = "<error line=\"2\" column=\"1\" severity=\"error\" message=\"sneaky, 'sneaky', &lt;sneaky&gt;, sneak &amp; sneaky\" source=\"\"/>",
                 expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><checkstyle>" + file + error1 + error2 + "</file></checkstyle>",
                 actual = CSSLint.format(result, "FILE", "checkstyle-xml");
             Assert.areEqual(expected, actual);
@@ -115,8 +321,7 @@
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -136,11 +341,11 @@
 
         "File with problems should list them": function() {
             var result = { messages: [
-                     { type: 'error', line: 2, col: 1, message: 'BOGUS ERROR', evidence: 'BOGUS', rule: [] },
-                     { type: 'warning', line: 1, col: 1, message: 'BOGUS WARNING', evidence: 'BOGUS', rule: [] }
-                ], stats: [] },
-                err = "path/to/FILE: line 2, col 1, Error - BOGUS ERROR\n",
-                warning = "path/to/FILE: line 1, col 1, Warning - BOGUS WARNING\n",
+                { type: "error", line: 2, col: 1, message: "BOGUS ERROR", evidence: "BOGUS", rule: { id: "BOGUS_RULE_ID" } },
+                { type: "warning", line: 1, col: 1, message: "BOGUS WARNING", evidence: "BOGUS", rule: { id: "BOGUS_RULE_ID" } }
+            ], stats: [] },
+                err = "path/to/FILE: line 2, col 1, Error - BOGUS ERROR (BOGUS_RULE_ID)\n",
+                warning = "path/to/FILE: line 1, col 1, Warning - BOGUS WARNING (BOGUS_RULE_ID)\n",
                 expected = err + warning,
                 actual = CSSLint.getFormatter("compact").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE"});
             Assert.areEqual(expected, actual);
@@ -148,11 +353,11 @@
 
         "Should output relative file paths": function() {
             var result = { messages: [
-                    { type: 'error', line: 2, col: 1, message: 'BOGUS ERROR', evidence: 'BOGUS', rule: [] },
-                    { type: 'warning', line: 1, col: 1, message: 'BOGUS WARNING', evidence: 'BOGUS', rule: [] }
-                ], stats: [] },
-                err = "path/to/FILE: line 2, col 1, Error - BOGUS ERROR\n",
-                warning = "path/to/FILE: line 1, col 1, Warning - BOGUS WARNING\n",
+                { type: "error", line: 2, col: 1, message: "BOGUS ERROR", evidence: "BOGUS", rule: { id: "BOGUS_RULE_ID" } },
+                { type: "warning", line: 1, col: 1, message: "BOGUS WARNING", evidence: "BOGUS", rule: { id: "BOGUS_RULE_ID" } }
+            ], stats: [] },
+                err = "path/to/FILE: line 2, col 1, Error - BOGUS ERROR (BOGUS_RULE_ID)\n",
+                warning = "path/to/FILE: line 1, col 1, Warning - BOGUS WARNING (BOGUS_RULE_ID)\n",
                 expected = err + warning,
                 actual = CSSLint.getFormatter("compact").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE"});
             Assert.areEqual(expected, actual);
@@ -163,8 +368,7 @@
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -178,9 +382,9 @@
 
         "File with problems should list them": function(){
             var result = { messages: [
-                     { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] },
-                     { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] }
-                ], stats: [] },
+                { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] },
+                { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] }
+            ], stats: [] },
                 file = "<file name=\"FILE\">",
                 error1 = "<issue line=\"1\" char=\"1\" severity=\"warning\" reason=\"BOGUS\" evidence=\"ALSO BOGUS\"/>",
                 error2 = "<issue line=\"2\" char=\"1\" severity=\"error\" reason=\"BOGUS\" evidence=\"ALSO BOGUS\"/>",
@@ -190,11 +394,11 @@
         },
 
         "Formatter should escape double quotes": function() {
-            var doubleQuotedEvidence = 'sneaky, "sneaky", <sneaky>, sneak & sneaky',
+            var doubleQuotedEvidence = "sneaky, \"sneaky\", <sneaky>, sneak & sneaky",
                 result = { messages: [
-                     { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] },
-                     { type: "error", line: 2, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] }
-                ], stats: [] },
+                { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] },
+                { type: "error", line: 2, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] }
+            ], stats: [] },
                 file = "<file name=\"FILE\">",
                 error1 = "<issue line=\"1\" char=\"1\" severity=\"warning\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky', &lt;sneaky&gt;, sneak &amp; sneaky\"/>",
                 error2 = "<issue line=\"2\" char=\"1\" severity=\"error\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky', &lt;sneaky&gt;, sneak &amp; sneaky\"/>",
@@ -206,8 +410,7 @@
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -225,9 +428,9 @@
         "File with problems should list them": function(){
 
             var result = { messages: [
-                     { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: { name: "A Rule"} },
-                     { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: { name: "Some Other Rule"} }
-                ], stats: [] },
+                { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: { name: "A Rule"} },
+                { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: { name: "Some Other Rule"} }
+            ], stats: [] },
 
                 file = "<testsuite time=\"0\" tests=\"2\" skipped=\"0\" errors=\"2\" failures=\"0\" package=\"net.csslint\" name=\"FILE\">",
                 error1 = "<testcase time=\"0\" name=\"net.csslint.ARule\"><error message=\"BOGUS\"><![CDATA[1:1:ALSO BOGUS]]></error></testcase>",
@@ -241,11 +444,11 @@
 
         "Formatter should escape special characters": function() {
 
-            var specialCharsSting = 'sneaky, "sneaky", <sneaky>',
+            var specialCharsSting = "sneaky, 'sneaky', <sneaky>",
                 result = { messages: [
-                     { type: "warning", line: 1, col: 1, message: specialCharsSting, evidence: "ALSO BOGUS", rule: [] },
-                     { type: "error", line: 2, col: 1, message: specialCharsSting, evidence: "ALSO BOGUS", rule: [] }
-                ], stats: [] },
+                { type: "warning", line: 1, col: 1, message: specialCharsSting, evidence: "ALSO BOGUS", rule: [] },
+                { type: "error", line: 2, col: 1, message: specialCharsSting, evidence: "ALSO BOGUS", rule: [] }
+            ], stats: [] },
 
                 file = "<testsuite time=\"0\" tests=\"2\" skipped=\"0\" errors=\"2\" failures=\"0\" package=\"net.csslint\" name=\"FILE\">",
                 error1 = "<testcase time=\"0\" name=\"\"><error message=\"sneaky, 'sneaky', &lt;sneaky&gt;\"><![CDATA[1:1:ALSO BOGUS]]></error></testcase>",
@@ -261,8 +464,7 @@
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -277,9 +479,9 @@
 
         "File with problems should list them": function(){
             var result = { messages: [
-                     { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] },
-                     { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] }
-                ], stats: [] },
+                { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] },
+                { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] }
+            ], stats: [] },
                 file = "<file name=\"FILE\">",
                 error1 = "<issue line=\"1\" char=\"1\" severity=\"warning\" reason=\"BOGUS\" evidence=\"ALSO BOGUS\"/>",
                 error2 = "<issue line=\"2\" char=\"1\" severity=\"error\" reason=\"BOGUS\" evidence=\"ALSO BOGUS\"/>",
@@ -289,11 +491,11 @@
         },
 
         "Formatter should escape double quotes": function() {
-            var doubleQuotedEvidence = 'sneaky, "sneaky", <sneaky>, sneak & sneaky',
+            var doubleQuotedEvidence = "sneaky, \"sneaky\", <sneaky>, sneak & sneaky",
                 result = { messages: [
-                     { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] },
-                     { type: "error", line: 2, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] }
-                ], stats: [] },
+                { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] },
+                { type: "error", line: 2, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] }
+            ], stats: [] },
                 file = "<file name=\"FILE\">",
                 error1 = "<issue line=\"1\" char=\"1\" severity=\"warning\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky', &lt;sneaky&gt;, sneak &amp; sneaky\"/>",
                 error2 = "<issue line=\"2\" char=\"1\" severity=\"error\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky', &lt;sneaky&gt;, sneak &amp; sneaky\"/>",
@@ -305,8 +507,7 @@
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -319,6 +520,16 @@
             Assert.areEqual("\n\ncsslint: No errors in path/to/FILE.", actual);
         },
 
+        "File with one problem should use proper grammar": function() {
+            var result = { messages: [
+                     { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] }
+                ], stats: [] },
+                error1 = "\n1: warning at line 1, col 1\nBOGUS\nALSO BOGUS",
+                expected = "\n\ncsslint: There is 1 problem in path/to/FILE.\n\nFILE" + error1,
+                actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE"});
+            Assert.areEqual(expected, actual);
+        },
+
         "Should have no output when quiet option is specified and no errors": function() {
             var result = { messages: [], stats: [] },
                 actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE", quiet: "true"});
@@ -327,9 +538,9 @@
 
         "File with problems should list them": function() {
             var result = { messages: [
-                     { type: 'warning', line: 1, col: 1, message: 'BOGUS', evidence: 'ALSO BOGUS', rule: [] },
-                     { type: 'error', line: 2, col: 1, message: 'BOGUS', evidence: 'ALSO BOGUS', rule: [] }
-                ], stats: [] },
+                { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] },
+                { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] }
+            ], stats: [] },
                 error1 = "\n1: warning at line 1, col 1\nBOGUS\nALSO BOGUS",
                 error2 = "\n2: error at line 2, col 1\nBOGUS\nALSO BOGUS",
                 expected = "\n\ncsslint: There are 2 problems in path/to/FILE.\n\nFILE" + error1 + "\n\nFILE" + error2,
@@ -342,8 +553,7 @@
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -374,8 +584,7 @@
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -394,17 +603,17 @@
             Assert.areEqual(0, result.messages.length);
         },
 
-       "Using width:auto with padding should not result in a warning": function(){
+        "Using width:auto with padding should not result in a warning": function(){
             var result = CSSLint.verify(".foo { width: auto; padding: 10px; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
-       "Using width:available with padding should not result in a warning": function(){
+        "Using width:available with padding should not result in a warning": function(){
             var result = CSSLint.verify(".foo { width: available; padding: 10px; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
-       "Using height:auto with padding should not result in a warning": function(){
+        "Using height:auto with padding should not result in a warning": function(){
             var result = CSSLint.verify(".foo { height: auto; padding: 10px; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
         },
@@ -601,8 +810,7 @@
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -625,8 +833,7 @@
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -731,8 +938,7 @@
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -784,8 +990,7 @@
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -998,8 +1203,7 @@
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -1024,8 +1228,7 @@
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -1079,8 +1282,7 @@
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -1098,8 +1300,7 @@
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -1116,8 +1317,7 @@
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2014,8 +2214,7 @@
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2050,8 +2249,7 @@
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2079,8 +2277,7 @@
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2110,8 +2307,7 @@
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2163,8 +2359,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2189,8 +2384,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2208,8 +2402,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2236,8 +2429,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2281,8 +2473,43 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
+    "use strict";
+    var Assert = YUITest.Assert;
 
-    /*global YUITest, CSSLint*/
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
+        name: "Alphabetical order Errors",
+
+        "Rules with properties not in alphabetical order should result in a warning": function(){
+            var result = CSSLint.verify("li { z-index: 2; color: red; }", { "order-alphabetical": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Rule doesn't have all its properties in alphabetical ordered.", result.messages[0].message);
+        },
+
+        "Rules with prefixed properties not in alphabetical order (without the prefix) should result in a warning": function(){
+            var result = CSSLint.verify("li { -moz-transition: none; -webkit-box-shadow: none; }", { "order-alphabetical": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Rule doesn't have all its properties in alphabetical ordered.", result.messages[0].message);
+        },
+
+        "Rules with properties in alphabetical order should not result in a warning": function(){
+            var result = CSSLint.verify("li { box-shadow: none; color: red; transition: none; }", { "order-alphabetical": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Rules with prefixed properties in alphabetical order should not result in a warning": function(){
+            var result = CSSLint.verify("li { -webkit-box-shadow: none; color: red; -moz-transition: none; }", { "order-alphabetical": 1 });
+            Assert.areEqual(0, result.messages.length);
+        }
+
+    }));
+
+})();
+
+(function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2332,8 +2559,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2374,8 +2600,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2394,8 +2619,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2447,8 +2671,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert, i, j, css1 = "", css2 = "", css3 = "", css4 = "";
 
     // create css1, which has only 4095 rules and 4095 selectors
@@ -2515,8 +2738,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 
 })();
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert, i, j, css1 = "", css2 = "", css3 = "", css4 = "";
 
     // create css1, which has only 4095 rules and 4095 selectors
@@ -2573,9 +2795,45 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
-(function(){
+(function () {
+    "use strict";
+    var ruleId = "selector-newline", expectWarning, expectPass;
 
-    /*global YUITest, CSSLint*/
+    expectWarning = function (ruleset, expectedMessage) {
+        var result, enabledRules = {};
+        enabledRules[ruleId] = 1;
+        result = CSSLint.verify(ruleset, enabledRules);
+        YUITest.Assert.areEqual(1, result.messages.length);
+        YUITest.Assert.areEqual("warning", result.messages[0].type);
+        YUITest.Assert.areEqual(expectedMessage, result.messages[0].message);
+    };
+
+    expectPass = function (ruleset) {
+        var result, enabledRules = {};
+        enabledRules[ruleId] = 1;
+        result = CSSLint.verify(ruleset, enabledRules);
+        YUITest.Assert.areEqual(0, result.messages.length);
+    };
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
+        name: ruleId + " Rule Errors",
+
+        "a newline in a selector should result in a warning": function () {
+            expectWarning(".foo\n.bar{}", "newline character found in selector (forgot a comma?)");
+        },
+        "a newline between selectors should not result in a warning": function () {
+            expectPass(".foo,\n.bar{}");
+        },
+        "'+' or '>' should not result in a warning": function () {
+            expectPass(".foo > .bar,\n.foo + .bar,\n.foo >\n.bar{}");
+        }
+    }));
+
+}());
+
+(function(){
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2611,8 +2869,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2636,8 +2893,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2692,8 +2948,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2717,8 +2972,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2765,8 +3019,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2797,8 +3050,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2835,8 +3087,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
@@ -2895,11 +3146,9 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
             Assert.areEqual("Missing standard property 'box-shadow' to go along with '-moz-box-shadow'.", result.messages[0].message);
         },
 
-        "Using -moz-user-select should result in a warning.": function(){
+        "Using -moz-user-select should not result in a warning.": function(){
             var result = CSSLint.verify("h1 {  -moz-user-select:none;  }", { "vendor-prefix": 1 });
-            Assert.areEqual(1, result.messages.length);
-            Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Missing standard property 'user-select' to go along with '-moz-user-select'.", result.messages[0].message);
+            Assert.areEqual(0, result.messages.length);
         },
 
         "Using @font-face should not result in an error (#90)": function(){
@@ -2912,8 +3161,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 })();
 
 (function(){
-
-    /*global YUITest, CSSLint*/
+    "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({

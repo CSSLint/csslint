@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /*!
-CSSLint
-Copyright (c) 2013 Nicole Sullivan and Nicholas C. Zakas. All rights reserved.
+CSSLint v0.10.0
+Copyright (c) 2015 Nicole Sullivan and Nicholas C. Zakas. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
+of this software and associated documentation files (the 'Software'), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
@@ -13,7 +13,7 @@ furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in
 all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -22,12 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-/* Build: v0.10.0 15-August-2013 01:07:22 *//*
+/*
  * Encapsulates all of the CLI functionality. The api argument simply
  * provides environment-specific functionality.
  */
-/*global CSSLint*/
+
+/* global JSON */
+/* exported cli */
+
 function cli(api){
+    "use strict";
 
     var globalOptions = {
         "help"        : { "format" : "",                       "description" : "Displays this information."},
@@ -38,6 +42,7 @@ function cli(api){
         "warnings"    : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to include as warnings."},
         "ignore"      : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to ignore completely."},
         "exclude-list": { "format" : "<file|dir[,file|dir]+>", "description" : "Indicate which files/directories to exclude from being linted."},
+        "config"      : { "format" : "<file>",                 "description" : "Reads csslint options from specified file."},
         "version"     : { "format" : "",                       "description" : "Outputs the current version number."}
     };
 
@@ -195,8 +200,8 @@ function cli(api){
      */
     function outputHelp(){
         var lenToPad = 40,
-            toPrint = '',
-            formatString = '';
+            toPrint = "",
+            formatString = "";
 
         api.print([
             "\nUsage: csslint-rhino.js [options]* [file|dir]*",
@@ -209,14 +214,14 @@ function cli(api){
                 // Print the option name and the format if present
                 toPrint += "  --" + optionName;
                 if (globalOptions[optionName].format !== "") {
-                    formatString = '=' + globalOptions[optionName].format;
+                    formatString = "=" + globalOptions[optionName].format;
                     toPrint += formatString;
                 } else {
-                    formatString = '';
+                    formatString = "";
                 }
 
                 // Pad out with the appropriate number of spaces
-                toPrint += new Array(lenToPad - (optionName.length + formatString.length)).join(' ');
+                toPrint += new Array(lenToPad - (optionName.length + formatString.length)).join(" ");
 
                 // Print the description
                 toPrint += globalOptions[optionName].description + "\n";
@@ -272,8 +277,9 @@ function cli(api){
     }
 
 
-    function processArguments(args, options) {
+    function processArguments(args, extend) {
         var arg = args.shift(),
+            options = extend || {},
             argName,
             parts,
             files = [];
@@ -306,25 +312,42 @@ function cli(api){
     }
 
     function validateOptions(options) {
-        for (var option_key in options) {
-            if (!globalOptions.hasOwnProperty(option_key) && option_key !== 'files') {
-                api.print(option_key + ' is not a valid option. Exiting...');
+        for (var optionKey in options) {
+            if (!globalOptions.hasOwnProperty(optionKey) && optionKey !== "files") {
+                api.print(optionKey + " is not a valid option. Exiting...");
                 outputHelp();
                 api.quit(0);
             }
         }
     }
 
-    function readConfigFile(options) {
-        var data = api.readFile(api.getFullPath(".csslintrc"));
+    function readConfigFile(config) {
+        var csslintrc = config || ".csslintrc",
+            data = api.readFile(api.getFullPath(csslintrc));
+        return data;
+    }
+
+    function readConfigData(config) {
+        var data = readConfigFile(config),
+            json,
+            options = {};
         if (data) {
-            options = processArguments(data.split(/[\s\n\r]+/m), options);
+            if (data.charAt(0) === "{") {
+                try {
+                    json = JSON.parse(data);
+                    data = "";
+                    for (var optionName in json) {
+                        if (json.hasOwnProperty(optionName)) {
+                            data += "--" + optionName + "=" + json[optionName].join();
+                        }
+                    }
+                } catch(e) {}
+            }
+            options = processArguments(data.split(/[\s\n\r]+/m));
         }
 
         return options;
     }
-
-
 
     //-----------------------------------------------------------------------------
     // Process command line
@@ -332,31 +355,40 @@ function cli(api){
 
     var args     = api.args,
         argCount = args.length,
-        options  = {};
+        options,
+        rcOptions,
+        cliOptions;
 
-    // first look for config file .csslintrc
-    options = readConfigFile(options);
+    // Preprocess command line arguments
+    cliOptions = processArguments(args);
 
-    // Command line arguments override config file
-    options = processArguments(args, options);
-
-    if (options.help || argCount === 0){
+    if (cliOptions.help || argCount === 0){
         outputHelp();
         api.quit(0);
     }
 
-    // Validate options
-    validateOptions(options);
-
-    if (options.version){
+    if (cliOptions.version){
         api.print("v" + CSSLint.version);
         api.quit(0);
     }
 
-    if (options["list-rules"]){
+    if (cliOptions["list-rules"]){
         printRules();
         api.quit(0);
     }
+
+    // Look for config file
+    rcOptions = readConfigData(cliOptions.config);
+
+    // Command line arguments override config file
+    options = CSSLint.Util.mix(rcOptions, cliOptions);
+
+    // hot fix for CSSLint.Util.mix current behavior
+    // https://github.com/CSSLint/csslint/issues/501
+    options = rcOptions;
+
+    // Validate options
+    validateOptions(options);
 
     api.quit(processFiles(options.files,options));
 }
@@ -365,12 +397,14 @@ function cli(api){
  * CSSLint Node.js Command Line Interface
  */
 
-/*jshint node:true*/
-/*global cli*/
+/* jshint node:true */
+/* global cli */
+/* exported CSSLint */
+"use strict";
 
 var fs      = require("fs"),
     path    = require("path"),
-    CSSLint = require("./lib/csslint-node").CSSLint;
+    CSSLint = require("./csslint-node").CSSLint;
 
 cli({
     args: process.argv.slice(2),
@@ -406,7 +440,7 @@ cli({
                 var path = stack.concat([file]).join("/"),
                     stat = fs.statSync(path);
 
-                if (file[0] == ".") {
+                if (file[0] === ".") {
                     return;
                 } else if (stat.isFile() && /\.css$/.test(file)){
                     files.push(path);
@@ -438,4 +472,3 @@ cli({
         }
     }
 });
-

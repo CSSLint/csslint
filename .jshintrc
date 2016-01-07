@@ -2,6 +2,7 @@
     "camelcase": true,
     "curly": true,
     "eqeqeq": true,
+    "es3": true,
     "forin": true,
     "immed": true,
     "indent": 4,
@@ -15,7 +16,6 @@
     "undef": true,
     "unused": true,
     "globals": {
-        "CSSLint": true,
-        "YUITest": true
+        "CSSLint": true
     }
 }

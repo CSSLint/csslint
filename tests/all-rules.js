@@ -8,14 +8,14 @@
  * to fail due to Java stack overflow. This must be run separate from other tests.
  */
 
-/*jshint loopfunc: true */
+/* jshint loopfunc:true */
 
 (function(){
     "use strict";
     var Assert = YUITest.Assert,
-        suite   = new YUITest.TestSuite("General Tests for all Rules"),
-        rules   = CSSLint.getRules(),
-        len     = rules.length,
+        suite  = new YUITest.TestSuite("General Tests for all Rules"),
+        rules  = CSSLint.getRules(),
+        len    = rules.length,
         i;
 
     for (i=0; i < len; i++){
@@ -65,3 +65,4 @@
     YUITest.TestRunner.add(suite);
 
 })();
+

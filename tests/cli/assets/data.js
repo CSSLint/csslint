@@ -1,4 +1,5 @@
-/*jshint node:true*/
+/* jshint node:true */
+
 module.exports = {
     "suites": {
         "config csslintrc override": {
@@ -45,15 +46,6 @@ module.exports = {
                 "csslint: No errors in dir/b.css.",
                 1
             ]
-        },
-        "version": {
-            "args": [
-                "--version"
-            ],
-            "expecting": [
-                "v@VERSION@",
-                0
-            ]
         }
     },
 
@@ -62,6 +54,6 @@ module.exports = {
         "dir": {
             "a.css": ".a {color: red!important;}",
             "b.css": "#a {color: red;}"
-        },
+        }
     }
 };
