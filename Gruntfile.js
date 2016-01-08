@@ -86,13 +86,11 @@ module.exports = function(grunt) {
             },
             node: {
                 options: {
-                    banner: "<%= banner %>" +
-                            "var clone = require('clone');\n" +
-                            "var parserlib = require('parserlib');\n",
-                    footer: "\nexports.CSSLint = CSSLint;"
+                    banner: "<%= banner %>",
+                    footer: "\nmodule.exports.CSSLint = CSSLint;"
                 },
                 files: {
-                    "<%= build_dir %>/csslint-node.js": ["<%= csslint_files %>"]
+                    "<%= build_dir %>/csslint-node.js": ["<%= core_files %>"]
                 }
             },
             node_cli: {
