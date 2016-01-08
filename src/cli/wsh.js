@@ -14,6 +14,27 @@ var wshapi = (function() {
     var shell = WScript.CreateObject("WScript.Shell");
     var finalArgs = [], i, args = WScript.Arguments;
 
+    if (typeof Object.getPrototypeOf !== "function") {
+        Object.getPrototypeOf = function(obj) {
+            var deprecatedProto = "__proto__";    // anti warning solution
+            return obj[deprecatedProto];
+        };
+    }
+
+    if (typeof Object.create !== "function") {
+        Object.create = function(proto) {
+            var Foo = function(){};
+            Foo.prototype = proto;
+            return new Foo();
+        };
+    }
+
+    if (typeof String.prototype.trim !== "function") {
+        String.prototype.trim = function() {
+            return this.replace(/^\s+|\s+$/g, "");
+        };
+    }
+
     if (typeof Array.prototype.forEach !== "function") {
         Array.prototype.forEach = function(f, m) {
             for (var i=0, L=this.length; i<L; ++i) {
