@@ -48,13 +48,20 @@ CSSLint.addRule({
 
         parser.addListener("endstylesheet", function(){
 
-            var prop;
+            var equalParts,
+                lines,
+                prop;
             for (prop in classes){
                 if (classes.hasOwnProperty(prop)){
-
-                    //one use means that this is overqualified
-                    if (classes[prop].length === 1 && classes[prop][0].part.elementName){
-                        reporter.report("Element (" + classes[prop][0].part + ") is overqualified, just use " + classes[prop][0].modifier + " without element name.", classes[prop][0].part.line, classes[prop][0].part.col, rule);
+					equalParts = true;
+					lines = [];
+					for (var i = 0; i < classes[prop].length; i++) {
+						lines.push(classes[prop][i].part.line);
+						equalParts = equalParts && (classes[prop][i].part.text === classes[prop][0].part.text);
+					}
+                    //one use or multiple equal uses means that this is overqualified
+                    if (classes[prop][0].part.elementName && equalParts) {
+                        reporter.report("Element (" + classes[prop][0].part + ") is overqualified, just use " + classes[prop][0].modifier + " without element name" + ((lines.length > 1) ? " (found " + lines.length + "x)" : "") + ".", classes[prop][0].part.line, classes[prop][0].part.col, rule);
                     }
                 }
             }
