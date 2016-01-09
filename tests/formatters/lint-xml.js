@@ -45,12 +45,12 @@
           ], stats: [] };
 
           var expected =
-            '<?xml version="1.0" encoding="utf-8"?>' +
-            '<lint>' +
-              '<file name="FILE">' +
-                '<issue rule="Z" line="1" char="1" severity="error" reason="X" evidence="Y"/>' +
-              '</file>' +
-            '</lint>';
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+            "<lint>" +
+              "<file name=\"FILE\">" +
+                "<issue rule=\"Z\" line=\"1\" char=\"1\" severity=\"error\" reason=\"X\" evidence=\"Y\"/>" +
+              "</file>" +
+            "</lint>";
 
           var actual = CSSLint.format(result, "FILE", "lint-xml");
 

@@ -234,6 +234,17 @@ function include(path, sandbox) {
             Assert.areEqual(undefined, ruleset["adjoining-classes"]);
             Assert.areEqual(1, ruleset["text-indent"]);
             Assert.areEqual(1, ruleset["box-sizing"]);
+        },
+
+        "Embedded rulesets should accept whitespace between /* and 'csslint'": function () {
+            var result = CSSLint.verify("/*     csslint bogus, adjoining-classes:true, box-sizing:false */\n.foo.bar{}", {
+                "text-indent": 1,
+                "box-sizing": 1
+            });
+
+            Assert.areEqual(2, result.ruleset["adjoining-classes"]);
+            Assert.areEqual(1, result.ruleset["text-indent"]);
+            Assert.areEqual(0, result.ruleset["box-sizing"]);
         }
 
     }));
@@ -502,7 +513,26 @@ function include(path, sandbox) {
                 expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><lint>" + file + error1 + error2 + "</file></lint>",
                 actual = CSSLint.format(result, "FILE", "lint-xml");
             Assert.areEqual(expected, actual);
+        },
+
+        "Messages should include rule IDs": function() {
+          var result = { messages: [
+            { type: "error", line: 1, col: 1, message: "X", evidence: "Y", rule: { id: "Z" } }
+          ], stats: [] };
+
+          var expected =
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+            "<lint>" +
+              "<file name=\"FILE\">" +
+                "<issue rule=\"Z\" line=\"1\" char=\"1\" severity=\"error\" reason=\"X\" evidence=\"Y\"/>" +
+              "</file>" +
+            "</lint>";
+
+          var actual = CSSLint.format(result, "FILE", "lint-xml");
+
+          Assert.areEqual(expected, actual);
         }
+
     }));
 })();
 
