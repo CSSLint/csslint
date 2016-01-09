@@ -9,7 +9,7 @@
   "homepage": "http://csslint.net/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/CSSLint/csslint.git"
+    "url": "git+https://github.com/CSSLint/csslint.git"
   },
   "bugs": {
     "url": "https://github.com/CSSLint/csslint/issues"
@@ -39,9 +39,6 @@
   },
   "engines": {
     "node": ">=0.10.0"
-  },
-  "directories": {
-    "test": "tests"
   },
   "files": [
     "dist/cli.js",
