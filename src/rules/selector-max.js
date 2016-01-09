@@ -11,7 +11,7 @@ CSSLint.addRule({
     browsers: "IE",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this, count = 0;
 

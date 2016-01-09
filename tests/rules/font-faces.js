@@ -1,4 +1,4 @@
-(function(){
+(function() {
     "use strict";
     var Assert = YUITest.Assert;
 
@@ -6,17 +6,17 @@
 
         name: "font-faces Rule Errors",
 
-        "5 font-faces should result in a warning": function(){
+        "5 font-faces should result in a warning": function() {
             var result = CSSLint.verify("@font-face{ } @font-face{ } @font-face{ } @font-face{ } @font-face{ }", { "font-faces": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
-        "4 font-faces should not result in a warning": function(){
+        "4 font-faces should not result in a warning": function() {
             var result = CSSLint.verify("@font-face{} @font-face{} @font-face{} @font-face{}", { "font-faces": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
-        "6 font-faces should result in a warning": function(){
+        "6 font-faces should result in a warning": function() {
             var result = CSSLint.verify("@font-face{} @font-face{} @font-face{} @font-face{} @font-face{} @font-face{}", { "font-faces": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);

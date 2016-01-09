@@ -44,14 +44,14 @@ CSSLint.addFormatter({
         };
 
         if (messages.length === 0) {
-              return options.quiet ? "" : filename + ": Lint Free!";
+            return options.quiet ? "" : filename + ": Lint Free!";
         }
 
         CSSLint.Util.forEach(messages, function(message) {
             if (message.rollup) {
                 output += filename + ": " + capitalize(message.type) + " - " + message.message + "\n";
             } else {
-                output += filename + ": " + "line " + message.line +
+                output += filename + ": line " + message.line +
                     ", col " + message.col + ", " + capitalize(message.type) + " - " + message.message + " (" + message.rule.id + ")\n";
             }
         });

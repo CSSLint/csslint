@@ -7,7 +7,7 @@ CSSLint.addRule({
     browsers: "IE6,IE7,IE8",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             lastProperty,
@@ -28,7 +28,7 @@ CSSLint.addRule({
             },
             properties;
 
-        function startRule(){
+        function startRule() {
             properties = {};
             lastProperty = null;
         }
@@ -40,7 +40,7 @@ CSSLint.addRule({
         parser.addListener("startkeyframerule", startRule);
         parser.addListener("startviewport", startRule);
 
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             var property = event.property,
                 name = property.text.toLowerCase(),
                 parts = event.value.parts,
@@ -48,16 +48,16 @@ CSSLint.addRule({
                 colorType = "",
                 len = parts.length;
 
-            if(propertiesToCheck[name]){
-                while(i < len){
-                    if (parts[i].type === "color"){
-                        if ("alpha" in parts[i] || "hue" in parts[i]){
+            if (propertiesToCheck[name]) {
+                while (i < len) {
+                    if (parts[i].type === "color") {
+                        if ("alpha" in parts[i] || "hue" in parts[i]) {
 
-                            if (/([^\)]+)\(/.test(parts[i])){
+                            if (/([^\)]+)\(/.test(parts[i])) {
                                 colorType = RegExp.$1.toUpperCase();
                             }
 
-                            if (!lastProperty || (lastProperty.property.text.toLowerCase() !== name || lastProperty.colorType !== "compat")){
+                            if (!lastProperty || (lastProperty.property.text.toLowerCase() !== name || lastProperty.colorType !== "compat")) {
                                 reporter.report("Fallback " + name + " (hex or RGB) should precede " + colorType + " " + name + ".", event.line, event.col, rule);
                             }
                         } else {

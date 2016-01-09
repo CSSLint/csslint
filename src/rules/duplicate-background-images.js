@@ -11,12 +11,12 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             stack = {};
 
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             var name = event.property.text,
                 value = event.value,
                 i, len;

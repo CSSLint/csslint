@@ -12,7 +12,7 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             properties,
@@ -78,13 +78,13 @@ CSSLint.addRule({
             };
 
         //event handler for beginning of rules
-        function startRule(){
+        function startRule() {
             properties = {};
             num = 1;
         }
 
         //event handler for end of rules
-        function endRule(){
+        function endRule() {
             var prop,
                 i,
                 len,
@@ -92,21 +92,21 @@ CSSLint.addRule({
                 actual,
                 needsStandard = [];
 
-            for (prop in properties){
-                if (propertiesToCheck[prop]){
+            for (prop in properties) {
+                if (propertiesToCheck[prop]) {
                     needsStandard.push({ actual: prop, needed: propertiesToCheck[prop]});
                 }
             }
 
-            for (i=0, len=needsStandard.length; i < len; i++){
+            for (i=0, len=needsStandard.length; i < len; i++) {
                 needed = needsStandard[i].needed;
                 actual = needsStandard[i].actual;
 
-                if (!properties[needed]){
+                if (!properties[needed]) {
                     reporter.report("Missing standard property '" + needed + "' to go along with '" + actual + "'.", properties[actual][0].name.line, properties[actual][0].name.col, rule);
                 } else {
                     //make sure standard property is last
-                    if (properties[needed][0].pos < properties[actual][0].pos){
+                    if (properties[needed][0].pos < properties[actual][0].pos) {
                         reporter.report("Standard property '" + needed + "' should come after vendor-prefixed property '" + actual + "'.", properties[actual][0].name.line, properties[actual][0].name.col, rule);
                     }
                 }
@@ -121,10 +121,10 @@ CSSLint.addRule({
         parser.addListener("startkeyframerule", startRule);
         parser.addListener("startviewport", startRule);
 
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             var name = event.property.text.toLowerCase();
 
-            if (!properties[name]){
+            if (!properties[name]) {
                 properties[name] = [];
             }
 

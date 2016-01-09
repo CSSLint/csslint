@@ -41,7 +41,7 @@
          * Return opening root XML tag.
          * @return {String} to prepend before all results
          */
-        startFormat: function(){
+        startFormat: function() {
             return "<?xml version=\"1.0\" encoding=\"utf-8\"?><checkstyle>";
         },
 
@@ -49,7 +49,7 @@
          * Return closing root XML tag.
          * @return {String} to append after all results
          */
-        endFormat: function(){
+        endFormat: function() {
             return "</checkstyle>";
         },
 
@@ -85,7 +85,7 @@
                 if (!rule || !("name" in rule)) {
                     return "";
                 }
-                return "net.csslint." + rule.name.replace(/\s/g,"");
+                return "net.csslint." + rule.name.replace(/\s/g, "");
             };
 
 

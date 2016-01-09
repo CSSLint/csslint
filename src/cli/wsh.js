@@ -7,7 +7,7 @@
 /* jshint wsh:true */
 /* global cli */
 
-var wshapi = (function(){
+var wshapi = (function() {
     "use strict";
 
     var fso = new ActiveXObject("Scripting.FileSystemObject");
@@ -15,7 +15,7 @@ var wshapi = (function(){
     var finalArgs = [], i, args = WScript.Arguments;
 
     if (typeof Array.prototype.forEach !== "function") {
-        Array.prototype.forEach = function(f,m) {
+        Array.prototype.forEach = function(f, m) {
             for (var i=0, L=this.length; i<L; ++i) {
                 f(this[i], i, m);
             }
@@ -31,7 +31,7 @@ var wshapi = (function(){
             for (var i = 0, L = this.length; i < L; i++) {
                 if (i in this) {
                     val = this[i]; // in case fun mutates this
-                    if (fn.call(thisp, val, i, this)){
+                    if (fn.call(thisp, val, i, this)) {
                         res.push(val);
                     }
                 }
@@ -106,8 +106,10 @@ var wshapi = (function(){
     }
 
     function traverseDir(files, path) {
-        var filename, folder = fso.GetFolder(path),
-            subFlds, fc = new Enumerator(folder.files);
+        var filename,
+            folder = fso.GetFolder(path),
+            subFlds,
+            fc = new Enumerator(folder.files);
 
         for (; !fc.atEnd(); fc.moveNext()) {
             filename = fc.item();
@@ -131,20 +133,20 @@ var wshapi = (function(){
 
     return {
         args: finalArgs,
-        print: function(s) { WScript.Echo(s);},
-        quit: function (v) { WScript.Quit(v);},
+        print: function(s) { WScript.Echo(s); },
+        quit: function (v) { WScript.Quit(v); },
 
-        isDirectory: function(name){
+        isDirectory: function(name) {
             return fso.FolderExists(name);
         },
 
-        getFiles: function(dir){
+        getFiles: function(dir) {
             var files = [];
             traverseDir(files, dir);
             return files;
         },
 
-        fixFilenames: function(files){
+        fixFilenames: function(files) {
             return files;
         },
 
@@ -152,11 +154,11 @@ var wshapi = (function(){
             return shell.CurrentDirectory;
         },
 
-        getFullPath: function(filename){
+        getFullPath: function(filename) {
             return fso.GetAbsolutePathName(filename);
         },
 
-        readFile: function(path){
+        readFile: function(path) {
             var forReading = 1;
             var allText;
             try {

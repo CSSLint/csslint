@@ -8,7 +8,7 @@
  * to fail due to Java stack overflow. This must be run separate from other tests.
  */
 
-(function(){
+(function() {
     "use strict";
     var Assert = YUITest.Assert,
         suite  = new YUITest.TestSuite("General Tests for all Rules"),
@@ -16,38 +16,38 @@
         len    = rules.length,
         i;
 
-    function testAll(i, rules){
+    function testAll(i, rules) {
 
         suite.add(new YUITest.TestCase({
 
             name: "General Tests for " + rules[i].id,
 
-            setUp: function(){
+            setUp: function() {
                 this.options = {};
                 this.options[rules[i].id] = 1;
             },
 
-            "Using @viewport should not result in an error": function(){
+            "Using @viewport should not result in an error": function() {
                 var result = CSSLint.verify("@viewport { width: auto; }", this.options);
                 Assert.areEqual(0, result.messages.length);
             },
 
-            "Using @keyframes should not result in an error": function(){
+            "Using @keyframes should not result in an error": function() {
                 var result = CSSLint.verify("@keyframes resize { 0% {padding: 0;} 50% {padding: 0;} 100% {padding: 0;}}", this.options);
                 Assert.areEqual(0, result.messages.length);
             },
 
-            "Using @page should not result in an error": function(){
+            "Using @page should not result in an error": function() {
                 var result = CSSLint.verify("@page { width: 100px; }", this.options);
                 Assert.areEqual(0, result.messages.length);
             },
 
-            "Using @page @top-left should not result in an error": function(){
+            "Using @page @top-left should not result in an error": function() {
                 var result = CSSLint.verify("@page { @top-left { content: ''; } }", this.options);
                 Assert.areEqual(0, result.messages.length);
             },
 
-            "Using a regular rule should not result in an error": function(){
+            "Using a regular rule should not result in an error": function() {
                 var result = CSSLint.verify("body { margin: 0; }", this.options);
                 Assert.areEqual(0, result.messages.length);
             }
@@ -56,7 +56,7 @@
 
     }
 
-    for (i = 0; i < len; i++){
+    for (i = 0; i < len; i++) {
         testAll(i, rules);
     }
 

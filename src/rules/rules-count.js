@@ -11,16 +11,16 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var count = 0;
 
         //count each rule
-        parser.addListener("startrule", function(){
+        parser.addListener("startrule", function() {
             count++;
         });
 
-        parser.addListener("endstylesheet", function(){
+        parser.addListener("endstylesheet", function() {
             reporter.stat("rule-count", count);
         });
     }

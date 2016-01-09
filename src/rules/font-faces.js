@@ -11,18 +11,18 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             count = 0;
 
 
-        parser.addListener("startfontface", function(){
+        parser.addListener("startfontface", function() {
             count++;
         });
 
-        parser.addListener("endstylesheet", function(){
-            if (count > 5){
+        parser.addListener("endstylesheet", function() {
+            if (count > 5) {
                 reporter.rollupWarn("Too many @font-face declarations (" + count + ").", rule);
             }
         });

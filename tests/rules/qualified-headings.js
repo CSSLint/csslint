@@ -1,4 +1,4 @@
-(function(){
+(function() {
     "use strict";
     var Assert = YUITest.Assert;
 
@@ -6,7 +6,7 @@
 
         name: "Qualified Headings Errors",
 
-        "Using a heading as a descendant should result in one warning": function(){
+        "Using a heading as a descendant should result in one warning": function() {
             var result = CSSLint.verify("li h3{ float: left;}", { "qualified-headings": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);

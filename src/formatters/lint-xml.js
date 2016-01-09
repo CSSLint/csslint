@@ -7,7 +7,7 @@ CSSLint.addFormatter({
      * Return opening root XML tag.
      * @return {String} to prepend before all results
      */
-    startFormat: function(){
+    startFormat: function() {
         "use strict";
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?><lint>";
     },
@@ -16,7 +16,7 @@ CSSLint.addFormatter({
      * Return closing root XML tag.
      * @return {String} to append after all results
      */
-    endFormat: function(){
+    endFormat: function() {
         "use strict";
         return "</lint>";
     },
@@ -61,7 +61,7 @@ CSSLint.addFormatter({
                 } else {
                     var rule = "";
                     if (message.rule && message.rule.id) {
-                      rule = "rule=\"" + escapeSpecialCharacters(message.rule.id) + "\" ";
+                        rule = "rule=\"" + escapeSpecialCharacters(message.rule.id) + "\" ";
                     }
                     output.push("<issue " + rule + "line=\"" + message.line + "\" char=\"" + message.col + "\" severity=\"" + message.type + "\"" +
                         " reason=\"" + escapeSpecialCharacters(message.message) + "\" evidence=\"" + escapeSpecialCharacters(message.evidence) + "\"/>");

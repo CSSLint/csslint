@@ -11,7 +11,7 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             properties;
@@ -20,11 +20,11 @@ CSSLint.addRule({
             properties = [];
         };
 
-        var endRule = function(event){
+        var endRule = function(event) {
             var currentProperties = properties.join(","),
                 expectedProperties = properties.sort().join(",");
 
-            if (currentProperties !== expectedProperties){
+            if (currentProperties !== expectedProperties) {
                 reporter.report("Rule doesn't have all its properties in alphabetical ordered.", event.line, event.col, rule);
             }
           };
@@ -36,7 +36,7 @@ CSSLint.addRule({
         parser.addListener("startkeyframerule", startRule);
         parser.addListener("startviewport", startRule);
 
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             var name = event.property.text,
                 lowerCasePrefixLessName = name.toLowerCase().replace(/^-.*?-/, "");
 

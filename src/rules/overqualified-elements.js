@@ -11,31 +11,31 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             classes = {};
 
-        parser.addListener("startrule", function(event){
+        parser.addListener("startrule", function(event) {
             var selectors = event.selectors,
                 selector,
                 part,
                 modifier,
                 i, j, k;
 
-            for (i=0; i < selectors.length; i++){
+            for (i=0; i < selectors.length; i++) {
                 selector = selectors[i];
 
-                for (j=0; j < selector.parts.length; j++){
+                for (j=0; j < selector.parts.length; j++) {
                     part = selector.parts[j];
-                    if (part.type === parser.SELECTOR_PART_TYPE){
-                        for (k=0; k < part.modifiers.length; k++){
+                    if (part.type === parser.SELECTOR_PART_TYPE) {
+                        for (k=0; k < part.modifiers.length; k++) {
                             modifier = part.modifiers[k];
-                            if (part.elementName && modifier.type === "id"){
+                            if (part.elementName && modifier.type === "id") {
                                 reporter.report("Element (" + part + ") is overqualified, just use " + modifier + " without element name.", part.line, part.col, rule);
-                            } else if (modifier.type === "class"){
+                            } else if (modifier.type === "class") {
 
-                                if (!classes[modifier]){
+                                if (!classes[modifier]) {
                                     classes[modifier] = [];
                                 }
                                 classes[modifier].push({ modifier: modifier, part: part });
@@ -46,14 +46,14 @@ CSSLint.addRule({
             }
         });
 
-        parser.addListener("endstylesheet", function(){
+        parser.addListener("endstylesheet", function() {
 
             var prop;
-            for (prop in classes){
-                if (classes.hasOwnProperty(prop)){
+            for (prop in classes) {
+                if (classes.hasOwnProperty(prop)) {
 
                     //one use means that this is overqualified
-                    if (classes[prop].length === 1 && classes[prop][0].part.elementName){
+                    if (classes[prop].length === 1 && classes[prop][0].part.elementName) {
                         reporter.report("Element (" + classes[prop][0].part + ") is overqualified, just use " + classes[prop][0].modifier + " without element name.", classes[prop][0].part.line, classes[prop][0].part.col, rule);
                     }
                 }

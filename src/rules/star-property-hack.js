@@ -12,12 +12,12 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this;
 
         //check if property name starts with "*"
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             var property = event.property;
 
             if (property.hack === "*") {

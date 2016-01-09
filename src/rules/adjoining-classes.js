@@ -11,10 +11,10 @@ CSSLint.addRule({
     browsers: "IE6",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this;
-        parser.addListener("startrule", function(event){
+        parser.addListener("startrule", function(event) {
             var selectors = event.selectors,
                 selector,
                 part,
@@ -22,18 +22,18 @@ CSSLint.addRule({
                 classCount,
                 i, j, k;
 
-            for (i=0; i < selectors.length; i++){
+            for (i=0; i < selectors.length; i++) {
                 selector = selectors[i];
-                for (j=0; j < selector.parts.length; j++){
+                for (j=0; j < selector.parts.length; j++) {
                     part = selector.parts[j];
-                    if (part.type === parser.SELECTOR_PART_TYPE){
+                    if (part.type === parser.SELECTOR_PART_TYPE) {
                         classCount = 0;
-                        for (k=0; k < part.modifiers.length; k++){
+                        for (k=0; k < part.modifiers.length; k++) {
                             modifier = part.modifiers[k];
-                            if (modifier.type === "class"){
+                            if (modifier.type === "class") {
                                 classCount++;
                             }
-                            if (classCount > 1){
+                            if (classCount > 1) {
                                 reporter.report("Don't use adjoining classes.", part.line, part.col, rule);
                             }
                         }

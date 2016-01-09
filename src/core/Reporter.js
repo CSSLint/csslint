@@ -7,7 +7,7 @@
  * @param {Object} ruleset The set of rules to work with, including if
  *      they are errors or warnings.
  */
-function Reporter(lines, ruleset){
+function Reporter(lines, ruleset) {
     "use strict";
 
     /**
@@ -54,7 +54,7 @@ Reporter.prototype = {
      * @param {Object} rule The rule this message relates to.
      * @method error
      */
-    error: function(message, line, col, rule){
+    error: function(message, line, col, rule) {
         "use strict";
         this.messages.push({
             type    : "error",
@@ -75,7 +75,7 @@ Reporter.prototype = {
      * @method warn
      * @deprecated Use report instead.
      */
-    warn: function(message, line, col, rule){
+    warn: function(message, line, col, rule) {
         "use strict";
         this.report(message, line, col, rule);
     },
@@ -88,7 +88,7 @@ Reporter.prototype = {
      * @param {Object} rule The rule this message relates to.
      * @method report
      */
-    report: function(message, line, col, rule){
+    report: function(message, line, col, rule) {
         "use strict";
         this.messages.push({
             type    : this.ruleset[rule.id] === 2 ? "error" : "warning",
@@ -108,7 +108,7 @@ Reporter.prototype = {
      * @param {Object} rule The rule this message relates to.
      * @method info
      */
-    info: function(message, line, col, rule){
+    info: function(message, line, col, rule) {
         "use strict";
         this.messages.push({
             type    : "info",
@@ -126,7 +126,7 @@ Reporter.prototype = {
      * @param {Object} rule The rule this message relates to.
      * @method rollupError
      */
-    rollupError: function(message, rule){
+    rollupError: function(message, rule) {
         "use strict";
         this.messages.push({
             type    : "error",
@@ -142,7 +142,7 @@ Reporter.prototype = {
      * @param {Object} rule The rule this message relates to.
      * @method rollupWarn
      */
-    rollupWarn: function(message, rule){
+    rollupWarn: function(message, rule) {
         "use strict";
         this.messages.push({
             type    : "warning",
@@ -158,7 +158,7 @@ Reporter.prototype = {
      * @param {Variant} value The value of the stat.
      * @method stat
      */
-    stat: function(name, value){
+    stat: function(name, value) {
         "use strict";
         this.stats[name] = value;
     }

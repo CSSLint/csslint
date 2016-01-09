@@ -12,7 +12,7 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             prop, i, len,
@@ -34,33 +34,33 @@ CSSLint.addRule({
             };
 
         //initialize propertiesToCheck
-        for (prop in mapping){
-            if (mapping.hasOwnProperty(prop)){
-                for (i=0, len=mapping[prop].length; i < len; i++){
+        for (prop in mapping) {
+            if (mapping.hasOwnProperty(prop)) {
+                for (i=0, len=mapping[prop].length; i < len; i++) {
                     propertiesToCheck[mapping[prop][i]] = prop;
                 }
             }
         }
 
-        function startRule(){
+        function startRule() {
             properties = {};
         }
 
         //event handler for end of rules
-        function endRule(event){
+        function endRule(event) {
 
             var prop, i, len, total;
 
             //check which properties this rule has
-            for (prop in mapping){
-                if (mapping.hasOwnProperty(prop)){
+            for (prop in mapping) {
+                if (mapping.hasOwnProperty(prop)) {
                     total=0;
 
-                    for (i=0, len=mapping[prop].length; i < len; i++){
+                    for (i=0, len=mapping[prop].length; i < len; i++) {
                         total += properties[mapping[prop][i]] ? 1 : 0;
                     }
 
-                    if (total === mapping[prop].length){
+                    if (total === mapping[prop].length) {
                         reporter.report("The properties " + mapping[prop].join(", ") + " can be replaced by " + prop + ".", event.line, event.col, rule);
                     }
                 }
@@ -71,10 +71,10 @@ CSSLint.addRule({
         parser.addListener("startfontface", startRule);
 
         //check for use of "font-size"
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             var name = event.property.toString().toLowerCase();
 
-            if (propertiesToCheck[name]){
+            if (propertiesToCheck[name]) {
                 properties[name] = 1;
             }
         });

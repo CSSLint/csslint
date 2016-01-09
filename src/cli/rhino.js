@@ -13,13 +13,13 @@ cli({
     print: print,
     quit: quit,
 
-    isDirectory: function(name){
+    isDirectory: function(name) {
         "use strict";
         var dir = new File(name);
         return dir.isDirectory();
     },
 
-    getFiles: function(dir){
+    getFiles: function(dir) {
         "use strict";
         var files = [];
 
@@ -44,7 +44,7 @@ cli({
         return (new File(".")).getCanonicalPath();
     },
 
-    getFullPath: function(filename){
+    getFullPath: function(filename) {
         "use strict";
         return (new File(filename)).getCanonicalPath();
     },

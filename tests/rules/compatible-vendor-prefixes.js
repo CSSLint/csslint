@@ -1,4 +1,4 @@
-(function(){
+(function() {
     "use strict";
     var Assert = YUITest.Assert;
 
@@ -6,7 +6,7 @@
 
         name: "Compatible Vendor Prefix Warnings",
 
-        "Using -webkit-border-radius should not warn to also include -moz-border-radius.": function(){
+        "Using -webkit-border-radius should not warn to also include -moz-border-radius.": function() {
             var result = CSSLint.verify("h1 { -webkit-border-radius: 5px; }", { "compatible-vendor-prefixes": 1 });
             Assert.areEqual(0, result.messages.length);
         },
@@ -31,17 +31,17 @@
             Assert.areEqual("The property -o-transform is compatible with -webkit-transform and should be included as well.", result.messages[2].message);
         },
 
-        "Using -webkit-transform inside of an @-webkit- block shouldn't cause a warning": function(){
+        "Using -webkit-transform inside of an @-webkit- block shouldn't cause a warning": function() {
             var result = CSSLint.verify("@-webkit-keyframes spin {0%{ -webkit-transform: rotateX(-10deg) rotateY(0deg); } 100%{ -webkit-transform: rotateX(-10deg) rotateY(-360deg); } }", { "compatible-vendor-prefixes": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
-        "Using all compatible vendor prefixes for animation should be allowed with no warnings.": function(){
+        "Using all compatible vendor prefixes for animation should be allowed with no warnings.": function() {
             var result = CSSLint.verify(".next:focus { -moz-animation: 'diagonal-slide' 5s 10; -webkit-animation: 'diagonal-slide' 5s 10; -ms-animation: 'diagonal-slide' 5s 10; }", { "compatible-vendor-prefixes": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
-        "Using box-shadow with no vendor prefixes should be allowed with no warnings.": function(){
+        "Using box-shadow with no vendor prefixes should be allowed with no warnings.": function() {
             var result = CSSLint.verify("h1 { box-shadow: 5px 5px 5px #ccc; }", { "compatible-vendor-prefixes": 1 });
             Assert.areEqual(0, result.messages.length);
         }

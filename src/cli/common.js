@@ -6,20 +6,20 @@
 /* global JSON */
 /* exported cli */
 
-function cli(api){
+function cli(api) {
     "use strict";
 
     var globalOptions = {
-        "help"        : { "format" : "",                       "description" : "Displays this information."},
-        "format"      : { "format" : "<format>",               "description" : "Indicate which format to use for output."},
-        "list-rules"  : { "format" : "",                       "description" : "Outputs all of the rules available."},
-        "quiet"       : { "format" : "",                       "description" : "Only output when errors are present."},
-        "errors"      : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to include as errors."},
-        "warnings"    : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to include as warnings."},
-        "ignore"      : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to ignore completely."},
-        "exclude-list": { "format" : "<file|dir[,file|dir]+>", "description" : "Indicate which files/directories to exclude from being linted."},
-        "config"      : { "format" : "<file>",                 "description" : "Reads csslint options from specified file."},
-        "version"     : { "format" : "",                       "description" : "Outputs the current version number."}
+        "help"        : { "format" : "",                       "description" : "Displays this information." },
+        "format"      : { "format" : "<format>",               "description" : "Indicate which format to use for output." },
+        "list-rules"  : { "format" : "",                       "description" : "Outputs all of the rules available." },
+        "quiet"       : { "format" : "",                       "description" : "Only output when errors are present." },
+        "errors"      : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to include as errors." },
+        "warnings"    : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to include as warnings." },
+        "ignore"      : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to ignore completely." },
+        "exclude-list": { "format" : "<file|dir[,file|dir]+>", "description" : "Indicate which files/directories to exclude from being linted." },
+        "config"      : { "format" : "<file>",                 "description" : "Reads csslint options from specified file." },
+        "version"     : { "format" : "",                       "description" : "Outputs the current version number." }
     };
 
     //-------------------------------------------------------------------------
@@ -32,7 +32,7 @@ function cli(api){
      * @param type {String} The type of message to filter on.
      * @return {Array} An array of matching messages.
      */
-    function pluckByType(messages, type){
+    function pluckByType(messages, type) {
         return messages.filter(function(message) {
             return message.type === type;
         });
@@ -43,20 +43,20 @@ function cli(api){
      * @param options {Object} The CLI options.
      * @return {Object} A ruleset object.
      */
-    function gatherRules(options, ruleset){
+    function gatherRules(options, ruleset) {
         var warnings = options.rules || options.warnings,
             errors = options.errors;
 
-        if (warnings){
+        if (warnings) {
             ruleset = ruleset || {};
-            warnings.split(",").forEach(function(value){
+            warnings.split(",").forEach(function(value) {
                 ruleset[value] = 1;
             });
         }
 
-        if (errors){
+        if (errors) {
             ruleset = ruleset || {};
-            errors.split(",").forEach(function(value){
+            errors.split(",").forEach(function(value) {
                 ruleset[value] = 2;
             });
         }
@@ -75,7 +75,7 @@ function cli(api){
 
         if (ignore) {
             ruleset = CSSLint.getRuleset();
-            ignore.split(",").forEach(function(value){
+            ignore.split(",").forEach(function(value) {
                 ruleset[value] = 0;
             });
         }
@@ -99,7 +99,7 @@ function cli(api){
 
         if (excludeList) {
             // Build up the exclude list, expanding any directory exclusions that were passed in
-            excludeList.split(",").forEach(function(value){
+            excludeList.split(",").forEach(function(value) {
                 if (api.isDirectory(value)) {
                     excludeFiles = excludeFiles.concat(api.getFiles(value));
                 } else {
@@ -108,10 +108,10 @@ function cli(api){
             });
 
             // Remove the excluded files from the list of files to lint
-            excludeFiles.forEach(function(value){
+            excludeFiles.forEach(function(value) {
                 fullPath = api.getFullPath(value);
                 if (filesToLint.indexOf(fullPath) > -1) {
-                    filesToLint.splice(filesToLint.indexOf(fullPath),1);
+                    filesToLint.splice(filesToLint.indexOf(fullPath), 1);
                 }
             });
         }
@@ -123,10 +123,10 @@ function cli(api){
      * Outputs all available rules to the CLI.
      * @return {void}
      */
-    function printRules(){
+    function printRules() {
         api.print("");
         var rules = CSSLint.getRules();
-        rules.forEach(function(rule){
+        rules.forEach(function(rule) {
             api.print(rule.id + "\n  " + rule.desc + "\n");
         });
     }
@@ -157,7 +157,7 @@ function cli(api){
             //var relativeFilePath = getRelativePath(api.getWorkingDirectory(), fullFilePath);
             options.fullPath = api.getFullPath(relativeFilePath);
             output = formatter.formatResults(result, relativeFilePath, options);
-            if (output){
+            if (output) {
                 api.print(output);
             }
 
@@ -174,7 +174,7 @@ function cli(api){
      * Outputs the help screen to the CLI.
      * @return {void}
      */
-    function outputHelp(){
+    function outputHelp() {
         var lenToPad = 40,
             toPrint = "",
             formatString = "";
@@ -212,39 +212,39 @@ function cli(api){
      * @param options {Object} options object
      * @return {Number} exit code
      */
-    function processFiles(fileArray, options){
+    function processFiles(fileArray, options) {
         var exitCode = 0,
             formatId = options.format || "text",
             formatter,
-            files = filterFiles(fileArray,options),
+            files = filterFiles(fileArray, options),
             output;
 
         if (!files.length) {
             api.print("csslint: No files specified.");
             exitCode = 1;
         } else {
-            if (!CSSLint.hasFormat(formatId)){
+            if (!CSSLint.hasFormat(formatId)) {
                 api.print("csslint: Unknown format '" + formatId + "'. Cannot proceed.");
                 exitCode = 1;
             } else {
                 formatter = CSSLint.getFormatter(formatId);
 
                 output = formatter.startFormat();
-                if (output){
+                if (output) {
                     api.print(output);
                 }
 
 
-                files.forEach(function(file){
+                files.forEach(function(file) {
                     if (exitCode === 0) {
-                        exitCode = processFile(file,options);
+                        exitCode = processFile(file, options);
                     } else {
-                        processFile(file,options);
+                        processFile(file, options);
                     }
                 });
 
                 output = formatter.endFormat();
-                if (output){
+                if (output) {
                     api.print(output);
                 }
             }
@@ -260,11 +260,11 @@ function cli(api){
             parts,
             files = [];
 
-        while(arg){
-            if (arg.indexOf("--") === 0){
+        while (arg) {
+            if (arg.indexOf("--") === 0) {
                 argName = arg.substring(2);
 
-                if (argName.indexOf("=") > -1){
+                if (argName.indexOf("=") > -1) {
                     parts = argName.split("=");
                     options[parts[0]] = parts[1];
                 } else {
@@ -274,7 +274,7 @@ function cli(api){
             } else {
 
                 //see if it's a directory or a file
-                if (api.isDirectory(arg)){
+                if (api.isDirectory(arg)) {
                     files = files.concat(api.getFiles(arg));
                 } else {
                     files.push(arg);
@@ -317,7 +317,7 @@ function cli(api){
                             data += "--" + optionName + "=" + json[optionName].join();
                         }
                     }
-                } catch(e) {}
+                } catch (e) {}
             }
             options = processArguments(data.split(/[\s\n\r]+/m));
         }
@@ -338,17 +338,17 @@ function cli(api){
     // Preprocess command line arguments
     cliOptions = processArguments(args);
 
-    if (cliOptions.help || argCount === 0){
+    if (cliOptions.help || argCount === 0) {
         outputHelp();
         api.quit(0);
     }
 
-    if (cliOptions.version){
+    if (cliOptions.version) {
         api.print("v" + CSSLint.version);
         api.quit(0);
     }
 
-    if (cliOptions["list-rules"]){
+    if (cliOptions["list-rules"]) {
         printRules();
         api.quit(0);
     }
@@ -366,5 +366,5 @@ function cli(api){
     // Validate options
     validateOptions(options);
 
-    api.quit(processFiles(options.files,options));
+    api.quit(processFiles(options.files, options));
 }

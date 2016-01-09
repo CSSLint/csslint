@@ -11,21 +11,21 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this;
 
-        parser.addListener("startrule", function(event){
+        parser.addListener("startrule", function(event) {
             var selectors = event.selectors,
                 selector,
                 part,
                 i;
 
-            for (i=0; i < selectors.length; i++){
+            for (i=0; i < selectors.length; i++) {
                 selector = selectors[i];
 
                 part = selector.parts[selector.parts.length-1];
-                if (part.elementName === "*"){
+                if (part.elementName === "*") {
                     reporter.report(rule.desc, part.line, part.col, rule);
                 }
             }

@@ -12,23 +12,23 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this;
         var count = 0;
 
         //count how many times "float" is used
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             if (event.property.text.toLowerCase() === "float" &&
-                    event.value.text.toLowerCase() !== "none"){
+                    event.value.text.toLowerCase() !== "none") {
                 count++;
             }
         });
 
         //report the results
-        parser.addListener("endstylesheet", function(){
+        parser.addListener("endstylesheet", function() {
             reporter.stat("floats", count);
-            if (count >= 10){
+            if (count >= 10) {
                 reporter.rollupWarn("Too many floats (" + count + "), you're probably using them for layout. Consider using a grid system instead.", rule);
             }
         });

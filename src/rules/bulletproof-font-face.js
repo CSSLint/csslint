@@ -12,7 +12,7 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             fontFaceRule = false,
@@ -21,11 +21,11 @@ CSSLint.addRule({
             line, col;
 
         // Mark the start of a @font-face declaration so we only test properties inside it
-        parser.addListener("startfontface", function(){
+        parser.addListener("startfontface", function() {
             fontFaceRule = true;
         });
 
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             // If we aren't inside an @font-face declaration then just return
             if (!fontFaceRule) {
                 return;
@@ -55,7 +55,7 @@ CSSLint.addRule({
         });
 
         // Back to normal rules that we don't need to test
-        parser.addListener("endfontface", function(){
+        parser.addListener("endfontface", function() {
             fontFaceRule = false;
 
             if (ruleFailed) {

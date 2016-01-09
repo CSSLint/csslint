@@ -1,17 +1,17 @@
-(function(){
+(function() {
     "use strict";
     var Assert = YUITest.Assert;
 
     YUITest.TestRunner.add(new YUITest.TestCase({
         name: "CSSLint XML formatter test",
 
-        "File with no problems should say so": function(){
+        "File with no problems should say so": function() {
             var result = { messages: [], stats: [] },
                 expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><csslint></csslint>";
             Assert.areEqual(expected, CSSLint.format(result, "FILE", "csslint-xml"));
         },
 
-        "File with problems should list them": function(){
+        "File with problems should list them": function() {
             var result = { messages: [
                 { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] },
                 { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] }

@@ -49,10 +49,10 @@ CSSLint.addFormatter({
         var pos = filename.lastIndexOf("/"),
             shortFilename = filename;
 
-        if (pos === -1){
+        if (pos === -1) {
             pos = filename.lastIndexOf("\\");
         }
-        if (pos > -1){
+        if (pos > -1) {
             shortFilename = filename.substring(pos+1);
         }
 

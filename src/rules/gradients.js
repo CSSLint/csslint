@@ -11,12 +11,12 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             gradients;
 
-        parser.addListener("startrule", function(){
+        parser.addListener("startrule", function() {
             gradients = {
                 moz: 0,
                 webkit: 0,
@@ -25,36 +25,36 @@ CSSLint.addRule({
             };
         });
 
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
 
-            if (/\-(moz|o|webkit)(?:\-(?:linear|radial))\-gradient/i.test(event.value)){
+            if (/\-(moz|o|webkit)(?:\-(?:linear|radial))\-gradient/i.test(event.value)) {
                 gradients[RegExp.$1] = 1;
-            } else if (/\-webkit\-gradient/i.test(event.value)){
+            } else if (/\-webkit\-gradient/i.test(event.value)) {
                 gradients.oldWebkit = 1;
             }
 
         });
 
-        parser.addListener("endrule", function(event){
+        parser.addListener("endrule", function(event) {
             var missing = [];
 
-            if (!gradients.moz){
+            if (!gradients.moz) {
                 missing.push("Firefox 3.6+");
             }
 
-            if (!gradients.webkit){
+            if (!gradients.webkit) {
                 missing.push("Webkit (Safari 5+, Chrome)");
             }
 
-            if (!gradients.oldWebkit){
+            if (!gradients.oldWebkit) {
                 missing.push("Old Webkit (Safari 4+, Chrome)");
             }
 
-            if (!gradients.o){
+            if (!gradients.o) {
                 missing.push("Opera 11.1+");
             }
 
-            if (missing.length && missing.length < 4){
+            if (missing.length && missing.length < 4) {
                 reporter.report("Missing vendor-prefixed CSS gradients for " + missing.join(", ") + ".", event.selectors[0].line, event.selectors[0].col, rule);
             }
 

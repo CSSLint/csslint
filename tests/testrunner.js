@@ -1,6 +1,6 @@
 /* jshint browser:true, loopfunc:true */
 
-(function(){
+(function() {
     "use strict";
 
     window.onload = function() {
@@ -22,13 +22,13 @@
                             YUITest.TestRunner.ERROR_EVENT
                         ];
 
-        for (var i=0; i < events.length; i++){
-            YUITest.TestRunner.attach(events[i], function(event){
+        for (var i=0; i < events.length; i++) {
+            YUITest.TestRunner.attach(events[i], function(event) {
                     var node,
                         message,
                         messageType;
 
-                    switch(event.type){
+                    switch (event.type) {
                         case this.BEGIN_EVENT:
                             message = "Testing began at " + (new Date()).toString() + ".";
                             messageType = "info";
@@ -93,7 +93,7 @@
             });
         }
 
-        runButton.onclick = function(){
+        runButton.onclick = function() {
             //reset the interface
             resultsList.innerHTML = "";
             resultNode = resultsList;

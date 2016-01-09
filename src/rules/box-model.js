@@ -10,7 +10,7 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             widthProperties = {
@@ -32,33 +32,33 @@ CSSLint.addRule({
             properties,
             boxSizing = false;
 
-        function startRule(){
+        function startRule() {
             properties = {};
             boxSizing = false;
         }
 
-        function endRule(){
+        function endRule() {
             var prop, value;
 
             if (!boxSizing) {
-                if (properties.height){
-                    for (prop in heightProperties){
-                        if (heightProperties.hasOwnProperty(prop) && properties[prop]){
+                if (properties.height) {
+                    for (prop in heightProperties) {
+                        if (heightProperties.hasOwnProperty(prop) && properties[prop]) {
                             value = properties[prop].value;
                             //special case for padding
-                            if (!(prop === "padding" && value.parts.length === 2 && value.parts[0].value === 0)){
+                            if (!(prop === "padding" && value.parts.length === 2 && value.parts[0].value === 0)) {
                                 reporter.report("Using height with " + prop + " can sometimes make elements larger than you expect.", properties[prop].line, properties[prop].col, rule);
                             }
                         }
                     }
                 }
 
-                if (properties.width){
-                    for (prop in widthProperties){
-                        if (widthProperties.hasOwnProperty(prop) && properties[prop]){
+                if (properties.width) {
+                    for (prop in widthProperties) {
+                        if (widthProperties.hasOwnProperty(prop) && properties[prop]) {
                             value = properties[prop].value;
 
-                            if (!(prop === "padding" && value.parts.length === 2 && value.parts[1].value === 0)){
+                            if (!(prop === "padding" && value.parts.length === 2 && value.parts[1].value === 0)) {
                                 reporter.report("Using width with " + prop + " can sometimes make elements larger than you expect.", properties[prop].line, properties[prop].col, rule);
                             }
                         }
@@ -74,15 +74,15 @@ CSSLint.addRule({
         parser.addListener("startkeyframerule", startRule);
         parser.addListener("startviewport", startRule);
 
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             var name = event.property.text.toLowerCase();
 
-            if (heightProperties[name] || widthProperties[name]){
-                if (!/^0\S*$/.test(event.value) && !(name === "border" && event.value.toString() === "none")){
+            if (heightProperties[name] || widthProperties[name]) {
+                if (!/^0\S*$/.test(event.value) && !(name === "border" && event.value.toString() === "none")) {
                     properties[name] = { line: event.property.line, col: event.property.col, value: event.value };
                 }
             } else {
-                if (/^(width|height)/i.test(name) && /^(length|percentage)/.test(event.value.parts[0].type)){
+                if (/^(width|height)/i.test(name) && /^(length|percentage)/.test(event.value.parts[0].type)) {
                     properties[name] = 1;
                 } else if (name === "box-sizing") {
                     boxSizing = true;

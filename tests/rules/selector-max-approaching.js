@@ -1,4 +1,4 @@
-(function(){
+(function() {
     "use strict";
     var Assert = YUITest.Assert, i, j, css1 = "", css2 = "", css3 = "", css4 = "";
 
@@ -29,28 +29,28 @@
 
         name: "Selector Max Errors Approaching",
 
-        "Using 4095 or fewer single-selector rules should not result in a warning": function(){
+        "Using 4095 or fewer single-selector rules should not result in a warning": function() {
             var result = CSSLint.verify(css1, { "selector-max-approaching": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("You have 4095 selectors. Internet Explorer supports a maximum of 4095 selectors per stylesheet. Consider refactoring.", result.messages[0].message);
         },
 
-        "Using 4096 or more single-selector rules should result in a warning": function(){
+        "Using 4096 or more single-selector rules should result in a warning": function() {
             var result = CSSLint.verify(css2, { "selector-max-approaching": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("You have 4096 selectors. Internet Explorer supports a maximum of 4095 selectors per stylesheet. Consider refactoring.", result.messages[0].message);
         },
 
-        "Using 4095 or fewer selectors should not result in a warning": function(){
+        "Using 4095 or fewer selectors should not result in a warning": function() {
             var result = CSSLint.verify(css3, { "selector-max-approaching": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("You have 4095 selectors. Internet Explorer supports a maximum of 4095 selectors per stylesheet. Consider refactoring.", result.messages[0].message);
         },
 
-        "Using 4096 or more selectors should result in a warning": function(){
+        "Using 4096 or more selectors should result in a warning": function() {
             var result = CSSLint.verify(css4, { "selector-max-approaching": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);

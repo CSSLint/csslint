@@ -15,7 +15,7 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this;
 
@@ -38,23 +38,23 @@ CSSLint.addRule({
             },
             properties;
 
-        function reportProperty(name, display, msg){
-            if (properties[name]){
-                if (typeof propertiesToCheck[name] !== "string" || properties[name].value.toLowerCase() !== propertiesToCheck[name]){
+        function reportProperty(name, display, msg) {
+            if (properties[name]) {
+                if (typeof propertiesToCheck[name] !== "string" || properties[name].value.toLowerCase() !== propertiesToCheck[name]) {
                     reporter.report(msg || name + " can't be used with display: " + display + ".", properties[name].line, properties[name].col, rule);
                 }
             }
         }
 
-        function startRule(){
+        function startRule() {
             properties = {};
         }
 
-        function endRule(){
+        function endRule() {
 
             var display = properties.display ? properties.display.value : null;
-            if (display){
-                switch(display){
+            if (display) {
+                switch (display) {
 
                     case "inline":
                         //height, width, margin-top, margin-bottom, float should not be used with inline
@@ -78,7 +78,7 @@ CSSLint.addRule({
 
                     default:
                         //margin, float should not be used with table
-                        if (display.indexOf("table-") === 0){
+                        if (display.indexOf("table-") === 0) {
                             reportProperty("margin", display);
                             reportProperty("margin-left", display);
                             reportProperty("margin-right", display);
@@ -100,10 +100,10 @@ CSSLint.addRule({
         parser.addListener("startpage", startRule);
         parser.addListener("startviewport", startRule);
 
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             var name = event.property.text.toLowerCase();
 
-            if (propertiesToCheck[name]){
+            if (propertiesToCheck[name]) {
                 properties[name] = { value: event.value.text, line: event.property.line, col: event.property.col };
             }
         });

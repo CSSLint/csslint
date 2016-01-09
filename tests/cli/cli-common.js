@@ -33,7 +33,7 @@ function include(path, sandbox) {
 
                     name: "Test " + suiteix,
 
-                    "Outcome logs should match expected": function (){
+                    "Outcome logs should match expected": function () {
                         var it = suites[suiteix],
                             expecting = it.expecting,
                             expectingLen = expecting.length,

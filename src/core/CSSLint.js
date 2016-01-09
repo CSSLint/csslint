@@ -8,7 +8,7 @@
 /* global parserlib, clone, Reporter */
 /* exported CSSLint */
 
-var CSSLint = (function(){
+var CSSLint = (function() {
     "use strict";
 
     var rules           = [],
@@ -27,7 +27,7 @@ var CSSLint = (function(){
      * @param {Object} rule The rule to add.
      * @method addRule
      */
-    api.addRule = function(rule){
+    api.addRule = function(rule) {
         rules.push(rule);
         rules[rule.id] = rule;
     };
@@ -36,7 +36,7 @@ var CSSLint = (function(){
      * Clears all rule from the engine.
      * @method clearRules
      */
-    api.clearRules = function(){
+    api.clearRules = function() {
         rules = [];
     };
 
@@ -45,8 +45,8 @@ var CSSLint = (function(){
      * @return An array of rule objects.
      * @method getRules
      */
-    api.getRules = function(){
-        return [].concat(rules).sort(function(a,b){
+    api.getRules = function() {
+        return [].concat(rules).sort(function(a, b) {
             return a.id > b.id ? 1 : 0;
         });
     };
@@ -61,7 +61,7 @@ var CSSLint = (function(){
             i = 0,
             len = rules.length;
 
-        while (i < len){
+        while (i < len) {
             ruleset[rules[i++].id] = 1;    //by default, everything is a warning
         }
 
@@ -75,7 +75,7 @@ var CSSLint = (function(){
      * @return {Object} A ruleset object.
      * @method getEmbeddedRuleset
      */
-    function applyEmbeddedRuleset(text, ruleset){
+    function applyEmbeddedRuleset(text, ruleset) {
         var valueMap,
             embedded = text && text.match(embeddedRuleset),
             rules = embedded && embedded[1];
@@ -91,7 +91,7 @@ var CSSLint = (function(){
                 "0": 0      // explicit ignore
             };
 
-            rules.toLowerCase().split(",").forEach(function(rule){
+            rules.toLowerCase().split(",").forEach(function(rule) {
                 var pair = rule.split(":"),
                     property = pair[0] || "",
                     value = pair[1] || "";
@@ -123,7 +123,7 @@ var CSSLint = (function(){
      * @return {Object} The formatter or undefined.
      * @method getFormatter
      */
-    api.getFormatter = function(formatId){
+    api.getFormatter = function(formatId) {
         return formatters[formatId];
     };
 
@@ -140,7 +140,7 @@ var CSSLint = (function(){
         var formatter = this.getFormatter(formatId),
             result = null;
 
-        if (formatter){
+        if (formatter) {
             result = formatter.startFormat();
             result += formatter.formatResults(results, filename, options || {});
             result += formatter.endFormat();
@@ -155,7 +155,7 @@ var CSSLint = (function(){
      * @return {Boolean} True if the format exists, false if not.
      * @method hasFormat
      */
-    api.hasFormat = function(formatId){
+    api.hasFormat = function(formatId) {
         return formatters.hasOwnProperty(formatId);
     };
 
@@ -172,7 +172,7 @@ var CSSLint = (function(){
      * @return {Object} Results of the verification.
      * @method verify
      */
-    api.verify = function(text, ruleset){
+    api.verify = function(text, ruleset) {
 
         var i = 0,
             reporter,
@@ -184,11 +184,11 @@ var CSSLint = (function(){
         // normalize line endings
         lines = text.replace(/\n\r?/g, "$split$").split("$split$");
 
-        if (!ruleset){
+        if (!ruleset) {
             ruleset = this.getRuleset();
         }
 
-        if (embeddedRuleset.test(text)){
+        if (embeddedRuleset.test(text)) {
             //defensively copy so that caller's version does not get modified
             ruleset = clone(ruleset);
             ruleset = applyEmbeddedRuleset(text, ruleset);
@@ -197,9 +197,9 @@ var CSSLint = (function(){
         reporter = new Reporter(lines, ruleset);
 
         ruleset.errors = 2;       //always report parsing errors as errors
-        for (i in ruleset){
-            if(ruleset.hasOwnProperty(i) && ruleset[i]){
-                if (rules[i]){
+        for (i in ruleset) {
+            if (ruleset.hasOwnProperty(i) && ruleset[i]) {
+                if (rules[i]) {
                     rules[i].init(parser, reporter);
                 }
             }
@@ -220,10 +220,10 @@ var CSSLint = (function(){
         };
 
         //sort by line numbers, rollups at the bottom
-        report.messages.sort(function (a, b){
-            if (a.rollup && !b.rollup){
+        report.messages.sort(function (a, b) {
+            if (a.rollup && !b.rollup) {
                 return 1;
-            } else if (!a.rollup && b.rollup){
+            } else if (!a.rollup && b.rollup) {
                 return -1;
             } else {
                 return a.line - b.line;

@@ -7,7 +7,7 @@ CSSLint.addFormatter({
      * Return opening root XML tag.
      * @return {String} to prepend before all results
      */
-    startFormat: function(){
+    startFormat: function() {
         "use strict";
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites>";
     },
@@ -49,7 +49,7 @@ CSSLint.addFormatter({
             if (!rule || !("name" in rule)) {
                 return "";
             }
-            return "net.csslint." + rule.name.replace(/\s/g,"");
+            return "net.csslint." + rule.name.replace(/\s/g, "");
         };
 
         /**

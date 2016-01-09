@@ -1,4 +1,4 @@
-(function(){
+(function() {
     "use strict";
     var Assert = YUITest.Assert;
 
@@ -6,7 +6,7 @@
 
         name: "Parsing Errors",
 
-        "Parsing error should result in one parsing error message": function(){
+        "Parsing error should result in one parsing error message": function() {
             var result = CSSLint.verify("li { float left;}", { errors: 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("error", result.messages[0].type);

@@ -10,12 +10,12 @@ CSSLint.Util = {
      * @param {Object} The object to provide the properties.
      * @return {Object} The receiver
      */
-    mix: function(receiver, supplier){
+    mix: function(receiver, supplier) {
         "use strict";
         var prop;
 
-        for (prop in supplier){
-            if (supplier.hasOwnProperty(prop)){
+        for (prop in supplier) {
+            if (supplier.hasOwnProperty(prop)) {
                 receiver[prop] = supplier[prop];
             }
         }
@@ -29,13 +29,13 @@ CSSLint.Util = {
      * @param {Variant} value The value to search for.
      * @return {int} The index of the value if found, -1 if not.
      */
-    indexOf: function(values, value){
+    indexOf: function(values, value) {
         "use strict";
-        if (values.indexOf){
+        if (values.indexOf) {
             return values.indexOf(value);
         } else {
-            for (var i=0, len=values.length; i < len; i++){
-                if (values[i] === value){
+            for (var i=0, len=values.length; i < len; i++) {
+                if (values[i] === value) {
                     return i;
                 }
             }
@@ -51,10 +51,10 @@ CSSLint.Util = {
      */
     forEach: function(values, func) {
         "use strict";
-        if (values.forEach){
+        if (values.forEach) {
             return values.forEach(func);
         } else {
-            for (var i=0, len=values.length; i < len; i++){
+            for (var i=0, len=values.length; i < len; i++) {
                 func(values[i], i, values);
             }
         }

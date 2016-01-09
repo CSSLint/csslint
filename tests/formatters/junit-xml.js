@@ -1,4 +1,4 @@
-(function(){
+(function() {
     "use strict";
     var Assert = YUITest.Assert;
 
@@ -6,7 +6,7 @@
 
         name: "JUNIT XML formatter test",
 
-        "File with no problems should say so": function(){
+        "File with no problems should say so": function() {
 
             var result = { messages: [], stats: [] },
                 expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites></testsuites>";
@@ -14,7 +14,7 @@
 
         },
 
-        "File with problems should list them": function(){
+        "File with problems should list them": function() {
 
             var result = { messages: [
                 { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: { name: "A Rule"} },
