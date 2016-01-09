@@ -1,4 +1,2 @@
-node_modules/
-release/
 lib/
-build/
+node_modules/
