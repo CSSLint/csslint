@@ -59,7 +59,11 @@ CSSLint.addFormatter({
                 if (message.rollup) {
                     output.push("<issue severity=\"" + message.type + "\" reason=\"" + escapeSpecialCharacters(message.message) + "\" evidence=\"" + escapeSpecialCharacters(message.evidence) + "\"/>");
                 } else {
-                    output.push("<issue line=\"" + message.line + "\" char=\"" + message.col + "\" severity=\"" + message.type + "\"" +
+                    var rule = '';
+                    if (message.rule && message.rule.id) {
+                      rule = 'rule=\"' + escapeSpecialCharacters(message.rule.id) + '\" ';
+                    }
+                    output.push("<issue " + rule + "line=\"" + message.line + "\" char=\"" + message.col + "\" severity=\"" + message.type + "\"" +
                         " reason=\"" + escapeSpecialCharacters(message.message) + "\" evidence=\"" + escapeSpecialCharacters(message.evidence) + "\"/>");
                 }
             });
