@@ -33,7 +33,7 @@ CSSLint.addRule({
                             modifier = part.modifiers[k];
                             if (part.elementName && modifier.type === "id"){
                                 reporter.report("Element (" + part + ") is overqualified, just use " + modifier + " without element name.", part.line, part.col, rule);
-                            } else if (modifier.type === "class"){
+                            } else if (modifier.type === "class" && modifier.text.indexOf(".ng-") === -1) {
 
                                 if (!classes[modifier]){
                                     classes[modifier] = [];
