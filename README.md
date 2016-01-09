@@ -1,7 +1,7 @@
-[![NPM version](https://badge.fury.io/js/csslint.svg)](http://badge.fury.io/js/csslint)
-[![build status](https://secure.travis-ci.org/CSSLint/csslint.svg)](http://travis-ci.org/CSSLint/csslint)
-[![Dependency Status](https://david-dm.org/CSSLint/csslint.svg?theme=shields.io)](https://david-dm.org/CSSLint/csslint)
-[![devDependency Status](https://david-dm.org/CSSLint/csslint/dev-status.svg?theme=shields.io)](https://david-dm.org/CSSLint/csslint#info=devDependencies)
+[![npm version](https://img.shields.io/npm/v/csslint.svg)](https://www.npmjs.com/package/csslint)
+[![Build Status](https://img.shields.io/travis/CSSLint/csslint/master.svg)](https://travis-ci.org/CSSLint/csslint)
+[![Dependency Status](https://img.shields.io/david/CSSLint/csslint.svg)](https://david-dm.org/CSSLint/csslint)
+[![devDependency Status](https://img.shields.io/david/dev/CSSLint/csslint.svg)](https://david-dm.org/CSSLint/csslint#info=devDependencies)
 
 # CSSLint
 
