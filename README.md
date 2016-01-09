@@ -5,18 +5,18 @@
 
 # CSSLint
 
-CSSLint is an open source CSS code quality tool originally written by 
-[Nicholas C. Zakas](http://www.nczonline.net/) and 
+CSSLint is an open source CSS code quality tool originally written by
+[Nicholas C. Zakas](http://www.nczonline.net/) and
 [Nicole Sullivan](http://www.stubbornella.org/). It was released in June 2011 at
 the Velocity conference.
 
-A [lint](http://en.wikipedia.org/wiki/Lint_programming_tool) tool performs 
-[static analysis](http://en.wikipedia.org/wiki/Static_code_analysis) of source 
+A [lint](http://en.wikipedia.org/wiki/Lint_programming_tool) tool performs
+[static analysis](http://en.wikipedia.org/wiki/Static_code_analysis) of source
 code and flags patterns that might be errors or otherwise cause problems for the
-developer. 
+developer.
 
-CSSLint is a tool to help point out problems with your CSS code. It does basic 
-syntax checking as well as applying a set of rules to the code that look for 
+CSSLint is a tool to help point out problems with your CSS code. It does basic
+syntax checking as well as applying a set of rules to the code that look for
 problematic patterns or signs of inefficiency. The rules are all pluggable, so
 you can easily write your own or omit ones you don't want.
 
@@ -24,12 +24,12 @@ you can easily write your own or omit ones you don't want.
 
 ### Command Line Interface
 
-All about the command line interface for CSSLint. If you'd rather use a CLI 
-program to verify your CSS instead of using the web site, then this guide is 
+All about the command line interface for CSSLint. If you'd rather use a CLI
+program to verify your CSS instead of using the web site, then this guide is
 your best friend.
 https://github.com/CSSLint/csslint/wiki/Command-line-interface
 
-### Build System 
+### Build System
 
 Once you're familiar with the CSSLint command line interface, the next step is
 to integrate it into your build system. This guide walks through using CSSLint
@@ -44,8 +44,8 @@ https://github.com/CSSLint/csslint/wiki/IDE-integration
 
 ## Rules
 
-Not sure why a rule is important? This guide talks about each of the CSSLint 
-rules and explains how the rule is designed to improve your CSS. 
+Not sure why a rule is important? This guide talks about each of the CSSLint
+rules and explains how the rule is designed to improve your CSS.
 https://github.com/CSSLint/csslint/wiki/Rules
 
 ## Developer Guide
