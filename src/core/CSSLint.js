@@ -185,7 +185,7 @@ var CSSLint = (function(){
         lines = text.replace(/\n\r?/g, "$split$").split("$split$");
 
         if (!ruleset){
-            ruleset = this.getRuleset();
+            ruleset = api.getRuleset();
         }
 
         if (embeddedRuleset.test(text)){
