@@ -5,7 +5,7 @@ CSSLint.Util = {
     /*
      * Adds all properties from supplier onto receiver,
      * overwriting if the same name already exists on
-     * reciever.
+     * receiver.
      * @param {Object} The object to receive the properties.
      * @param {Object} The object to provide the properties.
      * @return {Object} The receiver

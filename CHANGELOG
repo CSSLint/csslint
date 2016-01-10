@@ -20,7 +20,7 @@ August 15, 2013 - v0.10.0
 * Update Travis and NPM building (Nick Schonning)
 * Remove Uglify task (Nick Schonning)
 * Add YUITest custom task (Nick Schonning)
-* Add .gitattibutes for line endings (Nick Schonning)
+* Add .gitattributes for line endings (Nick Schonning)
 * Add parser-lib concatination (Nick Schonning)
 * Fix package.json path for Ant (Nick Schonning)
 * Fix linting errors in tests (Nick Schonning)
