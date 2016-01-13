@@ -6726,7 +6726,7 @@ if (typeof module === 'object' && module.exports) {
 /* global parserlib, clone, Reporter */
 /* exported CSSLint */
 
-var CSSLint = (function(){
+var CSSLint = (function() {
     "use strict";
 
     var rules           = [],
@@ -6745,7 +6745,7 @@ var CSSLint = (function(){
      * @param {Object} rule The rule to add.
      * @method addRule
      */
-    api.addRule = function(rule){
+    api.addRule = function(rule) {
         rules.push(rule);
         rules[rule.id] = rule;
     };
@@ -6754,7 +6754,7 @@ var CSSLint = (function(){
      * Clears all rule from the engine.
      * @method clearRules
      */
-    api.clearRules = function(){
+    api.clearRules = function() {
         rules = [];
     };
 
@@ -6763,8 +6763,8 @@ var CSSLint = (function(){
      * @return An array of rule objects.
      * @method getRules
      */
-    api.getRules = function(){
-        return [].concat(rules).sort(function(a,b){
+    api.getRules = function() {
+        return [].concat(rules).sort(function(a, b) {
             return a.id > b.id ? 1 : 0;
         });
     };
@@ -6779,7 +6779,7 @@ var CSSLint = (function(){
             i = 0,
             len = rules.length;
 
-        while (i < len){
+        while (i < len) {
             ruleset[rules[i++].id] = 1;    //by default, everything is a warning
         }
 
@@ -6793,7 +6793,7 @@ var CSSLint = (function(){
      * @return {Object} A ruleset object.
      * @method getEmbeddedRuleset
      */
-    function applyEmbeddedRuleset(text, ruleset){
+    function applyEmbeddedRuleset(text, ruleset) {
         var valueMap,
             embedded = text && text.match(embeddedRuleset),
             rules = embedded && embedded[1];
@@ -6809,7 +6809,7 @@ var CSSLint = (function(){
                 "0": 0      // explicit ignore
             };
 
-            rules.toLowerCase().split(",").forEach(function(rule){
+            rules.toLowerCase().split(",").forEach(function(rule) {
                 var pair = rule.split(":"),
                     property = pair[0] || "",
                     value = pair[1] || "";
@@ -6841,7 +6841,7 @@ var CSSLint = (function(){
      * @return {Object} The formatter or undefined.
      * @method getFormatter
      */
-    api.getFormatter = function(formatId){
+    api.getFormatter = function(formatId) {
         return formatters[formatId];
     };
 
@@ -6858,7 +6858,7 @@ var CSSLint = (function(){
         var formatter = this.getFormatter(formatId),
             result = null;
 
-        if (formatter){
+        if (formatter) {
             result = formatter.startFormat();
             result += formatter.formatResults(results, filename, options || {});
             result += formatter.endFormat();
@@ -6873,7 +6873,7 @@ var CSSLint = (function(){
      * @return {Boolean} True if the format exists, false if not.
      * @method hasFormat
      */
-    api.hasFormat = function(formatId){
+    api.hasFormat = function(formatId) {
         return formatters.hasOwnProperty(formatId);
     };
 
@@ -6890,7 +6890,7 @@ var CSSLint = (function(){
      * @return {Object} Results of the verification.
      * @method verify
      */
-    api.verify = function(text, ruleset){
+    api.verify = function(text, ruleset) {
 
         var i = 0,
             reporter,
@@ -6902,11 +6902,11 @@ var CSSLint = (function(){
         // normalize line endings
         lines = text.replace(/\n\r?/g, "$split$").split("$split$");
 
-        if (!ruleset){
+        if (!ruleset) {
             ruleset = this.getRuleset();
         }
 
-        if (embeddedRuleset.test(text)){
+        if (embeddedRuleset.test(text)) {
             //defensively copy so that caller's version does not get modified
             ruleset = clone(ruleset);
             ruleset = applyEmbeddedRuleset(text, ruleset);
@@ -6915,9 +6915,9 @@ var CSSLint = (function(){
         reporter = new Reporter(lines, ruleset);
 
         ruleset.errors = 2;       //always report parsing errors as errors
-        for (i in ruleset){
-            if(ruleset.hasOwnProperty(i) && ruleset[i]){
-                if (rules[i]){
+        for (i in ruleset) {
+            if (ruleset.hasOwnProperty(i) && ruleset[i]) {
+                if (rules[i]) {
                     rules[i].init(parser, reporter);
                 }
             }
@@ -6938,10 +6938,10 @@ var CSSLint = (function(){
         };
 
         //sort by line numbers, rollups at the bottom
-        report.messages.sort(function (a, b){
-            if (a.rollup && !b.rollup){
+        report.messages.sort(function (a, b) {
+            if (a.rollup && !b.rollup) {
                 return 1;
-            } else if (!a.rollup && b.rollup){
+            } else if (!a.rollup && b.rollup) {
                 return -1;
             } else {
                 return a.line - b.line;
@@ -6968,7 +6968,7 @@ var CSSLint = (function(){
  * @param {Object} ruleset The set of rules to work with, including if
  *      they are errors or warnings.
  */
-function Reporter(lines, ruleset){
+function Reporter(lines, ruleset) {
     "use strict";
 
     /**
@@ -7015,7 +7015,7 @@ Reporter.prototype = {
      * @param {Object} rule The rule this message relates to.
      * @method error
      */
-    error: function(message, line, col, rule){
+    error: function(message, line, col, rule) {
         "use strict";
         this.messages.push({
             type    : "error",
@@ -7036,7 +7036,7 @@ Reporter.prototype = {
      * @method warn
      * @deprecated Use report instead.
      */
-    warn: function(message, line, col, rule){
+    warn: function(message, line, col, rule) {
         "use strict";
         this.report(message, line, col, rule);
     },
@@ -7049,7 +7049,7 @@ Reporter.prototype = {
      * @param {Object} rule The rule this message relates to.
      * @method report
      */
-    report: function(message, line, col, rule){
+    report: function(message, line, col, rule) {
         "use strict";
         this.messages.push({
             type    : this.ruleset[rule.id] === 2 ? "error" : "warning",
@@ -7069,7 +7069,7 @@ Reporter.prototype = {
      * @param {Object} rule The rule this message relates to.
      * @method info
      */
-    info: function(message, line, col, rule){
+    info: function(message, line, col, rule) {
         "use strict";
         this.messages.push({
             type    : "info",
@@ -7087,7 +7087,7 @@ Reporter.prototype = {
      * @param {Object} rule The rule this message relates to.
      * @method rollupError
      */
-    rollupError: function(message, rule){
+    rollupError: function(message, rule) {
         "use strict";
         this.messages.push({
             type    : "error",
@@ -7103,7 +7103,7 @@ Reporter.prototype = {
      * @param {Object} rule The rule this message relates to.
      * @method rollupWarn
      */
-    rollupWarn: function(message, rule){
+    rollupWarn: function(message, rule) {
         "use strict";
         this.messages.push({
             type    : "warning",
@@ -7119,7 +7119,7 @@ Reporter.prototype = {
      * @param {Variant} value The value of the stat.
      * @method stat
      */
-    stat: function(name, value){
+    stat: function(name, value) {
         "use strict";
         this.stats[name] = value;
     }
@@ -7135,17 +7135,17 @@ CSSLint.Util = {
     /*
      * Adds all properties from supplier onto receiver,
      * overwriting if the same name already exists on
-     * reciever.
+     * receiver.
      * @param {Object} The object to receive the properties.
      * @param {Object} The object to provide the properties.
      * @return {Object} The receiver
      */
-    mix: function(receiver, supplier){
+    mix: function(receiver, supplier) {
         "use strict";
         var prop;
 
-        for (prop in supplier){
-            if (supplier.hasOwnProperty(prop)){
+        for (prop in supplier) {
+            if (supplier.hasOwnProperty(prop)) {
                 receiver[prop] = supplier[prop];
             }
         }
@@ -7159,13 +7159,13 @@ CSSLint.Util = {
      * @param {Variant} value The value to search for.
      * @return {int} The index of the value if found, -1 if not.
      */
-    indexOf: function(values, value){
+    indexOf: function(values, value) {
         "use strict";
-        if (values.indexOf){
+        if (values.indexOf) {
             return values.indexOf(value);
         } else {
-            for (var i=0, len=values.length; i < len; i++){
-                if (values[i] === value){
+            for (var i=0, len=values.length; i < len; i++) {
+                if (values[i] === value) {
                     return i;
                 }
             }
@@ -7181,10 +7181,10 @@ CSSLint.Util = {
      */
     forEach: function(values, func) {
         "use strict";
-        if (values.forEach){
+        if (values.forEach) {
             return values.forEach(func);
         } else {
-            for (var i=0, len=values.length; i < len; i++){
+            for (var i=0, len=values.length; i < len; i++) {
                 func(values[i], i, values);
             }
         }
@@ -7204,10 +7204,10 @@ CSSLint.addRule({
     browsers: "IE6",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this;
-        parser.addListener("startrule", function(event){
+        parser.addListener("startrule", function(event) {
             var selectors = event.selectors,
                 selector,
                 part,
@@ -7215,18 +7215,18 @@ CSSLint.addRule({
                 classCount,
                 i, j, k;
 
-            for (i=0; i < selectors.length; i++){
+            for (i=0; i < selectors.length; i++) {
                 selector = selectors[i];
-                for (j=0; j < selector.parts.length; j++){
+                for (j=0; j < selector.parts.length; j++) {
                     part = selector.parts[j];
-                    if (part.type === parser.SELECTOR_PART_TYPE){
+                    if (part.type === parser.SELECTOR_PART_TYPE) {
                         classCount = 0;
-                        for (k=0; k < part.modifiers.length; k++){
+                        for (k=0; k < part.modifiers.length; k++) {
                             modifier = part.modifiers[k];
-                            if (modifier.type === "class"){
+                            if (modifier.type === "class") {
                                 classCount++;
                             }
-                            if (classCount > 1){
+                            if (classCount > 1) {
                                 reporter.report("Don't use adjoining classes.", part.line, part.col, rule);
                             }
                         }
@@ -7250,7 +7250,7 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             widthProperties = {
@@ -7272,33 +7272,33 @@ CSSLint.addRule({
             properties,
             boxSizing = false;
 
-        function startRule(){
+        function startRule() {
             properties = {};
             boxSizing = false;
         }
 
-        function endRule(){
+        function endRule() {
             var prop, value;
 
             if (!boxSizing) {
-                if (properties.height){
-                    for (prop in heightProperties){
-                        if (heightProperties.hasOwnProperty(prop) && properties[prop]){
+                if (properties.height) {
+                    for (prop in heightProperties) {
+                        if (heightProperties.hasOwnProperty(prop) && properties[prop]) {
                             value = properties[prop].value;
                             //special case for padding
-                            if (!(prop === "padding" && value.parts.length === 2 && value.parts[0].value === 0)){
+                            if (!(prop === "padding" && value.parts.length === 2 && value.parts[0].value === 0)) {
                                 reporter.report("Using height with " + prop + " can sometimes make elements larger than you expect.", properties[prop].line, properties[prop].col, rule);
                             }
                         }
                     }
                 }
 
-                if (properties.width){
-                    for (prop in widthProperties){
-                        if (widthProperties.hasOwnProperty(prop) && properties[prop]){
+                if (properties.width) {
+                    for (prop in widthProperties) {
+                        if (widthProperties.hasOwnProperty(prop) && properties[prop]) {
                             value = properties[prop].value;
 
-                            if (!(prop === "padding" && value.parts.length === 2 && value.parts[1].value === 0)){
+                            if (!(prop === "padding" && value.parts.length === 2 && value.parts[1].value === 0)) {
                                 reporter.report("Using width with " + prop + " can sometimes make elements larger than you expect.", properties[prop].line, properties[prop].col, rule);
                             }
                         }
@@ -7314,15 +7314,15 @@ CSSLint.addRule({
         parser.addListener("startkeyframerule", startRule);
         parser.addListener("startviewport", startRule);
 
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             var name = event.property.text.toLowerCase();
 
-            if (heightProperties[name] || widthProperties[name]){
-                if (!/^0\S*$/.test(event.value) && !(name === "border" && event.value.toString() === "none")){
+            if (heightProperties[name] || widthProperties[name]) {
+                if (!/^0\S*$/.test(event.value) && !(name === "border" && event.value.toString() === "none")) {
                     properties[name] = { line: event.property.line, col: event.property.col, value: event.value };
                 }
             } else {
-                if (/^(width|height)/i.test(name) && /^(length|percentage)/.test(event.value.parts[0].type)){
+                if (/^(width|height)/i.test(name) && /^(length|percentage)/.test(event.value.parts[0].type)) {
                     properties[name] = 1;
                 } else if (name === "box-sizing") {
                     boxSizing = true;
@@ -7355,14 +7355,14 @@ CSSLint.addRule({
     tags: ["Compatibility"],
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this;
 
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             var name = event.property.text.toLowerCase();
 
-            if (name === "box-sizing"){
+            if (name === "box-sizing") {
                 reporter.report("The box-sizing property isn't supported in IE6 and IE7.", event.line, event.col, rule);
             }
         });
@@ -7384,7 +7384,7 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             fontFaceRule = false,
@@ -7393,11 +7393,11 @@ CSSLint.addRule({
             line, col;
 
         // Mark the start of a @font-face declaration so we only test properties inside it
-        parser.addListener("startfontface", function(){
+        parser.addListener("startfontface", function() {
             fontFaceRule = true;
         });
 
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             // If we aren't inside an @font-face declaration then just return
             if (!fontFaceRule) {
                 return;
@@ -7427,7 +7427,7 @@ CSSLint.addRule({
         });
 
         // Back to normal rules that we don't need to test
-        parser.addListener("endfontface", function(){
+        parser.addListener("endfontface", function() {
             fontFaceRule = false;
 
             if (ruleFailed) {
@@ -7642,7 +7642,7 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this;
 
@@ -7665,23 +7665,23 @@ CSSLint.addRule({
             },
             properties;
 
-        function reportProperty(name, display, msg){
-            if (properties[name]){
-                if (typeof propertiesToCheck[name] !== "string" || properties[name].value.toLowerCase() !== propertiesToCheck[name]){
+        function reportProperty(name, display, msg) {
+            if (properties[name]) {
+                if (typeof propertiesToCheck[name] !== "string" || properties[name].value.toLowerCase() !== propertiesToCheck[name]) {
                     reporter.report(msg || name + " can't be used with display: " + display + ".", properties[name].line, properties[name].col, rule);
                 }
             }
         }
 
-        function startRule(){
+        function startRule() {
             properties = {};
         }
 
-        function endRule(){
+        function endRule() {
 
             var display = properties.display ? properties.display.value : null;
-            if (display){
-                switch(display){
+            if (display) {
+                switch (display) {
 
                     case "inline":
                         //height, width, margin-top, margin-bottom, float should not be used with inline
@@ -7705,7 +7705,7 @@ CSSLint.addRule({
 
                     default:
                         //margin, float should not be used with table
-                        if (display.indexOf("table-") === 0){
+                        if (display.indexOf("table-") === 0) {
                             reportProperty("margin", display);
                             reportProperty("margin-left", display);
                             reportProperty("margin-right", display);
@@ -7727,10 +7727,10 @@ CSSLint.addRule({
         parser.addListener("startpage", startRule);
         parser.addListener("startviewport", startRule);
 
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             var name = event.property.text.toLowerCase();
 
-            if (propertiesToCheck[name]){
+            if (propertiesToCheck[name]) {
                 properties[name] = { value: event.value.text, line: event.property.line, col: event.property.col };
             }
         });
@@ -7759,12 +7759,12 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             stack = {};
 
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             var name = event.property.text,
                 value = event.value,
                 i, len;
@@ -7799,13 +7799,13 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             properties,
             lastProperty;
 
-        function startRule(){
+        function startRule() {
             properties = {};
         }
 
@@ -7816,11 +7816,11 @@ CSSLint.addRule({
         parser.addListener("startkeyframerule", startRule);
         parser.addListener("startviewport", startRule);
 
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             var property = event.property,
                 name = property.text.toLowerCase();
 
-            if (properties[name] && (lastProperty !== name || properties[name] === event.value.text)){
+            if (properties[name] && (lastProperty !== name || properties[name] === event.value.text)) {
                 reporter.report("Duplicate property '" + event.property + "' found.", event.line, event.col, rule);
             }
 
@@ -7847,22 +7847,22 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             count = 0;
 
-        parser.addListener("startrule", function(){
+        parser.addListener("startrule", function() {
             count=0;
         });
 
-        parser.addListener("property", function(){
+        parser.addListener("property", function() {
             count++;
         });
 
-        parser.addListener("endrule", function(event){
+        parser.addListener("endrule", function(event) {
             var selectors = event.selectors;
-            if (count === 0){
+            if (count === 0) {
                 reporter.report("Rule is empty.", selectors[0].line, selectors[0].col, rule);
             }
         });
@@ -7883,11 +7883,11 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this;
 
-        parser.addListener("error", function(event){
+        parser.addListener("error", function(event) {
             reporter.error(event.message, event.line, event.col, rule);
         });
 
@@ -7904,7 +7904,7 @@ CSSLint.addRule({
     browsers: "IE6,IE7,IE8",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             lastProperty,
@@ -7925,7 +7925,7 @@ CSSLint.addRule({
             },
             properties;
 
-        function startRule(){
+        function startRule() {
             properties = {};
             lastProperty = null;
         }
@@ -7937,7 +7937,7 @@ CSSLint.addRule({
         parser.addListener("startkeyframerule", startRule);
         parser.addListener("startviewport", startRule);
 
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             var property = event.property,
                 name = property.text.toLowerCase(),
                 parts = event.value.parts,
@@ -7945,16 +7945,16 @@ CSSLint.addRule({
                 colorType = "",
                 len = parts.length;
 
-            if(propertiesToCheck[name]){
-                while(i < len){
-                    if (parts[i].type === "color"){
-                        if ("alpha" in parts[i] || "hue" in parts[i]){
+            if (propertiesToCheck[name]) {
+                while (i < len) {
+                    if (parts[i].type === "color") {
+                        if ("alpha" in parts[i] || "hue" in parts[i]) {
 
-                            if (/([^\)]+)\(/.test(parts[i])){
+                            if (/([^\)]+)\(/.test(parts[i])) {
                                 colorType = RegExp.$1.toUpperCase();
                             }
 
-                            if (!lastProperty || (lastProperty.property.text.toLowerCase() !== name || lastProperty.colorType !== "compat")){
+                            if (!lastProperty || (lastProperty.property.text.toLowerCase() !== name || lastProperty.colorType !== "compat")) {
                                 reporter.report("Fallback " + name + " (hex or RGB) should precede " + colorType + " " + name + ".", event.line, event.col, rule);
                             }
                         } else {
@@ -7987,23 +7987,23 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this;
         var count = 0;
 
         //count how many times "float" is used
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             if (event.property.text.toLowerCase() === "float" &&
-                    event.value.text.toLowerCase() !== "none"){
+                    event.value.text.toLowerCase() !== "none") {
                 count++;
             }
         });
 
         //report the results
-        parser.addListener("endstylesheet", function(){
+        parser.addListener("endstylesheet", function() {
             reporter.stat("floats", count);
-            if (count >= 10){
+            if (count >= 10) {
                 reporter.rollupWarn("Too many floats (" + count + "), you're probably using them for layout. Consider using a grid system instead.", rule);
             }
         });
@@ -8024,18 +8024,18 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             count = 0;
 
 
-        parser.addListener("startfontface", function(){
+        parser.addListener("startfontface", function() {
             count++;
         });
 
-        parser.addListener("endstylesheet", function(){
-            if (count > 5){
+        parser.addListener("endstylesheet", function() {
+            if (count > 5) {
                 reporter.rollupWarn("Too many @font-face declarations (" + count + ").", rule);
             }
         });
@@ -8056,22 +8056,22 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             count = 0;
 
         //check for use of "font-size"
-        parser.addListener("property", function(event){
-            if (event.property.toString() === "font-size"){
+        parser.addListener("property", function(event) {
+            if (event.property.toString() === "font-size") {
                 count++;
             }
         });
 
         //report the results
-        parser.addListener("endstylesheet", function(){
+        parser.addListener("endstylesheet", function() {
             reporter.stat("font-sizes", count);
-            if (count >= 10){
+            if (count >= 10) {
                 reporter.rollupWarn("Too many font-size declarations (" + count + "), abstraction needed.", rule);
             }
         });
@@ -8092,12 +8092,12 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             gradients;
 
-        parser.addListener("startrule", function(){
+        parser.addListener("startrule", function() {
             gradients = {
                 moz: 0,
                 webkit: 0,
@@ -8106,36 +8106,36 @@ CSSLint.addRule({
             };
         });
 
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
 
-            if (/\-(moz|o|webkit)(?:\-(?:linear|radial))\-gradient/i.test(event.value)){
+            if (/\-(moz|o|webkit)(?:\-(?:linear|radial))\-gradient/i.test(event.value)) {
                 gradients[RegExp.$1] = 1;
-            } else if (/\-webkit\-gradient/i.test(event.value)){
+            } else if (/\-webkit\-gradient/i.test(event.value)) {
                 gradients.oldWebkit = 1;
             }
 
         });
 
-        parser.addListener("endrule", function(event){
+        parser.addListener("endrule", function(event) {
             var missing = [];
 
-            if (!gradients.moz){
+            if (!gradients.moz) {
                 missing.push("Firefox 3.6+");
             }
 
-            if (!gradients.webkit){
+            if (!gradients.webkit) {
                 missing.push("Webkit (Safari 5+, Chrome)");
             }
 
-            if (!gradients.oldWebkit){
+            if (!gradients.oldWebkit) {
                 missing.push("Old Webkit (Safari 4+, Chrome)");
             }
 
-            if (!gradients.o){
+            if (!gradients.o) {
                 missing.push("Opera 11.1+");
             }
 
-            if (missing.length && missing.length < 4){
+            if (missing.length && missing.length < 4) {
                 reporter.report("Missing vendor-prefixed CSS gradients for " + missing.join(", ") + ".", event.selectors[0].line, event.selectors[0].col, rule);
             }
 
@@ -8158,10 +8158,10 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this;
-        parser.addListener("startrule", function(event){
+        parser.addListener("startrule", function(event) {
             var selectors = event.selectors,
                 selector,
                 part,
@@ -8169,25 +8169,25 @@ CSSLint.addRule({
                 idCount,
                 i, j, k;
 
-            for (i=0; i < selectors.length; i++){
+            for (i=0; i < selectors.length; i++) {
                 selector = selectors[i];
                 idCount = 0;
 
-                for (j=0; j < selector.parts.length; j++){
+                for (j=0; j < selector.parts.length; j++) {
                     part = selector.parts[j];
-                    if (part.type === parser.SELECTOR_PART_TYPE){
-                        for (k=0; k < part.modifiers.length; k++){
+                    if (part.type === parser.SELECTOR_PART_TYPE) {
+                        for (k=0; k < part.modifiers.length; k++) {
                             modifier = part.modifiers[k];
-                            if (modifier.type === "id"){
+                            if (modifier.type === "id") {
                                 idCount++;
                             }
                         }
                     }
                 }
 
-                if (idCount === 1){
+                if (idCount === 1) {
                     reporter.report("Don't use IDs in selectors.", selector.line, selector.col, rule);
-                } else if (idCount > 1){
+                } else if (idCount > 1) {
                     reporter.report(idCount + " IDs in the selector, really?", selector.line, selector.col, rule);
                 }
             }
@@ -8210,11 +8210,11 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this;
 
-        parser.addListener("import", function(event){
+        parser.addListener("import", function(event) {
             reporter.report("@import prevents parallel downloads, use <link> instead.", event.line, event.col, rule);
         });
 
@@ -8237,23 +8237,23 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             count = 0;
 
         //warn that important is used and increment the declaration counter
-        parser.addListener("property", function(event){
-            if (event.important === true){
+        parser.addListener("property", function(event) {
+            if (event.important === true) {
                 count++;
                 reporter.report("Use of !important", event.line, event.col, rule);
             }
         });
 
         //if there are more than 10, show an error
-        parser.addListener("endstylesheet", function(){
+        parser.addListener("endstylesheet", function() {
             reporter.stat("important", count);
-            if (count >= 10){
+            if (count >= 10) {
                 reporter.rollupWarn("Too many !important declarations (" + count + "), try to use less than 10 to avoid specificity issues.", rule);
             }
         });
@@ -8275,11 +8275,11 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this;
 
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
 
             // the check is handled entirely by the parser-lib (https://github.com/nzakas/parser-lib)
             if (event.invalid) {
@@ -8304,7 +8304,7 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             properties;
@@ -8313,11 +8313,11 @@ CSSLint.addRule({
             properties = [];
         };
 
-        var endRule = function(event){
+        var endRule = function(event) {
             var currentProperties = properties.join(","),
                 expectedProperties = properties.sort().join(",");
 
-            if (currentProperties !== expectedProperties){
+            if (currentProperties !== expectedProperties) {
                 reporter.report("Rule doesn't have all its properties in alphabetical ordered.", event.line, event.col, rule);
             }
           };
@@ -8329,7 +8329,7 @@ CSSLint.addRule({
         parser.addListener("startkeyframerule", startRule);
         parser.addListener("startviewport", startRule);
 
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             var name = event.property.text,
                 lowerCasePrefixLessName = name.toLowerCase().replace(/^-.*?-/, "");
 
@@ -8361,13 +8361,13 @@ CSSLint.addRule({
     tags: ["Accessibility"],
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             lastRule;
 
-        function startRule(event){
-            if (event.selectors){
+        function startRule(event) {
+            if (event.selectors) {
                 lastRule = {
                     line: event.line,
                     col: event.col,
@@ -8380,10 +8380,10 @@ CSSLint.addRule({
             }
         }
 
-        function endRule(){
-            if (lastRule){
-                if (lastRule.outline){
-                    if (lastRule.selectors.toString().toLowerCase().indexOf(":focus") === -1){
+        function endRule() {
+            if (lastRule) {
+                if (lastRule.outline) {
+                    if (lastRule.selectors.toString().toLowerCase().indexOf(":focus") === -1) {
                         reporter.report("Outlines should only be modified using :focus.", lastRule.line, lastRule.col, rule);
                     } else if (lastRule.propCount === 1) {
                         reporter.report("Outlines shouldn't be hidden unless other visual changes are made.", lastRule.line, lastRule.col, rule);
@@ -8399,13 +8399,13 @@ CSSLint.addRule({
         parser.addListener("startkeyframerule", startRule);
         parser.addListener("startviewport", startRule);
 
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             var name = event.property.text.toLowerCase(),
                 value = event.value;
 
-            if (lastRule){
+            if (lastRule) {
                 lastRule.propCount++;
-                if (name === "outline" && (value.toString() === "none" || value.toString() === "0")){
+                if (name === "outline" && (value.toString() === "none" || value.toString() === "0")) {
                     lastRule.outline = true;
                 }
             }
@@ -8436,31 +8436,31 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             classes = {};
 
-        parser.addListener("startrule", function(event){
+        parser.addListener("startrule", function(event) {
             var selectors = event.selectors,
                 selector,
                 part,
                 modifier,
                 i, j, k;
 
-            for (i=0; i < selectors.length; i++){
+            for (i=0; i < selectors.length; i++) {
                 selector = selectors[i];
 
-                for (j=0; j < selector.parts.length; j++){
+                for (j=0; j < selector.parts.length; j++) {
                     part = selector.parts[j];
-                    if (part.type === parser.SELECTOR_PART_TYPE){
-                        for (k=0; k < part.modifiers.length; k++){
+                    if (part.type === parser.SELECTOR_PART_TYPE) {
+                        for (k=0; k < part.modifiers.length; k++) {
                             modifier = part.modifiers[k];
-                            if (part.elementName && modifier.type === "id"){
+                            if (part.elementName && modifier.type === "id") {
                                 reporter.report("Element (" + part + ") is overqualified, just use " + modifier + " without element name.", part.line, part.col, rule);
-                            } else if (modifier.type === "class"){
+                            } else if (modifier.type === "class") {
 
-                                if (!classes[modifier]){
+                                if (!classes[modifier]) {
                                     classes[modifier] = [];
                                 }
                                 classes[modifier].push({ modifier: modifier, part: part });
@@ -8471,14 +8471,14 @@ CSSLint.addRule({
             }
         });
 
-        parser.addListener("endstylesheet", function(){
+        parser.addListener("endstylesheet", function() {
 
             var prop;
-            for (prop in classes){
-                if (classes.hasOwnProperty(prop)){
+            for (prop in classes) {
+                if (classes.hasOwnProperty(prop)) {
 
                     //one use means that this is overqualified
-                    if (classes[prop].length === 1 && classes[prop][0].part.elementName){
+                    if (classes[prop].length === 1 && classes[prop][0].part.elementName) {
                         reporter.report("Element (" + classes[prop][0].part + ") is overqualified, just use " + classes[prop][0].modifier + " without element name.", classes[prop][0].part.line, classes[prop][0].part.col, rule);
                     }
                 }
@@ -8501,23 +8501,23 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this;
 
-        parser.addListener("startrule", function(event){
+        parser.addListener("startrule", function(event) {
             var selectors = event.selectors,
                 selector,
                 part,
                 i, j;
 
-            for (i=0; i < selectors.length; i++){
+            for (i=0; i < selectors.length; i++) {
                 selector = selectors[i];
 
-                for (j=0; j < selector.parts.length; j++){
+                for (j=0; j < selector.parts.length; j++) {
                     part = selector.parts[j];
-                    if (part.type === parser.SELECTOR_PART_TYPE){
-                        if (part.elementName && /h[1-6]/.test(part.elementName.toString()) && j > 0){
+                    if (part.type === parser.SELECTOR_PART_TYPE) {
+                        if (part.elementName && /h[1-6]/.test(part.elementName.toString()) && j > 0) {
                             reporter.report("Heading (" + part.elementName + ") should not be qualified.", part.line, part.col, rule);
                         }
                     }
@@ -8541,26 +8541,26 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this;
 
-        parser.addListener("startrule", function(event){
+        parser.addListener("startrule", function(event) {
             var selectors = event.selectors,
                 selector,
                 part,
                 modifier,
                 i, j, k;
 
-            for (i=0; i < selectors.length; i++){
+            for (i=0; i < selectors.length; i++) {
                 selector = selectors[i];
-                for (j=0; j < selector.parts.length; j++){
+                for (j=0; j < selector.parts.length; j++) {
                     part = selector.parts[j];
-                    if (part.type === parser.SELECTOR_PART_TYPE){
-                        for (k=0; k < part.modifiers.length; k++){
+                    if (part.type === parser.SELECTOR_PART_TYPE) {
+                        for (k=0; k < part.modifiers.length; k++) {
                             modifier = part.modifiers[k];
-                            if (modifier.type === "attribute"){
-                                if (/([\~\|\^\$\*]=)/.test(modifier)){
+                            if (modifier.type === "attribute") {
+                                if (/([\~\|\^\$\*]=)/.test(modifier)) {
                                     reporter.report("Attribute selectors with " + RegExp.$1 + " are slow!", modifier.line, modifier.col, rule);
                                 }
                             }
@@ -8587,16 +8587,16 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var count = 0;
 
         //count each rule
-        parser.addListener("startrule", function(){
+        parser.addListener("startrule", function() {
             count++;
         });
 
-        parser.addListener("endstylesheet", function(){
+        parser.addListener("endstylesheet", function() {
             reporter.stat("rule-count", count);
         });
     }
@@ -8646,7 +8646,7 @@ CSSLint.addRule({
     browsers: "IE",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this, count = 0;
 
@@ -8722,7 +8722,7 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             prop, i, len,
@@ -8744,33 +8744,33 @@ CSSLint.addRule({
             };
 
         //initialize propertiesToCheck
-        for (prop in mapping){
-            if (mapping.hasOwnProperty(prop)){
-                for (i=0, len=mapping[prop].length; i < len; i++){
+        for (prop in mapping) {
+            if (mapping.hasOwnProperty(prop)) {
+                for (i=0, len=mapping[prop].length; i < len; i++) {
                     propertiesToCheck[mapping[prop][i]] = prop;
                 }
             }
         }
 
-        function startRule(){
+        function startRule() {
             properties = {};
         }
 
         //event handler for end of rules
-        function endRule(event){
+        function endRule(event) {
 
             var prop, i, len, total;
 
             //check which properties this rule has
-            for (prop in mapping){
-                if (mapping.hasOwnProperty(prop)){
+            for (prop in mapping) {
+                if (mapping.hasOwnProperty(prop)) {
                     total=0;
 
-                    for (i=0, len=mapping[prop].length; i < len; i++){
+                    for (i=0, len=mapping[prop].length; i < len; i++) {
                         total += properties[mapping[prop][i]] ? 1 : 0;
                     }
 
-                    if (total === mapping[prop].length){
+                    if (total === mapping[prop].length) {
                         reporter.report("The properties " + mapping[prop].join(", ") + " can be replaced by " + prop + ".", event.line, event.col, rule);
                     }
                 }
@@ -8781,10 +8781,10 @@ CSSLint.addRule({
         parser.addListener("startfontface", startRule);
 
         //check for use of "font-size"
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             var name = event.property.toString().toLowerCase();
 
-            if (propertiesToCheck[name]){
+            if (propertiesToCheck[name]) {
                 properties[name] = 1;
             }
         });
@@ -8810,12 +8810,12 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this;
 
         //check if property name starts with "*"
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             var property = event.property;
 
             if (property.hack === "*") {
@@ -8839,21 +8839,21 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             textIndent,
             direction;
 
 
-        function startRule(){
+        function startRule() {
             textIndent = false;
             direction = "inherit";
         }
 
         //event handler for end of rules
-        function endRule(){
-            if (textIndent && direction !== "ltr"){
+        function endRule() {
+            if (textIndent && direction !== "ltr") {
                 reporter.report("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set direction for that item to ltr.", textIndent.line, textIndent.col, rule);
             }
         }
@@ -8862,13 +8862,13 @@ CSSLint.addRule({
         parser.addListener("startfontface", startRule);
 
         //check for use of "font-size"
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             var name = event.property.toString().toLowerCase(),
                 value = event.value;
 
-            if (name === "text-indent" && value.parts[0].value < -99){
+            if (name === "text-indent" && value.parts[0].value < -99) {
                 textIndent = event.property;
-            } else if (name === "direction" && value.toString() === "ltr"){
+            } else if (name === "direction" && value.toString() === "ltr") {
                 direction = "ltr";
             }
         });
@@ -8894,12 +8894,12 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this;
 
         //check if property name starts with "_"
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             var property = event.property;
 
             if (property.hack === "_") {
@@ -8922,7 +8922,7 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this;
 
@@ -8935,27 +8935,27 @@ CSSLint.addRule({
                 h6: 0
             };
 
-        parser.addListener("startrule", function(event){
+        parser.addListener("startrule", function(event) {
             var selectors = event.selectors,
                 selector,
                 part,
                 pseudo,
                 i, j;
 
-            for (i=0; i < selectors.length; i++){
+            for (i=0; i < selectors.length; i++) {
                 selector = selectors[i];
                 part = selector.parts[selector.parts.length-1];
 
-                if (part.elementName && /(h[1-6])/i.test(part.elementName.toString())){
+                if (part.elementName && /(h[1-6])/i.test(part.elementName.toString())) {
 
-                    for (j=0; j < part.modifiers.length; j++){
-                        if (part.modifiers[j].type === "pseudo"){
+                    for (j=0; j < part.modifiers.length; j++) {
+                        if (part.modifiers[j].type === "pseudo") {
                             pseudo = true;
                             break;
                         }
                     }
 
-                    if (!pseudo){
+                    if (!pseudo) {
                         headings[RegExp.$1]++;
                         if (headings[RegExp.$1] > 1) {
                             reporter.report("Heading (" + part.elementName + ") has already been defined.", part.line, part.col, rule);
@@ -8965,19 +8965,19 @@ CSSLint.addRule({
             }
         });
 
-        parser.addListener("endstylesheet", function(){
+        parser.addListener("endstylesheet", function() {
             var prop,
                 messages = [];
 
-            for (prop in headings){
-                if (headings.hasOwnProperty(prop)){
-                    if (headings[prop] > 1){
+            for (prop in headings) {
+                if (headings.hasOwnProperty(prop)) {
+                    if (headings[prop] > 1) {
                         messages.push(headings[prop] + " " + prop + "s");
                     }
                 }
             }
 
-            if (messages.length){
+            if (messages.length) {
                 reporter.rollupWarn("You have " + messages.join(", ") + " defined in this stylesheet.", rule);
             }
         });
@@ -8998,21 +8998,21 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this;
 
-        parser.addListener("startrule", function(event){
+        parser.addListener("startrule", function(event) {
             var selectors = event.selectors,
                 selector,
                 part,
                 i;
 
-            for (i=0; i < selectors.length; i++){
+            for (i=0; i < selectors.length; i++) {
                 selector = selectors[i];
 
                 part = selector.parts[selector.parts.length-1];
-                if (part.elementName === "*"){
+                if (part.elementName === "*") {
                     reporter.report(rule.desc, part.line, part.col, rule);
                 }
             }
@@ -9034,11 +9034,11 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this;
 
-        parser.addListener("startrule", function(event){
+        parser.addListener("startrule", function(event) {
 
             var selectors = event.selectors,
                 selector,
@@ -9046,14 +9046,14 @@ CSSLint.addRule({
                 modifier,
                 i, k;
 
-            for (i=0; i < selectors.length; i++){
+            for (i=0; i < selectors.length; i++) {
                 selector = selectors[i];
 
                 part = selector.parts[selector.parts.length-1];
-                if (part.type === parser.SELECTOR_PART_TYPE){
-                    for (k=0; k < part.modifiers.length; k++){
+                if (part.type === parser.SELECTOR_PART_TYPE) {
+                    for (k=0; k < part.modifiers.length; k++) {
                         modifier = part.modifiers[k];
-                        if (modifier.type === "attribute" && (!part.elementName || part.elementName === "*")){
+                        if (modifier.type === "attribute" && (!part.elementName || part.elementName === "*")) {
                             reporter.report(rule.desc, part.line, part.col, rule);
                         }
                     }
@@ -9079,7 +9079,7 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             properties,
@@ -9145,13 +9145,13 @@ CSSLint.addRule({
             };
 
         //event handler for beginning of rules
-        function startRule(){
+        function startRule() {
             properties = {};
             num = 1;
         }
 
         //event handler for end of rules
-        function endRule(){
+        function endRule() {
             var prop,
                 i,
                 len,
@@ -9159,21 +9159,21 @@ CSSLint.addRule({
                 actual,
                 needsStandard = [];
 
-            for (prop in properties){
-                if (propertiesToCheck[prop]){
+            for (prop in properties) {
+                if (propertiesToCheck[prop]) {
                     needsStandard.push({ actual: prop, needed: propertiesToCheck[prop]});
                 }
             }
 
-            for (i=0, len=needsStandard.length; i < len; i++){
+            for (i=0, len=needsStandard.length; i < len; i++) {
                 needed = needsStandard[i].needed;
                 actual = needsStandard[i].actual;
 
-                if (!properties[needed]){
+                if (!properties[needed]) {
                     reporter.report("Missing standard property '" + needed + "' to go along with '" + actual + "'.", properties[actual][0].name.line, properties[actual][0].name.col, rule);
                 } else {
                     //make sure standard property is last
-                    if (properties[needed][0].pos < properties[actual][0].pos){
+                    if (properties[needed][0].pos < properties[actual][0].pos) {
                         reporter.report("Standard property '" + needed + "' should come after vendor-prefixed property '" + actual + "'.", properties[actual][0].name.line, properties[actual][0].name.col, rule);
                     }
                 }
@@ -9188,10 +9188,10 @@ CSSLint.addRule({
         parser.addListener("startkeyframerule", startRule);
         parser.addListener("startviewport", startRule);
 
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             var name = event.property.text.toLowerCase();
 
-            if (!properties[name]){
+            if (!properties[name]) {
                 properties[name] = [];
             }
 
@@ -9221,18 +9221,18 @@ CSSLint.addRule({
     browsers: "All",
 
     //initialization
-    init: function(parser, reporter){
+    init: function(parser, reporter) {
         "use strict";
         var rule = this;
 
         //count how many times "float" is used
-        parser.addListener("property", function(event){
+        parser.addListener("property", function(event) {
             var parts = event.value.parts,
                 i = 0,
                 len = parts.length;
 
-            while(i < len){
-                if ((parts[i].units || parts[i].type === "percentage") && parts[i].value === 0 && parts[i].type !== "time"){
+            while (i < len) {
+                if ((parts[i].units || parts[i].type === "percentage") && parts[i].value === 0 && parts[i].type !== "time") {
                     reporter.report("Values of 0 shouldn't have units specified.", parts[i].line, parts[i].col, rule);
                 }
                 i++;
@@ -9287,7 +9287,7 @@ CSSLint.addRule({
          * Return opening root XML tag.
          * @return {String} to prepend before all results
          */
-        startFormat: function(){
+        startFormat: function() {
             return "<?xml version=\"1.0\" encoding=\"utf-8\"?><checkstyle>";
         },
 
@@ -9295,7 +9295,7 @@ CSSLint.addRule({
          * Return closing root XML tag.
          * @return {String} to append after all results
          */
-        endFormat: function(){
+        endFormat: function() {
             return "</checkstyle>";
         },
 
@@ -9331,7 +9331,7 @@ CSSLint.addRule({
                 if (!rule || !("name" in rule)) {
                     return "";
                 }
-                return "net.csslint." + rule.name.replace(/\s/g,"");
+                return "net.csslint." + rule.name.replace(/\s/g, "");
             };
 
 
@@ -9400,14 +9400,14 @@ CSSLint.addFormatter({
         };
 
         if (messages.length === 0) {
-              return options.quiet ? "" : filename + ": Lint Free!";
+            return options.quiet ? "" : filename + ": Lint Free!";
         }
 
         CSSLint.Util.forEach(messages, function(message) {
             if (message.rollup) {
                 output += filename + ": " + capitalize(message.type) + " - " + message.message + "\n";
             } else {
-                output += filename + ": " + "line " + message.line +
+                output += filename + ": line " + message.line +
                     ", col " + message.col + ", " + capitalize(message.type) + " - " + message.message + " (" + message.rule.id + ")\n";
             }
         });
@@ -9425,7 +9425,7 @@ CSSLint.addFormatter({
      * Return opening root XML tag.
      * @return {String} to prepend before all results
      */
-    startFormat: function(){
+    startFormat: function() {
         "use strict";
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?><csslint>";
     },
@@ -9434,7 +9434,7 @@ CSSLint.addFormatter({
      * Return closing root XML tag.
      * @return {String} to append after all results
      */
-    endFormat: function(){
+    endFormat: function() {
         "use strict";
         return "</csslint>";
     },
@@ -9496,7 +9496,7 @@ CSSLint.addFormatter({
      * Return opening root XML tag.
      * @return {String} to prepend before all results
      */
-    startFormat: function(){
+    startFormat: function() {
         "use strict";
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites>";
     },
@@ -9538,7 +9538,7 @@ CSSLint.addFormatter({
             if (!rule || !("name" in rule)) {
                 return "";
             }
-            return "net.csslint." + rule.name.replace(/\s/g,"");
+            return "net.csslint." + rule.name.replace(/\s/g, "");
         };
 
         /**
@@ -9573,7 +9573,7 @@ CSSLint.addFormatter({
                 //ignore rollups for now
                 if (!message.rollup) {
 
-                    // build the test case seperately, once joined
+                    // build the test case separately, once joined
                     // we'll add it to a custom array filtered by type
                     output.push("<testcase time=\"0\" name=\"" + generateSource(message.rule) + "\">");
                     output.push("<" + type + " message=\"" + escapeSpecialCharacters(message.message) + "\"><![CDATA[" + message.line + ":" + message.col + ":" + escapeSpecialCharacters(message.evidence)  + "]]></" + type + ">");
@@ -9604,7 +9604,7 @@ CSSLint.addFormatter({
      * Return opening root XML tag.
      * @return {String} to prepend before all results
      */
-    startFormat: function(){
+    startFormat: function() {
         "use strict";
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?><lint>";
     },
@@ -9613,7 +9613,7 @@ CSSLint.addFormatter({
      * Return closing root XML tag.
      * @return {String} to append after all results
      */
-    endFormat: function(){
+    endFormat: function() {
         "use strict";
         return "</lint>";
     },
@@ -9658,7 +9658,7 @@ CSSLint.addFormatter({
                 } else {
                     var rule = "";
                     if (message.rule && message.rule.id) {
-                      rule = "rule=\"" + escapeSpecialCharacters(message.rule.id) + "\" ";
+                        rule = "rule=\"" + escapeSpecialCharacters(message.rule.id) + "\" ";
                     }
                     output.push("<issue " + rule + "line=\"" + message.line + "\" char=\"" + message.col + "\" severity=\"" + message.type + "\"" +
                         " reason=\"" + escapeSpecialCharacters(message.message) + "\" evidence=\"" + escapeSpecialCharacters(message.evidence) + "\"/>");
@@ -9722,10 +9722,10 @@ CSSLint.addFormatter({
         var pos = filename.lastIndexOf("/"),
             shortFilename = filename;
 
-        if (pos === -1){
+        if (pos === -1) {
             pos = filename.lastIndexOf("\\");
         }
-        if (pos > -1){
+        if (pos > -1) {
             shortFilename = filename.substring(pos+1);
         }
 
@@ -9755,20 +9755,20 @@ return CSSLint;
 /* global JSON */
 /* exported cli */
 
-function cli(api){
+function cli(api) {
     "use strict";
 
     var globalOptions = {
-        "help"        : { "format" : "",                       "description" : "Displays this information."},
-        "format"      : { "format" : "<format>",               "description" : "Indicate which format to use for output."},
-        "list-rules"  : { "format" : "",                       "description" : "Outputs all of the rules available."},
-        "quiet"       : { "format" : "",                       "description" : "Only output when errors are present."},
-        "errors"      : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to include as errors."},
-        "warnings"    : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to include as warnings."},
-        "ignore"      : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to ignore completely."},
-        "exclude-list": { "format" : "<file|dir[,file|dir]+>", "description" : "Indicate which files/directories to exclude from being linted."},
-        "config"      : { "format" : "<file>",                 "description" : "Reads csslint options from specified file."},
-        "version"     : { "format" : "",                       "description" : "Outputs the current version number."}
+        "help"        : { "format" : "",                       "description" : "Displays this information." },
+        "format"      : { "format" : "<format>",               "description" : "Indicate which format to use for output." },
+        "list-rules"  : { "format" : "",                       "description" : "Outputs all of the rules available." },
+        "quiet"       : { "format" : "",                       "description" : "Only output when errors are present." },
+        "errors"      : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to include as errors." },
+        "warnings"    : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to include as warnings." },
+        "ignore"      : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to ignore completely." },
+        "exclude-list": { "format" : "<file|dir[,file|dir]+>", "description" : "Indicate which files/directories to exclude from being linted." },
+        "config"      : { "format" : "<file>",                 "description" : "Reads csslint options from specified file." },
+        "version"     : { "format" : "",                       "description" : "Outputs the current version number." }
     };
 
     //-------------------------------------------------------------------------
@@ -9781,7 +9781,7 @@ function cli(api){
      * @param type {String} The type of message to filter on.
      * @return {Array} An array of matching messages.
      */
-    function pluckByType(messages, type){
+    function pluckByType(messages, type) {
         return messages.filter(function(message) {
             return message.type === type;
         });
@@ -9792,20 +9792,20 @@ function cli(api){
      * @param options {Object} The CLI options.
      * @return {Object} A ruleset object.
      */
-    function gatherRules(options, ruleset){
+    function gatherRules(options, ruleset) {
         var warnings = options.rules || options.warnings,
             errors = options.errors;
 
-        if (warnings){
+        if (warnings) {
             ruleset = ruleset || {};
-            warnings.split(",").forEach(function(value){
+            warnings.split(",").forEach(function(value) {
                 ruleset[value] = 1;
             });
         }
 
-        if (errors){
+        if (errors) {
             ruleset = ruleset || {};
-            errors.split(",").forEach(function(value){
+            errors.split(",").forEach(function(value) {
                 ruleset[value] = 2;
             });
         }
@@ -9824,7 +9824,7 @@ function cli(api){
 
         if (ignore) {
             ruleset = CSSLint.getRuleset();
-            ignore.split(",").forEach(function(value){
+            ignore.split(",").forEach(function(value) {
                 ruleset[value] = 0;
             });
         }
@@ -9848,7 +9848,7 @@ function cli(api){
 
         if (excludeList) {
             // Build up the exclude list, expanding any directory exclusions that were passed in
-            excludeList.split(",").forEach(function(value){
+            excludeList.split(",").forEach(function(value) {
                 if (api.isDirectory(value)) {
                     excludeFiles = excludeFiles.concat(api.getFiles(value));
                 } else {
@@ -9857,10 +9857,10 @@ function cli(api){
             });
 
             // Remove the excluded files from the list of files to lint
-            excludeFiles.forEach(function(value){
+            excludeFiles.forEach(function(value) {
                 fullPath = api.getFullPath(value);
                 if (filesToLint.indexOf(fullPath) > -1) {
-                    filesToLint.splice(filesToLint.indexOf(fullPath),1);
+                    filesToLint.splice(filesToLint.indexOf(fullPath), 1);
                 }
             });
         }
@@ -9872,10 +9872,10 @@ function cli(api){
      * Outputs all available rules to the CLI.
      * @return {void}
      */
-    function printRules(){
+    function printRules() {
         api.print("");
         var rules = CSSLint.getRules();
-        rules.forEach(function(rule){
+        rules.forEach(function(rule) {
             api.print(rule.id + "\n  " + rule.desc + "\n");
         });
     }
@@ -9906,7 +9906,7 @@ function cli(api){
             //var relativeFilePath = getRelativePath(api.getWorkingDirectory(), fullFilePath);
             options.fullPath = api.getFullPath(relativeFilePath);
             output = formatter.formatResults(result, relativeFilePath, options);
-            if (output){
+            if (output) {
                 api.print(output);
             }
 
@@ -9923,7 +9923,7 @@ function cli(api){
      * Outputs the help screen to the CLI.
      * @return {void}
      */
-    function outputHelp(){
+    function outputHelp() {
         var lenToPad = 40,
             toPrint = "",
             formatString = "";
@@ -9961,39 +9961,39 @@ function cli(api){
      * @param options {Object} options object
      * @return {Number} exit code
      */
-    function processFiles(fileArray, options){
+    function processFiles(fileArray, options) {
         var exitCode = 0,
             formatId = options.format || "text",
             formatter,
-            files = filterFiles(fileArray,options),
+            files = filterFiles(fileArray, options),
             output;
 
         if (!files.length) {
             api.print("csslint: No files specified.");
             exitCode = 1;
         } else {
-            if (!CSSLint.hasFormat(formatId)){
+            if (!CSSLint.hasFormat(formatId)) {
                 api.print("csslint: Unknown format '" + formatId + "'. Cannot proceed.");
                 exitCode = 1;
             } else {
                 formatter = CSSLint.getFormatter(formatId);
 
                 output = formatter.startFormat();
-                if (output){
+                if (output) {
                     api.print(output);
                 }
 
 
-                files.forEach(function(file){
+                files.forEach(function(file) {
                     if (exitCode === 0) {
-                        exitCode = processFile(file,options);
+                        exitCode = processFile(file, options);
                     } else {
-                        processFile(file,options);
+                        processFile(file, options);
                     }
                 });
 
                 output = formatter.endFormat();
-                if (output){
+                if (output) {
                     api.print(output);
                 }
             }
@@ -10009,11 +10009,11 @@ function cli(api){
             parts,
             files = [];
 
-        while(arg){
-            if (arg.indexOf("--") === 0){
+        while (arg) {
+            if (arg.indexOf("--") === 0) {
                 argName = arg.substring(2);
 
-                if (argName.indexOf("=") > -1){
+                if (argName.indexOf("=") > -1) {
                     parts = argName.split("=");
                     options[parts[0]] = parts[1];
                 } else {
@@ -10023,7 +10023,7 @@ function cli(api){
             } else {
 
                 //see if it's a directory or a file
-                if (api.isDirectory(arg)){
+                if (api.isDirectory(arg)) {
                     files = files.concat(api.getFiles(arg));
                 } else {
                     files.push(arg);
@@ -10066,7 +10066,7 @@ function cli(api){
                             data += "--" + optionName + "=" + json[optionName].join();
                         }
                     }
-                } catch(e) {}
+                } catch (e) {}
             }
             options = processArguments(data.split(/[\s\n\r]+/m));
         }
@@ -10087,17 +10087,17 @@ function cli(api){
     // Preprocess command line arguments
     cliOptions = processArguments(args);
 
-    if (cliOptions.help || argCount === 0){
+    if (cliOptions.help || argCount === 0) {
         outputHelp();
         api.quit(0);
     }
 
-    if (cliOptions.version){
+    if (cliOptions.version) {
         api.print("v" + CSSLint.version);
         api.quit(0);
     }
 
-    if (cliOptions["list-rules"]){
+    if (cliOptions["list-rules"]) {
         printRules();
         api.quit(0);
     }
@@ -10115,7 +10115,7 @@ function cli(api){
     // Validate options
     validateOptions(options);
 
-    api.quit(processFiles(options.files,options));
+    api.quit(processFiles(options.files, options));
 }
 
 /*
@@ -10127,15 +10127,36 @@ function cli(api){
 /* jshint wsh:true */
 /* global cli */
 
-var wshapi = (function(){
+var wshapi = (function() {
     "use strict";
 
     var fso = new ActiveXObject("Scripting.FileSystemObject");
     var shell = WScript.CreateObject("WScript.Shell");
     var finalArgs = [], i, args = WScript.Arguments;
 
+    if (typeof Object.getPrototypeOf !== "function") {
+        Object.getPrototypeOf = function(obj) {
+            var deprecatedProto = "__proto__";    // anti warning solution
+            return obj[deprecatedProto];
+        };
+    }
+
+    if (typeof Object.create !== "function") {
+        Object.create = function(proto) {
+            var Foo = function(){};
+            Foo.prototype = proto;
+            return new Foo();
+        };
+    }
+
+    if (typeof String.prototype.trim !== "function") {
+        String.prototype.trim = function() {
+            return this.replace(/^\s+|\s+$/g, "");
+        };
+    }
+
     if (typeof Array.prototype.forEach !== "function") {
-        Array.prototype.forEach = function(f,m) {
+        Array.prototype.forEach = function(f, m) {
             for (var i=0, L=this.length; i<L; ++i) {
                 f(this[i], i, m);
             }
@@ -10151,7 +10172,7 @@ var wshapi = (function(){
             for (var i = 0, L = this.length; i < L; i++) {
                 if (i in this) {
                     val = this[i]; // in case fun mutates this
-                    if (fn.call(thisp, val, i, this)){
+                    if (fn.call(thisp, val, i, this)) {
                         res.push(val);
                     }
                 }
@@ -10226,8 +10247,10 @@ var wshapi = (function(){
     }
 
     function traverseDir(files, path) {
-        var filename, folder = fso.GetFolder(path),
-            subFlds, fc = new Enumerator(folder.files);
+        var filename,
+            folder = fso.GetFolder(path),
+            subFlds,
+            fc = new Enumerator(folder.files);
 
         for (; !fc.atEnd(); fc.moveNext()) {
             filename = fc.item();
@@ -10251,20 +10274,20 @@ var wshapi = (function(){
 
     return {
         args: finalArgs,
-        print: function(s) { WScript.Echo(s);},
-        quit: function (v) { WScript.Quit(v);},
+        print: function(s) { WScript.Echo(s); },
+        quit: function (v) { WScript.Quit(v); },
 
-        isDirectory: function(name){
+        isDirectory: function(name) {
             return fso.FolderExists(name);
         },
 
-        getFiles: function(dir){
+        getFiles: function(dir) {
             var files = [];
             traverseDir(files, dir);
             return files;
         },
 
-        fixFilenames: function(files){
+        fixFilenames: function(files) {
             return files;
         },
 
@@ -10272,11 +10295,11 @@ var wshapi = (function(){
             return shell.CurrentDirectory;
         },
 
-        getFullPath: function(filename){
+        getFullPath: function(filename) {
             return fso.GetAbsolutePathName(filename);
         },
 
-        readFile: function(path){
+        readFile: function(path) {
             var forReading = 1;
             var allText;
             try {
