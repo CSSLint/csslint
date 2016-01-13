@@ -7,7 +7,7 @@
  * @param {Object} ruleset The set of rules to work with, including if
  *      they are errors or warnings.
  */
-function Reporter(lines, ruleset) {
+function Reporter(lines, ruleset, allow) {
     "use strict";
 
     /**
@@ -39,6 +39,16 @@ function Reporter(lines, ruleset) {
      * @type Object
      */
     this.ruleset = ruleset;
+
+    /**
+     * Lines with specific rule messages to leave out of the report.
+     * @property allow
+     * @type Object
+     */
+    this.allow = allow;
+    if(!this.allow) {
+        this.allow = {};
+    }
 }
 
 Reporter.prototype = {
@@ -90,6 +100,12 @@ Reporter.prototype = {
      */
     report: function(message, line, col, rule) {
         "use strict";
+
+        // Check if rule violation should be allowed
+        if (this.allow.hasOwnProperty(line) && this.allow[line].hasOwnProperty(rule.id)) {
+            return;
+        }
+
         this.messages.push({
             type    : this.ruleset[rule.id] === 2 ? "error" : "warning",
             line    : line,
