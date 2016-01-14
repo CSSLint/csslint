@@ -13,11 +13,13 @@ CSSLint.addRule({
     //initialization
     init: function(parser, reporter) {
         "use strict";
+
         var rule = this;
 
         parser.addListener("startrule", function(event) {
 
             var selectors = event.selectors,
+                selectorContainsClassOrId = false,
                 selector,
                 part,
                 modifier,
@@ -30,8 +32,19 @@ CSSLint.addRule({
                 if (part.type === parser.SELECTOR_PART_TYPE) {
                     for (k=0; k < part.modifiers.length; k++) {
                         modifier = part.modifiers[k];
-                        if (modifier.type === "attribute" && (!part.elementName || part.elementName === "*")) {
-                            reporter.report(rule.desc, part.line, part.col, rule);
+
+                        if (modifier.type === "class" || modifier.type === "id") {
+                          selectorContainsClassOrId = true;
+                          break;
+                        }
+                    }
+
+                    if (!selectorContainsClassOrId) {
+                        for (k=0; k < part.modifiers.length; k++) {
+                            modifier = part.modifiers[k];
+                            if (modifier.type === "attribute" && (!part.elementName || part.elementName === "*")) {
+                                reporter.report(rule.desc, part.line, part.col, rule);
+                            }
                         }
                     }
                 }
