@@ -13,16 +13,6 @@
             Assert.areEqual("Unqualified attribute selectors are known to be slow.", result.messages[0].message);
         },
 
-        "A selector that contains a class is considered qualified": function(){
-            var result = CSSLint.verify("p [href].fancy[type=text] { font-size: 10px; }", {"unqualified-attributes": 1 });
-            Assert.areEqual(0, result.messages.length);
-        },
-
-        "A selector that contains an ID is considered qualified": function(){
-            var result = CSSLint.verify("p [href]#fancy[type=text] { font-size: 10px; }", {"unqualified-attributes": 1 });
-            Assert.areEqual(0, result.messages.length);
-        },
-
         "Using an unqualified attribute selector as the right-most part should result in a warning": function() {
             var result = CSSLint.verify("p div [type=text] { font-size: 10px; }", {"unqualified-attributes": 1 });
             Assert.areEqual(1, result.messages.length);
@@ -38,8 +28,17 @@
         "Using a qualified attribute selector should not result in a warning": function() {
             var result = CSSLint.verify("input[type=text]  { font-size: 10px; } ", {"unqualified-attributes": 1 });
             Assert.areEqual(0, result.messages.length);
-        }
+        },
 
+        "Using an attribute selector qualified by a class should not result in a warning": function(){
+            var result = CSSLint.verify(".fancy[type=text] { font-size: 10px; }", {"unqualified-attributes": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using an attribute selector qualified by an ID should not result in a warning": function(){
+            var result = CSSLint.verify("#fancy[type=text] { font-size: 10px; }", {"unqualified-attributes": 1 });
+            Assert.areEqual(0, result.messages.length);
+        }
 
     }));
 
