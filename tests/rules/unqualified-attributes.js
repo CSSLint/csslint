@@ -28,8 +28,17 @@
         "Using a qualified attribute selector should not result in a warning": function() {
             var result = CSSLint.verify("input[type=text]  { font-size: 10px; } ", {"unqualified-attributes": 1 });
             Assert.areEqual(0, result.messages.length);
-        }
+        },
 
+        "Using an attribute selector qualified by a class should not result in a warning": function(){
+            var result = CSSLint.verify(".fancy[type=text] { font-size: 10px; }", {"unqualified-attributes": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using an attribute selector qualified by an ID should not result in a warning": function(){
+            var result = CSSLint.verify("#fancy[type=text] { font-size: 10px; }", {"unqualified-attributes": 1 });
+            Assert.areEqual(0, result.messages.length);
+        }
 
     }));
 
