@@ -330,20 +330,28 @@ function cli(api) {
     function readConfigData(config) {
         var data = readConfigFile(config),
             json,
+            optionName,
+            optionValue,
+            args,
             options = {};
         if (data) {
             if (data.charAt(0) === "{") {
                 try {
                     json = JSON.parse(data);
                     data = "";
-                    for (var optionName in json) {
+                    for (optionName in json) {
                         if (json.hasOwnProperty(optionName)) {
-                            data += "--" + optionName + "=" + json[optionName].join();
+                            optionValue = json[optionName];
+                            if (Array.isArray(optionValue)) {
+                                optionValue = optionValue.join(",");
+                            }
+                            data += "--" + optionName + "=" + optionValue;
                         }
                     }
                 } catch (e) {}
             }
-            options = processArguments(data.split(/[\s\n\r]+/m));
+            args = data.replace(/\s+/g,"").split(/(?=--)/);
+            options = processArguments(args);
         }
 
         return options;
