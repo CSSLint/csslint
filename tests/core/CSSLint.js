@@ -48,6 +48,27 @@
             Assert.areEqual(2, result.ruleset["adjoining-classes"]);
             Assert.areEqual(1, result.ruleset["text-indent"]);
             Assert.areEqual(0, result.ruleset["box-sizing"]);
+        },
+
+        "Allow statement on one line with one rule should be added to report": function(){
+            var report = CSSLint.verify(".foo.bar{}\n.baz.qux{} /* csslint allow: box-sizing */\nquux.corge{}");
+            Assert.isTrue(report.allow.hasOwnProperty("2"));
+            Assert.isTrue(report.allow["2"].hasOwnProperty("box-sizing"));
+		},
+
+		"Allow statement on one line with multiple rules should be added to report": function(){
+            var report = CSSLint.verify(".foo.bar{}\n.baz.qux{} /* csslint allow: box-sizing, box-model */\nquux.corge{}");
+            Assert.isTrue(report.allow.hasOwnProperty("2"));
+            Assert.isTrue(report.allow["2"].hasOwnProperty("box-sizing"));
+            Assert.isTrue(report.allow["2"].hasOwnProperty("box-model"));
+        },
+
+        "Allow statements on multiple lines for different rules should be added to report": function(){
+            var report = CSSLint.verify(".foo.bar{}\n.baz.qux{} /* csslint allow: box-sizing */\nquux.corge{}\ngrault.garply{} /* csslint allow: box-model */");
+            Assert.isTrue(report.allow.hasOwnProperty("2"));
+            Assert.isTrue(report.allow["2"].hasOwnProperty("box-sizing"));
+            Assert.isTrue(report.allow.hasOwnProperty("4"));
+            Assert.isTrue(report.allow["4"].hasOwnProperty("box-model"));
         }
 
     }));
