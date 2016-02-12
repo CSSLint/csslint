@@ -20,11 +20,11 @@ CSSLint.addRule({
             count = 0;
 
         function startPage(){
-            count = 0;        
+            count = 0;
         }
-        
+
         parser.addListener("startpage", startPage);
-        
+
         parser.addListener("import", function(){
             count++;
         });
@@ -32,7 +32,7 @@ CSSLint.addRule({
         parser.addListener("endstylesheet", function() {
             if (count > MAX_IMPORT_COUNT) {
                 reporter.rollupError(
-                    "Too many @import rules (" + count + "). IE6-9 supports up to 31 import per stylesheet.", 
+                    "Too many @import rules (" + count + "). IE6-9 supports up to 31 import per stylesheet.",
                     rule
                 );
             }

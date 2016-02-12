@@ -185,7 +185,7 @@ var CSSLint = (function() {
         // normalize line endings
         lines = text.replace(/\n\r?/g, "$split$").split("$split$");
 
-		// find 'allow' comments
+        // find 'allow' comments
         CSSLint.Util.forEach(lines, function (line, lineno) {
             var allowLine = line && line.match(/\/\*[ \t]*csslint[ \t]+allow:[ \t]*([^\*]*)\*\//i),
                 allowRules = allowLine && allowLine[1],

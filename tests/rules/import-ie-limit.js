@@ -22,7 +22,7 @@
     YUITest.TestRunner.add(new YUITest.TestCase({
 
         name: "Import IE Limit Rule Error",
-        
+
         "Using @import <= 31 times should not result in error": function(){
 
             var result = CSSLint.verify(withinLimitCss, { "import-ie-limit": 1 });

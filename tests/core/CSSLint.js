@@ -54,9 +54,9 @@
             var report = CSSLint.verify(".foo.bar{}\n.baz.qux{} /* csslint allow: box-sizing */\nquux.corge{}");
             Assert.isTrue(report.allow.hasOwnProperty("2"));
             Assert.isTrue(report.allow["2"].hasOwnProperty("box-sizing"));
-		},
+        },
 
-		"Allow statement on one line with multiple rules should be added to report": function(){
+        "Allow statement on one line with multiple rules should be added to report": function(){
             var report = CSSLint.verify(".foo.bar{}\n.baz.qux{} /* csslint allow: box-sizing, box-model */\nquux.corge{}");
             Assert.isTrue(report.allow.hasOwnProperty("2"));
             Assert.isTrue(report.allow["2"].hasOwnProperty("box-sizing"));

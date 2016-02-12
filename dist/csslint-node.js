@@ -202,12 +202,29 @@ var CSSLint = (function() {
         var i = 0,
             reporter,
             lines,
+            allow = {},
             report,
             parser = new parserlib.css.Parser({ starHack: true, ieFilters: true,
                                                 underscoreHack: true, strict: false });
 
         // normalize line endings
         lines = text.replace(/\n\r?/g, "$split$").split("$split$");
+
+        // find 'allow' comments
+        CSSLint.Util.forEach(lines, function (line, lineno) {
+            var allowLine = line && line.match(/\/\*[ \t]*csslint[ \t]+allow:[ \t]*([^\*]*)\*\//i),
+                allowRules = allowLine && allowLine[1],
+                allowRuleset = {};
+
+            if (allowRules) {
+                allowRules.toLowerCase().split(",").forEach(function(allowRule){
+                    allowRuleset[allowRule.trim()] = true;
+                });
+                if (Object.keys(allowRuleset).length > 0) {
+                    allow[lineno + 1] = allowRuleset;
+                }
+            }
+        });
 
         if (!ruleset) {
             ruleset = this.getRuleset();
@@ -219,7 +236,7 @@ var CSSLint = (function() {
             ruleset = applyEmbeddedRuleset(text, ruleset);
         }
 
-        reporter = new Reporter(lines, ruleset);
+        reporter = new Reporter(lines, ruleset, allow);
 
         ruleset.errors = 2;       //always report parsing errors as errors
         for (i in ruleset) {
@@ -241,7 +258,8 @@ var CSSLint = (function() {
         report = {
             messages    : reporter.messages,
             stats       : reporter.stats,
-            ruleset     : reporter.ruleset
+            ruleset     : reporter.ruleset,
+            allow       : reporter.allow
         };
 
         //sort by line numbers, rollups at the bottom
@@ -275,7 +293,7 @@ var CSSLint = (function() {
  * @param {Object} ruleset The set of rules to work with, including if
  *      they are errors or warnings.
  */
-function Reporter(lines, ruleset) {
+function Reporter(lines, ruleset, allow) {
     "use strict";
 
     /**
@@ -307,6 +325,16 @@ function Reporter(lines, ruleset) {
      * @type Object
      */
     this.ruleset = ruleset;
+
+    /**
+     * Lines with specific rule messages to leave out of the report.
+     * @property allow
+     * @type Object
+     */
+    this.allow = allow;
+    if(!this.allow) {
+        this.allow = {};
+    }
 }
 
 Reporter.prototype = {
@@ -358,6 +386,12 @@ Reporter.prototype = {
      */
     report: function(message, line, col, rule) {
         "use strict";
+
+        // Check if rule violation should be allowed
+        if (this.allow.hasOwnProperty(line) && this.allow[line].hasOwnProperty(rule.id)) {
+            return;
+        }
+
         this.messages.push({
             type    : this.ruleset[rule.id] === 2 ? "error" : "warning",
             line    : line,
@@ -1526,11 +1560,11 @@ CSSLint.addRule({
             count = 0;
 
         function startPage(){
-            count = 0;        
+            count = 0;
         }
-        
+
         parser.addListener("startpage", startPage);
-        
+
         parser.addListener("import", function(){
             count++;
         });
@@ -1538,7 +1572,7 @@ CSSLint.addRule({
         parser.addListener("endstylesheet", function() {
             if (count > MAX_IMPORT_COUNT) {
                 reporter.rollupError(
-                    "Too many @import rules (" + count + "). IE6-9 supports up to 31 import per stylesheet.", 
+                    "Too many @import rules (" + count + "). IE6-9 supports up to 31 import per stylesheet.",
                     rule
                 );
             }
