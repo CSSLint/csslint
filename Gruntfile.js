@@ -91,9 +91,8 @@ module.exports = function(grunt) {
                             "var parserlib = require('parserlib');\n",
                     footer: "\nexports.CSSLint = CSSLint;"
                 },
-                files: {
-                    "<%= build_dir %>/csslint-node.js": ["<%= csslint_files %>"]
-                }
+                src: "<%= csslint_files %>",
+                dest: "<%= build_dir %>/csslint-node.js"
             },
             node_cli: {
                 options: {
@@ -150,6 +149,41 @@ module.exports = function(grunt) {
                     src: "**/*",
                     dest: "<%= build_dir %>/"
                 }]
+            }
+        },
+
+        uglify: {
+            options: {
+                compress: {
+                    warnings: false
+                },
+                mangle: true,
+                preserveComments: /^!|@preserve|@license|@cc_on/i
+            },
+            core: {
+                files: {
+                    "<%= concat.core.dest %>": "<%= concat.core.dest %>"
+                }
+            },
+            /*rhino: {
+                files: {
+                    "<%= concat.rhino.dest %>": "<%= concat.rhino.dest %>"
+                }
+            },
+            node: {
+                files: {
+                    "<%= concat.node.dest %>": "<%= concat.node.dest %>"
+                }
+            },*/
+            wsh: {
+                files: {
+                    "<%= concat.wsh.dest %>": "<%= concat.wsh.dest %>"
+                }
+            },
+            worker: {
+                files: {
+                    "<%= concat.worker.dest %>": "<%= concat.worker.dest %>"
+                }
             }
         },
 
@@ -217,7 +251,7 @@ module.exports = function(grunt) {
     // Default task.
     grunt.registerTask("default", ["build", "test"]);
 
-    grunt.registerTask("build", ["clean", "concat", "includereplace"]);
+    grunt.registerTask("build", ["clean", "concat", "includereplace", "uglify"]);
 
     //Alias for
     grunt.registerTask("dist", "build");
