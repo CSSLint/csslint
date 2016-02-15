@@ -1,3 +1,5 @@
+/* globals JSON: true */
+
 CSSLint.addFormatter({
     //format information
     id: "json",
@@ -24,10 +26,11 @@ CSSLint.addFormatter({
     /**
      * Given CSS Lint results for a file, return output for this format.
      * @param results {Object} with error and warning messages
+     * @param filename {String} relative file path (Unused)
      * @return {String} output for results
      */
     formatResults: function(results, filename, options) {
         "use strict";
-        return options.quiet ? "" : JSON.stringify(results);
+        return options.quiet && results.messages.length < 1 ? "" : JSON.stringify(results);
     }
 });
