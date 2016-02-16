@@ -178,6 +178,7 @@ var CSSLint = (function() {
             reporter,
             lines,
             allow = {},
+            ignore = [],
             report,
             parser = new parserlib.css.Parser({ starHack: true, ieFilters: true,
                                                 underscoreHack: true, strict: false });
@@ -201,6 +202,29 @@ var CSSLint = (function() {
             }
         });
 
+        var ignoreStart = null,
+            ignoreEnd = null;
+        CSSLint.Util.forEach(lines, function (line, lineno) {
+            // Keep oldest, "unclosest" ignore:start
+            if(null === ignoreStart && line.match(/\/\*[ \t]*csslint[ \t]+ignore:start[ \t]*\*\//i)) {
+                ignoreStart = lineno;
+            }
+
+            if(line.match(/\/\*[ \t]*csslint[ \t]+ignore:end[ \t]*\*\//i)) {
+                ignoreEnd = lineno;
+            }
+
+            if(null !== ignoreStart && null !== ignoreEnd) {
+                ignore.push([ignoreStart, ignoreEnd]);
+                ignoreStart = ignoreEnd = null;
+            }
+        });
+
+        // Close remaining ignore block, if any
+        if(null !== ignoreStart) {
+            ignore.push([ignoreStart, lines.length]);
+        }
+
         if (!ruleset) {
             ruleset = this.getRuleset();
         }
@@ -211,7 +235,7 @@ var CSSLint = (function() {
             ruleset = applyEmbeddedRuleset(text, ruleset);
         }
 
-        reporter = new Reporter(lines, ruleset, allow);
+        reporter = new Reporter(lines, ruleset, allow, ignore);
 
         ruleset.errors = 2;       //always report parsing errors as errors
         for (i in ruleset) {
@@ -234,7 +258,8 @@ var CSSLint = (function() {
             messages    : reporter.messages,
             stats       : reporter.stats,
             ruleset     : reporter.ruleset,
-            allow       : reporter.allow
+            allow       : reporter.allow,
+            ignore      : reporter.ignore
         };
 
         //sort by line numbers, rollups at the bottom

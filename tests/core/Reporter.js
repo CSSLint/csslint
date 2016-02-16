@@ -52,6 +52,14 @@
             reporter.report("Bar", 3, 1, { id: "fake-rule2" });
 
             Assert.areEqual(0, reporter.messages.length);
+        },
+
+        "Ignores should step over a report in their range": function(){
+            var reporter = new CSSLint._Reporter([], { "fake-rule": 1}, {}, [[1,3]]);
+            reporter.report("Foo", 2, 1, { id: "fake-rule" });
+            reporter.report("Bar", 5, 1, { id: "fake-rule" });
+
+            Assert.areEqual(1, reporter.messages.length);
         }
 
     }));
