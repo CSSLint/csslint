@@ -8,6 +8,7 @@ CSSLint.addRule({
     id: "empty-rules",
     name: "Disallow empty rules",
     desc: "Rules without any properties specified should be removed.",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-empty-rules",
     browsers: "All",
 
     //initialization

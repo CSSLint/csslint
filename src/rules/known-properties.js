@@ -9,6 +9,7 @@ CSSLint.addRule({
     id: "known-properties",
     name: "Require use of known properties",
     desc: "Properties should be known (listed in CSS3 specification) or be a vendor-prefixed property.",
+    url: "https://github.com/CSSLint/csslint/wiki/Require-use-of-known-properties",
     browsers: "All",
 
     //initialization

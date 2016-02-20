@@ -4,6 +4,7 @@ CSSLint.addRule({
     id: "fallback-colors",
     name: "Require fallback colors",
     desc: "For older browsers that don't support RGBA, HSL, or HSLA, provide a fallback color.",
+    url: "https://github.com/CSSLint/csslint/wiki/Require-fallback-colors",
     browsers: "IE6,IE7,IE8",
 
     //initialization

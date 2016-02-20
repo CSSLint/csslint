@@ -8,6 +8,7 @@ CSSLint.addRule({
     id: "font-sizes",
     name: "Disallow too many font sizes",
     desc: "Checks the number of font-size declarations.",
+    url: "https://github.com/CSSLint/csslint/wiki/Don%27t-use-too-many-font-size-declarations",
     browsers: "All",
 
     //initialization

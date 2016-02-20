@@ -8,6 +8,7 @@ CSSLint.addRule({
     id: "ids",
     name: "Disallow IDs in selectors",
     desc: "Selectors should not contain IDs.",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-IDs-in-selectors",
     browsers: "All",
 
     //initialization

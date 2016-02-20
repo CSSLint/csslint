@@ -9,6 +9,7 @@ CSSLint.addRule({
     id: "star-property-hack",
     name: "Disallow properties with a star prefix",
     desc: "Checks for the star property hack (targets IE6/7)",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-star-hack",
     browsers: "All",
 
     //initialization

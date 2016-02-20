@@ -8,6 +8,7 @@ CSSLint.addRule({
     id: "gradients",
     name: "Require all gradient definitions",
     desc: "When using a vendor-prefixed gradient, make sure to use them all.",
+    url: "https://github.com/CSSLint/csslint/wiki/Require-all-gradient-definitions",
     browsers: "All",
 
     //initialization

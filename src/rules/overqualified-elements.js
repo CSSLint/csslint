@@ -8,6 +8,7 @@ CSSLint.addRule({
     id: "overqualified-elements",
     name: "Disallow overqualified elements",
     desc: "Don't use classes or IDs with elements (a.foo or a#foo).",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-overqualified-elements",
     browsers: "All",
 
     //initialization

@@ -12,6 +12,7 @@ CSSLint.addRule({
     id: "display-property-grouping",
     name: "Require properties appropriate for display",
     desc: "Certain properties shouldn't be used with certain display property values.",
+    url: "https://github.com/CSSLint/csslint/wiki/Require-properties-appropriate-for-display",
     browsers: "All",
 
     //initialization

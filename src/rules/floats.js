@@ -9,6 +9,7 @@ CSSLint.addRule({
     id: "floats",
     name: "Disallow too many floats",
     desc: "This rule tests if the float property is used too many times",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-too-many-floats",
     browsers: "All",
 
     //initialization

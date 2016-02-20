@@ -7,6 +7,7 @@ CSSLint.addRule({
     id: "box-model",
     name: "Beware of broken box size",
     desc: "Don't use width or height when using padding or border.",
+    url: "https://github.com/CSSLint/csslint/wiki/Beware-of-box-model-size",
     browsers: "All",
 
     //initialization
