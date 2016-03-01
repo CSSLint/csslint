@@ -11,6 +11,7 @@ CSSLint.addFormatter({
      */
     startFormat: function() {
         "use strict";
+        this.json = [];
         return "";
     },
 
@@ -20,7 +21,15 @@ CSSLint.addFormatter({
      */
     endFormat: function() {
         "use strict";
-        return "";
+        var ret = "";
+        if (this.json.length > 0) {
+            if (this.json.length === 1) {
+                ret = JSON.stringify(this.json[0]);
+            } else {
+                ret = JSON.stringify(this.json);
+            }
+        }
+        return ret;
     },
 
     /**
@@ -31,6 +40,13 @@ CSSLint.addFormatter({
      */
     formatResults: function(results, filename, options) {
         "use strict";
-        return options.quiet && results.messages.length < 1 ? "" : JSON.stringify(results);
+        if (results.messages.length > 0 || !options.quiet) {
+            this.json.push({
+                filename: filename,
+                messages: results.messages,
+                stats: results.stats
+            });
+        }
+        return "";
     }
 });
