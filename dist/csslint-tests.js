@@ -266,6 +266,35 @@ function include(path, sandbox) {
             Assert.isTrue(report.allow["2"].hasOwnProperty("box-sizing"));
             Assert.isTrue(report.allow.hasOwnProperty("4"));
             Assert.isTrue(report.allow["4"].hasOwnProperty("box-model"));
+        },
+
+        "Full ignore blocks should be captured": function(){
+            var report = CSSLint.verify("/* csslint ignore:start */\n\n/* csslint ignore:end */");
+            Assert.areEqual(1, report.ignore.length);
+            Assert.areEqual(0, report.ignore[0][0]);
+            Assert.areEqual(2, report.ignore[0][1]);
+        },
+
+        "Whitespace should be no problem inside ignore comments": function(){
+            var report = CSSLint.verify("/*     csslint     ignore:start    */\n\n/*    csslint     ignore:end     */,\n/*csslint ignore:start*/\n/*csslint ignore:end*/");
+            Assert.areEqual(2, report.ignore.length);
+            Assert.areEqual(0, report.ignore[0][0]);
+            Assert.areEqual(2, report.ignore[0][1]);
+            Assert.areEqual(3, report.ignore[1][0]);
+            Assert.areEqual(4, report.ignore[1][1]);
+        },
+
+        "Ignore blocks should be autoclosed": function(){
+            var report = CSSLint.verify("/* csslint ignore:start */\n\n");
+            Assert.areEqual(1, report.ignore.length);
+            Assert.areEqual(0, report.ignore[0][0]);
+            Assert.areEqual(3, report.ignore[0][1]);
+        },
+
+        "Restarting ignore should be harmless": function(){
+            var report = CSSLint.verify("/* csslint ignore:start */\n/* csslint ignore:start */\n");
+            Assert.areEqual(1, report.ignore.length);
+            Assert.areEqual(0, report.ignore[0][0]);
         }
 
     }));
@@ -326,6 +355,14 @@ function include(path, sandbox) {
             reporter.report("Bar", 3, 1, { id: "fake-rule2" });
 
             Assert.areEqual(0, reporter.messages.length);
+        },
+
+        "Ignores should step over a report in their range": function(){
+            var reporter = new CSSLint._Reporter([], { "fake-rule": 1}, {}, [[1,3]]);
+            reporter.report("Foo", 2, 1, { id: "fake-rule" });
+            reporter.report("Bar", 5, 1, { id: "fake-rule" });
+
+            Assert.areEqual(1, reporter.messages.length);
         }
 
     }));
@@ -398,11 +435,13 @@ function include(path, sandbox) {
         "File with problems should list them": function() {
             var result = { messages: [
                 { type: "error", line: 2, col: 1, message: "BOGUS ERROR", evidence: "BOGUS", rule: { id: "BOGUS_RULE_ID" } },
-                { type: "warning", line: 1, col: 1, message: "BOGUS WARNING", evidence: "BOGUS", rule: { id: "BOGUS_RULE_ID" } }
+                { type: "warning", line: 1, col: 1, message: "BOGUS WARNING", evidence: "BOGUS", rule: { id: "BOGUS_RULE_ID" } },
+                { type: "warning", rollup: true, message: "BOGUS ROLLUP WARNING", evidence: "BOGUS", rule: { id: "BOGUS_RULE_ID" } }
             ], stats: [] },
                 err = "path/to/FILE: line 2, col 1, Error - BOGUS ERROR (BOGUS_RULE_ID)\n",
                 warning = "path/to/FILE: line 1, col 1, Warning - BOGUS WARNING (BOGUS_RULE_ID)\n",
-                expected = err + warning,
+                rollupwarning = "path/to/FILE: Warning - BOGUS ROLLUP WARNING (BOGUS_RULE_ID)\n",
+                expected = err + warning + rollupwarning,
                 actual = CSSLint.getFormatter("compact").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE"});
             Assert.areEqual(expected, actual);
         },
@@ -410,11 +449,13 @@ function include(path, sandbox) {
         "Should output relative file paths": function() {
             var result = { messages: [
                 { type: "error", line: 2, col: 1, message: "BOGUS ERROR", evidence: "BOGUS", rule: { id: "BOGUS_RULE_ID" } },
-                { type: "warning", line: 1, col: 1, message: "BOGUS WARNING", evidence: "BOGUS", rule: { id: "BOGUS_RULE_ID" } }
+                { type: "warning", line: 1, col: 1, message: "BOGUS WARNING", evidence: "BOGUS", rule: { id: "BOGUS_RULE_ID" } },
+                { type: "warning", rollup: true, message: "BOGUS ROLLUP WARNING", evidence: "BOGUS", rule: { id: "BOGUS_RULE_ID" } }
             ], stats: [] },
                 err = "path/to/FILE: line 2, col 1, Error - BOGUS ERROR (BOGUS_RULE_ID)\n",
                 warning = "path/to/FILE: line 1, col 1, Warning - BOGUS WARNING (BOGUS_RULE_ID)\n",
-                expected = err + warning,
+                rollupwarning = "path/to/FILE: Warning - BOGUS ROLLUP WARNING (BOGUS_RULE_ID)\n",
+                expected = err + warning + rollupwarning,
                 actual = CSSLint.getFormatter("compact").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE"});
             Assert.areEqual(expected, actual);
         }

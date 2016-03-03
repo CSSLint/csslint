@@ -6892,6 +6892,7 @@ var CSSLint = (function() {
             reporter,
             lines,
             allow = {},
+            ignore = [],
             report,
             parser = new parserlib.css.Parser({ starHack: true, ieFilters: true,
                                                 underscoreHack: true, strict: false });
@@ -6915,6 +6916,29 @@ var CSSLint = (function() {
             }
         });
 
+        var ignoreStart = null,
+            ignoreEnd = null;
+        CSSLint.Util.forEach(lines, function (line, lineno) {
+            // Keep oldest, "unclosest" ignore:start
+            if(null === ignoreStart && line.match(/\/\*[ \t]*csslint[ \t]+ignore:start[ \t]*\*\//i)) {
+                ignoreStart = lineno;
+            }
+
+            if(line.match(/\/\*[ \t]*csslint[ \t]+ignore:end[ \t]*\*\//i)) {
+                ignoreEnd = lineno;
+            }
+
+            if(null !== ignoreStart && null !== ignoreEnd) {
+                ignore.push([ignoreStart, ignoreEnd]);
+                ignoreStart = ignoreEnd = null;
+            }
+        });
+
+        // Close remaining ignore block, if any
+        if(null !== ignoreStart) {
+            ignore.push([ignoreStart, lines.length]);
+        }
+
         if (!ruleset) {
             ruleset = this.getRuleset();
         }
@@ -6925,7 +6949,7 @@ var CSSLint = (function() {
             ruleset = applyEmbeddedRuleset(text, ruleset);
         }
 
-        reporter = new Reporter(lines, ruleset, allow);
+        reporter = new Reporter(lines, ruleset, allow, ignore);
 
         ruleset.errors = 2;       //always report parsing errors as errors
         for (i in ruleset) {
@@ -6948,7 +6972,8 @@ var CSSLint = (function() {
             messages    : reporter.messages,
             stats       : reporter.stats,
             ruleset     : reporter.ruleset,
-            allow       : reporter.allow
+            allow       : reporter.allow,
+            ignore      : reporter.ignore
         };
 
         //sort by line numbers, rollups at the bottom
@@ -6981,8 +7006,10 @@ var CSSLint = (function() {
  * @param {String[]} lines The text lines of the source.
  * @param {Object} ruleset The set of rules to work with, including if
  *      they are errors or warnings.
+ * @param {Object} explicitly allowed lines
+ * @param {[][]} ingore list of line ranges to be ignored
  */
-function Reporter(lines, ruleset, allow) {
+function Reporter(lines, ruleset, allow, ignore) {
     "use strict";
 
     /**
@@ -7023,6 +7050,16 @@ function Reporter(lines, ruleset, allow) {
     this.allow = allow;
     if(!this.allow) {
         this.allow = {};
+    }
+
+    /**
+     * Linesets not to include in the report.
+     * @property ignore
+     * @type [][]
+     */
+    this.ignore = ignore;
+    if(!this.ignore) {
+        this.ignore = [];
     }
 }
 
@@ -7078,6 +7115,16 @@ Reporter.prototype = {
 
         // Check if rule violation should be allowed
         if (this.allow.hasOwnProperty(line) && this.allow[line].hasOwnProperty(rule.id)) {
+            return;
+        }
+
+        var ignore = false;
+        CSSLint.Util.forEach(this.ignore, function (range) {
+            if(range[0] <= line && line <= range[1]) {
+                ignore = true;
+            }
+        });
+        if(ignore) {
             return;
         }
 
@@ -7231,6 +7278,7 @@ CSSLint.addRule({
     id: "adjoining-classes",
     name: "Disallow adjoining classes",
     desc: "Don't use adjoining classes.",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-adjoining-classes",
     browsers: "IE6",
 
     //initialization
@@ -7277,6 +7325,7 @@ CSSLint.addRule({
     id: "box-model",
     name: "Beware of broken box size",
     desc: "Don't use width or height when using padding or border.",
+    url: "https://github.com/CSSLint/csslint/wiki/Beware-of-box-model-size",
     browsers: "All",
 
     //initialization
@@ -7381,6 +7430,7 @@ CSSLint.addRule({
     id: "box-sizing",
     name: "Disallow use of box-sizing",
     desc: "The box-sizing properties isn't supported in IE6 and IE7.",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-box-sizing",
     browsers: "IE6, IE7",
     tags: ["Compatibility"],
 
@@ -7411,6 +7461,7 @@ CSSLint.addRule({
     id: "bulletproof-font-face",
     name: "Use the bulletproof @font-face syntax",
     desc: "Use the bulletproof @font-face syntax to avoid 404's in old IE (http://www.fontspring.com/blog/the-new-bulletproof-font-face-syntax).",
+    url: "https://github.com/CSSLint/csslint/wiki/Bulletproof-font-face",
     browsers: "All",
 
     //initialization
@@ -7478,6 +7529,7 @@ CSSLint.addRule({
     id: "compatible-vendor-prefixes",
     name: "Require compatible vendor prefixes",
     desc: "Include all compatible vendor prefixes to reach a wider range of users.",
+    url: "https://github.com/CSSLint/csslint/wiki/Require-compatible-vendor-prefixes",
     browsers: "All",
 
     //initialization
@@ -7669,6 +7721,7 @@ CSSLint.addRule({
     id: "display-property-grouping",
     name: "Require properties appropriate for display",
     desc: "Certain properties shouldn't be used with certain display property values.",
+    url: "https://github.com/CSSLint/csslint/wiki/Require-properties-appropriate-for-display",
     browsers: "All",
 
     //initialization
@@ -7786,6 +7839,7 @@ CSSLint.addRule({
     id: "duplicate-background-images",
     name: "Disallow duplicate background images",
     desc: "Every background-image should be unique. Use a common class for e.g. sprites.",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-duplicate-background-images",
     browsers: "All",
 
     //initialization
@@ -7826,6 +7880,7 @@ CSSLint.addRule({
     id: "duplicate-properties",
     name: "Disallow duplicate properties",
     desc: "Duplicate properties must appear one after the other.",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-duplicate-properties",
     browsers: "All",
 
     //initialization
@@ -7874,6 +7929,7 @@ CSSLint.addRule({
     id: "empty-rules",
     name: "Disallow empty rules",
     desc: "Rules without any properties specified should be removed.",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-empty-rules",
     browsers: "All",
 
     //initialization
@@ -7931,6 +7987,7 @@ CSSLint.addRule({
     id: "fallback-colors",
     name: "Require fallback colors",
     desc: "For older browsers that don't support RGBA, HSL, or HSLA, provide a fallback color.",
+    url: "https://github.com/CSSLint/csslint/wiki/Require-fallback-colors",
     browsers: "IE6,IE7,IE8",
 
     //initialization
@@ -8014,6 +8071,7 @@ CSSLint.addRule({
     id: "floats",
     name: "Disallow too many floats",
     desc: "This rule tests if the float property is used too many times",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-too-many-floats",
     browsers: "All",
 
     //initialization
@@ -8051,6 +8109,7 @@ CSSLint.addRule({
     id: "font-faces",
     name: "Don't use too many web fonts",
     desc: "Too many different web fonts in the same stylesheet.",
+    url: "https://github.com/CSSLint/csslint/wiki/Don%27t-use-too-many-web-fonts",
     browsers: "All",
 
     //initialization
@@ -8083,6 +8142,7 @@ CSSLint.addRule({
     id: "font-sizes",
     name: "Disallow too many font sizes",
     desc: "Checks the number of font-size declarations.",
+    url: "https://github.com/CSSLint/csslint/wiki/Don%27t-use-too-many-font-size-declarations",
     browsers: "All",
 
     //initialization
@@ -8119,6 +8179,7 @@ CSSLint.addRule({
     id: "gradients",
     name: "Require all gradient definitions",
     desc: "When using a vendor-prefixed gradient, make sure to use them all.",
+    url: "https://github.com/CSSLint/csslint/wiki/Require-all-gradient-definitions",
     browsers: "All",
 
     //initialization
@@ -8185,6 +8246,7 @@ CSSLint.addRule({
     id: "ids",
     name: "Disallow IDs in selectors",
     desc: "Selectors should not contain IDs.",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-IDs-in-selectors",
     browsers: "All",
 
     //initialization
@@ -8279,6 +8341,7 @@ CSSLint.addRule({
     id: "import",
     name: "Disallow @import",
     desc: "Don't use @import, use <link> instead.",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-%40import",
     browsers: "All",
 
     //initialization
@@ -8306,6 +8369,7 @@ CSSLint.addRule({
     id: "important",
     name: "Disallow !important",
     desc: "Be careful when using !important declaration",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-%21important",
     browsers: "All",
 
     //initialization
@@ -8344,6 +8408,7 @@ CSSLint.addRule({
     id: "known-properties",
     name: "Require use of known properties",
     desc: "Properties should be known (listed in CSS3 specification) or be a vendor-prefixed property.",
+    url: "https://github.com/CSSLint/csslint/wiki/Require-use-of-known-properties",
     browsers: "All",
 
     //initialization
@@ -8429,6 +8494,7 @@ CSSLint.addRule({
     id: "outline-none",
     name: "Disallow outline: none",
     desc: "Use of outline: none or outline: 0 should be limited to :focus rules.",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-outline%3Anone",
     browsers: "All",
     tags: ["Accessibility"],
 
@@ -8505,6 +8571,7 @@ CSSLint.addRule({
     id: "overqualified-elements",
     name: "Disallow overqualified elements",
     desc: "Don't use classes or IDs with elements (a.foo or a#foo).",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-overqualified-elements",
     browsers: "All",
 
     //initialization
@@ -8570,6 +8637,7 @@ CSSLint.addRule({
     id: "qualified-headings",
     name: "Disallow qualified headings",
     desc: "Headings should not be qualified (namespaced).",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-qualified-headings",
     browsers: "All",
 
     //initialization
@@ -8610,6 +8678,7 @@ CSSLint.addRule({
     id: "regex-selectors",
     name: "Disallow selectors that look like regexs",
     desc: "Selectors that look like regular expressions are slow and should be avoided.",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-selectors-that-look-like-regular-expressions",
     browsers: "All",
 
     //initialization
@@ -8791,6 +8860,7 @@ CSSLint.addRule({
     id: "shorthand",
     name: "Require shorthand properties",
     desc: "Use shorthand properties where possible.",
+    url: "https://github.com/CSSLint/csslint/wiki/Require-shorthand-properties",
     browsers: "All",
 
     //initialization
@@ -8879,6 +8949,7 @@ CSSLint.addRule({
     id: "star-property-hack",
     name: "Disallow properties with a star prefix",
     desc: "Checks for the star property hack (targets IE6/7)",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-star-hack",
     browsers: "All",
 
     //initialization
@@ -8908,6 +8979,7 @@ CSSLint.addRule({
     id: "text-indent",
     name: "Disallow negative text-indent",
     desc: "Checks for text indent less than -99px",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-negative-text-indent",
     browsers: "All",
 
     //initialization
@@ -8963,6 +9035,7 @@ CSSLint.addRule({
     id: "underscore-property-hack",
     name: "Disallow properties with an underscore prefix",
     desc: "Checks for the underscore property hack (targets IE6)",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-underscore-hack",
     browsers: "All",
 
     //initialization
@@ -8991,6 +9064,7 @@ CSSLint.addRule({
     id: "unique-headings",
     name: "Headings should only be defined once",
     desc: "Headings should be defined only once.",
+    url: "https://github.com/CSSLint/csslint/wiki/Headings-should-only-be-defined-once",
     browsers: "All",
 
     //initialization
@@ -9067,6 +9141,7 @@ CSSLint.addRule({
     id: "universal-selector",
     name: "Disallow universal selector",
     desc: "The universal selector (*) is known to be slow.",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-universal-selector",
     browsers: "All",
 
     //initialization
@@ -9103,6 +9178,7 @@ CSSLint.addRule({
     id: "unqualified-attributes",
     name: "Disallow unqualified attribute selectors",
     desc: "Unqualified attribute selectors are known to be slow.",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-unqualified-attribute-selectors",
     browsers: "All",
 
     //initialization
@@ -9161,6 +9237,7 @@ CSSLint.addRule({
     id: "vendor-prefix",
     name: "Require standard property with vendor prefix",
     desc: "When using a vendor-prefixed property, make sure to include the standard one.",
+    url: "https://github.com/CSSLint/csslint/wiki/Require-standard-property-with-vendor-prefix",
     browsers: "All",
 
     //initialization
@@ -9303,6 +9380,7 @@ CSSLint.addRule({
     id: "zero-units",
     name: "Disallow units for 0 values",
     desc: "You don't need to specify units when a value is 0.",
+    url: "https://github.com/CSSLint/csslint/wiki/Disallow-units-for-zero-values",
     browsers: "All",
 
     //initialization
@@ -9490,7 +9568,7 @@ CSSLint.addFormatter({
 
         CSSLint.Util.forEach(messages, function(message) {
             if (message.rollup) {
-                output += filename + ": " + capitalize(message.type) + " - " + message.message + "\n";
+                output += filename + ": " + capitalize(message.type) + " - " + message.message + " (" + message.rule.id + ")\n";
             } else {
                 output += filename + ": line " + message.line +
                     ", col " + message.col + ", " + capitalize(message.type) + " - " + message.message + " (" + message.rule.id + ")\n";
