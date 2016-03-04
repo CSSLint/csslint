@@ -91,9 +91,8 @@ module.exports = function(grunt) {
                             "var parserlib = require('parserlib');\n",
                     footer: "\nexports.CSSLint = CSSLint;"
                 },
-                files: {
-                    "<%= build_dir %>/csslint-node.js": ["<%= csslint_files %>"]
-                }
+               src: "<%= csslint_files %>",
+               dest: "<%= build_dir %>/csslint-node.js"
             },
             node_cli: {
                 options: {
@@ -215,13 +214,12 @@ module.exports = function(grunt) {
     grunt.loadTasks("tasks");
 
     // Default task.
-    grunt.registerTask("default", ["build", "test"]);
+    grunt.registerTask("default", ["test"]);
 
     grunt.registerTask("build", ["clean", "concat", "includereplace"]);
 
-    //Alias for
+    // Alias for
     grunt.registerTask("dist", "build");
-    grunt.registerTask("lint", "jshint");
 
     // Testing
     grunt.registerTask("test", ["build", "jshint", "yuitest"]);
