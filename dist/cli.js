@@ -297,7 +297,7 @@ function cli(api) {
 
             } else {
 
-                //see if it's a directory or a file
+                // see if it's a directory or a file
                 if (api.isDirectory(arg)) {
                     files = files.concat(api.getFiles(arg));
                 } else {
@@ -350,7 +350,7 @@ function cli(api) {
                     }
                 } catch (e) {}
             }
-            args = data.replace(/\s+/g,"").split(/(?=--)/);
+            args = data.replace(/\s+/g, "").split(/(?=--)/);
             options = processArguments(args);
         }
 
@@ -361,7 +361,7 @@ function cli(api) {
     // Process command line
     //-----------------------------------------------------------------------------
 
-    var args     = api.args,
+    var args = api.args,
         argCount = args.length,
         options,
         rcOptions,

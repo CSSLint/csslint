@@ -177,10 +177,10 @@ function include(path, sandbox) {
                             exp = expecting[i];
                             out = outcome[i];
 
-                            if ( typeof out === "string") {
+                            if (typeof out === "string") {
                                 out = /^.*/.exec(out.trim())[0];
                             }
-                            if ( exp !== out ) {
+                            if (exp !== out) {
                                 Assert.fail("Expecting: " + exp + " Got: " + out);
                             }
                         }
@@ -247,20 +247,20 @@ function include(path, sandbox) {
             Assert.areEqual(0, result.ruleset["box-sizing"]);
         },
 
-        "Allow statement on one line with one rule should be added to report": function(){
+        "Allow statement on one line with one rule should be added to report": function() {
             var report = CSSLint.verify(".foo.bar{}\n.baz.qux{} /* csslint allow: box-sizing */\nquux.corge{}");
             Assert.isTrue(report.allow.hasOwnProperty("2"));
             Assert.isTrue(report.allow["2"].hasOwnProperty("box-sizing"));
         },
 
-        "Allow statement on one line with multiple rules should be added to report": function(){
+        "Allow statement on one line with multiple rules should be added to report": function() {
             var report = CSSLint.verify(".foo.bar{}\n.baz.qux{} /* csslint allow: box-sizing, box-model */\nquux.corge{}");
             Assert.isTrue(report.allow.hasOwnProperty("2"));
             Assert.isTrue(report.allow["2"].hasOwnProperty("box-sizing"));
             Assert.isTrue(report.allow["2"].hasOwnProperty("box-model"));
         },
 
-        "Allow statements on multiple lines for different rules should be added to report": function(){
+        "Allow statements on multiple lines for different rules should be added to report": function() {
             var report = CSSLint.verify(".foo.bar{}\n.baz.qux{} /* csslint allow: box-sizing */\nquux.corge{}\ngrault.garply{} /* csslint allow: box-model */");
             Assert.isTrue(report.allow.hasOwnProperty("2"));
             Assert.isTrue(report.allow["2"].hasOwnProperty("box-sizing"));
@@ -268,14 +268,14 @@ function include(path, sandbox) {
             Assert.isTrue(report.allow["4"].hasOwnProperty("box-model"));
         },
 
-        "Full ignore blocks should be captured": function(){
+        "Full ignore blocks should be captured": function() {
             var report = CSSLint.verify("/* csslint ignore:start */\n\n/* csslint ignore:end */");
             Assert.areEqual(1, report.ignore.length);
             Assert.areEqual(0, report.ignore[0][0]);
             Assert.areEqual(2, report.ignore[0][1]);
         },
 
-        "Whitespace should be no problem inside ignore comments": function(){
+        "Whitespace should be no problem inside ignore comments": function() {
             var report = CSSLint.verify("/*     csslint     ignore:start    */\n\n/*    csslint     ignore:end     */,\n/*csslint ignore:start*/\n/*csslint ignore:end*/");
             Assert.areEqual(2, report.ignore.length);
             Assert.areEqual(0, report.ignore[0][0]);
@@ -284,14 +284,14 @@ function include(path, sandbox) {
             Assert.areEqual(4, report.ignore[1][1]);
         },
 
-        "Ignore blocks should be autoclosed": function(){
+        "Ignore blocks should be autoclosed": function() {
             var report = CSSLint.verify("/* csslint ignore:start */\n\n");
             Assert.areEqual(1, report.ignore.length);
             Assert.areEqual(0, report.ignore[0][0]);
             Assert.areEqual(3, report.ignore[0][1]);
         },
 
-        "Restarting ignore should be harmless": function(){
+        "Restarting ignore should be harmless": function() {
             var report = CSSLint.verify("/* csslint ignore:start */\n/* csslint ignore:start */\n");
             Assert.areEqual(1, report.ignore.length);
             Assert.areEqual(0, report.ignore[0][0]);
@@ -310,7 +310,7 @@ function include(path, sandbox) {
         name: "Reporter Object Tests",
 
         "Report should cause a warning": function() {
-            var reporter = new CSSLint._Reporter([], { "fake-rule": 1});
+            var reporter = new CSSLint._Reporter([], { "fake-rule": 1 });
             reporter.report("Foo", 1, 1, { id: "fake-rule" });
 
             Assert.areEqual(1, reporter.messages.length);
@@ -318,7 +318,7 @@ function include(path, sandbox) {
         },
 
         "Report should cause an error": function() {
-            var reporter = new CSSLint._Reporter([], { "fake-rule": 2});
+            var reporter = new CSSLint._Reporter([], { "fake-rule": 2 });
             reporter.report("Foo", 1, 1, { id: "fake-rule" });
 
             Assert.areEqual(1, reporter.messages.length);
@@ -326,39 +326,39 @@ function include(path, sandbox) {
         },
 
         "Calling error() should cause an error": function() {
-            var reporter = new CSSLint._Reporter([], { "fake-rule": 1});
+            var reporter = new CSSLint._Reporter([], { "fake-rule": 1 });
             reporter.error("Foo", 1, 1, { id: "fake-rule" });
 
             Assert.areEqual(1, reporter.messages.length);
             Assert.areEqual("error", reporter.messages[0].type);
         },
 
-        "Allow statement should drop message about specific rule on specific line but not other lines": function(){
-            var reporter = new CSSLint._Reporter([], { "fake-rule": 1}, {"3": {"fake-rule": true}});
+        "Allow statement should drop message about specific rule on specific line but not other lines": function() {
+            var reporter = new CSSLint._Reporter([], { "fake-rule": 1 }, { "3": { "fake-rule": true } });
             reporter.report("Foo", 2, 1, { id: "fake-rule" });
             reporter.report("Bar", 3, 1, { id: "fake-rule" });
 
             Assert.areEqual(1, reporter.messages.length);
         },
 
-        "Allow statement should drop message about specific rule on specific line but not other rules": function(){
-            var reporter = new CSSLint._Reporter([], { "fake-rule": 1, "fake-rule2": 1}, {"3": {"fake-rule": true}});
+        "Allow statement should drop message about specific rule on specific line but not other rules": function() {
+            var reporter = new CSSLint._Reporter([], { "fake-rule": 1, "fake-rule2": 1 }, { "3": { "fake-rule": true } });
             reporter.report("Foo", 3, 1, { id: "fake-rule" });
             reporter.report("Bar", 3, 1, { id: "fake-rule2" });
 
             Assert.areEqual(1, reporter.messages.length);
         },
 
-        "Allow statement should drop messages about multiple rules on specific line": function(){
-            var reporter = new CSSLint._Reporter([], { "fake-rule": 1, "fake-rule2": 1}, {"3": {"fake-rule": true, "fake-rule2": true}});
+        "Allow statement should drop messages about multiple rules on specific line": function() {
+            var reporter = new CSSLint._Reporter([], { "fake-rule": 1, "fake-rule2": 1 }, { "3": { "fake-rule": true, "fake-rule2": true } });
             reporter.report("Foo", 3, 1, { id: "fake-rule" });
             reporter.report("Bar", 3, 1, { id: "fake-rule2" });
 
             Assert.areEqual(0, reporter.messages.length);
         },
 
-        "Ignores should step over a report in their range": function(){
-            var reporter = new CSSLint._Reporter([], { "fake-rule": 1}, {}, [[1,3]]);
+        "Ignores should step over a report in their range": function() {
+            var reporter = new CSSLint._Reporter([], { "fake-rule": 1 }, {}, [[1, 3]]);
             reporter.report("Foo", 2, 1, { id: "fake-rule" });
             reporter.report("Bar", 5, 1, { id: "fake-rule" });
 
@@ -512,6 +512,79 @@ function include(path, sandbox) {
 
     YUITest.TestRunner.add(new YUITest.TestCase({
 
+        name: "JSON formatter",
+
+        "File with no problems should say so": function() {
+            var result = { messages: [], stats: [] };
+            var expected = "{\"filename\":\"path/to/FILE\",\"messages\":[],\"stats\":[]}";
+            var formatter = CSSLint.getFormatter("json");
+            var actual = formatter.startFormat() +
+                formatter.formatResults(result, "path/to/FILE",
+                    { fullPath: "/absolute/path/to/FILE" }) +
+                formatter.endFormat();
+            Assert.areEqual(expected, actual);
+        },
+
+        "Should have no output when quiet option is specified and no errors": function() {
+            var result = { messages: [], stats: [] };
+            var formatter = CSSLint.getFormatter("json");
+            var actual = formatter.startFormat() +
+                formatter.formatResults(result, "path/to/FILE",
+                    { fullPath: "/absolute/path/to/FILE", quiet: "true" }) +
+                formatter.endFormat();
+            Assert.areEqual("", actual);
+        },
+
+        "Should have output when quiet option is specified and there are errors": function() {
+            var result = { messages: [
+                { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] }], stats: [] };
+            var expected = "{\"filename\":\"path/to/FILE\",\"messages\":[{\"type\":\"warning\",\"line\":1,\"col\":1,\"message\":\"BOGUS\",\"evidence\":\"ALSO BOGUS\",\"rule\":[]}],\"stats\":[]}";
+            var formatter = CSSLint.getFormatter("json");
+            var actual = formatter.startFormat() +
+                formatter.formatResults(result, "path/to/FILE",
+                    { fullPath: "/absolute/path/to/FILE", quiet: "true" }) +
+                formatter.endFormat();
+            Assert.areEqual(expected, actual);
+        },
+
+        "File with problems should list them": function() {
+            var result = { messages: [
+                { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] },
+                { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] }
+            ], stats: [] };
+            var expected = "{\"filename\":\"path/to/FILE\",\"messages\":[{\"type\":\"warning\",\"line\":1,\"col\":1,\"message\":\"BOGUS\",\"evidence\":\"ALSO BOGUS\",\"rule\":[]},{\"type\":\"error\",\"line\":2,\"col\":1,\"message\":\"BOGUS\",\"evidence\":\"ALSO BOGUS\",\"rule\":[]}],\"stats\":[]}";
+            var formatter = CSSLint.getFormatter("json");
+            var actual = formatter.startFormat() +
+                formatter.formatResults(result, "path/to/FILE",
+                    { fullPath: "/absolute/path/to/FILE" }) +
+                formatter.endFormat();
+            Assert.areEqual(expected, actual);
+        },
+
+        "Multiple files are handled properly": function () {
+            var result = { messages: [
+                { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] }], stats: [] };
+            var expected = "[{\"filename\":\"path/to/FILE\",\"messages\":[{\"type\":\"warning\",\"line\":1,\"col\":1,\"message\":\"BOGUS\",\"evidence\":\"ALSO BOGUS\",\"rule\":[]}],\"stats\":[]},{\"filename\":\"path/to/FILE\",\"messages\":[{\"type\":\"warning\",\"line\":1,\"col\":1,\"message\":\"BOGUS\",\"evidence\":\"ALSO BOGUS\",\"rule\":[]}],\"stats\":[]}]";
+            var formatter = CSSLint.getFormatter("json");
+            var actual = formatter.startFormat() +
+                formatter.formatResults(result, "path/to/FILE",
+                    { fullPath: "/absolute/path/to/FILE" }) +
+                formatter.formatResults(result, "path/to/FILE",
+                    { fullPath: "/absolute/path/to/FILE" }) +
+                formatter.endFormat();
+            Assert.areEqual(expected, actual);
+        }
+
+    }));
+
+})();
+
+(function() {
+    "use strict";
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
         name: "JUNIT XML formatter test",
 
         "File with no problems should say so": function() {
@@ -632,7 +705,7 @@ function include(path, sandbox) {
 
         "File with no problems should say so": function() {
             var result = { messages: [], stats: [] },
-                actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE"});
+                actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", { fullPath: "/absolute/path/to/FILE" });
             Assert.areEqual("\n\ncsslint: No errors in path/to/FILE.", actual);
         },
 
@@ -642,25 +715,40 @@ function include(path, sandbox) {
                 ], stats: [] },
                 error1 = "\n1: warning at line 1, col 1\nBOGUS\nALSO BOGUS",
                 expected = "\n\ncsslint: There is 1 problem in path/to/FILE.\n\nFILE" + error1,
-                actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE"});
+                actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", { fullPath: "/absolute/path/to/FILE" });
             Assert.areEqual(expected, actual);
         },
 
         "Should have no output when quiet option is specified and no errors": function() {
             var result = { messages: [], stats: [] },
-                actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE", quiet: "true"});
+                actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", { fullPath: "/absolute/path/to/FILE", quiet: "true" });
             Assert.areEqual("", actual);
         },
 
         "File with problems should list them": function() {
-            var result = { messages: [
-                { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] },
-                { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] }
-            ], stats: [] },
+            var result = {
+                    messages: [{
+                        type: "warning",
+                        line: 1,
+                        col: 1,
+                        message: "BOGUS",
+                        evidence: "ALSO BOGUS",
+                        rule: []
+                    },
+                    {
+                        type: "error",
+                        line: 2,
+                        col: 1,
+                        message: "BOGUS",
+                        evidence: "ALSO BOGUS",
+                        rule: []
+                    }],
+                    stats: []
+                },
                 error1 = "\n1: warning at line 1, col 1\nBOGUS\nALSO BOGUS",
                 error2 = "\n2: error at line 2, col 1\nBOGUS\nALSO BOGUS",
                 expected = "\n\ncsslint: There are 2 problems in path/to/FILE.\n\nFILE" + error1 + "\n\nFILE" + error2,
-                actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE"});
+                actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", { fullPath: "/absolute/path/to/FILE" });
             Assert.areEqual(expected, actual);
         }
 
@@ -1327,14 +1415,14 @@ function include(path, sandbox) {
         name: "Duplicate Background-URL Rule Errors",
 
         "duplicate background-image should result in a warning": function() {
-            var result = CSSLint.verify(".foo { background-image: url('mega-sprite.png'); } .foofoo { background-image: url('fancy-sprite.png'); } .bar { background-image: url(\"mega-sprite.png\"); } .foobar { background: white url(mega-sprite.png); }", {"duplicate-background-images": 1 });
+            var result = CSSLint.verify(".foo { background-image: url('mega-sprite.png'); } .foofoo { background-image: url('fancy-sprite.png'); } .bar { background-image: url(\"mega-sprite.png\"); } .foobar { background: white url(mega-sprite.png); }", { "duplicate-background-images": 1 });
             Assert.areEqual(2, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Background image 'mega-sprite.png' was used multiple times, first declared at line 1, col 8.", result.messages[0].message);
         },
 
         "duplicate background with url should result in a warning": function() {
-            var result = CSSLint.verify(".foo { background: url(mega-sprite.png) repeat-x; } .foofoo { background-image: url('fancy-sprite.png'); } .bar { background: white url(\"mega-sprite.png\") no-repeat left top; } .foobar { background: white url('mega-sprite.png'); }", {"duplicate-background-images": 1 });
+            var result = CSSLint.verify(".foo { background: url(mega-sprite.png) repeat-x; } .foofoo { background-image: url('fancy-sprite.png'); } .bar { background: white url(\"mega-sprite.png\") no-repeat left top; } .foobar { background: white url('mega-sprite.png'); }", { "duplicate-background-images": 1 });
             Assert.areEqual(2, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Background image 'mega-sprite.png' was used multiple times, first declared at line 1, col 8.", result.messages[0].message);
@@ -2401,19 +2489,19 @@ function include(path, sandbox) {
         name: "font-size Rule Errors",
 
         "10 font-sizes should result in a warning": function() {
-            var result = CSSLint.verify(".foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } ", {"font-sizes": 1 });
+            var result = CSSLint.verify(".foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } ", { "font-sizes": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Too many font-size declarations (10), abstraction needed.", result.messages[0].message);
         },
 
         "9 font-sizes should not result in a warning": function() {
-            var result = CSSLint.verify(" .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } ", {"font-sizes": 1 });
+            var result = CSSLint.verify(" .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } ", { "font-sizes": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
         "11 font-sizes should result in a warning": function() {
-            var result = CSSLint.verify(".foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } ", {"font-sizes": 1 });
+            var result = CSSLint.verify(".foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } .foo { font-size: 10px; } ", { "font-sizes": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Too many font-size declarations (11), abstraction needed.", result.messages[0].message);
@@ -2439,28 +2527,28 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
         name: "Gradients Rule Errors",
 
         "Only using Mozilla gradients should result in a warning": function() {
-            var result = CSSLint.verify(".foo { background: -moz-linear-gradient(top, #1e5799 , #2989d8 , #207cca , #7db9e8 ); }", {"gradients": 1 });
+            var result = CSSLint.verify(".foo { background: -moz-linear-gradient(top, #1e5799 , #2989d8 , #207cca , #7db9e8 ); }", { "gradients": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Missing vendor-prefixed CSS gradients for Webkit (Safari 5+, Chrome), Old Webkit (Safari 4+, Chrome), Opera 11.1+.", result.messages[0].message);
         },
 
         "Only using Opera gradients should result in a warning": function() {
-            var result = CSSLint.verify(".foo { background: -o-linear-gradient(top, #1e5799 , #2989d8 , #207cca , #7db9e8 ); }", {"gradients": 1 });
+            var result = CSSLint.verify(".foo { background: -o-linear-gradient(top, #1e5799 , #2989d8 , #207cca , #7db9e8 ); }", { "gradients": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Missing vendor-prefixed CSS gradients for Firefox 3.6+, Webkit (Safari 5+, Chrome), Old Webkit (Safari 4+, Chrome).", result.messages[0].message);
         },
 
         "Only using WebKit gradients should result in a warning": function() {
-            var result = CSSLint.verify(".foo { background: -webkit-linear-gradient(top, #1e5799 , #2989d8 , #207cca , #7db9e8 ); }", {"gradients": 1 });
+            var result = CSSLint.verify(".foo { background: -webkit-linear-gradient(top, #1e5799 , #2989d8 , #207cca , #7db9e8 ); }", { "gradients": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Missing vendor-prefixed CSS gradients for Firefox 3.6+, Old Webkit (Safari 4+, Chrome), Opera 11.1+.", result.messages[0].message);
         },
 
         "Only using old WebKit gradients should result in a warning": function() {
-            var result = CSSLint.verify(".foo { background: -webkit-gradient(linear, left top, left bottom, color-stop(10%,#1e5799), color-stop(20%,#2989d8), color-stop(30%,#207cca), color-stop(100%,#7db9e8)); }", {"gradients": 1 });
+            var result = CSSLint.verify(".foo { background: -webkit-gradient(linear, left top, left bottom, color-stop(10%,#1e5799), color-stop(20%,#2989d8), color-stop(30%,#207cca), color-stop(100%,#7db9e8)); }", { "gradients": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Missing vendor-prefixed CSS gradients for Firefox 3.6+, Webkit (Safari 5+, Chrome), Opera 11.1+.", result.messages[0].message);
@@ -2499,7 +2587,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 
 })();
 
-(function(){
+(function() {
     "use strict";
     var Assert = YUITest.Assert,
         IMPORT_STATEMENT = "@import url('foo.css');",
@@ -2524,20 +2612,20 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 
         name: "Import IE Limit Rule Error",
 
-        "Using @import <= 31 times should not result in error": function(){
+        "Using @import <= 31 times should not result in error": function() {
 
             var result = CSSLint.verify(withinLimitCss, { "import-ie-limit": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
-        "Using @import > 31 times should result in error": function(){
+        "Using @import > 31 times should result in error": function() {
             var result = CSSLint.verify(exceedLimitCss, { "import-ie-limit": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("error", result.messages[0].type);
             Assert.areEqual("Too many @import rules (32). IE6-9 supports up to 31 import per stylesheet.", result.messages[0].message);
         },
 
-        "Using @import > 31 times repeatedly should result in a single error": function(){
+        "Using @import > 31 times repeatedly should result in a single error": function() {
             var result = CSSLint.verify(greatlyExceedLimitCss, { "import-ie-limit": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("error", result.messages[0].type);
@@ -2901,6 +2989,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function() {
     "use strict";
     var Assert = YUITest.Assert, i, j, css1 = "", css2 = "", css3 = "", css4 = "";
@@ -2959,6 +3048,7 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
     }));
 
 })();
+
 (function () {
     "use strict";
     var ruleId = "selector-newline", expectWarning, expectPass;
@@ -3005,26 +3095,26 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
         name: "Shorthand Rule Errors",
 
         "All padding properties should result in a warning": function() {
-            var result = CSSLint.verify(".foo{padding-top: 0px; padding-left: 3px; padding-right: 25px; padding-bottom: 10px;}", {"shorthand": 1 });
+            var result = CSSLint.verify(".foo{padding-top: 0px; padding-left: 3px; padding-right: 25px; padding-bottom: 10px;}", { "shorthand": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("The properties padding-top, padding-bottom, padding-left, padding-right can be replaced by padding.", result.messages[0].message);
         },
 
         "All margin properties should result in a warning": function() {
-            var result = CSSLint.verify(".foo{margin-top: 0px; margin-left: 3px; margin-right: 25px; margin-bottom: 10px;}", {"shorthand": 1 });
+            var result = CSSLint.verify(".foo{margin-top: 0px; margin-left: 3px; margin-right: 25px; margin-bottom: 10px;}", { "shorthand": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("The properties margin-top, margin-bottom, margin-left, margin-right can be replaced by margin.", result.messages[0].message);
         },
 
         "padding-left should not result in a warning": function() {
-            var result = CSSLint.verify(".foo{ padding-left: 8px;} ", {"shorthand": 1 });
+            var result = CSSLint.verify(".foo{ padding-left: 8px;} ", { "shorthand": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
         "margin-top should not result in a warning": function() {
-            var result = CSSLint.verify(".foo{ margin-top: 8px;} ", {"shorthand": 1 });
+            var result = CSSLint.verify(".foo{ margin-top: 8px;} ", { "shorthand": 1 });
             Assert.areEqual(0, result.messages.length);
         }
 
@@ -3041,14 +3131,14 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
         name: "star-property-hack Rule Errors",
 
         "a property with a star prefix should result in a warning": function() {
-            var result = CSSLint.verify(".foo{*width: 100px;}", {"star-property-hack": 1 });
+            var result = CSSLint.verify(".foo{*width: 100px;}", { "star-property-hack": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Property with star prefix found.", result.messages[0].message);
         },
 
         "a property without a star prefix should not result in a warning": function() {
-            var result = CSSLint.verify(".foo{width: 100px;}", {"star-property-hack": 1 });
+            var result = CSSLint.verify(".foo{width: 100px;}", { "star-property-hack": 1 });
             Assert.areEqual(0, result.messages.length);
         }
 
@@ -3065,38 +3155,38 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
         name: "text-indent Rule Errors",
 
         "-100px text-indent should result in a warning": function() {
-            var result = CSSLint.verify(".foo{text-indent: -100px;}", {"text-indent": 1 });
+            var result = CSSLint.verify(".foo{text-indent: -100px;}", { "text-indent": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set direction for that item to ltr.", result.messages[0].message);
         },
 
         "-99px text-indent should not result in a warning": function() {
-            var result = CSSLint.verify(".foo{text-indent: -99px;} ", {"text-indent": 1 });
+            var result = CSSLint.verify(".foo{text-indent: -99px;} ", { "text-indent": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
         "-99em text-indent should not result in a warning": function() {
-            var result = CSSLint.verify(".foo{text-indent: -99em;} ", {"text-indent": 1 });
+            var result = CSSLint.verify(".foo{text-indent: -99em;} ", { "text-indent": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
         "-100px text-indent with LTR should not result in a warning": function() {
-            var result = CSSLint.verify(".foo{text-indent: -100px; direction: ltr; }", {"text-indent": 1 });
+            var result = CSSLint.verify(".foo{text-indent: -100px; direction: ltr; }", { "text-indent": 1 });
             Assert.areEqual(0, result.messages.length);
-            result = CSSLint.verify(".foo{direction: ltr; text-indent: -100px; }", {"text-indent": 1 });
+            result = CSSLint.verify(".foo{direction: ltr; text-indent: -100px; }", { "text-indent": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
         "-100em text-indent with RTL should result in a warning": function() {
-            var result = CSSLint.verify(".foo{text-indent: -100em; direction: rtl; }", {"text-indent": 1 });
+            var result = CSSLint.verify(".foo{text-indent: -100em; direction: rtl; }", { "text-indent": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set direction for that item to ltr.", result.messages[0].message);
         },
 
         "5px text-indent should not result in a warning": function() {
-            var result = CSSLint.verify(".foo{text-indent: 5px;}", {"text-indent": 1 });
+            var result = CSSLint.verify(".foo{text-indent: 5px;}", { "text-indent": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
@@ -3120,14 +3210,14 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
         name: "underscore-property-hack Rule Errors",
 
         "a property with an underscore prefix should result in a warning": function() {
-            var result = CSSLint.verify(".foo{_width: 100px;}", {"underscore-property-hack": 1 });
+            var result = CSSLint.verify(".foo{_width: 100px;}", { "underscore-property-hack": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Property with underscore prefix found.", result.messages[0].message);
         },
 
         "a property without an underscore prefix should not result in a warning": function() {
-            var result = CSSLint.verify(".foo{width: 100px;}", {"underscore-property-hack": 1 });
+            var result = CSSLint.verify(".foo{width: 100px;}", { "underscore-property-hack": 1 });
             Assert.areEqual(0, result.messages.length);
         }
 
@@ -3191,21 +3281,21 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
         name: "Universal Selector Errors",
 
         "Using a universal selector alone should result in a warning": function() {
-            var result = CSSLint.verify("* { font-size: 10px; }", {"universal-selector": 1 });
+            var result = CSSLint.verify("* { font-size: 10px; }", { "universal-selector": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("The universal selector (*) is known to be slow.", result.messages[0].message);
         },
 
         "Using a universal selector as the right-most part should result in a warning": function() {
-            var result = CSSLint.verify("p div * { font-size: 10px; }", {"universal-selector": 1 });
+            var result = CSSLint.verify("p div * { font-size: 10px; }", { "universal-selector": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("The universal selector (*) is known to be slow.", result.messages[0].message);
         },
 
         "Using a universal selector in the middle should not result in a warning": function() {
-            var result = CSSLint.verify("* .foo { font-size: 10px; } ", {"universal-selector": 1 });
+            var result = CSSLint.verify("* .foo { font-size: 10px; } ", { "universal-selector": 1 });
             Assert.areEqual(0, result.messages.length);
         }
 
@@ -3222,36 +3312,36 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
         name: "Unqualified Attributes Errors",
 
         "Using an unqualified attribute selector alone should result in a warning": function() {
-            var result = CSSLint.verify("[type=text] { font-size: 10px; }", {"unqualified-attributes": 1 });
+            var result = CSSLint.verify("[type=text] { font-size: 10px; }", { "unqualified-attributes": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Unqualified attribute selectors are known to be slow.", result.messages[0].message);
         },
 
         "Using an unqualified attribute selector as the right-most part should result in a warning": function() {
-            var result = CSSLint.verify("p div [type=text] { font-size: 10px; }", {"unqualified-attributes": 1 });
+            var result = CSSLint.verify("p div [type=text] { font-size: 10px; }", { "unqualified-attributes": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Unqualified attribute selectors are known to be slow.", result.messages[0].message);
         },
 
         "Using an unqualified attribute selector in the middle should not result in a warning": function() {
-            var result = CSSLint.verify("[type=text] .foo { font-size: 10px; } ", {"unqualified-attributes": 1 });
+            var result = CSSLint.verify("[type=text] .foo { font-size: 10px; } ", { "unqualified-attributes": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
         "Using a qualified attribute selector should not result in a warning": function() {
-            var result = CSSLint.verify("input[type=text]  { font-size: 10px; } ", {"unqualified-attributes": 1 });
+            var result = CSSLint.verify("input[type=text]  { font-size: 10px; } ", { "unqualified-attributes": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
-        "Using an attribute selector qualified by a class should not result in a warning": function(){
-            var result = CSSLint.verify(".fancy[type=text] { font-size: 10px; }", {"unqualified-attributes": 1 });
+        "Using an attribute selector qualified by a class should not result in a warning": function() {
+            var result = CSSLint.verify(".fancy[type=text] { font-size: 10px; }", { "unqualified-attributes": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
-        "Using an attribute selector qualified by an ID should not result in a warning": function(){
-            var result = CSSLint.verify("#fancy[type=text] { font-size: 10px; }", {"unqualified-attributes": 1 });
+        "Using an attribute selector qualified by an ID should not result in a warning": function() {
+            var result = CSSLint.verify("#fancy[type=text] { font-size: 10px; }", { "unqualified-attributes": 1 });
             Assert.areEqual(0, result.messages.length);
         }
 
@@ -3384,96 +3474,96 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 
     window.onload = function() {
 
-        //some helpful variables
-        var runButton   = window.document.getElementById("run"),
+        // some helpful variables
+        var runButton = window.document.getElementById("run"),
             resultsList = window.document.getElementById("results"),
-            resultNode  = resultsList,
-            events      = [
-                            YUITest.TestRunner.TEST_CASE_BEGIN_EVENT,
-                            YUITest.TestRunner.TEST_CASE_COMPLETE_EVENT,
-                            YUITest.TestRunner.TEST_SUITE_BEGIN_EVENT,
-                            YUITest.TestRunner.TEST_SUITE_COMPLETE_EVENT,
-                            YUITest.TestRunner.TEST_PASS_EVENT,
-                            YUITest.TestRunner.TEST_FAIL_EVENT,
-                            YUITest.TestRunner.TEST_IGNORE_EVENT,
-                            YUITest.TestRunner.COMPLETE_EVENT,
-                            YUITest.TestRunner.BEGIN_EVENT,
-                            YUITest.TestRunner.ERROR_EVENT
-                        ];
+            resultNode = resultsList,
+            events = [
+                YUITest.TestRunner.TEST_CASE_BEGIN_EVENT,
+                YUITest.TestRunner.TEST_CASE_COMPLETE_EVENT,
+                YUITest.TestRunner.TEST_SUITE_BEGIN_EVENT,
+                YUITest.TestRunner.TEST_SUITE_COMPLETE_EVENT,
+                YUITest.TestRunner.TEST_PASS_EVENT,
+                YUITest.TestRunner.TEST_FAIL_EVENT,
+                YUITest.TestRunner.TEST_IGNORE_EVENT,
+                YUITest.TestRunner.COMPLETE_EVENT,
+                YUITest.TestRunner.BEGIN_EVENT,
+                YUITest.TestRunner.ERROR_EVENT
+            ];
 
         for (var i=0; i < events.length; i++) {
             YUITest.TestRunner.attach(events[i], function(event) {
-                    var node,
-                        message,
-                        messageType;
+                var node,
+                    message,
+                    messageType;
 
-                    switch (event.type) {
-                        case this.BEGIN_EVENT:
-                            message = "Testing began at " + (new Date()).toString() + ".";
-                            messageType = "info";
-                            break;
+                switch (event.type) {
+                    case this.BEGIN_EVENT:
+                        message = "Testing began at " + (new Date()).toString() + ".";
+                        messageType = "info";
+                        break;
 
-                        case this.COMPLETE_EVENT:
-                            message = "Testing completed at " + (new Date()).toString() + ".\nPassed:" +
+                    case this.COMPLETE_EVENT:
+                        message = "Testing completed at " + (new Date()).toString() + ".\nPassed:" +
                                 event.results.passed + " Failed:" + event.results.failed + " Total:" + event.results.total;
-                            messageType = "info";
-                            break;
+                        messageType = "info";
+                        break;
 
-                        case this.TEST_FAIL_EVENT:
-                            node = window.document.createElement("li");
-                            node.className = "failed";
-                            node.innerHTML = event.testName + ": " + event.error.getMessage().replace(/\n/g, "<br>");
-                            resultNode.appendChild(node);
-                            break;
+                    case this.TEST_FAIL_EVENT:
+                        node = window.document.createElement("li");
+                        node.className = "failed";
+                        node.innerHTML = event.testName + ": " + event.error.getMessage().replace(/\n/g, "<br>");
+                        resultNode.appendChild(node);
+                        break;
 
-                        case this.ERROR_EVENT:
-                            node = window.document.createElement("li");
-                            node.className = "error";
-                            node.innerHTML = "ERROR: " + event.methodName + "() caused an error: " + event.error.message.replace(/\n/g, "<br>");
-                            resultNode.appendChild(node);
-                            break;
+                    case this.ERROR_EVENT:
+                        node = window.document.createElement("li");
+                        node.className = "error";
+                        node.innerHTML = "ERROR: " + event.methodName + "() caused an error: " + event.error.message.replace(/\n/g, "<br>");
+                        resultNode.appendChild(node);
+                        break;
 
-                        case this.TEST_IGNORE_EVENT:
-                            node = window.document.createElement("li");
-                            node.className = "ignored";
-                            node.innerHTML = event.testName;
-                            resultNode.appendChild(node);
-                            break;
+                    case this.TEST_IGNORE_EVENT:
+                        node = window.document.createElement("li");
+                        node.className = "ignored";
+                        node.innerHTML = event.testName;
+                        resultNode.appendChild(node);
+                        break;
 
-                        case this.TEST_PASS_EVENT:
-                            node = window.document.createElement("li");
-                            node.className = "passed";
-                            node.innerHTML = event.testName;
-                            resultNode.appendChild(node);
-                            break;
+                    case this.TEST_PASS_EVENT:
+                        node = window.document.createElement("li");
+                        node.className = "passed";
+                        node.innerHTML = event.testName;
+                        resultNode.appendChild(node);
+                        break;
 
-                        case this.TEST_SUITE_BEGIN_EVENT:
-                            node = window.document.createElement("li");
-                            node.innerHTML = event.testSuite.name;
-                            resultNode.appendChild(node);
-                            resultNode = resultNode.appendChild(window.document.createElement("ul"));
-                            break;
+                    case this.TEST_SUITE_BEGIN_EVENT:
+                        node = window.document.createElement("li");
+                        node.innerHTML = event.testSuite.name;
+                        resultNode.appendChild(node);
+                        resultNode = resultNode.appendChild(window.document.createElement("ul"));
+                        break;
 
-                        case this.TEST_CASE_COMPLETE_EVENT:
-                        case this.TEST_SUITE_COMPLETE_EVENT:
-                            resultNode.previousSibling.innerHTML += " (passed: " + event.results.passed + ", failed: " + event.results.failed + ", total: " + event.results.total + ", errors: " + event.results.errors +  ", ignored: " + event.results.ignored + ")";
-                            resultNode = resultNode.parentNode;
-                            break;
+                    case this.TEST_CASE_COMPLETE_EVENT:
+                    case this.TEST_SUITE_COMPLETE_EVENT:
+                        resultNode.previousSibling.innerHTML += " (passed: " + event.results.passed + ", failed: " + event.results.failed + ", total: " + event.results.total + ", errors: " + event.results.errors + ", ignored: " + event.results.ignored + ")";
+                        resultNode = resultNode.parentNode;
+                        break;
 
-                        case this.TEST_CASE_BEGIN_EVENT:
-                            node = window.document.createElement("li");
-                            node.innerHTML = event.testCase.name;
-                            resultNode.appendChild(node);
-                            resultNode = resultNode.appendChild(window.document.createElement("ul"));
-                            break;
+                    case this.TEST_CASE_BEGIN_EVENT:
+                        node = window.document.createElement("li");
+                        node.innerHTML = event.testCase.name;
+                        resultNode.appendChild(node);
+                        resultNode = resultNode.appendChild(window.document.createElement("ul"));
+                        break;
 
-                    }
+                }
 
             });
         }
 
         runButton.onclick = function() {
-            //reset the interface
+            // reset the interface
             resultsList.innerHTML = "";
             resultNode = resultsList;
 
