@@ -7,9 +7,16 @@ node_js:
   - "4"
   - "5"
 
+before_install:
+  - if [ "$TRAVIS_NODE_VERSION" = "0.10" ]; then npm install -g npm@2; fi
+
 install:
   - npm install -g grunt-cli
   - npm install
 
 matrix:
   fast_finish: true
+
+cache:
+  directories:
+    - node_modules
