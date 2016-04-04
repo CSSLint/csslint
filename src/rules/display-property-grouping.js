@@ -8,14 +8,14 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "display-property-grouping",
     name: "Require properties appropriate for display",
     desc: "Certain properties shouldn't be used with certain display property values.",
     url: "https://github.com/CSSLint/csslint/wiki/Require-properties-appropriate-for-display",
     browsers: "All",
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var rule = this;
@@ -58,7 +58,7 @@ CSSLint.addRule({
                 switch (display) {
 
                     case "inline":
-                        //height, width, margin-top, margin-bottom, float should not be used with inline
+                        // height, width, margin-top, margin-bottom, float should not be used with inline
                         reportProperty("height", display);
                         reportProperty("width", display);
                         reportProperty("margin", display);
@@ -68,17 +68,17 @@ CSSLint.addRule({
                         break;
 
                     case "block":
-                        //vertical-align should not be used with block
+                        // vertical-align should not be used with block
                         reportProperty("vertical-align", display);
                         break;
 
                     case "inline-block":
-                        //float should not be used with inline-block
+                        // float should not be used with inline-block
                         reportProperty("float", display);
                         break;
 
                     default:
-                        //margin, float should not be used with table
+                        // margin, float should not be used with table
                         if (display.indexOf("table-") === 0) {
                             reportProperty("margin", display);
                             reportProperty("margin-left", display);
@@ -88,7 +88,7 @@ CSSLint.addRule({
                             reportProperty("float", display);
                         }
 
-                        //otherwise do nothing
+                        // otherwise do nothing
                 }
             }
 

@@ -4,27 +4,27 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "font-sizes",
     name: "Disallow too many font sizes",
     desc: "Checks the number of font-size declarations.",
     url: "https://github.com/CSSLint/csslint/wiki/Don%27t-use-too-many-font-size-declarations",
     browsers: "All",
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var rule = this,
             count = 0;
 
-        //check for use of "font-size"
+        // check for use of "font-size"
         parser.addListener("property", function(event) {
             if (event.property.toString() === "font-size") {
                 count++;
             }
         });
 
-        //report the results
+        // report the results
         parser.addListener("endstylesheet", function() {
             reporter.stat("font-sizes", count);
             if (count >= 10) {

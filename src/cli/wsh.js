@@ -2,7 +2,7 @@
  * Windows Script Host Command Line Interface
  */
 
-//TODO: This file needs major cleanup!!!
+// TODO: This file needs major cleanup!!!
 
 /* jshint wsh:true */
 /* global cli */
@@ -23,7 +23,7 @@ var wshapi = (function() {
 
     if (typeof Object.create !== "function") {
         Object.create = function(proto) {
-            var Foo = function(){};
+            var Foo = function() {};
             Foo.prototype = proto;
             return new Foo();
         };
@@ -94,10 +94,10 @@ var wshapi = (function() {
         };
     }
 
-    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
     if (!Array.prototype.map)
     {
-        Array.prototype.map = function(fun /*, thisArg */ ) {
+        Array.prototype.map = function(fun /*, thisArg */) {
 
             if (this === void 0 || this === null) {
                 throw new TypeError();

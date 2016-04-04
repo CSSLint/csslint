@@ -4,13 +4,13 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "selector-max",
     name: "Error when past the 4095 selector limit for IE",
     desc: "Will error when selector count is > 4095.",
     browsers: "IE",
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var rule = this, count = 0;
@@ -21,7 +21,7 @@ CSSLint.addRule({
 
         parser.addListener("endstylesheet", function() {
             if (count > 4095) {
-                reporter.report("You have " + count + " selectors. Internet Explorer supports a maximum of 4095 selectors per stylesheet. Consider refactoring.",0,0,rule);
+                reporter.report("You have " + count + " selectors. Internet Explorer supports a maximum of 4095 selectors per stylesheet. Consider refactoring.", 0, 0, rule);
             }
         });
     }

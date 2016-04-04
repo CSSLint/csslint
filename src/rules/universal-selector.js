@@ -4,14 +4,14 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "universal-selector",
     name: "Disallow universal selector",
     desc: "The universal selector (*) is known to be slow.",
     url: "https://github.com/CSSLint/csslint/wiki/Disallow-universal-selector",
     browsers: "All",
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var rule = this;

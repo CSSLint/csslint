@@ -1,5 +1,5 @@
 CSSLint.addFormatter({
-    //format information
+    // format information
     id: "compact",
     name: "Compact, 'porcelain' format",
 

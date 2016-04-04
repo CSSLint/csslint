@@ -4,14 +4,14 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "unqualified-attributes",
     name: "Disallow unqualified attribute selectors",
     desc: "Unqualified attribute selectors are known to be slow.",
     url: "https://github.com/CSSLint/csslint/wiki/Disallow-unqualified-attribute-selectors",
     browsers: "All",
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
 
@@ -35,8 +35,8 @@ CSSLint.addRule({
                         modifier = part.modifiers[k];
 
                         if (modifier.type === "class" || modifier.type === "id") {
-                          selectorContainsClassOrId = true;
-                          break;
+                            selectorContainsClassOrId = true;
+                            break;
                         }
                     }
 

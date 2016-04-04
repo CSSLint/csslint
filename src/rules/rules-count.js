@@ -4,18 +4,18 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "rules-count",
     name: "Rules Count",
     desc: "Track how many rules there are.",
     browsers: "All",
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var count = 0;
 
-        //count each rule
+        // count each rule
         parser.addListener("startrule", function() {
             count++;
         });

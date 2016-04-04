@@ -4,7 +4,7 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "box-sizing",
     name: "Disallow use of box-sizing",
     desc: "The box-sizing properties isn't supported in IE6 and IE7.",
@@ -12,7 +12,7 @@ CSSLint.addRule({
     browsers: "IE6, IE7",
     tags: ["Compatibility"],
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var rule = this;

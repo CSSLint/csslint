@@ -48,7 +48,7 @@ function Reporter(lines, ruleset, allow, ignore) {
      * @type Object
      */
     this.allow = allow;
-    if(!this.allow) {
+    if (!this.allow) {
         this.allow = {};
     }
 
@@ -58,14 +58,14 @@ function Reporter(lines, ruleset, allow, ignore) {
      * @type [][]
      */
     this.ignore = ignore;
-    if(!this.ignore) {
+    if (!this.ignore) {
         this.ignore = [];
     }
 }
 
 Reporter.prototype = {
 
-    //restore constructor
+    // restore constructor
     constructor: Reporter,
 
     /**
@@ -120,11 +120,11 @@ Reporter.prototype = {
 
         var ignore = false;
         CSSLint.Util.forEach(this.ignore, function (range) {
-            if(range[0] <= line && line <= range[1]) {
+            if (range[0] <= line && line <= range[1]) {
                 ignore = true;
             }
         });
-        if(ignore) {
+        if (ignore) {
             return;
         }
 
@@ -202,5 +202,5 @@ Reporter.prototype = {
     }
 };
 
-//expose for testing purposes
+// expose for testing purposes
 CSSLint._Reporter = Reporter;

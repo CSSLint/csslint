@@ -5,7 +5,7 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "outline-none",
     name: "Disallow outline: none",
     desc: "Use of outline: none or outline: 0 should be limited to :focus rules.",
@@ -13,7 +13,7 @@ CSSLint.addRule({
     browsers: "All",
     tags: ["Accessibility"],
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var rule = this,

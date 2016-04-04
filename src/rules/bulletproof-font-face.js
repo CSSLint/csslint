@@ -5,20 +5,20 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "bulletproof-font-face",
     name: "Use the bulletproof @font-face syntax",
     desc: "Use the bulletproof @font-face syntax to avoid 404's in old IE (http://www.fontspring.com/blog/the-new-bulletproof-font-face-syntax).",
     url: "https://github.com/CSSLint/csslint/wiki/Bulletproof-font-face",
     browsers: "All",
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var rule = this,
             fontFaceRule = false,
-            firstSrc     = true,
-            ruleFailed    = false,
+            firstSrc = true,
+            ruleFailed = false,
             line, col;
 
         // Mark the start of a @font-face declaration so we only test properties inside it
@@ -33,11 +33,11 @@ CSSLint.addRule({
             }
 
             var propertyName = event.property.toString().toLowerCase(),
-                value        = event.value.toString();
+                value = event.value.toString();
 
             // Set the line and col numbers for use in the endfontface listener
             line = event.line;
-            col  = event.col;
+            col = event.col;
 
             // This is the property that we care about, we can ignore the rest
             if (propertyName === "src") {

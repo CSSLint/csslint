@@ -1,7 +1,7 @@
 /* jshint evil:true, node:true */
 "use strict";
 
-module.exports = function( grunt ) {
+module.exports = function(grunt) {
     grunt.registerMultiTask("yuitest", "Run the YUITests for the project", function() {
 
         var YUITest = require("yuitest");
@@ -18,18 +18,18 @@ module.exports = function( grunt ) {
         });
 
         // From YUITest Node CLI with minor colourization changes
-        function handleEvent(event){
+        function handleEvent(event) {
 
             var message = "",
                 results = event.results,
                 i, len, gruntFailMessage;
 
-            switch(event.type){
+            switch (event.type) {
                 case TestRunner.BEGIN_EVENT:
                     grunt.verbose.subhead("YUITest for Node.js");
 
-                    if (TestRunner._groups){
-                        grunt.verbose.writeln("Filtering on groups '" + TestRunner._groups.slice(1,-1) + "'");
+                    if (TestRunner._groups) {
+                        grunt.verbose.writeln("Filtering on groups '" + TestRunner._groups.slice(1, -1) + "'");
                     }
                     break;
 
@@ -39,10 +39,10 @@ module.exports = function( grunt ) {
                         ("Skipped: " + results.ignored).yellow +
                         ", Time: " + (results.duration/1000) + " seconds\n");
 
-                    if (failures.length){
+                    if (failures.length) {
                         grunt.log.writeln("Tests failed:");
 
-                        for (i=0,len=failures.length; i < len; i++){
+                        for (i=0, len=failures.length; i < len; i++) {
                             gruntFailMessage += failures[i].name + "\n" + failures[i].error;
                         }
                         grunt.fail.warn(gruntFailMessage);
@@ -86,12 +86,12 @@ module.exports = function( grunt ) {
                     stack.push(event.testCase.name);
                     break;
 
-                //no default
+                // no default
             }
 
             grunt.log.write(message);
         }
-        //Add event listeners
+        // Add event listeners
         TestRunner.subscribe(TestRunner.BEGIN_EVENT, handleEvent);
         TestRunner.subscribe(TestRunner.TEST_FAIL_EVENT, handleEvent);
         TestRunner.subscribe(TestRunner.TEST_PASS_EVENT, handleEvent);

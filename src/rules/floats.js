@@ -5,20 +5,20 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "floats",
     name: "Disallow too many floats",
     desc: "This rule tests if the float property is used too many times",
     url: "https://github.com/CSSLint/csslint/wiki/Disallow-too-many-floats",
     browsers: "All",
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var rule = this;
         var count = 0;
 
-        //count how many times "float" is used
+        // count how many times "float" is used
         parser.addListener("property", function(event) {
             if (event.property.text.toLowerCase() === "float" &&
                     event.value.text.toLowerCase() !== "none") {
@@ -26,7 +26,7 @@ CSSLint.addRule({
             }
         });
 
-        //report the results
+        // report the results
         parser.addListener("endstylesheet", function() {
             reporter.stat("floats", count);
             if (count >= 10) {

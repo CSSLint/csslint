@@ -4,7 +4,7 @@
 
 /* global self, JSON */
 
-//message indicates to start linting
+// message indicates to start linting
 self.onmessage = function(event) {
     "use strict";
     var data = event.data,
@@ -23,6 +23,6 @@ self.onmessage = function(event) {
 
     results = CSSLint.verify(text, ruleset);
 
-    //Not all browsers support structured clone, so JSON stringify results
+    // Not all browsers support structured clone, so JSON stringify results
     self.postMessage(JSON.stringify(results));
 };

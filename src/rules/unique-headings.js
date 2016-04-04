@@ -4,26 +4,26 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "unique-headings",
     name: "Headings should only be defined once",
     desc: "Headings should be defined only once.",
     url: "https://github.com/CSSLint/csslint/wiki/Headings-should-only-be-defined-once",
     browsers: "All",
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var rule = this;
 
         var headings = {
-                h1: 0,
-                h2: 0,
-                h3: 0,
-                h4: 0,
-                h5: 0,
-                h6: 0
-            };
+            h1: 0,
+            h2: 0,
+            h3: 0,
+            h4: 0,
+            h5: 0,
+            h6: 0
+        };
 
         parser.addListener("startrule", function(event) {
             var selectors = event.selectors,

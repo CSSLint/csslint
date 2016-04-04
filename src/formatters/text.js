@@ -1,5 +1,5 @@
 CSSLint.addFormatter({
-    //format information
+    // format information
     id: "text",
     name: "Plain Text",
 
@@ -42,7 +42,7 @@ CSSLint.addFormatter({
         if (messages.length === 1) {
             output += "is 1 problem";
         } else {
-            output += "are " + messages.length  +  " problems";
+            output += "are " + messages.length + " problems";
         }
         output += " in " + filename + ".";
 

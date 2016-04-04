@@ -1,7 +1,7 @@
 /* globals JSON: true */
 
 CSSLint.addFormatter({
-    //format information
+    // format information
     id: "json",
     name: "JSON",
 

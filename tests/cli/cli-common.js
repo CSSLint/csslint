@@ -52,10 +52,10 @@ function include(path, sandbox) {
                             exp = expecting[i];
                             out = outcome[i];
 
-                            if ( typeof out === "string") {
+                            if (typeof out === "string") {
                                 out = /^.*/.exec(out.trim())[0];
                             }
-                            if ( exp !== out ) {
+                            if (exp !== out) {
                                 Assert.fail("Expecting: " + exp + " Got: " + out);
                             }
                         }

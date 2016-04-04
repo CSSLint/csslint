@@ -1,4 +1,4 @@
-(function(){
+(function() {
     "use strict";
     var Assert = YUITest.Assert;
 
@@ -12,7 +12,7 @@
             var formatter = CSSLint.getFormatter("json");
             var actual = formatter.startFormat() +
                 formatter.formatResults(result, "path/to/FILE",
-                    {fullPath: "/absolute/path/to/FILE"}) +
+                    { fullPath: "/absolute/path/to/FILE" }) +
                 formatter.endFormat();
             Assert.areEqual(expected, actual);
         },
@@ -22,7 +22,7 @@
             var formatter = CSSLint.getFormatter("json");
             var actual = formatter.startFormat() +
                 formatter.formatResults(result, "path/to/FILE",
-                    {fullPath: "/absolute/path/to/FILE", quiet: "true"}) +
+                    { fullPath: "/absolute/path/to/FILE", quiet: "true" }) +
                 formatter.endFormat();
             Assert.areEqual("", actual);
         },
@@ -34,7 +34,7 @@
             var formatter = CSSLint.getFormatter("json");
             var actual = formatter.startFormat() +
                 formatter.formatResults(result, "path/to/FILE",
-                    {fullPath: "/absolute/path/to/FILE", quiet: "true"}) +
+                    { fullPath: "/absolute/path/to/FILE", quiet: "true" }) +
                 formatter.endFormat();
             Assert.areEqual(expected, actual);
         },
@@ -44,11 +44,11 @@
                 { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] },
                 { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] }
             ], stats: [] };
-            var  expected = "{\"filename\":\"path/to/FILE\",\"messages\":[{\"type\":\"warning\",\"line\":1,\"col\":1,\"message\":\"BOGUS\",\"evidence\":\"ALSO BOGUS\",\"rule\":[]},{\"type\":\"error\",\"line\":2,\"col\":1,\"message\":\"BOGUS\",\"evidence\":\"ALSO BOGUS\",\"rule\":[]}],\"stats\":[]}";
+            var expected = "{\"filename\":\"path/to/FILE\",\"messages\":[{\"type\":\"warning\",\"line\":1,\"col\":1,\"message\":\"BOGUS\",\"evidence\":\"ALSO BOGUS\",\"rule\":[]},{\"type\":\"error\",\"line\":2,\"col\":1,\"message\":\"BOGUS\",\"evidence\":\"ALSO BOGUS\",\"rule\":[]}],\"stats\":[]}";
             var formatter = CSSLint.getFormatter("json");
             var actual = formatter.startFormat() +
                 formatter.formatResults(result, "path/to/FILE",
-                    {fullPath: "/absolute/path/to/FILE"}) +
+                    { fullPath: "/absolute/path/to/FILE" }) +
                 formatter.endFormat();
             Assert.areEqual(expected, actual);
         },
@@ -60,9 +60,9 @@
             var formatter = CSSLint.getFormatter("json");
             var actual = formatter.startFormat() +
                 formatter.formatResults(result, "path/to/FILE",
-                    {fullPath: "/absolute/path/to/FILE"}) +
+                    { fullPath: "/absolute/path/to/FILE" }) +
                 formatter.formatResults(result, "path/to/FILE",
-                    {fullPath: "/absolute/path/to/FILE"}) +
+                    { fullPath: "/absolute/path/to/FILE" }) +
                 formatter.endFormat();
             Assert.areEqual(expected, actual);
         }

@@ -1,5 +1,5 @@
 CSSLint.addFormatter({
-    //format information
+    // format information
     id: "junit-xml",
     name: "JUNIT XML format",
 
@@ -81,13 +81,13 @@ CSSLint.addFormatter({
                 // all issues as errors
                 var type = message.type === "warning" ? "error" : message.type;
 
-                //ignore rollups for now
+                // ignore rollups for now
                 if (!message.rollup) {
 
                     // build the test case separately, once joined
                     // we'll add it to a custom array filtered by type
                     output.push("<testcase time=\"0\" name=\"" + generateSource(message.rule) + "\">");
-                    output.push("<" + type + " message=\"" + escapeSpecialCharacters(message.message) + "\"><![CDATA[" + message.line + ":" + message.col + ":" + escapeSpecialCharacters(message.evidence)  + "]]></" + type + ">");
+                    output.push("<" + type + " message=\"" + escapeSpecialCharacters(message.message) + "\"><![CDATA[" + message.line + ":" + message.col + ":" + escapeSpecialCharacters(message.evidence) + "]]></" + type + ">");
                     output.push("</testcase>");
 
                     tests[type] += 1;

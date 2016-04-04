@@ -4,13 +4,13 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "errors",
     name: "Parsing Errors",
     desc: "This rule looks for recoverable syntax errors.",
     browsers: "All",
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var rule = this;

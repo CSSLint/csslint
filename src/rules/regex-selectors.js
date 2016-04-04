@@ -4,14 +4,14 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "regex-selectors",
     name: "Disallow selectors that look like regexs",
     desc: "Selectors that look like regular expressions are slow and should be avoided.",
     url: "https://github.com/CSSLint/csslint/wiki/Disallow-selectors-that-look-like-regular-expressions",
     browsers: "All",
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var rule = this;

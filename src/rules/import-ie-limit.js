@@ -6,26 +6,26 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "import-ie-limit",
     name: "@import limit on IE6-IE9",
     desc: "IE6-9 supports up to 31 @import per stylesheet",
     browsers: "IE6, IE7, IE8, IE9",
 
-    //initialization
-    init: function(parser, reporter){
+    // initialization
+    init: function(parser, reporter) {
         "use strict";
         var rule = this,
             MAX_IMPORT_COUNT = 31,
             count = 0;
 
-        function startPage(){
+        function startPage() {
             count = 0;
         }
 
         parser.addListener("startpage", startPage);
 
-        parser.addListener("import", function(){
+        parser.addListener("import", function() {
             count++;
         });
 

@@ -4,14 +4,14 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "qualified-headings",
     name: "Disallow qualified headings",
     desc: "Headings should not be qualified (namespaced).",
     url: "https://github.com/CSSLint/csslint/wiki/Disallow-qualified-headings",
     browsers: "All",
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var rule = this;

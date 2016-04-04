@@ -4,14 +4,14 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "overqualified-elements",
     name: "Disallow overqualified elements",
     desc: "Don't use classes or IDs with elements (a.foo or a#foo).",
     url: "https://github.com/CSSLint/csslint/wiki/Disallow-overqualified-elements",
     browsers: "All",
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var rule = this,
@@ -53,7 +53,7 @@ CSSLint.addRule({
             for (prop in classes) {
                 if (classes.hasOwnProperty(prop)) {
 
-                    //one use means that this is overqualified
+                    // one use means that this is overqualified
                     if (classes[prop].length === 1 && classes[prop][0].part.elementName) {
                         reporter.report("Element (" + classes[prop][0].part + ") is overqualified, just use " + classes[prop][0].modifier + " without element name.", classes[prop][0].part.line, classes[prop][0].part.col, rule);
                     }

@@ -1,16 +1,16 @@
 /*
- * Rule: All properties should be in alphabetical order..
+ * Rule: All properties should be in alphabetical order.
  */
-/*global CSSLint*/
+
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "order-alphabetical",
     name: "Alphabetical order",
     desc: "Assure properties are in alphabetical order",
     browsers: "All",
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var rule = this,
@@ -27,7 +27,7 @@ CSSLint.addRule({
             if (currentProperties !== expectedProperties) {
                 reporter.report("Rule doesn't have all its properties in alphabetical ordered.", event.line, event.col, rule);
             }
-          };
+        };
 
         parser.addListener("startrule", startRule);
         parser.addListener("startfontface", startRule);

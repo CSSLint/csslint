@@ -5,14 +5,14 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "shorthand",
     name: "Require shorthand properties",
     desc: "Use shorthand properties where possible.",
     url: "https://github.com/CSSLint/csslint/wiki/Require-shorthand-properties",
     browsers: "All",
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var rule = this,
@@ -34,7 +34,7 @@ CSSLint.addRule({
                 ]
             };
 
-        //initialize propertiesToCheck
+        // initialize propertiesToCheck
         for (prop in mapping) {
             if (mapping.hasOwnProperty(prop)) {
                 for (i=0, len=mapping[prop].length; i < len; i++) {
@@ -47,12 +47,12 @@ CSSLint.addRule({
             properties = {};
         }
 
-        //event handler for end of rules
+        // event handler for end of rules
         function endRule(event) {
 
             var prop, i, len, total;
 
-            //check which properties this rule has
+            // check which properties this rule has
             for (prop in mapping) {
                 if (mapping.hasOwnProperty(prop)) {
                     total=0;
@@ -71,7 +71,7 @@ CSSLint.addRule({
         parser.addListener("startrule", startRule);
         parser.addListener("startfontface", startRule);
 
-        //check for use of "font-size"
+        // check for use of "font-size"
         parser.addListener("property", function(event) {
             var name = event.property.toString().toLowerCase();
 

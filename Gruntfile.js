@@ -34,18 +34,18 @@ module.exports = function(grunt) {
                 "THE SOFTWARE.\n\n" +
                 "*/\n",
         build_dir: "dist",
-        //Parser lib copy for versions that can't use requirejs
+        // Parser lib copy for versions that can't use requirejs
         parserlib: "node_modules/parserlib/lib/node-parserlib.js",
-        //clone copy for versions that can't use requirejs
+        // clone copy for versions that can't use requirejs
         clone: "node_modules/clone/clone.js",
-        //Core CSSLint files used by most versions
+        // Core CSSLint files used by most versions
         csslint_files: [
             "src/core/CSSLint.js",
             "src/core/*.js",
             "src/rules/*.js",
             "src/formatters/*.js"
         ],
-        //Core fileset used by most versions
+        // Core fileset used by most versions
         core_files: [
             "<%= parserlib %>",
             "<%= clone %>",
@@ -75,7 +75,7 @@ module.exports = function(grunt) {
                     "<%= core_files %>"
                 ],
                 dest: "<%= build_dir %>/csslint.js"
-            },//Build environment workers
+            }, // Build environment workers
             rhino: {
                 src: [
                     "<%= concat.core.dest %>",
@@ -91,8 +91,8 @@ module.exports = function(grunt) {
                             "var parserlib = require('parserlib');\n",
                     footer: "\nexports.CSSLint = CSSLint;"
                 },
-               src: "<%= csslint_files %>",
-               dest: "<%= build_dir %>/csslint-node.js"
+                src: "<%= csslint_files %>",
+                dest: "<%= build_dir %>/csslint-node.js"
             },
             node_cli: {
                 options: {
@@ -114,7 +114,7 @@ module.exports = function(grunt) {
             worker: {
                 options: {
                     banner: "<%= banner %>" +
-                            //Hack for using the node version of parserlib
+                            // Hack for using the node version of parserlib
                             "var exports = exports || {};\n"
                 },
                 src: [
@@ -207,7 +207,7 @@ module.exports = function(grunt) {
     });
 
     // Load any grunt plugins found in package.json.
-    require("load-grunt-tasks")(grunt, {scope: "devDependencies"});
+    require("load-grunt-tasks")(grunt, { scope: "devDependencies" });
     require("time-grunt")(grunt);
 
     // Load custom tasks

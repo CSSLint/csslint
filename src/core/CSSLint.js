@@ -62,7 +62,7 @@ var CSSLint = (function() {
             len = rules.length;
 
         while (i < len) {
-            ruleset[rules[i++].id] = 1;    //by default, everything is a warning
+            ruleset[rules[i++].id] = 1;    // by default, everything is a warning
         }
 
         return ruleset;
@@ -193,7 +193,7 @@ var CSSLint = (function() {
                 allowRuleset = {};
 
             if (allowRules) {
-                allowRules.toLowerCase().split(",").forEach(function(allowRule){
+                allowRules.toLowerCase().split(",").forEach(function(allowRule) {
                     allowRuleset[allowRule.trim()] = true;
                 });
                 if (Object.keys(allowRuleset).length > 0) {
@@ -206,22 +206,22 @@ var CSSLint = (function() {
             ignoreEnd = null;
         CSSLint.Util.forEach(lines, function (line, lineno) {
             // Keep oldest, "unclosest" ignore:start
-            if(null === ignoreStart && line.match(/\/\*[ \t]*csslint[ \t]+ignore:start[ \t]*\*\//i)) {
+            if (null === ignoreStart && line.match(/\/\*[ \t]*csslint[ \t]+ignore:start[ \t]*\*\//i)) {
                 ignoreStart = lineno;
             }
 
-            if(line.match(/\/\*[ \t]*csslint[ \t]+ignore:end[ \t]*\*\//i)) {
+            if (line.match(/\/\*[ \t]*csslint[ \t]+ignore:end[ \t]*\*\//i)) {
                 ignoreEnd = lineno;
             }
 
-            if(null !== ignoreStart && null !== ignoreEnd) {
+            if (null !== ignoreStart && null !== ignoreEnd) {
                 ignore.push([ignoreStart, ignoreEnd]);
                 ignoreStart = ignoreEnd = null;
             }
         });
 
         // Close remaining ignore block, if any
-        if(null !== ignoreStart) {
+        if (null !== ignoreStart) {
             ignore.push([ignoreStart, lines.length]);
         }
 
@@ -230,14 +230,14 @@ var CSSLint = (function() {
         }
 
         if (embeddedRuleset.test(text)) {
-            //defensively copy so that caller's version does not get modified
+            // defensively copy so that caller's version does not get modified
             ruleset = clone(ruleset);
             ruleset = applyEmbeddedRuleset(text, ruleset);
         }
 
         reporter = new Reporter(lines, ruleset, allow, ignore);
 
-        ruleset.errors = 2;       //always report parsing errors as errors
+        ruleset.errors = 2;       // always report parsing errors as errors
         for (i in ruleset) {
             if (ruleset.hasOwnProperty(i) && ruleset[i]) {
                 if (rules[i]) {
@@ -247,7 +247,7 @@ var CSSLint = (function() {
         }
 
 
-        //capture most horrible error type
+        // capture most horrible error type
         try {
             parser.parse(text);
         } catch (ex) {
@@ -262,7 +262,7 @@ var CSSLint = (function() {
             ignore      : reporter.ignore
         };
 
-        //sort by line numbers, rollups at the bottom
+        // sort by line numbers, rollups at the bottom
         report.messages.sort(function (a, b) {
             if (a.rollup && !b.rollup) {
                 return 1;

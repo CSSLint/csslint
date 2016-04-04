@@ -3,14 +3,14 @@
  */
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "box-model",
     name: "Beware of broken box size",
     desc: "Don't use width or height when using padding or border.",
     url: "https://github.com/CSSLint/csslint/wiki/Beware-of-box-model-size",
     browsers: "All",
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var rule = this,
@@ -46,7 +46,7 @@ CSSLint.addRule({
                     for (prop in heightProperties) {
                         if (heightProperties.hasOwnProperty(prop) && properties[prop]) {
                             value = properties[prop].value;
-                            //special case for padding
+                            // special case for padding
                             if (!(prop === "padding" && value.parts.length === 2 && value.parts[0].value === 0)) {
                                 reporter.report("Using height with " + prop + " can sometimes make elements larger than you expect.", properties[prop].line, properties[prop].col, rule);
                             }

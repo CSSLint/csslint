@@ -5,14 +5,14 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "text-indent",
     name: "Disallow negative text-indent",
     desc: "Checks for text indent less than -99px",
     url: "https://github.com/CSSLint/csslint/wiki/Disallow-negative-text-indent",
     browsers: "All",
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var rule = this,
@@ -25,7 +25,7 @@ CSSLint.addRule({
             direction = "inherit";
         }
 
-        //event handler for end of rules
+        // event handler for end of rules
         function endRule() {
             if (textIndent && direction !== "ltr") {
                 reporter.report("Negative text-indent doesn't work well with RTL. If you use text-indent for image replacement explicitly set direction for that item to ltr.", textIndent.line, textIndent.col, rule);
@@ -35,7 +35,7 @@ CSSLint.addRule({
         parser.addListener("startrule", startRule);
         parser.addListener("startfontface", startRule);
 
-        //check for use of "font-size"
+        // check for use of "font-size"
         parser.addListener("property", function(event) {
             var name = event.property.toString().toLowerCase(),
                 value = event.value;

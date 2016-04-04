@@ -1,7 +1,7 @@
 /* jshint node:true */
 "use strict";
 
-module.exports = function( grunt ) {
+module.exports = function(grunt) {
     grunt.registerMultiTask("changelog", "Write the changelog file", function() {
         var done = this.async();
         var lastTag;
@@ -12,15 +12,15 @@ module.exports = function( grunt ) {
             cmd: "git",
             args: ["tag"]
         }, function(error, result) {
-            //Find the latest git tag
+            // Find the latest git tag
             var tags = result.stdout.split("\n"),
-                semver = tags[0].replace("v","").split("."),
+                semver = tags[0].replace("v", "").split("."),
                 major = parseInt(semver[0], 10),
                 minor = parseInt(semver[1], 10),
                 patch = parseInt(semver[2], 10);
 
-            //A simple array sort can't be used because of the comparison of
-            //the strings "0.9.9" > "0.9.10"
+            // A simple array sort can't be used because of the comparison of
+            // the strings "0.9.9" > "0.9.10"
             for (var i = 1, len = tags.length; i < len; i++) {
                 semver = tags[i].replace("v", "").split(".");
 

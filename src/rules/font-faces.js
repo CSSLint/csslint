@@ -4,14 +4,14 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "font-faces",
     name: "Don't use too many web fonts",
     desc: "Too many different web fonts in the same stylesheet.",
     url: "https://github.com/CSSLint/csslint/wiki/Don%27t-use-too-many-web-fonts",
     browsers: "All",
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var rule = this,

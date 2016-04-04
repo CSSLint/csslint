@@ -5,14 +5,14 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "vendor-prefix",
     name: "Require standard property with vendor prefix",
     desc: "When using a vendor-prefixed property, make sure to include the standard one.",
     url: "https://github.com/CSSLint/csslint/wiki/Require-standard-property-with-vendor-prefix",
     browsers: "All",
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var rule = this,
@@ -78,13 +78,13 @@ CSSLint.addRule({
                 "-webkit-box-sizing" : "box-sizing"
             };
 
-        //event handler for beginning of rules
+        // event handler for beginning of rules
         function startRule() {
             properties = {};
             num = 1;
         }
 
-        //event handler for end of rules
+        // event handler for end of rules
         function endRule() {
             var prop,
                 i,
@@ -95,7 +95,10 @@ CSSLint.addRule({
 
             for (prop in properties) {
                 if (propertiesToCheck[prop]) {
-                    needsStandard.push({ actual: prop, needed: propertiesToCheck[prop]});
+                    needsStandard.push({
+                        actual: prop,
+                        needed: propertiesToCheck[prop]
+                    });
                 }
             }
 
@@ -106,7 +109,7 @@ CSSLint.addRule({
                 if (!properties[needed]) {
                     reporter.report("Missing standard property '" + needed + "' to go along with '" + actual + "'.", properties[actual][0].name.line, properties[actual][0].name.col, rule);
                 } else {
-                    //make sure standard property is last
+                    // make sure standard property is last
                     if (properties[needed][0].pos < properties[actual][0].pos) {
                         reporter.report("Standard property '" + needed + "' should come after vendor-prefixed property '" + actual + "'.", properties[actual][0].name.line, properties[actual][0].name.col, rule);
                     }

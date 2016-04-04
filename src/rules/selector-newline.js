@@ -4,13 +4,13 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "selector-newline",
     name: "Disallow new-line characters in selectors",
     desc: "New-line characters in selectors are usually a forgotten comma and not a descendant combinator.",
     browsers: "All",
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var rule = this;

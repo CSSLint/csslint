@@ -4,19 +4,19 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "zero-units",
     name: "Disallow units for 0 values",
     desc: "You don't need to specify units when a value is 0.",
     url: "https://github.com/CSSLint/csslint/wiki/Disallow-units-for-zero-values",
     browsers: "All",
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var rule = this;
 
-        //count how many times "float" is used
+        // count how many times "float" is used
         parser.addListener("property", function(event) {
             var parts = event.value.parts,
                 i = 0,

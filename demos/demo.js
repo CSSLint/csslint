@@ -1,4 +1,5 @@
 /* jshint browser:true */
+
 (function() {
     "use strict";
 
@@ -20,7 +21,7 @@
                 document.getElementById("output").innerHTML = "";
                 results = CSSLint.verify(document.getElementById("input").value);
                 messages = results.messages;
-                for (i=0, len=messages.length; i < len; i++) {
+                for (i = 0, len = messages.length; i < len; i++) {
                     log(messages[i].message + " (line " + messages[i].line + ", col " + messages[i].col + ")", messages[i].type);
                 }
 

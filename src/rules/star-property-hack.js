@@ -5,19 +5,19 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "star-property-hack",
     name: "Disallow properties with a star prefix",
     desc: "Checks for the star property hack (targets IE6/7)",
     url: "https://github.com/CSSLint/csslint/wiki/Disallow-star-hack",
     browsers: "All",
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var rule = this;
 
-        //check if property name starts with "*"
+        // check if property name starts with "*"
         parser.addListener("property", function(event) {
             var property = event.property;
 

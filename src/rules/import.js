@@ -4,14 +4,14 @@
 
 CSSLint.addRule({
 
-    //rule information
+    // rule information
     id: "import",
     name: "Disallow @import",
     desc: "Don't use @import, use <link> instead.",
     url: "https://github.com/CSSLint/csslint/wiki/Disallow-%40import",
     browsers: "All",
 
-    //initialization
+    // initialization
     init: function(parser, reporter) {
         "use strict";
         var rule = this;

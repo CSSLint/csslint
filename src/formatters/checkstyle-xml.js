@@ -33,7 +33,7 @@
     };
 
     CSSLint.addFormatter({
-        //format information
+        // format information
         id: "checkstyle-xml",
         name: "Checkstyle XML format",
 
@@ -93,7 +93,7 @@
             if (messages.length > 0) {
                 output.push("<file name=\""+filename+"\">");
                 CSSLint.Util.forEach(messages, function (message) {
-                    //ignore rollups for now
+                    // ignore rollups for now
                     if (!message.rollup) {
                         output.push("<error line=\"" + message.line + "\" column=\"" + message.col + "\" severity=\"" + message.type + "\"" +
                           " message=\"" + xmlEscape(message.message) + "\" source=\"" + generateSource(message.rule) +"\"/>");

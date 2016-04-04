@@ -1,7 +1,7 @@
 /* jshint node:true */
 "use strict";
 
-module.exports = function( grunt ) {
+module.exports = function(grunt) {
     // Run test suite through rhino
     grunt.registerMultiTask("test_rhino", "Run the test suite through rhino", function() {
         var done = this.async();
@@ -12,7 +12,7 @@ module.exports = function( grunt ) {
             grunt.util.spawn({
                 cmd: "java",
                 args: ["-jar", "lib/js.jar", "lib/yuitest-rhino-cli.js", "dist/csslint.js", filepath],
-                opts: {stdio: "inherit"}
+                opts: { stdio: "inherit" }
             }, function() {
                 progress--;
                 if (progress === 0) {

@@ -1,5 +1,5 @@
 CSSLint.addFormatter({
-    //format information
+    // format information
     id: "csslint-xml",
     name: "CSSLint XML format",
 
