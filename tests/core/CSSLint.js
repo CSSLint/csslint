@@ -7,12 +7,12 @@
         name: "CSSLint object tests",
 
         "Adjoining classes should not cause an error": function() {
-            var result = CSSLint.verify(".foo.bar{}", { });
+            var result = CSSLint.verify(".foo.bar{}", {});
             Assert.areEqual(0, result.messages.length);
         },
 
         "@media (max-width:400px) should not cause an error": function() {
-            var result = CSSLint.verify("@media (max-width:400px) {}", { });
+            var result = CSSLint.verify("@media (max-width:400px) {}", {});
             Assert.areEqual(0, result.messages.length);
         },
 
@@ -39,7 +39,7 @@
             Assert.areEqual(1, ruleset["box-sizing"]);
         },
 
-        "Embedded rulesets should accept whitespace between /* and 'csslint'": function () {
+        "Embedded rulesets should accept whitespace between /* and 'csslint'": function() {
             var result = CSSLint.verify("/*     csslint bogus, adjoining-classes:true, box-sizing:false */\n.foo.bar{}", {
                 "text-indent": 1,
                 "box-sizing": 1

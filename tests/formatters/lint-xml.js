@@ -7,16 +7,33 @@
         name: "Lint XML formatter test",
 
         "File with no problems should say so": function() {
-            var result = { messages: [], stats: [] },
+            var result = {
+                    messages: [],
+                    stats: []
+                },
                 expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><lint></lint>";
             Assert.areEqual(expected, CSSLint.format(result, "FILE", "lint-xml"));
         },
 
         "File with problems should list them": function() {
-            var result = { messages: [
-                { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] },
-                { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] }
-            ], stats: [] },
+            var result = {
+                    messages: [{
+                        type: "warning",
+                        line: 1,
+                        col: 1,
+                        message: "BOGUS",
+                        evidence: "ALSO BOGUS",
+                        rule: []
+                    }, {
+                        type: "error",
+                        line: 2,
+                        col: 1,
+                        message: "BOGUS",
+                        evidence: "ALSO BOGUS",
+                        rule: []
+                    }],
+                    stats: []
+                },
                 file = "<file name=\"FILE\">",
                 error1 = "<issue line=\"1\" char=\"1\" severity=\"warning\" reason=\"BOGUS\" evidence=\"ALSO BOGUS\"/>",
                 error2 = "<issue line=\"2\" char=\"1\" severity=\"error\" reason=\"BOGUS\" evidence=\"ALSO BOGUS\"/>",
@@ -27,10 +44,24 @@
 
         "Formatter should escape double quotes": function() {
             var doubleQuotedEvidence = "sneaky, \"sneaky\", <sneaky>, sneak & sneaky",
-                result = { messages: [
-                { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] },
-                { type: "error", line: 2, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] }
-            ], stats: [] },
+                result = {
+                    messages: [{
+                        type: "warning",
+                        line: 1,
+                        col: 1,
+                        message: "BOGUS",
+                        evidence: doubleQuotedEvidence,
+                        rule: []
+                    }, {
+                        type: "error",
+                        line: 2,
+                        col: 1,
+                        message: "BOGUS",
+                        evidence: doubleQuotedEvidence,
+                        rule: []
+                    }],
+                    stats: []
+                },
                 file = "<file name=\"FILE\">",
                 error1 = "<issue line=\"1\" char=\"1\" severity=\"warning\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky', &lt;sneaky&gt;, sneak &amp; sneaky\"/>",
                 error2 = "<issue line=\"2\" char=\"1\" severity=\"error\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky', &lt;sneaky&gt;, sneak &amp; sneaky\"/>",
@@ -40,21 +71,31 @@
         },
 
         "Messages should include rule IDs": function() {
-          var result = { messages: [
-            { type: "error", line: 1, col: 1, message: "X", evidence: "Y", rule: { id: "Z" } }
-          ], stats: [] };
+            var result = {
+                messages: [{
+                    type: "error",
+                    line: 1,
+                    col: 1,
+                    message: "X",
+                    evidence: "Y",
+                    rule: {
+                        id: "Z"
+                    }
+                }],
+                stats: []
+            };
 
-          var expected =
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
-            "<lint>" +
-              "<file name=\"FILE\">" +
+            var expected =
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+                "<lint>" +
+                "<file name=\"FILE\">" +
                 "<issue rule=\"Z\" line=\"1\" char=\"1\" severity=\"error\" reason=\"X\" evidence=\"Y\"/>" +
-              "</file>" +
-            "</lint>";
+                "</file>" +
+                "</lint>";
 
-          var actual = CSSLint.format(result, "FILE", "lint-xml");
+            var actual = CSSLint.format(result, "FILE", "lint-xml");
 
-          Assert.areEqual(expected, actual);
+            Assert.areEqual(expected, actual);
         }
 
     }));

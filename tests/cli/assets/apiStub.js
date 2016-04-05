@@ -1,18 +1,19 @@
 /* jshint node:true */
+
 "use strict";
 
 var stub = {
-    logbook: function (log) {
+    logbook: function(log) {
         this.logs.push(log);
     },
-    readLogs: function () {
+    readLogs: function() {
         return this.logs.slice();
     },
 
-    getFullPath: function (path) {
+    getFullPath: function(path) {
         return path;
     },
-    getFiles: function (dir) {
+    getFiles: function(dir) {
         var filesobj = this.fakedFs[dir],
             fileix,
             out = [];
@@ -23,7 +24,7 @@ var stub = {
         }
         return out;
     },
-    readFile: function (path) {
+    readFile: function(path) {
         var spath = path.split("/"),
             spathLen = spath.length,
             i,
@@ -35,19 +36,19 @@ var stub = {
 
         return out;
     },
-    isDirectory: function (checkit) {
+    isDirectory: function(checkit) {
         var result = this.fakedFs[checkit];
         return typeof result === "object";
     },
-    print: function (msg) {
+    print: function(msg) {
         this.logbook(msg);
     },
-    quit: function (signal) {
+    quit: function(signal) {
         this.logbook(signal);
     }
 };
 
-module.exports = function (setup) {
+module.exports = function(setup) {
     var api,
         setix;
 

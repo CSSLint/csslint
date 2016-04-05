@@ -1,18 +1,19 @@
 /* jshint node:true */
+
 "use strict";
 
 var stub = {
-    logbook: function (log) {
+    logbook: function(log) {
         this.logs.push(log);
     },
-    readLogs: function () {
+    readLogs: function() {
         return this.logs.slice();
     },
 
-    getFullPath: function (path) {
+    getFullPath: function(path) {
         return path;
     },
-    getFiles: function (dir) {
+    getFiles: function(dir) {
         var filesobj = this.fakedFs[dir],
             fileix,
             out = [];
@@ -23,7 +24,7 @@ var stub = {
         }
         return out;
     },
-    readFile: function (path) {
+    readFile: function(path) {
         var spath = path.split("/"),
             spathLen = spath.length,
             i,
@@ -35,19 +36,19 @@ var stub = {
 
         return out;
     },
-    isDirectory: function (checkit) {
+    isDirectory: function(checkit) {
         var result = this.fakedFs[checkit];
         return typeof result === "object";
     },
-    print: function (msg) {
+    print: function(msg) {
         this.logbook(msg);
     },
-    quit: function (signal) {
+    quit: function(signal) {
         this.logbook(signal);
     }
 };
 
-module.exports = function (setup) {
+module.exports = function(setup) {
     var api,
         setix;
 
@@ -204,12 +205,12 @@ function include(path, sandbox) {
         name: "CSSLint object tests",
 
         "Adjoining classes should not cause an error": function() {
-            var result = CSSLint.verify(".foo.bar{}", { });
+            var result = CSSLint.verify(".foo.bar{}", {});
             Assert.areEqual(0, result.messages.length);
         },
 
         "@media (max-width:400px) should not cause an error": function() {
-            var result = CSSLint.verify("@media (max-width:400px) {}", { });
+            var result = CSSLint.verify("@media (max-width:400px) {}", {});
             Assert.areEqual(0, result.messages.length);
         },
 
@@ -236,7 +237,7 @@ function include(path, sandbox) {
             Assert.areEqual(1, ruleset["box-sizing"]);
         },
 
-        "Embedded rulesets should accept whitespace between /* and 'csslint'": function () {
+        "Embedded rulesets should accept whitespace between /* and 'csslint'": function() {
             var result = CSSLint.verify("/*     csslint bogus, adjoining-classes:true, box-sizing:false */\n.foo.bar{}", {
                 "text-indent": 1,
                 "box-sizing": 1
@@ -310,57 +311,110 @@ function include(path, sandbox) {
         name: "Reporter Object Tests",
 
         "Report should cause a warning": function() {
-            var reporter = new CSSLint._Reporter([], { "fake-rule": 1 });
-            reporter.report("Foo", 1, 1, { id: "fake-rule" });
+            var reporter = new CSSLint._Reporter([], {
+                "fake-rule": 1
+            });
+            reporter.report("Foo", 1, 1, {
+                id: "fake-rule"
+            });
 
             Assert.areEqual(1, reporter.messages.length);
             Assert.areEqual("warning", reporter.messages[0].type);
         },
 
         "Report should cause an error": function() {
-            var reporter = new CSSLint._Reporter([], { "fake-rule": 2 });
-            reporter.report("Foo", 1, 1, { id: "fake-rule" });
+            var reporter = new CSSLint._Reporter([], {
+                "fake-rule": 2
+            });
+            reporter.report("Foo", 1, 1, {
+                id: "fake-rule"
+            });
 
             Assert.areEqual(1, reporter.messages.length);
             Assert.areEqual("error", reporter.messages[0].type);
         },
 
         "Calling error() should cause an error": function() {
-            var reporter = new CSSLint._Reporter([], { "fake-rule": 1 });
-            reporter.error("Foo", 1, 1, { id: "fake-rule" });
+            var reporter = new CSSLint._Reporter([], {
+                "fake-rule": 1
+            });
+            reporter.error("Foo", 1, 1, {
+                id: "fake-rule"
+            });
 
             Assert.areEqual(1, reporter.messages.length);
             Assert.areEqual("error", reporter.messages[0].type);
         },
 
         "Allow statement should drop message about specific rule on specific line but not other lines": function() {
-            var reporter = new CSSLint._Reporter([], { "fake-rule": 1 }, { "3": { "fake-rule": true } });
-            reporter.report("Foo", 2, 1, { id: "fake-rule" });
-            reporter.report("Bar", 3, 1, { id: "fake-rule" });
+            var reporter = new CSSLint._Reporter([], {
+                "fake-rule": 1
+            }, {
+                "3": {
+                    "fake-rule": true
+                }
+            });
+            reporter.report("Foo", 2, 1, {
+                id: "fake-rule"
+            });
+            reporter.report("Bar", 3, 1, {
+                id: "fake-rule"
+            });
 
             Assert.areEqual(1, reporter.messages.length);
         },
 
         "Allow statement should drop message about specific rule on specific line but not other rules": function() {
-            var reporter = new CSSLint._Reporter([], { "fake-rule": 1, "fake-rule2": 1 }, { "3": { "fake-rule": true } });
-            reporter.report("Foo", 3, 1, { id: "fake-rule" });
-            reporter.report("Bar", 3, 1, { id: "fake-rule2" });
+            var reporter = new CSSLint._Reporter([], {
+                "fake-rule": 1,
+                "fake-rule2": 1
+            }, {
+                "3": {
+                    "fake-rule": true
+                }
+            });
+            reporter.report("Foo", 3, 1, {
+                id: "fake-rule"
+            });
+            reporter.report("Bar", 3, 1, {
+                id: "fake-rule2"
+            });
 
             Assert.areEqual(1, reporter.messages.length);
         },
 
         "Allow statement should drop messages about multiple rules on specific line": function() {
-            var reporter = new CSSLint._Reporter([], { "fake-rule": 1, "fake-rule2": 1 }, { "3": { "fake-rule": true, "fake-rule2": true } });
-            reporter.report("Foo", 3, 1, { id: "fake-rule" });
-            reporter.report("Bar", 3, 1, { id: "fake-rule2" });
+            var reporter = new CSSLint._Reporter([], {
+                "fake-rule": 1,
+                "fake-rule2": 1
+            }, {
+                "3": {
+                    "fake-rule": true,
+                    "fake-rule2": true
+                }
+            });
+            reporter.report("Foo", 3, 1, {
+                id: "fake-rule"
+            });
+            reporter.report("Bar", 3, 1, {
+                id: "fake-rule2"
+            });
 
             Assert.areEqual(0, reporter.messages.length);
         },
 
         "Ignores should step over a report in their range": function() {
-            var reporter = new CSSLint._Reporter([], { "fake-rule": 1 }, {}, [[1, 3]]);
-            reporter.report("Foo", 2, 1, { id: "fake-rule" });
-            reporter.report("Bar", 5, 1, { id: "fake-rule" });
+            var reporter = new CSSLint._Reporter([], {
+                "fake-rule": 1
+            }, {}, [
+                [1, 3]
+            ]);
+            reporter.report("Foo", 2, 1, {
+                id: "fake-rule"
+            });
+            reporter.report("Bar", 5, 1, {
+                id: "fake-rule"
+            });
 
             Assert.areEqual(1, reporter.messages.length);
         }
@@ -378,16 +432,37 @@ function include(path, sandbox) {
         name: "Checkstyle XML formatter test",
 
         "File with no problems should say so": function() {
-            var result = { messages: [], stats: [] },
+            var result = {
+                    messages: [],
+                    stats: []
+                },
                 expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><checkstyle></checkstyle>";
             Assert.areEqual(expected, CSSLint.format(result, "FILE", "checkstyle-xml"));
         },
 
         "File with problems should list them": function() {
-            var result = { messages: [
-                { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: { name: "A Rule"} },
-                { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: { name: "Some Other Rule"} }
-            ], stats: [] },
+            var result = {
+                    messages: [{
+                        type: "warning",
+                        line: 1,
+                        col: 1,
+                        message: "BOGUS",
+                        evidence: "ALSO BOGUS",
+                        rule: {
+                            name: "A Rule"
+                        }
+                    }, {
+                        type: "error",
+                        line: 2,
+                        col: 1,
+                        message: "BOGUS",
+                        evidence: "ALSO BOGUS",
+                        rule: {
+                            name: "Some Other Rule"
+                        }
+                    }],
+                    stats: []
+                },
                 file = "<file name=\"FILE\">",
                 error1 = "<error line=\"1\" column=\"1\" severity=\"warning\" message=\"BOGUS\" source=\"net.csslint.ARule\"/>",
                 error2 = "<error line=\"2\" column=\"1\" severity=\"error\" message=\"BOGUS\" source=\"net.csslint.SomeOtherRule\"/>",
@@ -398,10 +473,24 @@ function include(path, sandbox) {
 
         "Formatter should escape special characters": function() {
             var specialCharsSting = "sneaky, 'sneaky', <sneaky>, sneak & sneaky",
-                result = { messages: [
-                { type: "warning", line: 1, col: 1, message: specialCharsSting, evidence: "ALSO BOGUS", rule: [] },
-                { type: "error", line: 2, col: 1, message: specialCharsSting, evidence: "ALSO BOGUS", rule: [] }
-            ], stats: [] },
+                result = {
+                    messages: [{
+                        type: "warning",
+                        line: 1,
+                        col: 1,
+                        message: specialCharsSting,
+                        evidence: "ALSO BOGUS",
+                        rule: []
+                    }, {
+                        type: "error",
+                        line: 2,
+                        col: 1,
+                        message: specialCharsSting,
+                        evidence: "ALSO BOGUS",
+                        rule: []
+                    }],
+                    stats: []
+                },
                 file = "<file name=\"FILE\">",
                 error1 = "<error line=\"1\" column=\"1\" severity=\"warning\" message=\"sneaky, 'sneaky', &lt;sneaky&gt;, sneak &amp; sneaky\" source=\"\"/>",
                 error2 = "<error line=\"2\" column=\"1\" severity=\"error\" message=\"sneaky, 'sneaky', &lt;sneaky&gt;, sneak &amp; sneaky\" source=\"\"/>",
@@ -421,42 +510,107 @@ function include(path, sandbox) {
         name: "Compact formatter",
 
         "File with no problems should say so": function() {
-            var result = { messages: [], stats: [] },
-                actual = CSSLint.getFormatter("compact").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE"});
+            var result = {
+                    messages: [],
+                    stats: []
+                },
+                actual = CSSLint.getFormatter("compact").formatResults(result, "path/to/FILE", {
+                    fullPath: "/absolute/path/to/FILE"
+                });
             Assert.areEqual("path/to/FILE: Lint Free!", actual);
         },
 
         "Should have no output when quiet option is specified and no errors": function() {
-            var result = { messages: [], stats: [] },
-                actual = CSSLint.getFormatter("compact").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE", quiet: "true"});
+            var result = {
+                    messages: [],
+                    stats: []
+                },
+                actual = CSSLint.getFormatter("compact").formatResults(result, "path/to/FILE", {
+                    fullPath: "/absolute/path/to/FILE",
+                    quiet: "true"
+                });
             Assert.areEqual("", actual);
         },
 
         "File with problems should list them": function() {
-            var result = { messages: [
-                { type: "error", line: 2, col: 1, message: "BOGUS ERROR", evidence: "BOGUS", rule: { id: "BOGUS_RULE_ID" } },
-                { type: "warning", line: 1, col: 1, message: "BOGUS WARNING", evidence: "BOGUS", rule: { id: "BOGUS_RULE_ID" } },
-                { type: "warning", rollup: true, message: "BOGUS ROLLUP WARNING", evidence: "BOGUS", rule: { id: "BOGUS_RULE_ID" } }
-            ], stats: [] },
+            var result = {
+                    messages: [{
+                        type: "error",
+                        line: 2,
+                        col: 1,
+                        message: "BOGUS ERROR",
+                        evidence: "BOGUS",
+                        rule: {
+                            id: "BOGUS_RULE_ID"
+                        }
+                    }, {
+                        type: "warning",
+                        line: 1,
+                        col: 1,
+                        message: "BOGUS WARNING",
+                        evidence: "BOGUS",
+                        rule: {
+                            id: "BOGUS_RULE_ID"
+                        }
+                    }, {
+                        type: "warning",
+                        rollup: true,
+                        message: "BOGUS ROLLUP WARNING",
+                        evidence: "BOGUS",
+                        rule: {
+                            id: "BOGUS_RULE_ID"
+                        }
+                    }],
+                    stats: []
+                },
                 err = "path/to/FILE: line 2, col 1, Error - BOGUS ERROR (BOGUS_RULE_ID)\n",
                 warning = "path/to/FILE: line 1, col 1, Warning - BOGUS WARNING (BOGUS_RULE_ID)\n",
                 rollupwarning = "path/to/FILE: Warning - BOGUS ROLLUP WARNING (BOGUS_RULE_ID)\n",
                 expected = err + warning + rollupwarning,
-                actual = CSSLint.getFormatter("compact").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE"});
+                actual = CSSLint.getFormatter("compact").formatResults(result, "path/to/FILE", {
+                    fullPath: "/absolute/path/to/FILE"
+                });
             Assert.areEqual(expected, actual);
         },
 
         "Should output relative file paths": function() {
-            var result = { messages: [
-                { type: "error", line: 2, col: 1, message: "BOGUS ERROR", evidence: "BOGUS", rule: { id: "BOGUS_RULE_ID" } },
-                { type: "warning", line: 1, col: 1, message: "BOGUS WARNING", evidence: "BOGUS", rule: { id: "BOGUS_RULE_ID" } },
-                { type: "warning", rollup: true, message: "BOGUS ROLLUP WARNING", evidence: "BOGUS", rule: { id: "BOGUS_RULE_ID" } }
-            ], stats: [] },
+            var result = {
+                    messages: [{
+                        type: "error",
+                        line: 2,
+                        col: 1,
+                        message: "BOGUS ERROR",
+                        evidence: "BOGUS",
+                        rule: {
+                            id: "BOGUS_RULE_ID"
+                        }
+                    }, {
+                        type: "warning",
+                        line: 1,
+                        col: 1,
+                        message: "BOGUS WARNING",
+                        evidence: "BOGUS",
+                        rule: {
+                            id: "BOGUS_RULE_ID"
+                        }
+                    }, {
+                        type: "warning",
+                        rollup: true,
+                        message: "BOGUS ROLLUP WARNING",
+                        evidence: "BOGUS",
+                        rule: {
+                            id: "BOGUS_RULE_ID"
+                        }
+                    }],
+                    stats: []
+                },
                 err = "path/to/FILE: line 2, col 1, Error - BOGUS ERROR (BOGUS_RULE_ID)\n",
                 warning = "path/to/FILE: line 1, col 1, Warning - BOGUS WARNING (BOGUS_RULE_ID)\n",
                 rollupwarning = "path/to/FILE: Warning - BOGUS ROLLUP WARNING (BOGUS_RULE_ID)\n",
                 expected = err + warning + rollupwarning,
-                actual = CSSLint.getFormatter("compact").formatResults(result, "path/to/FILE", {fullPath: "/absolute/path/to/FILE"});
+                actual = CSSLint.getFormatter("compact").formatResults(result, "path/to/FILE", {
+                    fullPath: "/absolute/path/to/FILE"
+                });
             Assert.areEqual(expected, actual);
         }
 
@@ -472,16 +626,33 @@ function include(path, sandbox) {
         name: "CSSLint XML formatter test",
 
         "File with no problems should say so": function() {
-            var result = { messages: [], stats: [] },
+            var result = {
+                    messages: [],
+                    stats: []
+                },
                 expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><csslint></csslint>";
             Assert.areEqual(expected, CSSLint.format(result, "FILE", "csslint-xml"));
         },
 
         "File with problems should list them": function() {
-            var result = { messages: [
-                { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] },
-                { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] }
-            ], stats: [] },
+            var result = {
+                    messages: [{
+                        type: "warning",
+                        line: 1,
+                        col: 1,
+                        message: "BOGUS",
+                        evidence: "ALSO BOGUS",
+                        rule: []
+                    }, {
+                        type: "error",
+                        line: 2,
+                        col: 1,
+                        message: "BOGUS",
+                        evidence: "ALSO BOGUS",
+                        rule: []
+                    }],
+                    stats: []
+                },
                 file = "<file name=\"FILE\">",
                 error1 = "<issue line=\"1\" char=\"1\" severity=\"warning\" reason=\"BOGUS\" evidence=\"ALSO BOGUS\"/>",
                 error2 = "<issue line=\"2\" char=\"1\" severity=\"error\" reason=\"BOGUS\" evidence=\"ALSO BOGUS\"/>",
@@ -492,10 +663,24 @@ function include(path, sandbox) {
 
         "Formatter should escape double quotes": function() {
             var doubleQuotedEvidence = "sneaky, \"sneaky\", <sneaky>, sneak & sneaky",
-                result = { messages: [
-                { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] },
-                { type: "error", line: 2, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] }
-            ], stats: [] },
+                result = {
+                    messages: [{
+                        type: "warning",
+                        line: 1,
+                        col: 1,
+                        message: "BOGUS",
+                        evidence: doubleQuotedEvidence,
+                        rule: []
+                    }, {
+                        type: "error",
+                        line: 2,
+                        col: 1,
+                        message: "BOGUS",
+                        evidence: doubleQuotedEvidence,
+                        rule: []
+                    }],
+                    stats: []
+                },
                 file = "<file name=\"FILE\">",
                 error1 = "<issue line=\"1\" char=\"1\" severity=\"warning\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky', &lt;sneaky&gt;, sneak &amp; sneaky\"/>",
                 error2 = "<issue line=\"2\" char=\"1\" severity=\"error\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky', &lt;sneaky&gt;, sneak &amp; sneaky\"/>",
@@ -515,62 +700,108 @@ function include(path, sandbox) {
         name: "JSON formatter",
 
         "File with no problems should say so": function() {
-            var result = { messages: [], stats: [] };
+            var result = {
+                messages: [],
+                stats: []
+            };
             var expected = "{\"filename\":\"path/to/FILE\",\"messages\":[],\"stats\":[]}";
             var formatter = CSSLint.getFormatter("json");
             var actual = formatter.startFormat() +
-                formatter.formatResults(result, "path/to/FILE",
-                    { fullPath: "/absolute/path/to/FILE" }) +
+                formatter.formatResults(result, "path/to/FILE", {
+                    fullPath: "/absolute/path/to/FILE"
+                }) +
                 formatter.endFormat();
             Assert.areEqual(expected, actual);
         },
 
         "Should have no output when quiet option is specified and no errors": function() {
-            var result = { messages: [], stats: [] };
+            var result = {
+                messages: [],
+                stats: []
+            };
             var formatter = CSSLint.getFormatter("json");
             var actual = formatter.startFormat() +
-                formatter.formatResults(result, "path/to/FILE",
-                    { fullPath: "/absolute/path/to/FILE", quiet: "true" }) +
+                formatter.formatResults(result, "path/to/FILE", {
+                    fullPath: "/absolute/path/to/FILE",
+                    quiet: "true"
+                }) +
                 formatter.endFormat();
             Assert.areEqual("", actual);
         },
 
         "Should have output when quiet option is specified and there are errors": function() {
-            var result = { messages: [
-                { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] }], stats: [] };
+            var result = {
+                messages: [{
+                    type: "warning",
+                    line: 1,
+                    col: 1,
+                    message: "BOGUS",
+                    evidence: "ALSO BOGUS",
+                    rule: []
+                }],
+                stats: []
+            };
             var expected = "{\"filename\":\"path/to/FILE\",\"messages\":[{\"type\":\"warning\",\"line\":1,\"col\":1,\"message\":\"BOGUS\",\"evidence\":\"ALSO BOGUS\",\"rule\":[]}],\"stats\":[]}";
             var formatter = CSSLint.getFormatter("json");
             var actual = formatter.startFormat() +
-                formatter.formatResults(result, "path/to/FILE",
-                    { fullPath: "/absolute/path/to/FILE", quiet: "true" }) +
+                formatter.formatResults(result, "path/to/FILE", {
+                    fullPath: "/absolute/path/to/FILE",
+                    quiet: "true"
+                }) +
                 formatter.endFormat();
             Assert.areEqual(expected, actual);
         },
 
         "File with problems should list them": function() {
-            var result = { messages: [
-                { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] },
-                { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] }
-            ], stats: [] };
+            var result = {
+                messages: [{
+                    type: "warning",
+                    line: 1,
+                    col: 1,
+                    message: "BOGUS",
+                    evidence: "ALSO BOGUS",
+                    rule: []
+                }, {
+                    type: "error",
+                    line: 2,
+                    col: 1,
+                    message: "BOGUS",
+                    evidence: "ALSO BOGUS",
+                    rule: []
+                }],
+                stats: []
+            };
             var expected = "{\"filename\":\"path/to/FILE\",\"messages\":[{\"type\":\"warning\",\"line\":1,\"col\":1,\"message\":\"BOGUS\",\"evidence\":\"ALSO BOGUS\",\"rule\":[]},{\"type\":\"error\",\"line\":2,\"col\":1,\"message\":\"BOGUS\",\"evidence\":\"ALSO BOGUS\",\"rule\":[]}],\"stats\":[]}";
             var formatter = CSSLint.getFormatter("json");
             var actual = formatter.startFormat() +
-                formatter.formatResults(result, "path/to/FILE",
-                    { fullPath: "/absolute/path/to/FILE" }) +
+                formatter.formatResults(result, "path/to/FILE", {
+                    fullPath: "/absolute/path/to/FILE"
+                }) +
                 formatter.endFormat();
             Assert.areEqual(expected, actual);
         },
 
-        "Multiple files are handled properly": function () {
-            var result = { messages: [
-                { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] }], stats: [] };
+        "Multiple files are handled properly": function() {
+            var result = {
+                messages: [{
+                    type: "warning",
+                    line: 1,
+                    col: 1,
+                    message: "BOGUS",
+                    evidence: "ALSO BOGUS",
+                    rule: []
+                }],
+                stats: []
+            };
             var expected = "[{\"filename\":\"path/to/FILE\",\"messages\":[{\"type\":\"warning\",\"line\":1,\"col\":1,\"message\":\"BOGUS\",\"evidence\":\"ALSO BOGUS\",\"rule\":[]}],\"stats\":[]},{\"filename\":\"path/to/FILE\",\"messages\":[{\"type\":\"warning\",\"line\":1,\"col\":1,\"message\":\"BOGUS\",\"evidence\":\"ALSO BOGUS\",\"rule\":[]}],\"stats\":[]}]";
             var formatter = CSSLint.getFormatter("json");
             var actual = formatter.startFormat() +
-                formatter.formatResults(result, "path/to/FILE",
-                    { fullPath: "/absolute/path/to/FILE" }) +
-                formatter.formatResults(result, "path/to/FILE",
-                    { fullPath: "/absolute/path/to/FILE" }) +
+                formatter.formatResults(result, "path/to/FILE", {
+                    fullPath: "/absolute/path/to/FILE"
+                }) +
+                formatter.formatResults(result, "path/to/FILE", {
+                    fullPath: "/absolute/path/to/FILE"
+                }) +
                 formatter.endFormat();
             Assert.areEqual(expected, actual);
         }
@@ -589,7 +820,10 @@ function include(path, sandbox) {
 
         "File with no problems should say so": function() {
 
-            var result = { messages: [], stats: [] },
+            var result = {
+                    messages: [],
+                    stats: []
+                },
                 expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites></testsuites>";
             Assert.areEqual(expected, CSSLint.format(result, "FILE", "junit-xml"));
 
@@ -597,10 +831,28 @@ function include(path, sandbox) {
 
         "File with problems should list them": function() {
 
-            var result = { messages: [
-                { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: { name: "A Rule"} },
-                { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: { name: "Some Other Rule"} }
-            ], stats: [] },
+            var result = {
+                    messages: [{
+                        type: "warning",
+                        line: 1,
+                        col: 1,
+                        message: "BOGUS",
+                        evidence: "ALSO BOGUS",
+                        rule: {
+                            name: "A Rule"
+                        }
+                    }, {
+                        type: "error",
+                        line: 2,
+                        col: 1,
+                        message: "BOGUS",
+                        evidence: "ALSO BOGUS",
+                        rule: {
+                            name: "Some Other Rule"
+                        }
+                    }],
+                    stats: []
+                },
 
                 file = "<testsuite time=\"0\" tests=\"2\" skipped=\"0\" errors=\"2\" failures=\"0\" package=\"net.csslint\" name=\"FILE\">",
                 error1 = "<testcase time=\"0\" name=\"net.csslint.ARule\"><error message=\"BOGUS\"><![CDATA[1:1:ALSO BOGUS]]></error></testcase>",
@@ -615,10 +867,24 @@ function include(path, sandbox) {
         "Formatter should escape special characters": function() {
 
             var specialCharsSting = "sneaky, 'sneaky', <sneaky>",
-                result = { messages: [
-                { type: "warning", line: 1, col: 1, message: specialCharsSting, evidence: "ALSO BOGUS", rule: [] },
-                { type: "error", line: 2, col: 1, message: specialCharsSting, evidence: "ALSO BOGUS", rule: [] }
-            ], stats: [] },
+                result = {
+                    messages: [{
+                        type: "warning",
+                        line: 1,
+                        col: 1,
+                        message: specialCharsSting,
+                        evidence: "ALSO BOGUS",
+                        rule: []
+                    }, {
+                        type: "error",
+                        line: 2,
+                        col: 1,
+                        message: specialCharsSting,
+                        evidence: "ALSO BOGUS",
+                        rule: []
+                    }],
+                    stats: []
+                },
 
                 file = "<testsuite time=\"0\" tests=\"2\" skipped=\"0\" errors=\"2\" failures=\"0\" package=\"net.csslint\" name=\"FILE\">",
                 error1 = "<testcase time=\"0\" name=\"\"><error message=\"sneaky, 'sneaky', &lt;sneaky&gt;\"><![CDATA[1:1:ALSO BOGUS]]></error></testcase>",
@@ -642,16 +908,33 @@ function include(path, sandbox) {
         name: "Lint XML formatter test",
 
         "File with no problems should say so": function() {
-            var result = { messages: [], stats: [] },
+            var result = {
+                    messages: [],
+                    stats: []
+                },
                 expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><lint></lint>";
             Assert.areEqual(expected, CSSLint.format(result, "FILE", "lint-xml"));
         },
 
         "File with problems should list them": function() {
-            var result = { messages: [
-                { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] },
-                { type: "error", line: 2, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] }
-            ], stats: [] },
+            var result = {
+                    messages: [{
+                        type: "warning",
+                        line: 1,
+                        col: 1,
+                        message: "BOGUS",
+                        evidence: "ALSO BOGUS",
+                        rule: []
+                    }, {
+                        type: "error",
+                        line: 2,
+                        col: 1,
+                        message: "BOGUS",
+                        evidence: "ALSO BOGUS",
+                        rule: []
+                    }],
+                    stats: []
+                },
                 file = "<file name=\"FILE\">",
                 error1 = "<issue line=\"1\" char=\"1\" severity=\"warning\" reason=\"BOGUS\" evidence=\"ALSO BOGUS\"/>",
                 error2 = "<issue line=\"2\" char=\"1\" severity=\"error\" reason=\"BOGUS\" evidence=\"ALSO BOGUS\"/>",
@@ -662,10 +945,24 @@ function include(path, sandbox) {
 
         "Formatter should escape double quotes": function() {
             var doubleQuotedEvidence = "sneaky, \"sneaky\", <sneaky>, sneak & sneaky",
-                result = { messages: [
-                { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] },
-                { type: "error", line: 2, col: 1, message: "BOGUS", evidence: doubleQuotedEvidence, rule: [] }
-            ], stats: [] },
+                result = {
+                    messages: [{
+                        type: "warning",
+                        line: 1,
+                        col: 1,
+                        message: "BOGUS",
+                        evidence: doubleQuotedEvidence,
+                        rule: []
+                    }, {
+                        type: "error",
+                        line: 2,
+                        col: 1,
+                        message: "BOGUS",
+                        evidence: doubleQuotedEvidence,
+                        rule: []
+                    }],
+                    stats: []
+                },
                 file = "<file name=\"FILE\">",
                 error1 = "<issue line=\"1\" char=\"1\" severity=\"warning\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky', &lt;sneaky&gt;, sneak &amp; sneaky\"/>",
                 error2 = "<issue line=\"2\" char=\"1\" severity=\"error\" reason=\"BOGUS\" evidence=\"sneaky, 'sneaky', &lt;sneaky&gt;, sneak &amp; sneaky\"/>",
@@ -675,21 +972,31 @@ function include(path, sandbox) {
         },
 
         "Messages should include rule IDs": function() {
-          var result = { messages: [
-            { type: "error", line: 1, col: 1, message: "X", evidence: "Y", rule: { id: "Z" } }
-          ], stats: [] };
+            var result = {
+                messages: [{
+                    type: "error",
+                    line: 1,
+                    col: 1,
+                    message: "X",
+                    evidence: "Y",
+                    rule: {
+                        id: "Z"
+                    }
+                }],
+                stats: []
+            };
 
-          var expected =
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
-            "<lint>" +
-              "<file name=\"FILE\">" +
+            var expected =
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+                "<lint>" +
+                "<file name=\"FILE\">" +
                 "<issue rule=\"Z\" line=\"1\" char=\"1\" severity=\"error\" reason=\"X\" evidence=\"Y\"/>" +
-              "</file>" +
-            "</lint>";
+                "</file>" +
+                "</lint>";
 
-          var actual = CSSLint.format(result, "FILE", "lint-xml");
+            var actual = CSSLint.format(result, "FILE", "lint-xml");
 
-          Assert.areEqual(expected, actual);
+            Assert.areEqual(expected, actual);
         }
 
     }));
@@ -704,24 +1011,45 @@ function include(path, sandbox) {
         name: "Text formatter",
 
         "File with no problems should say so": function() {
-            var result = { messages: [], stats: [] },
-                actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", { fullPath: "/absolute/path/to/FILE" });
+            var result = {
+                    messages: [],
+                    stats: []
+                },
+                actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", {
+                    fullPath: "/absolute/path/to/FILE"
+                });
             Assert.areEqual("\n\ncsslint: No errors in path/to/FILE.", actual);
         },
 
         "File with one problem should use proper grammar": function() {
-            var result = { messages: [
-                     { type: "warning", line: 1, col: 1, message: "BOGUS", evidence: "ALSO BOGUS", rule: [] }
-                ], stats: [] },
+            var result = {
+                    messages: [{
+                        type: "warning",
+                        line: 1,
+                        col: 1,
+                        message: "BOGUS",
+                        evidence: "ALSO BOGUS",
+                        rule: []
+                    }],
+                    stats: []
+                },
                 error1 = "\n1: warning at line 1, col 1\nBOGUS\nALSO BOGUS",
                 expected = "\n\ncsslint: There is 1 problem in path/to/FILE.\n\nFILE" + error1,
-                actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", { fullPath: "/absolute/path/to/FILE" });
+                actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", {
+                    fullPath: "/absolute/path/to/FILE"
+                });
             Assert.areEqual(expected, actual);
         },
 
         "Should have no output when quiet option is specified and no errors": function() {
-            var result = { messages: [], stats: [] },
-                actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", { fullPath: "/absolute/path/to/FILE", quiet: "true" });
+            var result = {
+                    messages: [],
+                    stats: []
+                },
+                actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", {
+                    fullPath: "/absolute/path/to/FILE",
+                    quiet: "true"
+                });
             Assert.areEqual("", actual);
         },
 
@@ -734,8 +1062,7 @@ function include(path, sandbox) {
                         message: "BOGUS",
                         evidence: "ALSO BOGUS",
                         rule: []
-                    },
-                    {
+                    }, {
                         type: "error",
                         line: 2,
                         col: 1,
@@ -748,7 +1075,9 @@ function include(path, sandbox) {
                 error1 = "\n1: warning at line 1, col 1\nBOGUS\nALSO BOGUS",
                 error2 = "\n2: error at line 2, col 1\nBOGUS\nALSO BOGUS",
                 expected = "\n\ncsslint: There are 2 problems in path/to/FILE.\n\nFILE" + error1 + "\n\nFILE" + error2,
-                actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", { fullPath: "/absolute/path/to/FILE" });
+                actual = CSSLint.getFormatter("text").formatResults(result, "path/to/FILE", {
+                    fullPath: "/absolute/path/to/FILE"
+                });
             Assert.areEqual(expected, actual);
         }
 
