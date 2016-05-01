@@ -10,14 +10,14 @@
             var result = CSSLint.verify("li { z-index: 2; color: red; }", { "order-alphabetical": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Rule doesn't have all its properties in alphabetical ordered.", result.messages[0].message);
+            Assert.areEqual("Rule doesn't have all its properties in alphabetical order.", result.messages[0].message);
         },
 
         "Rules with prefixed properties not in alphabetical order (without the prefix) should result in a warning": function() {
             var result = CSSLint.verify("li { -moz-transition: none; -webkit-box-shadow: none; }", { "order-alphabetical": 1 });
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("Rule doesn't have all its properties in alphabetical ordered.", result.messages[0].message);
+            Assert.areEqual("Rule doesn't have all its properties in alphabetical order.", result.messages[0].message);
         },
 
         "Rules with properties in alphabetical order should not result in a warning": function() {

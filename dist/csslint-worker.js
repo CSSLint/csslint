@@ -8456,7 +8456,7 @@ CSSLint.addRule({
                 expectedProperties = properties.sort().join(",");
 
             if (currentProperties !== expectedProperties) {
-                reporter.report("Rule doesn't have all its properties in alphabetical ordered.", event.line, event.col, rule);
+                reporter.report("Rule doesn't have all its properties in alphabetical order.", event.line, event.col, rule);
             }
         };
 
