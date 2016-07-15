@@ -180,8 +180,12 @@ var CSSLint = (function() {
             allow = {},
             ignore = [],
             report,
-            parser = new parserlib.css.Parser({ starHack: true, ieFilters: true,
-                                                underscoreHack: true, strict: false });
+            parser = new parserlib.css.Parser({
+                starHack: true,
+                ieFilters: true,
+                underscoreHack: true,
+                strict: false
+            });
 
         // normalize line endings
         lines = text.replace(/\n\r?/g, "$split$").split("$split$");
@@ -206,7 +210,7 @@ var CSSLint = (function() {
             ignoreEnd = null;
         CSSLint.Util.forEach(lines, function (line, lineno) {
             // Keep oldest, "unclosest" ignore:start
-            if (null === ignoreStart && line.match(/\/\*[ \t]*csslint[ \t]+ignore:start[ \t]*\*\//i)) {
+            if (ignoreStart === null && line.match(/\/\*[ \t]*csslint[ \t]+ignore:start[ \t]*\*\//i)) {
                 ignoreStart = lineno;
             }
 
@@ -214,14 +218,14 @@ var CSSLint = (function() {
                 ignoreEnd = lineno;
             }
 
-            if (null !== ignoreStart && null !== ignoreEnd) {
+            if (ignoreStart !== null && ignoreEnd !== null) {
                 ignore.push([ignoreStart, ignoreEnd]);
                 ignoreStart = ignoreEnd = null;
             }
         });
 
         // Close remaining ignore block, if any
-        if (null !== ignoreStart) {
+        if (ignoreStart !== null) {
             ignore.push([ignoreStart, lines.length]);
         }
 

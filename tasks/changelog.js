@@ -50,12 +50,16 @@ module.exports = function(grunt) {
 
             grunt.verbose.write("Last tag: " + lastTag).writeln();
 
-            //
             grunt.util.spawn({
                 cmd: "git",
                 args: ["log", "--pretty=format:'* %s (%an)'", lastTag + "..HEAD"]
             }, function(error, result) {
-                var prettyPrint = result.stdout.split("'\n'").join("\n").replace(/\"$/, "").replace(/^\"/, "").replace(/^\'/, "").replace(/\'$/, "");
+                var prettyPrint = result.stdout.split("'\n'")
+                                    .join("\n")
+                                    .replace(/"$/, "")
+                                    .replace(/^"/, "")
+                                    .replace(/^'/, "")
+                                    .replace(/'$/, "");
 
                 grunt.verbose.writeln().write(prettyPrint).writeln();
 

@@ -26,11 +26,9 @@ CSSLint.addRule({
                 "border-bottom": 1,
                 "border-left": 1,
                 "background-color": 1
-            },
-            properties;
+            };
 
         function startRule() {
-            properties = {};
             lastProperty = null;
         }
 

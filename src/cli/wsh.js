@@ -63,7 +63,7 @@ var wshapi = (function() {
     }
 
     if (!Array.prototype.indexOf) {
-        Array.prototype.indexOf = function (searchElement /*, fromIndex */ ) {
+        Array.prototype.indexOf = function (searchElement /*, fromIndex */) {
             if (this === void 0 || this === null) {
                 throw new Error("unknown instance");
             }

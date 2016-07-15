@@ -37,7 +37,7 @@ module.exports = function(grunt) {
                     grunt.log.writeln("Total tests: " + results.total + ", " +
                         ("Failures: " + results.failed).red + ", " +
                         ("Skipped: " + results.ignored).yellow +
-                        ", Time: " + (results.duration/1000) + " seconds\n");
+                        ", Time: " + results.duration / 1000 + " seconds\n");
 
                     if (failures.length) {
                         grunt.log.writeln("Tests failed:");

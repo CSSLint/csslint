@@ -1,5 +1,5 @@
 /*!
-CSSLint v0.10.0
+CSSLint v1.0.0
 Copyright (c) 2016 Nicole Sullivan and Nicholas C. Zakas. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -7488,7 +7488,7 @@ var CSSLint = (function() {
         embeddedRuleset = /\/\*\s*csslint([^\*]*)\*\//,
         api             = new parserlib.util.EventTarget();
 
-    api.version = "0.10.0";
+    api.version = "1.0.0";
 
     //-------------------------------------------------------------------------
     // Rule Management
@@ -7652,8 +7652,12 @@ var CSSLint = (function() {
             allow = {},
             ignore = [],
             report,
-            parser = new parserlib.css.Parser({ starHack: true, ieFilters: true,
-                                                underscoreHack: true, strict: false });
+            parser = new parserlib.css.Parser({
+                starHack: true,
+                ieFilters: true,
+                underscoreHack: true,
+                strict: false
+            });
 
         // normalize line endings
         lines = text.replace(/\n\r?/g, "$split$").split("$split$");
@@ -7678,7 +7682,7 @@ var CSSLint = (function() {
             ignoreEnd = null;
         CSSLint.Util.forEach(lines, function (line, lineno) {
             // Keep oldest, "unclosest" ignore:start
-            if (null === ignoreStart && line.match(/\/\*[ \t]*csslint[ \t]+ignore:start[ \t]*\*\//i)) {
+            if (ignoreStart === null && line.match(/\/\*[ \t]*csslint[ \t]+ignore:start[ \t]*\*\//i)) {
                 ignoreStart = lineno;
             }
 
@@ -7686,14 +7690,14 @@ var CSSLint = (function() {
                 ignoreEnd = lineno;
             }
 
-            if (null !== ignoreStart && null !== ignoreEnd) {
+            if (ignoreStart !== null && ignoreEnd !== null) {
                 ignore.push([ignoreStart, ignoreEnd]);
                 ignoreStart = ignoreEnd = null;
             }
         });
 
         // Close remaining ignore block, if any
-        if (null !== ignoreStart) {
+        if (ignoreStart !== null) {
             ignore.push([ignoreStart, lines.length]);
         }
 
@@ -8156,7 +8160,11 @@ CSSLint.addRule({
 
             if (heightProperties[name] || widthProperties[name]) {
                 if (!/^0\S*$/.test(event.value) && !(name === "border" && event.value.toString() === "none")) {
-                    properties[name] = { line: event.property.line, col: event.property.col, value: event.value };
+                    properties[name] = {
+                        line: event.property.line,
+                        col: event.property.col,
+                        value: event.value
+                    };
                 }
             } else {
                 if (/^(width|height)/i.test(name) && /^(length|percentage)/.test(event.value.parts[0].type)) {
@@ -8429,8 +8437,8 @@ CSSLint.addRule({
                         if (CSSLint.Util.indexOf(variations, name.text) > -1) {
                             if (!propertyGroups[prop]) {
                                 propertyGroups[prop] = {
-                                    full : variations.slice(0),
-                                    actual : [],
+                                    full: variations.slice(0),
+                                    actual: [],
                                     actualNodes: []
                                 };
                             }
@@ -8572,7 +8580,11 @@ CSSLint.addRule({
             var name = event.property.text.toLowerCase();
 
             if (propertiesToCheck[name]) {
-                properties[name] = { value: event.value.text, line: event.property.line, col: event.property.col };
+                properties[name] = {
+                    value: event.value.text,
+                    line: event.property.line,
+                    col: event.property.col
+                };
             }
         });
 
@@ -8616,8 +8628,7 @@ CSSLint.addRule({
                     if (value.parts[i].type === "uri") {
                         if (typeof stack[value.parts[i].uri] === "undefined") {
                             stack[value.parts[i].uri] = event;
-                        }
-                        else {
+                        } else {
                             reporter.report("Background image '" + value.parts[i].uri + "' was used multiple times, first declared at line " + stack[value.parts[i].uri].line + ", col " + stack[value.parts[i].uri].col + ".", event.line, event.col, rule);
                         }
                     }
@@ -8767,11 +8778,9 @@ CSSLint.addRule({
                 "border-bottom": 1,
                 "border-left": 1,
                 "background-color": 1
-            },
-            properties;
+            };
 
         function startRule() {
-            properties = {};
             lastProperty = null;
         }
 
@@ -9361,7 +9370,10 @@ CSSLint.addRule({
                                 if (!classes[modifier]) {
                                     classes[modifier] = [];
                                 }
-                                classes[modifier].push({ modifier: modifier, part: part });
+                                classes[modifier].push({
+                                    modifier: modifier,
+                                    part: part
+                                });
                             }
                         }
                     }
@@ -9460,7 +9472,7 @@ CSSLint.addRule({
                         for (k=0; k < part.modifiers.length; k++) {
                             modifier = part.modifiers[k];
                             if (modifier.type === "attribute") {
-                                if (/([\~\|\^\$\*]=)/.test(modifier)) {
+                                if (/([~\|\^\$\*]=)/.test(modifier)) {
                                     reporter.report("Attribute selectors with " + RegExp.$1 + " are slow!", modifier.line, modifier.col, rule);
                                 }
                             }
@@ -10051,18 +10063,18 @@ CSSLint.addRule({
                 "-moz-box-shadow": "box-shadow",
                 "-webkit-box-shadow": "box-shadow",
 
-                "-moz-transform" : "transform",
-                "-webkit-transform" : "transform",
-                "-o-transform" : "transform",
-                "-ms-transform" : "transform",
+                "-moz-transform": "transform",
+                "-webkit-transform": "transform",
+                "-o-transform": "transform",
+                "-ms-transform": "transform",
 
-                "-moz-transform-origin" : "transform-origin",
-                "-webkit-transform-origin" : "transform-origin",
-                "-o-transform-origin" : "transform-origin",
-                "-ms-transform-origin" : "transform-origin",
+                "-moz-transform-origin": "transform-origin",
+                "-webkit-transform-origin": "transform-origin",
+                "-o-transform-origin": "transform-origin",
+                "-ms-transform-origin": "transform-origin",
 
-                "-moz-box-sizing" : "box-sizing",
-                "-webkit-box-sizing" : "box-sizing"
+                "-moz-box-sizing": "box-sizing",
+                "-webkit-box-sizing": "box-sizing"
             };
 
         // event handler for beginning of rules
@@ -10119,7 +10131,11 @@ CSSLint.addRule({
                 properties[name] = [];
             }
 
-            properties[name].push({ name: event.property, value : event.value, pos:num++ });
+            properties[name].push({
+                name: event.property,
+                value: event.value,
+                pos: num++
+            });
         });
 
         parser.addListener("endrule", endRule);
@@ -10189,7 +10205,7 @@ CSSLint.addRule({
             return "";
         }
 
-        return str.replace(/[\"&><]/g, function(match) {
+        return str.replace(/["&><]/g, function(match) {
             switch (match) {
                 case "\"":
                     return "&quot;";
@@ -10258,7 +10274,6 @@ CSSLint.addRule({
                 }
                 return "net.csslint." + rule.name.replace(/\s/g, "");
             };
-
 
 
             if (messages.length > 0) {
@@ -10392,7 +10407,7 @@ CSSLint.addFormatter({
             if (!str || str.constructor !== String) {
                 return "";
             }
-            return str.replace(/\"/g, "'").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            return str.replace(/"/g, "'").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         };
 
         if (messages.length > 0) {
@@ -10536,7 +10551,7 @@ CSSLint.addFormatter({
                 return "";
             }
 
-            return str.replace(/\"/g, "'").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            return str.replace(/"/g, "'").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
         };
 
@@ -10624,7 +10639,7 @@ CSSLint.addFormatter({
             if (!str || str.constructor !== String) {
                 return "";
             }
-            return str.replace(/\"/g, "'").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            return str.replace(/"/g, "'").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         };
 
         if (messages.length > 0) {

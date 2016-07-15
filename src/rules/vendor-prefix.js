@@ -64,18 +64,18 @@ CSSLint.addRule({
                 "-moz-box-shadow": "box-shadow",
                 "-webkit-box-shadow": "box-shadow",
 
-                "-moz-transform" : "transform",
-                "-webkit-transform" : "transform",
-                "-o-transform" : "transform",
-                "-ms-transform" : "transform",
+                "-moz-transform": "transform",
+                "-webkit-transform": "transform",
+                "-o-transform": "transform",
+                "-ms-transform": "transform",
 
-                "-moz-transform-origin" : "transform-origin",
-                "-webkit-transform-origin" : "transform-origin",
-                "-o-transform-origin" : "transform-origin",
-                "-ms-transform-origin" : "transform-origin",
+                "-moz-transform-origin": "transform-origin",
+                "-webkit-transform-origin": "transform-origin",
+                "-o-transform-origin": "transform-origin",
+                "-ms-transform-origin": "transform-origin",
 
-                "-moz-box-sizing" : "box-sizing",
-                "-webkit-box-sizing" : "box-sizing"
+                "-moz-box-sizing": "box-sizing",
+                "-webkit-box-sizing": "box-sizing"
             };
 
         // event handler for beginning of rules
@@ -132,7 +132,11 @@ CSSLint.addRule({
                 properties[name] = [];
             }
 
-            properties[name].push({ name: event.property, value : event.value, pos:num++ });
+            properties[name].push({
+                name: event.property,
+                value: event.value,
+                pos: num++
+            });
         });
 
         parser.addListener("endrule", endRule);

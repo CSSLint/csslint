@@ -69,7 +69,7 @@ CSSLint.addFormatter({
                 return "";
             }
 
-            return str.replace(/\"/g, "'").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            return str.replace(/"/g, "'").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
         };
 

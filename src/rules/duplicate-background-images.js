@@ -27,8 +27,7 @@ CSSLint.addRule({
                     if (value.parts[i].type === "uri") {
                         if (typeof stack[value.parts[i].uri] === "undefined") {
                             stack[value.parts[i].uri] = event;
-                        }
-                        else {
+                        } else {
                             reporter.report("Background image '" + value.parts[i].uri + "' was used multiple times, first declared at line " + stack[value.parts[i].uri].line + ", col " + stack[value.parts[i].uri].col + ".", event.line, event.col, rule);
                         }
                     }

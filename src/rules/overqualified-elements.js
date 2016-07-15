@@ -39,7 +39,10 @@ CSSLint.addRule({
                                 if (!classes[modifier]) {
                                     classes[modifier] = [];
                                 }
-                                classes[modifier].push({ modifier: modifier, part: part });
+                                classes[modifier].push({
+                                    modifier: modifier,
+                                    part: part
+                                });
                             }
                         }
                     }

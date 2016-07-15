@@ -49,7 +49,7 @@ CSSLint.addFormatter({
             if (!str || str.constructor !== String) {
                 return "";
             }
-            return str.replace(/\"/g, "'").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            return str.replace(/"/g, "'").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         };
 
         if (messages.length > 0) {

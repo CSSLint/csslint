@@ -31,7 +31,7 @@ CSSLint.addRule({
                         for (k=0; k < part.modifiers.length; k++) {
                             modifier = part.modifiers[k];
                             if (modifier.type === "attribute") {
-                                if (/([\~\|\^\$\*]=)/.test(modifier)) {
+                                if (/([~\|\^\$\*]=)/.test(modifier)) {
                                     reporter.report("Attribute selectors with " + RegExp.$1 + " are slow!", modifier.line, modifier.col, rule);
                                 }
                             }

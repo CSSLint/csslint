@@ -18,7 +18,7 @@
             return "";
         }
 
-        return str.replace(/[\"&><]/g, function(match) {
+        return str.replace(/["&><]/g, function(match) {
             switch (match) {
                 case "\"":
                     return "&quot;";
@@ -87,7 +87,6 @@
                 }
                 return "net.csslint." + rule.name.replace(/\s/g, "");
             };
-
 
 
             if (messages.length > 0) {

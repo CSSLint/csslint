@@ -151,8 +151,8 @@ CSSLint.addRule({
                         if (CSSLint.Util.indexOf(variations, name.text) > -1) {
                             if (!propertyGroups[prop]) {
                                 propertyGroups[prop] = {
-                                    full : variations.slice(0),
-                                    actual : [],
+                                    full: variations.slice(0),
+                                    actual: [],
                                     actualNodes: []
                                 };
                             }
