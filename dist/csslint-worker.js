@@ -24,7 +24,7 @@ THE SOFTWARE.
 var exports = exports || {};
 /*!
 Parser-Lib
-Copyright (c) 2009-2011 Nicholas C. Zakas. All rights reserved.
+Copyright (c) 2009-2016 Nicholas C. Zakas. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -43,922 +43,17 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
 */
-/* Version v0.2.5, Build time: 7-May-2014 03:37:38 */
-var parserlib = {};
-(function(){
-
-/**
- * A generic base to inherit from for any object
- * that needs event handling.
- * @class EventTarget
- * @constructor
- */
-function EventTarget(){
-
-    /**
-     * The array of listeners for various events.
-     * @type Object
-     * @property _listeners
-     * @private
-     */
-    this._listeners = {};
-}
-
-EventTarget.prototype = {
-
-    //restore constructor
-    constructor: EventTarget,
-
-    /**
-     * Adds a listener for a given event type.
-     * @param {String} type The type of event to add a listener for.
-     * @param {Function} listener The function to call when the event occurs.
-     * @return {void}
-     * @method addListener
-     */
-    addListener: function(type, listener){
-        if (!this._listeners[type]){
-            this._listeners[type] = [];
-        }
-
-        this._listeners[type].push(listener);
-    },
-
-    /**
-     * Fires an event based on the passed-in object.
-     * @param {Object|String} event An object with at least a 'type' attribute
-     *      or a string indicating the event name.
-     * @return {void}
-     * @method fire
-     */
-    fire: function(event){
-        if (typeof event == "string"){
-            event = { type: event };
-        }
-        if (typeof event.target != "undefined"){
-            event.target = this;
-        }
-
-        if (typeof event.type == "undefined"){
-            throw new Error("Event object missing 'type' property.");
-        }
-
-        if (this._listeners[event.type]){
-
-            //create a copy of the array and use that so listeners can't chane
-            var listeners = this._listeners[event.type].concat();
-            for (var i=0, len=listeners.length; i < len; i++){
-                listeners[i].call(this, event);
-            }
-        }
-    },
-
-    /**
-     * Removes a listener for a given event type.
-     * @param {String} type The type of event to remove a listener from.
-     * @param {Function} listener The function to remove from the event.
-     * @return {void}
-     * @method removeListener
-     */
-    removeListener: function(type, listener){
-        if (this._listeners[type]){
-            var listeners = this._listeners[type];
-            for (var i=0, len=listeners.length; i < len; i++){
-                if (listeners[i] === listener){
-                    listeners.splice(i, 1);
-                    break;
-                }
-            }
-
-
-        }
-    }
-};
-/**
- * Convenient way to read through strings.
- * @namespace parserlib.util
- * @class StringReader
- * @constructor
- * @param {String} text The text to read.
- */
-function StringReader(text){
-
-    /**
-     * The input text with line endings normalized.
-     * @property _input
-     * @type String
-     * @private
-     */
-    this._input = text.replace(/\n\r?/g, "\n");
-
-
-    /**
-     * The row for the character to be read next.
-     * @property _line
-     * @type int
-     * @private
-     */
-    this._line = 1;
-
-
-    /**
-     * The column for the character to be read next.
-     * @property _col
-     * @type int
-     * @private
-     */
-    this._col = 1;
-
-    /**
-     * The index of the character in the input to be read next.
-     * @property _cursor
-     * @type int
-     * @private
-     */
-    this._cursor = 0;
-}
-
-StringReader.prototype = {
-
-    //restore constructor
-    constructor: StringReader,
-
-    //-------------------------------------------------------------------------
-    // Position info
-    //-------------------------------------------------------------------------
-
-    /**
-     * Returns the column of the character to be read next.
-     * @return {int} The column of the character to be read next.
-     * @method getCol
-     */
-    getCol: function(){
-        return this._col;
-    },
-
-    /**
-     * Returns the row of the character to be read next.
-     * @return {int} The row of the character to be read next.
-     * @method getLine
-     */
-    getLine: function(){
-        return this._line ;
-    },
-
-    /**
-     * Determines if you're at the end of the input.
-     * @return {Boolean} True if there's no more input, false otherwise.
-     * @method eof
-     */
-    eof: function(){
-        return (this._cursor == this._input.length);
-    },
-
-    //-------------------------------------------------------------------------
-    // Basic reading
-    //-------------------------------------------------------------------------
-
-    /**
-     * Reads the next character without advancing the cursor.
-     * @param {int} count How many characters to look ahead (default is 1).
-     * @return {String} The next character or null if there is no next character.
-     * @method peek
-     */
-    peek: function(count){
-        var c = null;
-        count = (typeof count == "undefined" ? 1 : count);
-
-        //if we're not at the end of the input...
-        if (this._cursor < this._input.length){
-
-            //get character and increment cursor and column
-            c = this._input.charAt(this._cursor + count - 1);
-        }
-
-        return c;
-    },
-
-    /**
-     * Reads the next character from the input and adjusts the row and column
-     * accordingly.
-     * @return {String} The next character or null if there is no next character.
-     * @method read
-     */
-    read: function(){
-        var c = null;
-
-        //if we're not at the end of the input...
-        if (this._cursor < this._input.length){
-
-            //if the last character was a newline, increment row count
-            //and reset column count
-            if (this._input.charAt(this._cursor) == "\n"){
-                this._line++;
-                this._col=1;
-            } else {
-                this._col++;
-            }
-
-            //get character and increment cursor and column
-            c = this._input.charAt(this._cursor++);
-        }
-
-        return c;
-    },
-
-    //-------------------------------------------------------------------------
-    // Misc
-    //-------------------------------------------------------------------------
-
-    /**
-     * Saves the current location so it can be returned to later.
-     * @method mark
-     * @return {void}
-     */
-    mark: function(){
-        this._bookmark = {
-            cursor: this._cursor,
-            line:   this._line,
-            col:    this._col
-        };
-    },
-
-    reset: function(){
-        if (this._bookmark){
-            this._cursor = this._bookmark.cursor;
-            this._line = this._bookmark.line;
-            this._col = this._bookmark.col;
-            delete this._bookmark;
-        }
-    },
-
-    //-------------------------------------------------------------------------
-    // Advanced reading
-    //-------------------------------------------------------------------------
-
-    /**
-     * Reads up to and including the given string. Throws an error if that
-     * string is not found.
-     * @param {String} pattern The string to read.
-     * @return {String} The string when it is found.
-     * @throws Error when the string pattern is not found.
-     * @method readTo
-     */
-    readTo: function(pattern){
-
-        var buffer = "",
-            c;
-
-        /*
-         * First, buffer must be the same length as the pattern.
-         * Then, buffer must end with the pattern or else reach the
-         * end of the input.
-         */
-        while (buffer.length < pattern.length || buffer.lastIndexOf(pattern) != buffer.length - pattern.length){
-            c = this.read();
-            if (c){
-                buffer += c;
-            } else {
-                throw new Error("Expected \"" + pattern + "\" at line " + this._line  + ", col " + this._col + ".");
-            }
-        }
-
-        return buffer;
-
-    },
-
-    /**
-     * Reads characters while each character causes the given
-     * filter function to return true. The function is passed
-     * in each character and either returns true to continue
-     * reading or false to stop.
-     * @param {Function} filter The function to read on each character.
-     * @return {String} The string made up of all characters that passed the
-     *      filter check.
-     * @method readWhile
-     */
-    readWhile: function(filter){
-
-        var buffer = "",
-            c = this.read();
-
-        while(c !== null && filter(c)){
-            buffer += c;
-            c = this.read();
-        }
-
-        return buffer;
-
-    },
-
-    /**
-     * Reads characters that match either text or a regular expression and
-     * returns those characters. If a match is found, the row and column
-     * are adjusted; if no match is found, the reader's state is unchanged.
-     * reading or false to stop.
-     * @param {String|RegExp} matchter If a string, then the literal string
-     *      value is searched for. If a regular expression, then any string
-     *      matching the pattern is search for.
-     * @return {String} The string made up of all characters that matched or
-     *      null if there was no match.
-     * @method readMatch
-     */
-    readMatch: function(matcher){
-
-        var source = this._input.substring(this._cursor),
-            value = null;
-
-        //if it's a string, just do a straight match
-        if (typeof matcher == "string"){
-            if (source.indexOf(matcher) === 0){
-                value = this.readCount(matcher.length);
-            }
-        } else if (matcher instanceof RegExp){
-            if (matcher.test(source)){
-                value = this.readCount(RegExp.lastMatch.length);
-            }
-        }
-
-        return value;
-    },
-
-
-    /**
-     * Reads a given number of characters. If the end of the input is reached,
-     * it reads only the remaining characters and does not throw an error.
-     * @param {int} count The number of characters to read.
-     * @return {String} The string made up the read characters.
-     * @method readCount
-     */
-    readCount: function(count){
-        var buffer = "";
-
-        while(count--){
-            buffer += this.read();
-        }
-
-        return buffer;
-    }
-
-};
-/**
- * Type to use when a syntax error occurs.
- * @class SyntaxError
- * @namespace parserlib.util
- * @constructor
- * @param {String} message The error message.
- * @param {int} line The line at which the error occurred.
- * @param {int} col The column at which the error occurred.
- */
-function SyntaxError(message, line, col){
-
-    /**
-     * The column at which the error occurred.
-     * @type int
-     * @property col
-     */
-    this.col = col;
-
-    /**
-     * The line at which the error occurred.
-     * @type int
-     * @property line
-     */
-    this.line = line;
-
-    /**
-     * The text representation of the unit.
-     * @type String
-     * @property text
-     */
-    this.message = message;
-
-}
-
-//inherit from Error
-SyntaxError.prototype = new Error();
-/**
- * Base type to represent a single syntactic unit.
- * @class SyntaxUnit
- * @namespace parserlib.util
- * @constructor
- * @param {String} text The text of the unit.
- * @param {int} line The line of text on which the unit resides.
- * @param {int} col The column of text on which the unit resides.
- */
-function SyntaxUnit(text, line, col, type){
-
-
-    /**
-     * The column of text on which the unit resides.
-     * @type int
-     * @property col
-     */
-    this.col = col;
-
-    /**
-     * The line of text on which the unit resides.
-     * @type int
-     * @property line
-     */
-    this.line = line;
-
-    /**
-     * The text representation of the unit.
-     * @type String
-     * @property text
-     */
-    this.text = text;
-
-    /**
-     * The type of syntax unit.
-     * @type int
-     * @property type
-     */
-    this.type = type;
-}
-
-/**
- * Create a new syntax unit based solely on the given token.
- * Convenience method for creating a new syntax unit when
- * it represents a single token instead of multiple.
- * @param {Object} token The token object to represent.
- * @return {parserlib.util.SyntaxUnit} The object representing the token.
- * @static
- * @method fromToken
- */
-SyntaxUnit.fromToken = function(token){
-    return new SyntaxUnit(token.value, token.startLine, token.startCol);
-};
-
-SyntaxUnit.prototype = {
-
-    //restore constructor
-    constructor: SyntaxUnit,
-
-    /**
-     * Returns the text representation of the unit.
-     * @return {String} The text representation of the unit.
-     * @method valueOf
-     */
-    valueOf: function(){
-        return this.toString();
-    },
-
-    /**
-     * Returns the text representation of the unit.
-     * @return {String} The text representation of the unit.
-     * @method toString
-     */
-    toString: function(){
-        return this.text;
-    }
-
-};
-/*global StringReader, SyntaxError*/
-
-/**
- * Generic TokenStream providing base functionality.
- * @class TokenStreamBase
- * @namespace parserlib.util
- * @constructor
- * @param {String|StringReader} input The text to tokenize or a reader from
- *      which to read the input.
- */
-function TokenStreamBase(input, tokenData){
-
-    /**
-     * The string reader for easy access to the text.
-     * @type StringReader
-     * @property _reader
-     * @private
-     */
-    this._reader = input ? new StringReader(input.toString()) : null;
-
-    /**
-     * Token object for the last consumed token.
-     * @type Token
-     * @property _token
-     * @private
-     */
-    this._token = null;
-
-    /**
-     * The array of token information.
-     * @type Array
-     * @property _tokenData
-     * @private
-     */
-    this._tokenData = tokenData;
-
-    /**
-     * Lookahead token buffer.
-     * @type Array
-     * @property _lt
-     * @private
-     */
-    this._lt = [];
-
-    /**
-     * Lookahead token buffer index.
-     * @type int
-     * @property _ltIndex
-     * @private
-     */
-    this._ltIndex = 0;
-
-    this._ltIndexCache = [];
-}
-
-/**
- * Accepts an array of token information and outputs
- * an array of token data containing key-value mappings
- * and matching functions that the TokenStream needs.
- * @param {Array} tokens An array of token descriptors.
- * @return {Array} An array of processed token data.
- * @method createTokenData
- * @static
- */
-TokenStreamBase.createTokenData = function(tokens){
-
-    var nameMap     = [],
-        typeMap     = {},
-        tokenData     = tokens.concat([]),
-        i            = 0,
-        len            = tokenData.length+1;
-
-    tokenData.UNKNOWN = -1;
-    tokenData.unshift({name:"EOF"});
-
-    for (; i < len; i++){
-        nameMap.push(tokenData[i].name);
-        tokenData[tokenData[i].name] = i;
-        if (tokenData[i].text){
-            typeMap[tokenData[i].text] = i;
-        }
-    }
-
-    tokenData.name = function(tt){
-        return nameMap[tt];
-    };
-
-    tokenData.type = function(c){
-        return typeMap[c];
-    };
-
-    return tokenData;
-};
-
-TokenStreamBase.prototype = {
-
-    //restore constructor
-    constructor: TokenStreamBase,
-
-    //-------------------------------------------------------------------------
-    // Matching methods
-    //-------------------------------------------------------------------------
-
-    /**
-     * Determines if the next token matches the given token type.
-     * If so, that token is consumed; if not, the token is placed
-     * back onto the token stream. You can pass in any number of
-     * token types and this will return true if any of the token
-     * types is found.
-     * @param {int|int[]} tokenTypes Either a single token type or an array of
-     *      token types that the next token might be. If an array is passed,
-     *      it's assumed that the token can be any of these.
-     * @param {variant} channel (Optional) The channel to read from. If not
-     *      provided, reads from the default (unnamed) channel.
-     * @return {Boolean} True if the token type matches, false if not.
-     * @method match
-     */
-    match: function(tokenTypes, channel){
-
-        //always convert to an array, makes things easier
-        if (!(tokenTypes instanceof Array)){
-            tokenTypes = [tokenTypes];
-        }
-
-        var tt  = this.get(channel),
-            i   = 0,
-            len = tokenTypes.length;
-
-        while(i < len){
-            if (tt == tokenTypes[i++]){
-                return true;
-            }
-        }
-
-        //no match found, put the token back
-        this.unget();
-        return false;
-    },
-
-    /**
-     * Determines if the next token matches the given token type.
-     * If so, that token is consumed; if not, an error is thrown.
-     * @param {int|int[]} tokenTypes Either a single token type or an array of
-     *      token types that the next token should be. If an array is passed,
-     *      it's assumed that the token must be one of these.
-     * @param {variant} channel (Optional) The channel to read from. If not
-     *      provided, reads from the default (unnamed) channel.
-     * @return {void}
-     * @method mustMatch
-     */
-    mustMatch: function(tokenTypes, channel){
-
-        var token;
-
-        //always convert to an array, makes things easier
-        if (!(tokenTypes instanceof Array)){
-            tokenTypes = [tokenTypes];
-        }
-
-        if (!this.match.apply(this, arguments)){
-            token = this.LT(1);
-            throw new SyntaxError("Expected " + this._tokenData[tokenTypes[0]].name +
-                " at line " + token.startLine + ", col " + token.startCol + ".", token.startLine, token.startCol);
-        }
-    },
-
-    //-------------------------------------------------------------------------
-    // Consuming methods
-    //-------------------------------------------------------------------------
-
-    /**
-     * Keeps reading from the token stream until either one of the specified
-     * token types is found or until the end of the input is reached.
-     * @param {int|int[]} tokenTypes Either a single token type or an array of
-     *      token types that the next token should be. If an array is passed,
-     *      it's assumed that the token must be one of these.
-     * @param {variant} channel (Optional) The channel to read from. If not
-     *      provided, reads from the default (unnamed) channel.
-     * @return {void}
-     * @method advance
-     */
-    advance: function(tokenTypes, channel){
-
-        while(this.LA(0) !== 0 && !this.match(tokenTypes, channel)){
-            this.get();
-        }
-
-        return this.LA(0);
-    },
-
-    /**
-     * Consumes the next token from the token stream.
-     * @return {int} The token type of the token that was just consumed.
-     * @method get
-     */
-    get: function(channel){
-
-        var tokenInfo   = this._tokenData,
-            reader      = this._reader,
-            value,
-            i           =0,
-            len         = tokenInfo.length,
-            found       = false,
-            token,
-            info;
-
-        //check the lookahead buffer first
-        if (this._lt.length && this._ltIndex >= 0 && this._ltIndex < this._lt.length){
-
-            i++;
-            this._token = this._lt[this._ltIndex++];
-            info = tokenInfo[this._token.type];
-
-            //obey channels logic
-            while((info.channel !== undefined && channel !== info.channel) &&
-                    this._ltIndex < this._lt.length){
-                this._token = this._lt[this._ltIndex++];
-                info = tokenInfo[this._token.type];
-                i++;
-            }
-
-            //here be dragons
-            if ((info.channel === undefined || channel === info.channel) &&
-                    this._ltIndex <= this._lt.length){
-                this._ltIndexCache.push(i);
-                return this._token.type;
-            }
-        }
-
-        //call token retriever method
-        token = this._getToken();
-
-        //if it should be hidden, don't save a token
-        if (token.type > -1 && !tokenInfo[token.type].hide){
-
-            //apply token channel
-            token.channel = tokenInfo[token.type].channel;
-
-            //save for later
-            this._token = token;
-            this._lt.push(token);
-
-            //save space that will be moved (must be done before array is truncated)
-            this._ltIndexCache.push(this._lt.length - this._ltIndex + i);
-
-            //keep the buffer under 5 items
-            if (this._lt.length > 5){
-                this._lt.shift();
-            }
-
-            //also keep the shift buffer under 5 items
-            if (this._ltIndexCache.length > 5){
-                this._ltIndexCache.shift();
-            }
-
-            //update lookahead index
-            this._ltIndex = this._lt.length;
-        }
-
-        /*
-         * Skip to the next token if:
-         * 1. The token type is marked as hidden.
-         * 2. The token type has a channel specified and it isn't the current channel.
-         */
-        info = tokenInfo[token.type];
-        if (info &&
-                (info.hide ||
-                (info.channel !== undefined && channel !== info.channel))){
-            return this.get(channel);
-        } else {
-            //return just the type
-            return token.type;
-        }
-    },
-
-    /**
-     * Looks ahead a certain number of tokens and returns the token type at
-     * that position. This will throw an error if you lookahead past the
-     * end of input, past the size of the lookahead buffer, or back past
-     * the first token in the lookahead buffer.
-     * @param {int} The index of the token type to retrieve. 0 for the
-     *      current token, 1 for the next, -1 for the previous, etc.
-     * @return {int} The token type of the token in the given position.
-     * @method LA
-     */
-    LA: function(index){
-        var total = index,
-            tt;
-        if (index > 0){
-            //TODO: Store 5 somewhere
-            if (index > 5){
-                throw new Error("Too much lookahead.");
-            }
-
-            //get all those tokens
-            while(total){
-                tt = this.get();
-                total--;
-            }
-
-            //unget all those tokens
-            while(total < index){
-                this.unget();
-                total++;
-            }
-        } else if (index < 0){
-
-            if(this._lt[this._ltIndex+index]){
-                tt = this._lt[this._ltIndex+index].type;
-            } else {
-                throw new Error("Too much lookbehind.");
-            }
-
-        } else {
-            tt = this._token.type;
-        }
-
-        return tt;
-
-    },
-
-    /**
-     * Looks ahead a certain number of tokens and returns the token at
-     * that position. This will throw an error if you lookahead past the
-     * end of input, past the size of the lookahead buffer, or back past
-     * the first token in the lookahead buffer.
-     * @param {int} The index of the token type to retrieve. 0 for the
-     *      current token, 1 for the next, -1 for the previous, etc.
-     * @return {Object} The token of the token in the given position.
-     * @method LA
-     */
-    LT: function(index){
-
-        //lookahead first to prime the token buffer
-        this.LA(index);
-
-        //now find the token, subtract one because _ltIndex is already at the next index
-        return this._lt[this._ltIndex+index-1];
-    },
-
-    /**
-     * Returns the token type for the next token in the stream without
-     * consuming it.
-     * @return {int} The token type of the next token in the stream.
-     * @method peek
-     */
-    peek: function(){
-        return this.LA(1);
-    },
-
-    /**
-     * Returns the actual token object for the last consumed token.
-     * @return {Token} The token object for the last consumed token.
-     * @method token
-     */
-    token: function(){
-        return this._token;
-    },
-
-    /**
-     * Returns the name of the token for the given token type.
-     * @param {int} tokenType The type of token to get the name of.
-     * @return {String} The name of the token or "UNKNOWN_TOKEN" for any
-     *      invalid token type.
-     * @method tokenName
-     */
-    tokenName: function(tokenType){
-        if (tokenType < 0 || tokenType > this._tokenData.length){
-            return "UNKNOWN_TOKEN";
-        } else {
-            return this._tokenData[tokenType].name;
-        }
-    },
-
-    /**
-     * Returns the token type value for the given token name.
-     * @param {String} tokenName The name of the token whose value should be returned.
-     * @return {int} The token type value for the given token name or -1
-     *      for an unknown token.
-     * @method tokenName
-     */
-    tokenType: function(tokenName){
-        return this._tokenData[tokenName] || -1;
-    },
-
-    /**
-     * Returns the last consumed token to the token stream.
-     * @method unget
-     */
-    unget: function(){
-        //if (this._ltIndex > -1){
-        if (this._ltIndexCache.length){
-            this._ltIndex -= this._ltIndexCache.pop();//--;
-            this._token = this._lt[this._ltIndex - 1];
-        } else {
-            throw new Error("Too much lookahead.");
-        }
-    }
-
-};
-
-
-parserlib.util = {
-StringReader: StringReader,
-SyntaxError : SyntaxError,
-SyntaxUnit  : SyntaxUnit,
-EventTarget : EventTarget,
-TokenStreamBase : TokenStreamBase
-};
-})();
-/*
-Parser-Lib
-Copyright (c) 2009-2011 Nicholas C. Zakas. All rights reserved.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-*/
-/* Version v0.2.5, Build time: 7-May-2014 03:37:38 */
-(function(){
-var EventTarget = parserlib.util.EventTarget,
-TokenStreamBase = parserlib.util.TokenStreamBase,
-StringReader = parserlib.util.StringReader,
-SyntaxError = parserlib.util.SyntaxError,
-SyntaxUnit  = parserlib.util.SyntaxUnit;
-
-var Colors = {
+/* Version v1.0.0, Build time: 15-July-2016 12:36:10 */
+var parserlib = (function () {
+var require;
+require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+"use strict";
+
+/* exported Colors */
+
+var Colors = module.exports = {
+    __proto__       :null,
     aliceblue       :"#f0f8ff",
     antiquewhite    :"#faebd7",
     aqua            :"#00ffff",
@@ -1106,7 +201,9 @@ var Colors = {
     whitesmoke      :"#f5f5f5",
     yellow          :"#ffff00",
     yellowgreen     :"#9acd32",
-    //CSS2 system colors http://www.w3.org/TR/css3-color/#css2-system
+    //'currentColor' color keyword https://www.w3.org/TR/css3-color/#currentcolor
+    currentColor        :"The value of the 'color' property.",
+    //CSS2 system colors https://www.w3.org/TR/css3-color/#css2-system
     activeBorder        :"Active window border.",
     activecaption       :"Active window caption.",
     appworkspace        :"Background color of multiple document interface.",
@@ -1137,7 +234,16 @@ var Colors = {
     windowframe         :"Window frame.",
     windowtext          :"Text in windows."
 };
-/*global SyntaxUnit, Parser*/
+
+},{}],2:[function(require,module,exports){
+"use strict";
+
+module.exports = Combinator;
+
+var SyntaxUnit = require("../util/SyntaxUnit");
+
+var Parser = require("./Parser");
+
 /**
  * Represents a selector combinator (whitespace, +, >).
  * @namespace parserlib.css
@@ -1148,7 +254,7 @@ var Colors = {
  * @param {int} line The line of text on which the unit resides.
  * @param {int} col The column of text on which the unit resides.
  */
-function Combinator(text, line, col){
+function Combinator(text, line, col) {
 
     SyntaxUnit.call(this, text, line, col, Parser.COMBINATOR_TYPE);
 
@@ -1160,13 +266,13 @@ function Combinator(text, line, col){
     this.type = "unknown";
 
     //pretty simple
-    if (/^\s+$/.test(text)){
+    if (/^\s+$/.test(text)) {
         this.type = "descendant";
-    } else if (text == ">"){
+    } else if (text === ">") {
         this.type = "child";
-    } else if (text == "+"){
+    } else if (text === "+") {
         this.type = "adjacent-sibling";
-    } else if (text == "~"){
+    } else if (text === "~") {
         this.type = "sibling";
     }
 
@@ -1175,7 +281,373 @@ function Combinator(text, line, col){
 Combinator.prototype = new SyntaxUnit();
 Combinator.prototype.constructor = Combinator;
 
-/*global SyntaxUnit, Parser*/
+
+},{"../util/SyntaxUnit":26,"./Parser":6}],3:[function(require,module,exports){
+"use strict";
+
+module.exports = Matcher;
+
+var StringReader = require("../util/StringReader");
+var SyntaxError = require("../util/SyntaxError");
+
+/**
+ * This class implements a combinator library for matcher functions.
+ * The combinators are described at:
+ * https://developer.mozilla.org/en-US/docs/Web/CSS/Value_definition_syntax#Component_value_combinators
+ */
+function Matcher(matchFunc, toString) {
+    this.match = function(expression) {
+        // Save/restore marks to ensure that failed matches always restore
+        // the original location in the expression.
+        var result;
+        expression.mark();
+        result = matchFunc(expression);
+        if (result) {
+            expression.drop();
+        } else {
+            expression.restore();
+        }
+        return result;
+    };
+    this.toString = typeof toString === "function" ? toString : function() {
+        return toString;
+    };
+}
+
+/** Precedence table of combinators. */
+Matcher.prec = {
+    MOD:    5,
+    SEQ:    4,
+    ANDAND: 3,
+    OROR:   2,
+    ALT:    1
+};
+
+/** Simple recursive-descent grammar to build matchers from strings. */
+Matcher.parse = function(str) {
+    var reader, eat, expr, oror, andand, seq, mod, term, result;
+    reader = new StringReader(str);
+    eat = function(matcher) {
+        var result = reader.readMatch(matcher);
+        if (result === null) {
+            throw new SyntaxError(
+                "Expected "+matcher, reader.getLine(), reader.getCol());
+        }
+        return result;
+    };
+    expr = function() {
+        // expr = oror (" | " oror)*
+        var m = [ oror() ];
+        while (reader.readMatch(" | ") !== null) {
+            m.push(oror());
+        }
+        return m.length === 1 ? m[0] : Matcher.alt.apply(Matcher, m);
+    };
+    oror = function() {
+        // oror = andand ( " || " andand)*
+        var m = [ andand() ];
+        while (reader.readMatch(" || ") !== null) {
+            m.push(andand());
+        }
+        return m.length === 1 ? m[0] : Matcher.oror.apply(Matcher, m);
+    };
+    andand = function() {
+        // andand = seq ( " && " seq)*
+        var m = [ seq() ];
+        while (reader.readMatch(" && ") !== null) {
+            m.push(seq());
+        }
+        return m.length === 1 ? m[0] : Matcher.andand.apply(Matcher, m);
+    };
+    seq = function() {
+        // seq = mod ( " " mod)*
+        var m = [ mod() ];
+        while (reader.readMatch(/^ (?![&|\]])/) !== null) {
+            m.push(mod());
+        }
+        return m.length === 1 ? m[0] : Matcher.seq.apply(Matcher, m);
+    };
+    mod = function() {
+        // mod = term ( "?" | "*" | "+" | "#" | "{<num>,<num>}" )?
+        var m = term();
+        if (reader.readMatch("?") !== null) {
+            return m.question();
+        } else if (reader.readMatch("*") !== null) {
+            return m.star();
+        } else if (reader.readMatch("+") !== null) {
+            return m.plus();
+        } else if (reader.readMatch("#") !== null) {
+            return m.hash();
+        } else if (reader.readMatch(/^\{\s*/) !== null) {
+            var min = eat(/^\d+/);
+            eat(/^\s*,\s*/);
+            var max = eat(/^\d+/);
+            eat(/^\s*\}/);
+            return m.braces(+min, +max);
+        }
+        return m;
+    };
+    term = function() {
+        // term = <nt> | literal | "[ " expression " ]"
+        if (reader.readMatch("[ ") !== null) {
+            var m = expr();
+            eat(" ]");
+            return m;
+        }
+        return Matcher.fromType(eat(/^[^ ?*+#{]+/));
+    };
+    result = expr();
+    if (!reader.eof()) {
+        throw new SyntaxError(
+            "Expected end of string", reader.getLine(), reader.getCol());
+    }
+    return result;
+};
+
+/**
+ * Convert a string to a matcher (parsing simple alternations),
+ * or do nothing if the argument is already a matcher.
+ */
+Matcher.cast = function(m) {
+    if (m instanceof Matcher) {
+        return m;
+    }
+    return Matcher.parse(m);
+};
+
+/**
+ * Create a matcher for a single type.
+ */
+Matcher.fromType = function(type) {
+    // Late require of ValidationTypes to break a dependency cycle.
+    var ValidationTypes = require("./ValidationTypes");
+    return new Matcher(function(expression) {
+        return expression.hasNext() && ValidationTypes.isType(expression, type);
+    }, type);
+};
+
+/**
+ * Create a matcher for one or more juxtaposed words, which all must
+ * occur, in the given order.
+ */
+Matcher.seq = function() {
+    var ms = Array.prototype.slice.call(arguments).map(Matcher.cast);
+    if (ms.length === 1) {
+        return ms[0];
+    }
+    return new Matcher(function(expression) {
+        var i, result = true;
+        for (i = 0; result && i < ms.length; i++) {
+            result = ms[i].match(expression);
+        }
+        return result;
+    }, function(prec) {
+        var p = Matcher.prec.SEQ;
+        var s = ms.map(function(m) {
+            return m.toString(p);
+        }).join(" ");
+        if (prec > p) {
+            s = "[ " + s + " ]";
+        }
+        return s;
+    });
+};
+
+/**
+ * Create a matcher for one or more alternatives, where exactly one
+ * must occur.
+ */
+Matcher.alt = function() {
+    var ms = Array.prototype.slice.call(arguments).map(Matcher.cast);
+    if (ms.length === 1) {
+        return ms[0];
+    }
+    return new Matcher(function(expression) {
+        var i, result = false;
+        for (i = 0; !result && i < ms.length; i++) {
+            result = ms[i].match(expression);
+        }
+        return result;
+    }, function(prec) {
+        var p = Matcher.prec.ALT;
+        var s = ms.map(function(m) {
+            return m.toString(p);
+        }).join(" | ");
+        if (prec > p) {
+            s = "[ " + s + " ]";
+        }
+        return s;
+    });
+};
+
+/**
+ * Create a matcher for two or more options.  This implements the
+ * double bar (||) and double ampersand (&&) operators, as well as
+ * variants of && where some of the alternatives are optional.
+ * This will backtrack through even successful matches to try to
+ * maximize the number of items matched.
+ */
+Matcher.many = function(required) {
+    var ms = Array.prototype.slice.call(arguments, 1).reduce(function(acc, v) {
+        if (v.expand) {
+            // Insert all of the options for the given complex rule as
+            // individual options.
+            var ValidationTypes = require("./ValidationTypes");
+            acc.push.apply(acc, ValidationTypes.complex[v.expand].options);
+        } else {
+            acc.push(Matcher.cast(v));
+        }
+        return acc;
+    }, []);
+
+    if (required === true) {
+        required = ms.map(function() {
+            return true;
+        });
+    }
+
+    var result = new Matcher(function(expression) {
+        var seen = [], max = 0, pass = 0;
+        var success = function(matchCount) {
+            if (pass === 0) {
+                max = Math.max(matchCount, max);
+                return matchCount === ms.length;
+            } else {
+                return matchCount === max;
+            }
+        };
+        var tryMatch = function(matchCount) {
+            for (var i = 0; i < ms.length; i++) {
+                if (seen[i]) {
+                    continue;
+                }
+                expression.mark();
+                if (ms[i].match(expression)) {
+                    seen[i] = true;
+                    // Increase matchCount iff this was a required element
+                    // (or if all the elements are optional)
+                    if (tryMatch(matchCount + ((required === false || required[i]) ? 1 : 0))) {
+                        expression.drop();
+                        return true;
+                    }
+                    // Backtrack: try *not* matching using this rule, and
+                    // let's see if it leads to a better overall match.
+                    expression.restore();
+                    seen[i] = false;
+                } else {
+                    expression.drop();
+                }
+            }
+            return success(matchCount);
+        };
+        if (!tryMatch(0)) {
+            // Couldn't get a complete match, retrace our steps to make the
+            // match with the maximum # of required elements.
+            pass++;
+            tryMatch(0);
+        }
+
+        if (required === false) {
+            return max > 0;
+        }
+        // Use finer-grained specification of which matchers are required.
+        for (var i = 0; i < ms.length; i++) {
+            if (required[i] && !seen[i]) {
+                return false;
+            }
+        }
+        return true;
+    }, function(prec) {
+        var p = required === false ? Matcher.prec.OROR : Matcher.prec.ANDAND;
+        var s = ms.map(function(m, i) {
+            if (required !== false && !required[i]) {
+                return m.toString(Matcher.prec.MOD) + "?";
+            }
+            return m.toString(p);
+        }).join(required === false ? " || " : " && ");
+        if (prec > p) {
+            s = "[ " + s + " ]";
+        }
+        return s;
+    });
+    result.options = ms;
+    return result;
+};
+
+/**
+ * Create a matcher for two or more options, where all options are
+ * mandatory but they may appear in any order.
+ */
+Matcher.andand = function() {
+    var args = Array.prototype.slice.call(arguments);
+    args.unshift(true);
+    return Matcher.many.apply(Matcher, args);
+};
+
+/**
+ * Create a matcher for two or more options, where options are
+ * optional and may appear in any order, but at least one must be
+ * present.
+ */
+Matcher.oror = function() {
+    var args = Array.prototype.slice.call(arguments);
+    args.unshift(false);
+    return Matcher.many.apply(Matcher, args);
+};
+
+/** Instance methods on Matchers. */
+Matcher.prototype = {
+    constructor: Matcher,
+    // These are expected to be overridden in every instance.
+    match: function() { throw new Error("unimplemented"); },
+    toString: function() { throw new Error("unimplemented"); },
+    // This returns a standalone function to do the matching.
+    func: function() { return this.match.bind(this); },
+    // Basic combinators
+    then: function(m) { return Matcher.seq(this, m); },
+    or: function(m) { return Matcher.alt(this, m); },
+    andand: function(m) { return Matcher.many(true, this, m); },
+    oror: function(m) { return Matcher.many(false, this, m); },
+    // Component value multipliers
+    star: function() { return this.braces(0, Infinity, "*"); },
+    plus: function() { return this.braces(1, Infinity, "+"); },
+    question: function() { return this.braces(0, 1, "?"); },
+    hash: function() {
+        return this.braces(1, Infinity, "#", Matcher.cast(","));
+    },
+    braces: function(min, max, marker, optSep) {
+        var m1 = this, m2 = optSep ? optSep.then(this) : this;
+        if (!marker) {
+            marker = "{" + min + "," + max + "}";
+        }
+        return new Matcher(function(expression) {
+            var result = true, i;
+            for (i = 0; i < max; i++) {
+                if (i > 0 && optSep) {
+                    result = m2.match(expression);
+                } else {
+                    result = m1.match(expression);
+                }
+                if (!result) {
+                    break;
+                }
+            }
+            return i >= min;
+        }, function() {
+            return m1.toString(Matcher.prec.MOD) + marker;
+        });
+    }
+};
+
+},{"../util/StringReader":24,"../util/SyntaxError":25,"./ValidationTypes":21}],4:[function(require,module,exports){
+"use strict";
+
+module.exports = MediaFeature;
+
+var SyntaxUnit = require("../util/SyntaxUnit");
+
+var Parser = require("./Parser");
+
 /**
  * Represents a media feature, such as max-width:500.
  * @namespace parserlib.css
@@ -1185,7 +657,7 @@ Combinator.prototype.constructor = Combinator;
  * @param {SyntaxUnit} name The name of the feature.
  * @param {SyntaxUnit} value The value of the feature or null if none.
  */
-function MediaFeature(name, value){
+function MediaFeature(name, value) {
 
     SyntaxUnit.call(this, "(" + name + (value !== null ? ":" + value : "") + ")", name.startLine, name.startCol, Parser.MEDIA_FEATURE_TYPE);
 
@@ -1207,7 +679,16 @@ function MediaFeature(name, value){
 MediaFeature.prototype = new SyntaxUnit();
 MediaFeature.prototype.constructor = MediaFeature;
 
-/*global SyntaxUnit, Parser*/
+
+},{"../util/SyntaxUnit":26,"./Parser":6}],5:[function(require,module,exports){
+"use strict";
+
+module.exports = MediaQuery;
+
+var SyntaxUnit = require("../util/SyntaxUnit");
+
+var Parser = require("./Parser");
+
 /**
  * Represents an individual media query.
  * @namespace parserlib.css
@@ -1220,7 +701,7 @@ MediaFeature.prototype.constructor = MediaFeature;
  * @param {int} line The line of text on which the unit resides.
  * @param {int} col The column of text on which the unit resides.
  */
-function MediaQuery(modifier, mediaType, features, line, col){
+function MediaQuery(modifier, mediaType, features, line, col) {
 
     SyntaxUnit.call(this, (modifier ? modifier + " ": "") + (mediaType ? mediaType : "") + (mediaType && features.length > 0 ? " and " : "") + features.join(" and "), line, col, Parser.MEDIA_QUERY_TYPE);
 
@@ -1250,9 +731,28 @@ function MediaQuery(modifier, mediaType, features, line, col){
 MediaQuery.prototype = new SyntaxUnit();
 MediaQuery.prototype.constructor = MediaQuery;
 
-/*global Tokens, TokenStream, SyntaxError, Properties, Validation, ValidationError, SyntaxUnit,
-    PropertyValue, PropertyValuePart, SelectorPart, SelectorSubPart, Selector,
-    PropertyName, Combinator, MediaFeature, MediaQuery, EventTarget */
+
+},{"../util/SyntaxUnit":26,"./Parser":6}],6:[function(require,module,exports){
+"use strict";
+
+module.exports = Parser;
+
+var EventTarget = require("../util/EventTarget");
+var SyntaxError = require("../util/SyntaxError");
+var SyntaxUnit = require("../util/SyntaxUnit");
+
+var Combinator = require("./Combinator");
+var MediaFeature = require("./MediaFeature");
+var MediaQuery = require("./MediaQuery");
+var PropertyName = require("./PropertyName");
+var PropertyValue = require("./PropertyValue");
+var PropertyValuePart = require("./PropertyValuePart");
+var Selector = require("./Selector");
+var SelectorPart = require("./SelectorPart");
+var SelectorSubPart = require("./SelectorSubPart");
+var TokenStream = require("./TokenStream");
+var Tokens = require("./Tokens");
+var Validation = require("./Validation");
 
 /**
  * A CSS3 parser.
@@ -1266,7 +766,7 @@ MediaQuery.prototype.constructor = MediaQuery;
  *      to indicate that IE < 8 filters should be accepted and not throw
  *      syntax errors.
  */
-function Parser(options){
+function Parser(options) {
 
     //inherit event functionality
     EventTarget.call(this);
@@ -1289,11 +789,12 @@ Parser.SELECTOR_TYPE = 7;
 Parser.SELECTOR_PART_TYPE = 8;
 Parser.SELECTOR_SUB_PART_TYPE = 9;
 
-Parser.prototype = function(){
+Parser.prototype = function() {
 
     var proto = new EventTarget(),  //new prototype
         prop,
         additions =  {
+            __proto__: null,
 
             //restore constructor
             constructor: Parser,
@@ -1314,19 +815,18 @@ Parser.prototype = function(){
             // Grammar
             //-----------------------------------------------------------------
 
-            _stylesheet: function(){
+            _stylesheet: function() {
 
                 /*
                  * stylesheet
                  *  : [ CHARSET_SYM S* STRING S* ';' ]?
                  *    [S|CDO|CDC]* [ import [S|CDO|CDC]* ]*
                  *    [ namespace [S|CDO|CDC]* ]*
-                 *    [ [ ruleset | media | page | font_face | keyframes ] [S|CDO|CDC]* ]*
+                 *    [ [ ruleset | media | page | font_face | keyframes_rule | supports_rule ] [S|CDO|CDC]* ]*
                  *  ;
                  */
 
                 var tokenStream = this._tokenStream,
-                    charset     = null,
                     count,
                     token,
                     tt;
@@ -1339,13 +839,13 @@ Parser.prototype = function(){
                 this._skipCruft();
 
                 //try to read imports - may be more than one
-                while (tokenStream.peek() == Tokens.IMPORT_SYM){
+                while (tokenStream.peek() === Tokens.IMPORT_SYM) {
                     this._import();
                     this._skipCruft();
                 }
 
                 //try to read namespaces - may be more than one
-                while (tokenStream.peek() == Tokens.NAMESPACE_SYM){
+                while (tokenStream.peek() === Tokens.NAMESPACE_SYM) {
                     this._namespace();
                     this._skipCruft();
                 }
@@ -1354,11 +854,11 @@ Parser.prototype = function(){
                 tt = tokenStream.peek();
 
                 //try to read the rest
-                while(tt > Tokens.EOF){
+                while (tt > Tokens.EOF) {
 
                     try {
 
-                        switch(tt){
+                        switch (tt) {
                             case Tokens.MEDIA_SYM:
                                 this._media();
                                 this._skipCruft();
@@ -1379,9 +879,17 @@ Parser.prototype = function(){
                                 this._viewport();
                                 this._skipCruft();
                                 break;
+                            case Tokens.DOCUMENT_SYM:
+                                this._document();
+                                this._skipCruft();
+                                break;
+                            case Tokens.SUPPORTS_SYM:
+                                this._supports();
+                                this._skipCruft();
+                                break;
                             case Tokens.UNKNOWN_SYM:  //unknown @ rule
                                 tokenStream.get();
-                                if (!this.options.strict){
+                                if (!this.options.strict) {
 
                                     //fire error event
                                     this.fire({
@@ -1394,11 +902,11 @@ Parser.prototype = function(){
 
                                     //skip braces
                                     count=0;
-                                    while (tokenStream.advance([Tokens.LBRACE, Tokens.RBRACE]) == Tokens.LBRACE){
+                                    while (tokenStream.advance([Tokens.LBRACE, Tokens.RBRACE]) === Tokens.LBRACE) {
                                         count++;    //keep track of nesting depth
                                     }
 
-                                    while(count){
+                                    while (count) {
                                         tokenStream.advance([Tokens.RBRACE]);
                                         count--;
                                     }
@@ -1412,10 +920,10 @@ Parser.prototype = function(){
                                 this._readWhitespace();
                                 break;
                             default:
-                                if(!this._ruleset()){
+                                if (!this._ruleset()) {
 
                                     //error handling for known issues
-                                    switch(tt){
+                                    switch (tt) {
                                         case Tokens.CHARSET_SYM:
                                             token = tokenStream.LT(1);
                                             this._charset(false);
@@ -1435,8 +943,8 @@ Parser.prototype = function(){
 
                                 }
                         }
-                    } catch(ex) {
-                        if (ex instanceof SyntaxError && !this.options.strict){
+                    } catch (ex) {
+                        if (ex instanceof SyntaxError && !this.options.strict) {
                             this.fire({
                                 type:       "error",
                                 error:      ex,
@@ -1452,21 +960,21 @@ Parser.prototype = function(){
                     tt = tokenStream.peek();
                 }
 
-                if (tt != Tokens.EOF){
+                if (tt !== Tokens.EOF) {
                     this._unexpectedToken(tokenStream.token());
                 }
 
                 this.fire("endstylesheet");
             },
 
-            _charset: function(emit){
+            _charset: function(emit) {
                 var tokenStream = this._tokenStream,
                     charset,
                     token,
                     line,
                     col;
 
-                if (tokenStream.match(Tokens.CHARSET_SYM)){
+                if (tokenStream.match(Tokens.CHARSET_SYM)) {
                     line = tokenStream.token().startLine;
                     col = tokenStream.token().startCol;
 
@@ -1479,7 +987,7 @@ Parser.prototype = function(){
                     this._readWhitespace();
                     tokenStream.mustMatch(Tokens.SEMICOLON);
 
-                    if (emit !== false){
+                    if (emit !== false) {
                         this.fire({
                             type:   "charset",
                             charset:charset,
@@ -1490,7 +998,7 @@ Parser.prototype = function(){
                 }
             },
 
-            _import: function(emit){
+            _import: function(emit) {
                 /*
                  * import
                  *   : IMPORT_SYM S*
@@ -1498,7 +1006,6 @@ Parser.prototype = function(){
                  */
 
                 var tokenStream = this._tokenStream,
-                    tt,
                     uri,
                     importToken,
                     mediaList   = [];
@@ -1521,7 +1028,7 @@ Parser.prototype = function(){
                 tokenStream.mustMatch(Tokens.SEMICOLON);
                 this._readWhitespace();
 
-                if (emit !== false){
+                if (emit !== false) {
                     this.fire({
                         type:   "import",
                         uri:    uri,
@@ -1533,7 +1040,7 @@ Parser.prototype = function(){
 
             },
 
-            _namespace: function(emit){
+            _namespace: function(emit) {
                 /*
                  * namespace
                  *   : NAMESPACE_SYM S* [namespace_prefix S*]? [STRING|URI] S* ';' S*
@@ -1552,7 +1059,7 @@ Parser.prototype = function(){
                 this._readWhitespace();
 
                 //it's a namespace prefix - no _namespace_prefix() method because it's just an IDENT
-                if (tokenStream.match(Tokens.IDENT)){
+                if (tokenStream.match(Tokens.IDENT)) {
                     prefix = tokenStream.token().value;
                     this._readWhitespace();
                 }
@@ -1571,7 +1078,7 @@ Parser.prototype = function(){
                 tokenStream.mustMatch(Tokens.SEMICOLON);
                 this._readWhitespace();
 
-                if (emit !== false){
+                if (emit !== false) {
                     this.fire({
                         type:   "namespace",
                         prefix: prefix,
@@ -1583,7 +1090,138 @@ Parser.prototype = function(){
 
             },
 
-            _media: function(){
+            _supports: function(emit) {
+                /*
+                 * supports_rule
+                 *  : SUPPORTS_SYM S* supports_condition S* group_rule_body
+                 *  ;
+                 */
+                var tokenStream = this._tokenStream,
+                    line,
+                    col;
+
+                if (tokenStream.match(Tokens.SUPPORTS_SYM)) {
+                    line = tokenStream.token().startLine;
+                    col = tokenStream.token().startCol;
+
+                    this._readWhitespace();
+                    this._supports_condition();
+                    this._readWhitespace();
+
+                    tokenStream.mustMatch(Tokens.LBRACE);
+                    this._readWhitespace();
+
+                    if (emit !== false) {
+                        this.fire({
+                            type:   "startsupports",
+                            line:   line,
+                            col:    col
+                        });
+                    }
+
+                    while (true) {
+                        if (!this._ruleset()) {
+                            break;
+                        }
+                    }
+
+                    tokenStream.mustMatch(Tokens.RBRACE);
+                    this._readWhitespace();
+
+                    this.fire({
+                        type:   "endsupports",
+                        line:   line,
+                        col:    col
+                    });
+                }
+            },
+
+            _supports_condition: function() {
+                /*
+                 * supports_condition
+                 *  : supports_negation | supports_conjunction | supports_disjunction |
+                 *    supports_condition_in_parens
+                 *  ;
+                 */
+                var tokenStream = this._tokenStream,
+                    ident;
+
+                if (tokenStream.match(Tokens.IDENT)) {
+                    ident = tokenStream.token().value.toLowerCase();
+
+                    if (ident === "not") {
+                        tokenStream.mustMatch(Tokens.S);
+                        this._supports_condition_in_parens();
+                    } else {
+                        tokenStream.unget();
+                    }
+                } else {
+                    this._supports_condition_in_parens();
+                    this._readWhitespace();
+
+                    while (tokenStream.peek() === Tokens.IDENT) {
+                        ident = tokenStream.LT(1).value.toLowerCase();
+                        if (ident === "and" || ident === "or") {
+                            tokenStream.mustMatch(Tokens.IDENT);
+                            this._readWhitespace();
+                            this._supports_condition_in_parens();
+                            this._readWhitespace();
+                        }
+                    }
+                }
+            },
+
+            _supports_condition_in_parens: function() {
+                /*
+                 * supports_condition_in_parens
+                 *  : ( '(' S* supports_condition S* ')' ) | supports_declaration_condition |
+                 *    general_enclosed
+                 *  ;
+                 */
+                var tokenStream = this._tokenStream,
+                    ident;
+
+                if (tokenStream.match(Tokens.LPAREN)) {
+                    this._readWhitespace();
+                    if (tokenStream.match(Tokens.IDENT)) {
+                        // look ahead for not keyword, if not given, continue with declaration condition.
+                        ident = tokenStream.token().value.toLowerCase();
+                        if (ident === "not") {
+                            this._readWhitespace();
+                            this._supports_condition();
+                            this._readWhitespace();
+                            tokenStream.mustMatch(Tokens.RPAREN);
+                        } else {
+                            tokenStream.unget();
+                            this._supports_declaration_condition(false);
+                        }
+                    } else {
+                        this._supports_condition();
+                        this._readWhitespace();
+                        tokenStream.mustMatch(Tokens.RPAREN);
+                    }
+                } else {
+                    this._supports_declaration_condition();
+                }
+            },
+
+            _supports_declaration_condition: function(requireStartParen) {
+                /*
+                 * supports_declaration_condition
+                 *  : '(' S* declaration ')'
+                 *  ;
+                 */
+                var tokenStream = this._tokenStream;
+
+                if (requireStartParen !== false) {
+                    tokenStream.mustMatch(Tokens.LPAREN);
+                }
+                this._readWhitespace();
+                this._declaration();
+                tokenStream.mustMatch(Tokens.RPAREN);
+            },
+
+            _media: function() {
                 /*
                  * media
                  *   : MEDIA_SYM S* media_query_list S* '{' S* ruleset* '}' S*
@@ -1613,14 +1251,18 @@ Parser.prototype = function(){
                     col:    col
                 });
 
-                while(true) {
-                    if (tokenStream.peek() == Tokens.PAGE_SYM){
+                while (true) {
+                    if (tokenStream.peek() === Tokens.PAGE_SYM) {
                         this._page();
-                    } else if (tokenStream.peek() == Tokens.FONT_FACE_SYM){
+                    } else if (tokenStream.peek() === Tokens.FONT_FACE_SYM) {
                         this._font_face();
-                    } else if (tokenStream.peek() == Tokens.VIEWPORT_SYM){
+                    } else if (tokenStream.peek() === Tokens.VIEWPORT_SYM) {
                         this._viewport();
-                    } else if (!this._ruleset()){
+                    } else if (tokenStream.peek() === Tokens.DOCUMENT_SYM) {
+                        this._document();
+                    } else if (tokenStream.peek() === Tokens.SUPPORTS_SYM) {
+                        this._supports();
+                    } else if (!this._ruleset()) {
                         break;
                     }
                 }
@@ -1638,7 +1280,7 @@ Parser.prototype = function(){
 
 
             //CSS3 Media Queries
-            _media_query_list: function(){
+            _media_query_list: function() {
                 /*
                  * media_query_list
                  *   : S* [media_query [ ',' S* media_query ]* ]?
@@ -1650,11 +1292,11 @@ Parser.prototype = function(){
 
                 this._readWhitespace();
 
-                if (tokenStream.peek() == Tokens.IDENT || tokenStream.peek() == Tokens.LPAREN){
+                if (tokenStream.peek() === Tokens.IDENT || tokenStream.peek() === Tokens.LPAREN) {
                     mediaList.push(this._media_query());
                 }
 
-                while(tokenStream.match(Tokens.COMMA)){
+                while (tokenStream.match(Tokens.COMMA)) {
                     this._readWhitespace();
                     mediaList.push(this._media_query());
                 }
@@ -1667,7 +1309,7 @@ Parser.prototype = function(){
              * method.
 
              */
-            _media_query: function(){
+            _media_query: function() {
                 /*
                  * media_query
                  *   : [ONLY | NOT]? S* media_type S* [ AND S* expression ]*
@@ -1680,11 +1322,11 @@ Parser.prototype = function(){
                     token       = null,
                     expressions = [];
 
-                if (tokenStream.match(Tokens.IDENT)){
+                if (tokenStream.match(Tokens.IDENT)) {
                     ident = tokenStream.token().value.toLowerCase();
 
                     //since there's no custom tokens for these, need to manually check
-                    if (ident != "only" && ident != "not"){
+                    if (ident !== "only" && ident !== "not") {
                         tokenStream.unget();
                         ident = null;
                     } else {
@@ -1694,24 +1336,24 @@ Parser.prototype = function(){
 
                 this._readWhitespace();
 
-                if (tokenStream.peek() == Tokens.IDENT){
+                if (tokenStream.peek() === Tokens.IDENT) {
                     type = this._media_type();
-                    if (token === null){
+                    if (token === null) {
                         token = tokenStream.token();
                     }
-                } else if (tokenStream.peek() == Tokens.LPAREN){
-                    if (token === null){
+                } else if (tokenStream.peek() === Tokens.LPAREN) {
+                    if (token === null) {
                         token = tokenStream.LT(1);
                     }
                     expressions.push(this._media_expression());
                 }
 
-                if (type === null && expressions.length === 0){
+                if (type === null && expressions.length === 0) {
                     return null;
                 } else {
                     this._readWhitespace();
-                    while (tokenStream.match(Tokens.IDENT)){
-                        if (tokenStream.token().value.toLowerCase() != "and"){
+                    while (tokenStream.match(Tokens.IDENT)) {
+                        if (tokenStream.token().value.toLowerCase() !== "and") {
                             this._unexpectedToken(tokenStream.token());
                         }
 
@@ -1724,7 +1366,7 @@ Parser.prototype = function(){
             },
 
             //CSS3 Media Queries
-            _media_type: function(){
+            _media_type: function() {
                 /*
                  * media_type
                  *   : IDENT
@@ -1741,7 +1383,7 @@ Parser.prototype = function(){
              * @method _media_expression
              * @private
              */
-            _media_expression: function(){
+            _media_expression: function() {
                 /*
                  * expression
                  *  : '(' S* media_feature S* [ ':' S* expr ]? ')' S*
@@ -1757,7 +1399,7 @@ Parser.prototype = function(){
                 feature = this._media_feature();
                 this._readWhitespace();
 
-                if (tokenStream.match(Tokens.COLON)){
+                if (tokenStream.match(Tokens.COLON)) {
                     this._readWhitespace();
                     token = tokenStream.LT(1);
                     expression = this._expression();
@@ -1766,11 +1408,11 @@ Parser.prototype = function(){
                 tokenStream.mustMatch(Tokens.RPAREN);
                 this._readWhitespace();
 
-                return new MediaFeature(feature, (expression ? new SyntaxUnit(expression, token.startLine, token.startCol) : null));
+                return new MediaFeature(feature, expression ? new SyntaxUnit(expression, token.startLine, token.startCol) : null);
             },
 
             //CSS3 Media Queries
-            _media_feature: function(){
+            _media_feature: function() {
                 /*
                  * media_feature
                  *   : IDENT
@@ -1778,13 +1420,15 @@ Parser.prototype = function(){
                  */
                 var tokenStream = this._tokenStream;
 
+                this._readWhitespace();
+
                 tokenStream.mustMatch(Tokens.IDENT);
 
                 return SyntaxUnit.fromToken(tokenStream.token());
             },
 
             //CSS3 Paged Media
-            _page: function(){
+            _page: function() {
                 /*
                  * page:
                  *    PAGE_SYM S* IDENT? pseudo_page? S*
@@ -1804,17 +1448,17 @@ Parser.prototype = function(){
 
                 this._readWhitespace();
 
-                if (tokenStream.match(Tokens.IDENT)){
+                if (tokenStream.match(Tokens.IDENT)) {
                     identifier = tokenStream.token().value;
 
                     //The value 'auto' may not be used as a page name and MUST be treated as a syntax error.
-                    if (identifier.toLowerCase() === "auto"){
+                    if (identifier.toLowerCase() === "auto") {
                         this._unexpectedToken(tokenStream.token());
                     }
                 }
 
                 //see if there's a colon upcoming
-                if (tokenStream.peek() == Tokens.COLON){
+                if (tokenStream.peek() === Tokens.COLON) {
                     pseudoPage = this._pseudo_page();
                 }
 
@@ -1841,7 +1485,7 @@ Parser.prototype = function(){
             },
 
             //CSS3 Paged Media
-            _margin: function(){
+            _margin: function() {
                 /*
                  * margin :
                  *    margin_sym S* '{' declaration [ ';' S* declaration? ]* '}' S*
@@ -1852,7 +1496,7 @@ Parser.prototype = function(){
                     col,
                     marginSym   = this._margin_sym();
 
-                if (marginSym){
+                if (marginSym) {
                     line = tokenStream.token().startLine;
                     col = tokenStream.token().startCol;
 
@@ -1878,7 +1522,7 @@ Parser.prototype = function(){
             },
 
             //CSS3 Paged Media
-            _margin_sym: function(){
+            _margin_sym: function() {
 
                 /*
                  * margin_sym :
@@ -1903,14 +1547,13 @@ Parser.prototype = function(){
 
                 var tokenStream = this._tokenStream;
 
-                if(tokenStream.match([Tokens.TOPLEFTCORNER_SYM, Tokens.TOPLEFT_SYM,
+                if (tokenStream.match([Tokens.TOPLEFTCORNER_SYM, Tokens.TOPLEFT_SYM,
                         Tokens.TOPCENTER_SYM, Tokens.TOPRIGHT_SYM, Tokens.TOPRIGHTCORNER_SYM,
                         Tokens.BOTTOMLEFTCORNER_SYM, Tokens.BOTTOMLEFT_SYM,
                         Tokens.BOTTOMCENTER_SYM, Tokens.BOTTOMRIGHT_SYM,
                         Tokens.BOTTOMRIGHTCORNER_SYM, Tokens.LEFTTOP_SYM,
                         Tokens.LEFTMIDDLE_SYM, Tokens.LEFTBOTTOM_SYM, Tokens.RIGHTTOP_SYM,
-                        Tokens.RIGHTMIDDLE_SYM, Tokens.RIGHTBOTTOM_SYM]))
-                {
+                        Tokens.RIGHTMIDDLE_SYM, Tokens.RIGHTBOTTOM_SYM])) {
                     return SyntaxUnit.fromToken(tokenStream.token());
                 } else {
                     return null;
@@ -1918,7 +1561,7 @@ Parser.prototype = function(){
 
             },
 
-            _pseudo_page: function(){
+            _pseudo_page: function() {
                 /*
                  * pseudo_page
                  *   : ':' IDENT
@@ -1935,7 +1578,7 @@ Parser.prototype = function(){
                 return tokenStream.token().value;
             },
 
-            _font_face: function(){
+            _font_face: function() {
                 /*
                  * font_face
                  *   : FONT_FACE_SYM S*
@@ -1968,40 +1611,138 @@ Parser.prototype = function(){
                 });
             },
 
-            _viewport: function(){
+            _viewport: function() {
                 /*
                  * viewport
                  *   : VIEWPORT_SYM S*
                  *     '{' S* declaration? [ ';' S* declaration? ]* '}' S*
                  *   ;
                  */
-                 var tokenStream = this._tokenStream,
+                var tokenStream = this._tokenStream,
                     line,
                     col;
 
-                    tokenStream.mustMatch(Tokens.VIEWPORT_SYM);
-                    line = tokenStream.token().startLine;
-                    col = tokenStream.token().startCol;
+                tokenStream.mustMatch(Tokens.VIEWPORT_SYM);
+                line = tokenStream.token().startLine;
+                col = tokenStream.token().startCol;
 
-                    this._readWhitespace();
+                this._readWhitespace();
 
-                    this.fire({
-                        type:   "startviewport",
-                        line:   line,
-                        col:    col
-                    });
+                this.fire({
+                    type:   "startviewport",
+                    line:   line,
+                    col:    col
+                });
 
-                    this._readDeclarations(true);
+                this._readDeclarations(true);
 
-                    this.fire({
-                        type:   "endviewport",
-                        line:   line,
-                        col:    col
-                    });
+                this.fire({
+                    type:   "endviewport",
+                    line:   line,
+                    col:    col
+                });
 
             },
 
-            _operator: function(inFunction){
+            _document: function() {
+                /*
+                 * document
+                 *   : DOCUMENT_SYM S*
+                 *     _document_function [ ',' S* _document_function ]* S*
+                 *     '{' S* ruleset* '}'
+                 *   ;
+                 */
+
+                var tokenStream = this._tokenStream,
+                    token,
+                    functions = [],
+                    prefix = "";
+
+                tokenStream.mustMatch(Tokens.DOCUMENT_SYM);
+                token = tokenStream.token();
+                if (/^@\-([^\-]+)\-/.test(token.value)) {
+                    prefix = RegExp.$1;
+                }
+
+                this._readWhitespace();
+                functions.push(this._document_function());
+
+                while (tokenStream.match(Tokens.COMMA)) {
+                    this._readWhitespace();
+                    functions.push(this._document_function());
+                }
+
+                tokenStream.mustMatch(Tokens.LBRACE);
+                this._readWhitespace();
+
+                this.fire({
+                    type:      "startdocument",
+                    functions: functions,
+                    prefix:    prefix,
+                    line:      token.startLine,
+                    col:       token.startCol
+                });
+
+                var ok = true;
+                while (ok) {
+                    switch (tokenStream.peek()) {
+                        case Tokens.PAGE_SYM:
+                            this._page();
+                            break;
+                        case Tokens.FONT_FACE_SYM:
+                            this._font_face();
+                            break;
+                        case Tokens.VIEWPORT_SYM:
+                            this._viewport();
+                            break;
+                        case Tokens.MEDIA_SYM:
+                            this._media();
+                            break;
+                        case Tokens.KEYFRAMES_SYM:
+                            this._keyframes();
+                            break;
+                        case Tokens.DOCUMENT_SYM:
+                            this._document();
+                            break;
+                        default:
+                            ok = Boolean(this._ruleset());
+                    }
+                }
+
+                tokenStream.mustMatch(Tokens.RBRACE);
+                token = tokenStream.token();
+                this._readWhitespace();
+
+                this.fire({
+                    type:      "enddocument",
+                    functions: functions,
+                    prefix:    prefix,
+                    line:      token.startLine,
+                    col:       token.startCol
+                });
+            },
+
+            _document_function: function() {
+                /*
+                 * document_function
+                 *   : function | URI S*
+                 *   ;
+                 */
+
+                var tokenStream = this._tokenStream,
+                    value;
+
+                if (tokenStream.match(Tokens.URI)) {
+                    value = tokenStream.token().value;
+                    this._readWhitespace();
+                } else {
+                    value = this._function();
+                }
+
+                return value;
+            },
+
+            _operator: function(inFunction) {
 
                 /*
                  * operator (outside function)
@@ -2015,7 +1756,7 @@ Parser.prototype = function(){
                     token       = null;
 
                 if (tokenStream.match([Tokens.SLASH, Tokens.COMMA]) ||
-                    (inFunction && tokenStream.match([Tokens.PLUS, Tokens.STAR, Tokens.MINUS]))){
+                    (inFunction && tokenStream.match([Tokens.PLUS, Tokens.STAR, Tokens.MINUS]))) {
                     token =  tokenStream.token();
                     this._readWhitespace();
                 }
@@ -2023,7 +1764,7 @@ Parser.prototype = function(){
 
             },
 
-            _combinator: function(){
+            _combinator: function() {
 
                 /*
                  * combinator
@@ -2035,7 +1776,7 @@ Parser.prototype = function(){
                     value       = null,
                     token;
 
-                if(tokenStream.match([Tokens.PLUS, Tokens.GREATER, Tokens.TILDE])){
+                if (tokenStream.match([Tokens.PLUS, Tokens.GREATER, Tokens.TILDE])) {
                     token = tokenStream.token();
                     value = new Combinator(token.value, token.startLine, token.startCol);
                     this._readWhitespace();
@@ -2044,7 +1785,7 @@ Parser.prototype = function(){
                 return value;
             },
 
-            _unary_operator: function(){
+            _unary_operator: function() {
 
                 /*
                  * unary_operator
@@ -2054,14 +1795,14 @@ Parser.prototype = function(){
 
                 var tokenStream = this._tokenStream;
 
-                if (tokenStream.match([Tokens.MINUS, Tokens.PLUS])){
+                if (tokenStream.match([Tokens.MINUS, Tokens.PLUS])) {
                     return tokenStream.token().value;
                 } else {
                     return null;
                 }
             },
 
-            _property: function(){
+            _property: function() {
 
                 /*
                  * property
@@ -2078,7 +1819,7 @@ Parser.prototype = function(){
                     col;
 
                 //check for star hack - throws error if not allowed
-                if (tokenStream.peek() == Tokens.STAR && this.options.starHack){
+                if (tokenStream.peek() === Tokens.STAR && this.options.starHack) {
                     tokenStream.get();
                     token = tokenStream.token();
                     hack = token.value;
@@ -2086,12 +1827,12 @@ Parser.prototype = function(){
                     col = token.startCol;
                 }
 
-                if(tokenStream.match(Tokens.IDENT)){
+                if (tokenStream.match(Tokens.IDENT)) {
                     token = tokenStream.token();
                     tokenValue = token.value;
 
                     //check for underscore hack - no error if not allowed because it's valid CSS syntax
-                    if (tokenValue.charAt(0) == "_" && this.options.underscoreHack){
+                    if (tokenValue.charAt(0) === "_" && this.options.underscoreHack) {
                         hack = "_";
                         tokenValue = tokenValue.substring(1);
                     }
@@ -2104,7 +1845,7 @@ Parser.prototype = function(){
             },
 
             //Augmented with CSS3 Selectors
-            _ruleset: function(){
+            _ruleset: function() {
                 /*
                  * ruleset
                  *   : selectors_group
@@ -2123,8 +1864,8 @@ Parser.prototype = function(){
                  */
                 try {
                     selectors = this._selectors_group();
-                } catch (ex){
-                    if (ex instanceof SyntaxError && !this.options.strict){
+                } catch (ex) {
+                    if (ex instanceof SyntaxError && !this.options.strict) {
 
                         //fire error event
                         this.fire({
@@ -2137,7 +1878,7 @@ Parser.prototype = function(){
 
                         //skip over everything until closing brace
                         tt = tokenStream.advance([Tokens.RBRACE]);
-                        if (tt == Tokens.RBRACE){
+                        if (tt === Tokens.RBRACE) {
                             //if there's a right brace, the rule is finished so don't do anything
                         } else {
                             //otherwise, rethrow the error because it wasn't handled properly
@@ -2154,7 +1895,7 @@ Parser.prototype = function(){
                 }
 
                 //if it got here, all selectors parsed
-                if (selectors){
+                if (selectors) {
 
                     this.fire({
                         type:       "startrule",
@@ -2179,7 +1920,7 @@ Parser.prototype = function(){
             },
 
             //CSS3 Selectors
-            _selectors_group: function(){
+            _selectors_group: function() {
 
                 /*
                  * selectors_group
@@ -2191,13 +1932,13 @@ Parser.prototype = function(){
                     selector;
 
                 selector = this._selector();
-                if (selector !== null){
+                if (selector !== null) {
 
                     selectors.push(selector);
-                    while(tokenStream.match(Tokens.COMMA)){
+                    while (tokenStream.match(Tokens.COMMA)) {
                         this._readWhitespace();
                         selector = this._selector();
-                        if (selector !== null){
+                        if (selector !== null) {
                             selectors.push(selector);
                         } else {
                             this._unexpectedToken(tokenStream.LT(1));
@@ -2209,7 +1950,7 @@ Parser.prototype = function(){
             },
 
             //CSS3 Selectors
-            _selector: function(){
+            _selector: function() {
                 /*
                  * selector
                  *   : simple_selector_sequence [ combinator simple_selector_sequence ]*
@@ -2224,7 +1965,7 @@ Parser.prototype = function(){
 
                 //if there's no simple selector, then there's no selector
                 nextSelector = this._simple_selector_sequence();
-                if (nextSelector === null){
+                if (nextSelector === null) {
                     return null;
                 }
 
@@ -2235,12 +1976,12 @@ Parser.prototype = function(){
                     //look for a combinator
                     combinator = this._combinator();
 
-                    if (combinator !== null){
+                    if (combinator !== null) {
                         selector.push(combinator);
                         nextSelector = this._simple_selector_sequence();
 
                         //there must be a next selector
-                        if (nextSelector === null){
+                        if (nextSelector === null) {
                             this._unexpectedToken(tokenStream.LT(1));
                         } else {
 
@@ -2250,7 +1991,7 @@ Parser.prototype = function(){
                     } else {
 
                         //if there's not whitespace, we're done
-                        if (this._readWhitespace()){
+                        if (this._readWhitespace()) {
 
                             //add whitespace separator
                             ws = new Combinator(tokenStream.token().value, tokenStream.token().startLine, tokenStream.token().startCol);
@@ -2260,13 +2001,13 @@ Parser.prototype = function(){
 
                             //selector is required if there's a combinator
                             nextSelector = this._simple_selector_sequence();
-                            if (nextSelector === null){
-                                if (combinator !== null){
+                            if (nextSelector === null) {
+                                if (combinator !== null) {
                                     this._unexpectedToken(tokenStream.LT(1));
                                 }
                             } else {
 
-                                if (combinator !== null){
+                                if (combinator !== null) {
                                     selector.push(combinator);
                                 } else {
                                     selector.push(ws);
@@ -2279,13 +2020,13 @@ Parser.prototype = function(){
                         }
 
                     }
-                } while(true);
+                } while (true);
 
                 return new Selector(selector, selector[0].line, selector[0].col);
             },
 
             //CSS3 Selectors
-            _simple_selector_sequence: function(){
+            _simple_selector_sequence: function() {
                 /*
                  * simple_selector_sequence
                  *   : [ type_selector | universal ]
@@ -2306,7 +2047,7 @@ Parser.prototype = function(){
                     //the different parts after the element name to search for
                     components  = [
                         //HASH
-                        function(){
+                        function() {
                             return tokenStream.match(Tokens.HASH) ?
                                     new SelectorSubPart(tokenStream.token().value, "id", tokenStream.token().startLine, tokenStream.token().startCol) :
                                     null;
@@ -2319,7 +2060,6 @@ Parser.prototype = function(){
                     i           = 0,
                     len         = components.length,
                     component   = null,
-                    found       = false,
                     line,
                     col;
 
@@ -2329,30 +2069,30 @@ Parser.prototype = function(){
                 col = tokenStream.LT(1).startCol;
 
                 elementName = this._type_selector();
-                if (!elementName){
+                if (!elementName) {
                     elementName = this._universal();
                 }
 
-                if (elementName !== null){
+                if (elementName !== null) {
                     selectorText += elementName;
                 }
 
-                while(true){
+                while (true) {
 
                     //whitespace means we're done
-                    if (tokenStream.peek() === Tokens.S){
+                    if (tokenStream.peek() === Tokens.S) {
                         break;
                     }
 
                     //check for each component
-                    while(i < len && component === null){
+                    while (i < len && component === null) {
                         component = components[i++].call(this);
                     }
 
-                    if (component === null){
+                    if (component === null) {
 
                         //we don't have a selector
-                        if (selectorText === ""){
+                        if (selectorText === "") {
                             return null;
                         } else {
                             break;
@@ -2372,7 +2112,7 @@ Parser.prototype = function(){
             },
 
             //CSS3 Selectors
-            _type_selector: function(){
+            _type_selector: function() {
                 /*
                  * type_selector
                  *   : [ namespace_prefix ]? element_name
@@ -2383,23 +2123,23 @@ Parser.prototype = function(){
                     ns          = this._namespace_prefix(),
                     elementName = this._element_name();
 
-                if (!elementName){
+                if (!elementName) {
                     /*
                      * Need to back out the namespace that was read due to both
                      * type_selector and universal reading namespace_prefix
                      * first. Kind of hacky, but only way I can figure out
                      * right now how to not change the grammar.
                      */
-                    if (ns){
+                    if (ns) {
                         tokenStream.unget();
-                        if (ns.length > 1){
+                        if (ns.length > 1) {
                             tokenStream.unget();
                         }
                     }
 
                     return null;
                 } else {
-                    if (ns){
+                    if (ns) {
                         elementName.text = ns + elementName.text;
                         elementName.col -= ns.length;
                     }
@@ -2408,7 +2148,7 @@ Parser.prototype = function(){
             },
 
             //CSS3 Selectors
-            _class: function(){
+            _class: function() {
                 /*
                  * class
                  *   : '.' IDENT
@@ -2418,7 +2158,7 @@ Parser.prototype = function(){
                 var tokenStream = this._tokenStream,
                     token;
 
-                if (tokenStream.match(Tokens.DOT)){
+                if (tokenStream.match(Tokens.DOT)) {
                     tokenStream.mustMatch(Tokens.IDENT);
                     token = tokenStream.token();
                     return new SelectorSubPart("." + token.value, "class", token.startLine, token.startCol - 1);
@@ -2429,7 +2169,7 @@ Parser.prototype = function(){
             },
 
             //CSS3 Selectors
-            _element_name: function(){
+            _element_name: function() {
                 /*
                  * element_name
                  *   : IDENT
@@ -2439,7 +2179,7 @@ Parser.prototype = function(){
                 var tokenStream = this._tokenStream,
                     token;
 
-                if (tokenStream.match(Tokens.IDENT)){
+                if (tokenStream.match(Tokens.IDENT)) {
                     token = tokenStream.token();
                     return new SelectorSubPart(token.value, "elementName", token.startLine, token.startCol);
 
@@ -2449,7 +2189,7 @@ Parser.prototype = function(){
             },
 
             //CSS3 Selectors
-            _namespace_prefix: function(){
+            _namespace_prefix: function() {
                 /*
                  * namespace_prefix
                  *   : [ IDENT | '*' ]? '|'
@@ -2459,9 +2199,9 @@ Parser.prototype = function(){
                     value       = "";
 
                 //verify that this is a namespace prefix
-                if (tokenStream.LA(1) === Tokens.PIPE || tokenStream.LA(2) === Tokens.PIPE){
+                if (tokenStream.LA(1) === Tokens.PIPE || tokenStream.LA(2) === Tokens.PIPE) {
 
-                    if(tokenStream.match([Tokens.IDENT, Tokens.STAR])){
+                    if (tokenStream.match([Tokens.IDENT, Tokens.STAR])) {
                         value += tokenStream.token().value;
                     }
 
@@ -2474,7 +2214,7 @@ Parser.prototype = function(){
             },
 
             //CSS3 Selectors
-            _universal: function(){
+            _universal: function() {
                 /*
                  * universal
                  *   : [ namespace_prefix ]? '*'
@@ -2485,20 +2225,20 @@ Parser.prototype = function(){
                     ns;
 
                 ns = this._namespace_prefix();
-                if(ns){
+                if (ns) {
                     value += ns;
                 }
 
-                if(tokenStream.match(Tokens.STAR)){
+                if (tokenStream.match(Tokens.STAR)) {
                     value += "*";
                 }
 
                 return value.length ? value : null;
 
-           },
+            },
 
             //CSS3 Selectors
-            _attrib: function(){
+            _attrib: function() {
                 /*
                  * attrib
                  *   : '[' S* [ namespace_prefix ]? IDENT S*
@@ -2517,14 +2257,14 @@ Parser.prototype = function(){
                     ns,
                     token;
 
-                if (tokenStream.match(Tokens.LBRACKET)){
+                if (tokenStream.match(Tokens.LBRACKET)) {
                     token = tokenStream.token();
                     value = token.value;
                     value += this._readWhitespace();
 
                     ns = this._namespace_prefix();
 
-                    if (ns){
+                    if (ns) {
                         value += ns;
                     }
 
@@ -2532,8 +2272,8 @@ Parser.prototype = function(){
                     value += tokenStream.token().value;
                     value += this._readWhitespace();
 
-                    if(tokenStream.match([Tokens.PREFIXMATCH, Tokens.SUFFIXMATCH, Tokens.SUBSTRINGMATCH,
-                            Tokens.EQUALS, Tokens.INCLUDES, Tokens.DASHMATCH])){
+                    if (tokenStream.match([Tokens.PREFIXMATCH, Tokens.SUFFIXMATCH, Tokens.SUBSTRINGMATCH,
+                            Tokens.EQUALS, Tokens.INCLUDES, Tokens.DASHMATCH])) {
 
                         value += tokenStream.token().value;
                         value += this._readWhitespace();
@@ -2552,7 +2292,7 @@ Parser.prototype = function(){
             },
 
             //CSS3 Selectors
-            _pseudo: function(){
+            _pseudo: function() {
 
                 /*
                  * pseudo
@@ -2566,24 +2306,28 @@ Parser.prototype = function(){
                     line,
                     col;
 
-                if (tokenStream.match(Tokens.COLON)){
+                if (tokenStream.match(Tokens.COLON)) {
 
-                    if (tokenStream.match(Tokens.COLON)){
+                    if (tokenStream.match(Tokens.COLON)) {
                         colons += ":";
                     }
 
-                    if (tokenStream.match(Tokens.IDENT)){
+                    if (tokenStream.match(Tokens.IDENT)) {
                         pseudo = tokenStream.token().value;
                         line = tokenStream.token().startLine;
                         col = tokenStream.token().startCol - colons.length;
-                    } else if (tokenStream.peek() == Tokens.FUNCTION){
+                    } else if (tokenStream.peek() === Tokens.FUNCTION) {
                         line = tokenStream.LT(1).startLine;
                         col = tokenStream.LT(1).startCol - colons.length;
                         pseudo = this._functional_pseudo();
                     }
 
-                    if (pseudo){
+                    if (pseudo) {
                         pseudo = new SelectorSubPart(colons + pseudo, "pseudo", line, col);
+                    } else {
+                        var startLine = tokenStream.LT(1).startLine,
+                            startCol  = tokenStream.LT(0).startCol;
+                        throw new SyntaxError("Expected a `FUNCTION` or `IDENT` after colon at line " + startLine + ", col " + startCol + ".", startLine, startCol);
                     }
                 }
 
@@ -2591,7 +2335,7 @@ Parser.prototype = function(){
             },
 
             //CSS3 Selectors
-            _functional_pseudo: function(){
+            _functional_pseudo: function() {
                 /*
                  * functional_pseudo
                  *   : FUNCTION S* expression ')'
@@ -2601,7 +2345,7 @@ Parser.prototype = function(){
                 var tokenStream = this._tokenStream,
                     value = null;
 
-                if(tokenStream.match(Tokens.FUNCTION)){
+                if (tokenStream.match(Tokens.FUNCTION)) {
                     value = tokenStream.token().value;
                     value += this._readWhitespace();
                     value += this._expression();
@@ -2613,7 +2357,7 @@ Parser.prototype = function(){
             },
 
             //CSS3 Selectors
-            _expression: function(){
+            _expression: function() {
                 /*
                  * expression
                  *   : [ [ PLUS | '-' | DIMENSION | NUMBER | STRING | IDENT ] S* ]+
@@ -2623,10 +2367,10 @@ Parser.prototype = function(){
                 var tokenStream = this._tokenStream,
                     value       = "";
 
-                while(tokenStream.match([Tokens.PLUS, Tokens.MINUS, Tokens.DIMENSION,
+                while (tokenStream.match([Tokens.PLUS, Tokens.MINUS, Tokens.DIMENSION,
                         Tokens.NUMBER, Tokens.STRING, Tokens.IDENT, Tokens.LENGTH,
                         Tokens.FREQ, Tokens.ANGLE, Tokens.TIME,
-                        Tokens.RESOLUTION, Tokens.SLASH])){
+                        Tokens.RESOLUTION, Tokens.SLASH])) {
 
                     value += tokenStream.token().value;
                     value += this._readWhitespace();
@@ -2637,7 +2381,7 @@ Parser.prototype = function(){
             },
 
             //CSS3 Selectors
-            _negation: function(){
+            _negation: function() {
                 /*
                  * negation
                  *   : NOT S* negation_arg S* ')'
@@ -2651,7 +2395,7 @@ Parser.prototype = function(){
                     arg,
                     subpart     = null;
 
-                if (tokenStream.match(Tokens.NOT)){
+                if (tokenStream.match(Tokens.NOT)) {
                     value = tokenStream.token().value;
                     line = tokenStream.token().startLine;
                     col = tokenStream.token().startCol;
@@ -2670,7 +2414,7 @@ Parser.prototype = function(){
             },
 
             //CSS3 Selectors
-            _negation_arg: function(){
+            _negation_arg: function() {
                 /*
                  * negation_arg
                  *   : type_selector | universal | HASH | class | attrib | pseudo
@@ -2681,7 +2425,7 @@ Parser.prototype = function(){
                     args        = [
                         this._type_selector,
                         this._universal,
-                        function(){
+                        function() {
                             return tokenStream.match(Tokens.HASH) ?
                                     new SelectorSubPart(tokenStream.token().value, "id", tokenStream.token().startLine, tokenStream.token().startCol) :
                                     null;
@@ -2693,7 +2437,6 @@ Parser.prototype = function(){
                     arg         = null,
                     i           = 0,
                     len         = args.length,
-                    elementName,
                     line,
                     col,
                     part;
@@ -2701,19 +2444,19 @@ Parser.prototype = function(){
                 line = tokenStream.LT(1).startLine;
                 col = tokenStream.LT(1).startCol;
 
-                while(i < len && arg === null){
+                while (i < len && arg === null) {
 
                     arg = args[i].call(this);
                     i++;
                 }
 
                 //must be a negation arg
-                if (arg === null){
+                if (arg === null) {
                     this._unexpectedToken(tokenStream.LT(1));
                 }
 
                 //it's an element name
-                if (arg.type == "elementName"){
+                if (arg.type === "elementName") {
                     part = new SelectorPart(arg, [], arg.toString(), line, col);
                 } else {
                     part = new SelectorPart(null, [arg], arg.toString(), line, col);
@@ -2722,7 +2465,7 @@ Parser.prototype = function(){
                 return part;
             },
 
-            _declaration: function(){
+            _declaration: function() {
 
                 /*
                  * declaration
@@ -2735,12 +2478,11 @@ Parser.prototype = function(){
                     property    = null,
                     expr        = null,
                     prio        = null,
-                    error       = null,
                     invalid     = null,
                     propertyName= "";
 
                 property = this._property();
-                if (property !== null){
+                if (property !== null) {
 
                     tokenStream.mustMatch(Tokens.COLON);
                     this._readWhitespace();
@@ -2748,7 +2490,7 @@ Parser.prototype = function(){
                     expr = this._expr();
 
                     //if there's no parts for the value, it's an error
-                    if (!expr || expr.length === 0){
+                    if (!expr || expr.length === 0) {
                         this._unexpectedToken(tokenStream.LT(1));
                     }
 
@@ -2760,8 +2502,8 @@ Parser.prototype = function(){
                      * _property or *property as invalid properties.
                      */
                     propertyName = property.toString();
-                    if (this.options.starHack && property.hack == "*" ||
-                            this.options.underscoreHack && property.hack == "_") {
+                    if (this.options.starHack && property.hack === "*" ||
+                            this.options.underscoreHack && property.hack === "_") {
 
                         propertyName = property.text;
                     }
@@ -2788,7 +2530,7 @@ Parser.prototype = function(){
                 }
             },
 
-            _prio: function(){
+            _prio: function() {
                 /*
                  * prio
                  *   : IMPORTANT_SYM S*
@@ -2802,21 +2544,20 @@ Parser.prototype = function(){
                 return result;
             },
 
-            _expr: function(inFunction){
+            _expr: function(inFunction) {
                 /*
                  * expr
                  *   : term [ operator term ]*
                  *   ;
                  */
 
-                var tokenStream = this._tokenStream,
-                    values      = [],
-					//valueParts	= [],
+                var values      = [],
+                    //valueParts    = [],
                     value       = null,
                     operator    = null;
 
                 value = this._term(inFunction);
-                if (value !== null){
+                if (value !== null) {
 
                     values.push(value);
 
@@ -2824,33 +2565,33 @@ Parser.prototype = function(){
                         operator = this._operator(inFunction);
 
                         //if there's an operator, keep building up the value parts
-                        if (operator){
+                        if (operator) {
                             values.push(operator);
                         } /*else {
                             //if there's not an operator, you have a full value
-							values.push(new PropertyValue(valueParts, valueParts[0].line, valueParts[0].col));
-							valueParts = [];
-						}*/
+                            values.push(new PropertyValue(valueParts, valueParts[0].line, valueParts[0].col));
+                            valueParts = [];
+                        }*/
 
                         value = this._term(inFunction);
 
-                        if (value === null){
+                        if (value === null) {
                             break;
                         } else {
                             values.push(value);
                         }
-                    } while(true);
+                    } while (true);
                 }
 
-				//cleanup
-                /*if (valueParts.length){
+                //cleanup
+                /*if (valueParts.length) {
                     values.push(new PropertyValue(valueParts, valueParts[0].line, valueParts[0].col));
                 }*/
 
                 return values.length > 0 ? new PropertyValue(values, values[0].line, values[0].col) : null;
             },
 
-            _term: function(inFunction){
+            _term: function(inFunction) {
 
                 /*
                  * term
@@ -2865,33 +2606,34 @@ Parser.prototype = function(){
                     unary       = null,
                     value       = null,
                     endChar     = null,
+                    part        = null,
                     token,
                     line,
                     col;
 
                 //returns the operator or null
                 unary = this._unary_operator();
-                if (unary !== null){
+                if (unary !== null) {
                     line = tokenStream.token().startLine;
                     col = tokenStream.token().startCol;
                 }
 
                 //exception for IE filters
-                if (tokenStream.peek() == Tokens.IE_FUNCTION && this.options.ieFilters){
+                if (tokenStream.peek() === Tokens.IE_FUNCTION && this.options.ieFilters) {
 
                     value = this._ie_function();
-                    if (unary === null){
+                    if (unary === null) {
                         line = tokenStream.token().startLine;
                         col = tokenStream.token().startCol;
                     }
 
                 //see if it's a simple block
-                } else if (inFunction && tokenStream.match([Tokens.LPAREN, Tokens.LBRACE, Tokens.LBRACKET])){
+                } else if (inFunction && tokenStream.match([Tokens.LPAREN, Tokens.LBRACE, Tokens.LBRACKET])) {
 
                     token = tokenStream.token();
                     endChar = token.endChar;
                     value = token.value + this._expr(inFunction).text;
-                    if (unary === null){
+                    if (unary === null) {
                         line = tokenStream.token().startLine;
                         col = tokenStream.token().startCol;
                     }
@@ -2902,48 +2644,51 @@ Parser.prototype = function(){
                 //see if there's a simple match
                 } else if (tokenStream.match([Tokens.NUMBER, Tokens.PERCENTAGE, Tokens.LENGTH,
                         Tokens.ANGLE, Tokens.TIME,
-                        Tokens.FREQ, Tokens.STRING, Tokens.IDENT, Tokens.URI, Tokens.UNICODE_RANGE])){
+                        Tokens.FREQ, Tokens.STRING, Tokens.IDENT, Tokens.URI, Tokens.UNICODE_RANGE])) {
 
                     value = tokenStream.token().value;
-                    if (unary === null){
+                    if (unary === null) {
                         line = tokenStream.token().startLine;
                         col = tokenStream.token().startCol;
+                        // Correct potentially-inaccurate IDENT parsing in
+                        // PropertyValuePart constructor.
+                        part = PropertyValuePart.fromToken(tokenStream.token());
                     }
                     this._readWhitespace();
                 } else {
 
                     //see if it's a color
                     token = this._hexcolor();
-                    if (token === null){
+                    if (token === null) {
 
                         //if there's no unary, get the start of the next token for line/col info
-                        if (unary === null){
+                        if (unary === null) {
                             line = tokenStream.LT(1).startLine;
                             col = tokenStream.LT(1).startCol;
                         }
 
                         //has to be a function
-                        if (value === null){
+                        if (value === null) {
 
                             /*
                              * This checks for alpha(opacity=0) style of IE
                              * functions. IE_FUNCTION only presents progid: style.
                              */
-                            if (tokenStream.LA(3) == Tokens.EQUALS && this.options.ieFilters){
+                            if (tokenStream.LA(3) === Tokens.EQUALS && this.options.ieFilters) {
                                 value = this._ie_function();
                             } else {
                                 value = this._function();
                             }
                         }
 
-                        /*if (value === null){
+                        /*if (value === null) {
                             return null;
                             //throw new Error("Expected identifier at line " + tokenStream.token().startLine + ", character " +  tokenStream.token().startCol + ".");
                         }*/
 
                     } else {
                         value = token.value;
-                        if (unary === null){
+                        if (unary === null) {
                             line = token.startLine;
                             col = token.startCol;
                         }
@@ -2951,13 +2696,13 @@ Parser.prototype = function(){
 
                 }
 
-                return value !== null ?
+                return part !== null ? part : value !== null ?
                         new PropertyValuePart(unary !== null ? unary + value : value, line, col) :
                         null;
 
             },
 
-            _function: function(){
+            _function: function() {
 
                 /*
                  * function
@@ -2970,22 +2715,22 @@ Parser.prototype = function(){
                     expr        = null,
                     lt;
 
-                if (tokenStream.match(Tokens.FUNCTION)){
+                if (tokenStream.match(Tokens.FUNCTION)) {
                     functionText = tokenStream.token().value;
                     this._readWhitespace();
                     expr = this._expr(true);
                     functionText += expr;
 
                     //START: Horrible hack in case it's an IE filter
-                    if (this.options.ieFilters && tokenStream.peek() == Tokens.EQUALS){
+                    if (this.options.ieFilters && tokenStream.peek() === Tokens.EQUALS) {
                         do {
 
-                            if (this._readWhitespace()){
+                            if (this._readWhitespace()) {
                                 functionText += tokenStream.token().value;
                             }
 
                             //might be second time in the loop
-                            if (tokenStream.LA(0) == Tokens.COMMA){
+                            if (tokenStream.LA(0) === Tokens.COMMA) {
                                 functionText += tokenStream.token().value;
                             }
 
@@ -2997,12 +2742,12 @@ Parser.prototype = function(){
 
                             //functionText += this._term();
                             lt = tokenStream.peek();
-                            while(lt != Tokens.COMMA && lt != Tokens.S && lt != Tokens.RPAREN){
+                            while (lt !== Tokens.COMMA && lt !== Tokens.S && lt !== Tokens.RPAREN) {
                                 tokenStream.get();
                                 functionText += tokenStream.token().value;
                                 lt = tokenStream.peek();
                             }
-                        } while(tokenStream.match([Tokens.COMMA, Tokens.S]));
+                        } while (tokenStream.match([Tokens.COMMA, Tokens.S]));
                     }
 
                     //END: Horrible Hack
@@ -3015,7 +2760,7 @@ Parser.prototype = function(){
                 return functionText;
             },
 
-            _ie_function: function(){
+            _ie_function: function() {
 
                 /* (My own extension)
                  * ie_function
@@ -3025,21 +2770,20 @@ Parser.prototype = function(){
 
                 var tokenStream = this._tokenStream,
                     functionText = null,
-                    expr        = null,
                     lt;
 
                 //IE function can begin like a regular function, too
-                if (tokenStream.match([Tokens.IE_FUNCTION, Tokens.FUNCTION])){
+                if (tokenStream.match([Tokens.IE_FUNCTION, Tokens.FUNCTION])) {
                     functionText = tokenStream.token().value;
 
                     do {
 
-                        if (this._readWhitespace()){
+                        if (this._readWhitespace()) {
                             functionText += tokenStream.token().value;
                         }
 
                         //might be second time in the loop
-                        if (tokenStream.LA(0) == Tokens.COMMA){
+                        if (tokenStream.LA(0) === Tokens.COMMA) {
                             functionText += tokenStream.token().value;
                         }
 
@@ -3051,12 +2795,12 @@ Parser.prototype = function(){
 
                         //functionText += this._term();
                         lt = tokenStream.peek();
-                        while(lt != Tokens.COMMA && lt != Tokens.S && lt != Tokens.RPAREN){
+                        while (lt !== Tokens.COMMA && lt !== Tokens.S && lt !== Tokens.RPAREN) {
                             tokenStream.get();
                             functionText += tokenStream.token().value;
                             lt = tokenStream.peek();
                         }
-                    } while(tokenStream.match([Tokens.COMMA, Tokens.S]));
+                    } while (tokenStream.match([Tokens.COMMA, Tokens.S]));
 
                     tokenStream.match(Tokens.RPAREN);
                     functionText += ")";
@@ -3066,7 +2810,7 @@ Parser.prototype = function(){
                 return functionText;
             },
 
-            _hexcolor: function(){
+            _hexcolor: function() {
                 /*
                  * There is a constraint on the color that it must
                  * have either 3 or 6 hex-digits (i.e., [0-9a-fA-F])
@@ -3081,13 +2825,13 @@ Parser.prototype = function(){
                     token = null,
                     color;
 
-                if(tokenStream.match(Tokens.HASH)){
+                if (tokenStream.match(Tokens.HASH)) {
 
                     //need to do some validation here
 
                     token = tokenStream.token();
                     color = token.value;
-                    if (!/#[a-f0-9]{3,6}/i.test(color)){
+                    if (!/#[a-f0-9]{3,6}/i.test(color)) {
                         throw new SyntaxError("Expected a hex color but found '" + color + "' at line " + token.startLine + ", col " + token.startCol + ".", token.startLine, token.startCol);
                     }
                     this._readWhitespace();
@@ -3100,7 +2844,7 @@ Parser.prototype = function(){
             // Animations methods
             //-----------------------------------------------------------------
 
-            _keyframes: function(){
+            _keyframes: function() {
 
                 /*
                  * keyframes:
@@ -3137,7 +2881,7 @@ Parser.prototype = function(){
                 tt = tokenStream.peek();
 
                 //check for key
-                while(tt == Tokens.IDENT || tt == Tokens.PERCENTAGE) {
+                while (tt === Tokens.IDENT || tt === Tokens.PERCENTAGE) {
                     this._keyframe_rule();
                     this._readWhitespace();
                     tt = tokenStream.peek();
@@ -3153,10 +2897,11 @@ Parser.prototype = function(){
 
                 this._readWhitespace();
                 tokenStream.mustMatch(Tokens.RBRACE);
+                this._readWhitespace();
 
             },
 
-            _keyframe_name: function(){
+            _keyframe_name: function() {
 
                 /*
                  * keyframe_name:
@@ -3164,14 +2909,13 @@ Parser.prototype = function(){
                  *   | STRING
                  *   ;
                  */
-                var tokenStream = this._tokenStream,
-                    token;
+                var tokenStream = this._tokenStream;
 
                 tokenStream.mustMatch([Tokens.IDENT, Tokens.STRING]);
                 return SyntaxUnit.fromToken(tokenStream.token());
             },
 
-            _keyframe_rule: function(){
+            _keyframe_rule: function() {
 
                 /*
                  * keyframe_rule:
@@ -3179,9 +2923,7 @@ Parser.prototype = function(){
                  *     '{' S* declaration [ ';' S* declaration ]* '}' S*
                  *   ;
                  */
-                var tokenStream = this._tokenStream,
-                    token,
-                    keyList = this._key_list();
+                var keyList = this._key_list();
 
                 this.fire({
                     type:   "startkeyframerule",
@@ -3201,7 +2943,7 @@ Parser.prototype = function(){
 
             },
 
-            _key_list: function(){
+            _key_list: function() {
 
                 /*
                  * key_list:
@@ -3209,8 +2951,6 @@ Parser.prototype = function(){
                  *   ;
                  */
                 var tokenStream = this._tokenStream,
-                    token,
-                    key,
                     keyList = [];
 
                 //must be least one key
@@ -3218,7 +2958,7 @@ Parser.prototype = function(){
 
                 this._readWhitespace();
 
-                while(tokenStream.match(Tokens.COMMA)){
+                while (tokenStream.match(Tokens.COMMA)) {
                     this._readWhitespace();
                     keyList.push(this._key());
                     this._readWhitespace();
@@ -3227,7 +2967,7 @@ Parser.prototype = function(){
                 return keyList;
             },
 
-            _key: function(){
+            _key: function() {
                 /*
                  * There is a restriction that IDENT can be only "from" or "to".
                  *
@@ -3240,12 +2980,12 @@ Parser.prototype = function(){
                 var tokenStream = this._tokenStream,
                     token;
 
-                if (tokenStream.match(Tokens.PERCENTAGE)){
+                if (tokenStream.match(Tokens.PERCENTAGE)) {
                     return SyntaxUnit.fromToken(tokenStream.token());
-                } else if (tokenStream.match(Tokens.IDENT)){
+                } else if (tokenStream.match(Tokens.IDENT)) {
                     token = tokenStream.token();
 
-                    if (/from|to/i.test(token.value)){
+                    if (/from|to/i.test(token.value)) {
                         return SyntaxUnit.fromToken(token);
                     }
 
@@ -3267,8 +3007,8 @@ Parser.prototype = function(){
              * @method _skipCruft
              * @private
              */
-            _skipCruft: function(){
-                while(this._tokenStream.match([Tokens.S, Tokens.CDO, Tokens.CDC])){
+            _skipCruft: function() {
+                while (this._tokenStream.match([Tokens.S, Tokens.CDO, Tokens.CDC])) {
                     //noop
                 }
             },
@@ -3285,14 +3025,14 @@ Parser.prototype = function(){
              * @method _readDeclarations
              * @private
              */
-            _readDeclarations: function(checkStart, readMargins){
+            _readDeclarations: function(checkStart, readMargins) {
                 /*
                  * Reads the pattern
                  * S* '{' S* declaration [ ';' S* declaration ]* '}' S*
                  * or
                  * S* '{' S* [ declaration | margin ]? [ ';' S* [ declaration | margin ]? ]* '}' S*
                  * Note that this is how it is described in CSS3 Paged Media, but is actually incorrect.
-                 * A semicolon is only necessary following a declaration is there's another declaration
+                 * A semicolon is only necessary following a declaration if there's another declaration
                  * or margin afterwards.
                  */
                 var tokenStream = this._tokenStream,
@@ -3301,7 +3041,7 @@ Parser.prototype = function(){
 
                 this._readWhitespace();
 
-                if (checkStart){
+                if (checkStart) {
                     tokenStream.mustMatch(Tokens.LBRACE);
                 }
 
@@ -3309,12 +3049,12 @@ Parser.prototype = function(){
 
                 try {
 
-                    while(true){
+                    while (true) {
 
-                        if (tokenStream.match(Tokens.SEMICOLON) || (readMargins && this._margin())){
+                        if (tokenStream.match(Tokens.SEMICOLON) || (readMargins && this._margin())) {
                             //noop
-                        } else if (this._declaration()){
-                            if (!tokenStream.match(Tokens.SEMICOLON)){
+                        } else if (this._declaration()) {
+                            if (!tokenStream.match(Tokens.SEMICOLON)) {
                                 break;
                             }
                         } else {
@@ -3331,7 +3071,7 @@ Parser.prototype = function(){
                     this._readWhitespace();
 
                 } catch (ex) {
-                    if (ex instanceof SyntaxError && !this.options.strict){
+                    if (ex instanceof SyntaxError && !this.options.strict) {
 
                         //fire error event
                         this.fire({
@@ -3344,10 +3084,10 @@ Parser.prototype = function(){
 
                         //see if there's another declaration
                         tt = tokenStream.advance([Tokens.SEMICOLON, Tokens.RBRACE]);
-                        if (tt == Tokens.SEMICOLON){
+                        if (tt === Tokens.SEMICOLON) {
                             //if there's a semicolon, then there might be another declaration
                             this._readDeclarations(false, readMargins);
-                        } else if (tt != Tokens.RBRACE){
+                        } else if (tt !== Tokens.RBRACE) {
                             //if there's a right brace, the rule is finished so don't do anything
                             //otherwise, rethrow the error because it wasn't handled properly
                             throw ex;
@@ -3370,12 +3110,12 @@ Parser.prototype = function(){
              * @return {String} The white space if found, empty string if not.
              * @private
              */
-            _readWhitespace: function(){
+            _readWhitespace: function() {
 
                 var tokenStream = this._tokenStream,
                     ws = "";
 
-                while(tokenStream.match(Tokens.S)){
+                while (tokenStream.match(Tokens.S)) {
                     ws += tokenStream.token().value;
                 }
 
@@ -3390,7 +3130,7 @@ Parser.prototype = function(){
              * @return {void}
              * @private
              */
-            _unexpectedToken: function(token){
+            _unexpectedToken: function(token) {
                 throw new SyntaxError("Unexpected token '" + token.value + "' at line " + token.startLine + ", col " + token.startCol + ".", token.startLine, token.startCol);
             },
 
@@ -3400,8 +3140,8 @@ Parser.prototype = function(){
              * @method _verifyEnd
              * @private
              */
-            _verifyEnd: function(){
-                if (this._tokenStream.LA(1) != Tokens.EOF){
+            _verifyEnd: function() {
+                if (this._tokenStream.LA(1) !== Tokens.EOF) {
                     this._unexpectedToken(this._tokenStream.LT(1));
                 }
             },
@@ -3409,7 +3149,7 @@ Parser.prototype = function(){
             //-----------------------------------------------------------------
             // Validation methods
             //-----------------------------------------------------------------
-            _validateProperty: function(property, value){
+            _validateProperty: function(property, value) {
                 Validation.validate(property, value);
             },
 
@@ -3417,17 +3157,17 @@ Parser.prototype = function(){
             // Parsing methods
             //-----------------------------------------------------------------
 
-            parse: function(input){
+            parse: function(input) {
                 this._tokenStream = new TokenStream(input, Tokens);
                 this._stylesheet();
             },
 
-            parseStyleSheet: function(input){
+            parseStyleSheet: function(input) {
                 //just passthrough
                 return this.parse(input);
             },
 
-            parseMediaQuery: function(input){
+            parseMediaQuery: function(input) {
                 this._tokenStream = new TokenStream(input, Tokens);
                 var result = this._media_query();
 
@@ -3444,7 +3184,7 @@ Parser.prototype = function(){
              * @throws parserlib.util.SyntaxError If an unexpected token is found.
              * @method parserPropertyValue
              */
-            parsePropertyValue: function(input){
+            parsePropertyValue: function(input) {
 
                 this._tokenStream = new TokenStream(input, Tokens);
                 this._readWhitespace();
@@ -3468,7 +3208,7 @@ Parser.prototype = function(){
              * @return {Boolean} True if the parse completed successfully, false if not.
              * @method parseRule
              */
-            parseRule: function(input){
+            parseRule: function(input) {
                 this._tokenStream = new TokenStream(input, Tokens);
 
                 //skip any leading white space
@@ -3493,7 +3233,7 @@ Parser.prototype = function(){
              * @throws parserlib.util.SyntaxError If an unexpected token is found.
              * @method parseSelector
              */
-            parseSelector: function(input){
+            parseSelector: function(input) {
 
                 this._tokenStream = new TokenStream(input, Tokens);
 
@@ -3519,7 +3259,7 @@ Parser.prototype = function(){
              * @return {void}
              * @method parseStyleAttribute
              */
-            parseStyleAttribute: function(input){
+            parseStyleAttribute: function(input) {
                 input += "}"; // for error recovery in _readDeclarations()
                 this._tokenStream = new TokenStream(input, Tokens);
                 this._readDeclarations();
@@ -3527,8 +3267,8 @@ Parser.prototype = function(){
         };
 
     //copy over onto prototype
-    for (prop in additions){
-        if (additions.hasOwnProperty(prop)){
+    for (prop in additions) {
+        if (Object.prototype.hasOwnProperty.call(additions, prop)) {
             proto[prop] = additions[prop];
         }
     }
@@ -3543,8 +3283,14 @@ nth
          ['-'|'+']? INTEGER | {O}{D}{D} | {E}{V}{E}{N} ] S*
   ;
 */
-/*global Validation, ValidationTypes, ValidationError*/
-var Properties = {
+
+},{"../util/EventTarget":23,"../util/SyntaxError":25,"../util/SyntaxUnit":26,"./Combinator":2,"./MediaFeature":4,"./MediaQuery":5,"./PropertyName":8,"./PropertyValue":9,"./PropertyValuePart":11,"./Selector":13,"./SelectorPart":14,"./SelectorSubPart":15,"./TokenStream":17,"./Tokens":18,"./Validation":19}],7:[function(require,module,exports){
+"use strict";
+
+/* exported Properties */
+
+var Properties = module.exports = {
+    __proto__: null,
 
     //A
     "align-items"                   : "flex-start | flex-end | center | baseline | stretch",
@@ -3554,90 +3300,61 @@ var Properties = {
     "-webkit-align-content"         : "flex-start | flex-end | center | space-between | space-around | stretch",
     "-webkit-align-self"            : "auto | flex-start | flex-end | center | baseline | stretch",
     "alignment-adjust"              : "auto | baseline | before-edge | text-before-edge | middle | central | after-edge | text-after-edge | ideographic | alphabetic | hanging | mathematical | <percentage> | <length>",
-    "alignment-baseline"            : "baseline | use-script | before-edge | text-before-edge | after-edge | text-after-edge | central | middle | ideographic | alphabetic | hanging | mathematical",
+    "alignment-baseline"            : "auto | baseline | use-script | before-edge | text-before-edge | after-edge | text-after-edge | central | middle | ideographic | alphabetic | hanging | mathematical",
     "animation"                     : 1,
-    "animation-delay"               : { multi: "<time>", comma: true },
-    "animation-direction"           : { multi: "normal | alternate", comma: true },
-    "animation-duration"            : { multi: "<time>", comma: true },
-    "animation-fill-mode"           : { multi: "none | forwards | backwards | both", comma: true },
-    "animation-iteration-count"     : { multi: "<number> | infinite", comma: true },
-    "animation-name"                : { multi: "none | <ident>", comma: true },
-    "animation-play-state"          : { multi: "running | paused", comma: true },
+    "animation-delay"               : "<time>#",
+    "animation-direction"           : "<single-animation-direction>#",
+    "animation-duration"            : "<time>#",
+    "animation-fill-mode"           : "[ none | forwards | backwards | both ]#",
+    "animation-iteration-count"     : "[ <number> | infinite ]#",
+    "animation-name"                : "[ none | <single-animation-name> ]#",
+    "animation-play-state"          : "[ running | paused ]#",
     "animation-timing-function"     : 1,
 
     //vendor prefixed
-    "-moz-animation-delay"               : { multi: "<time>", comma: true },
-    "-moz-animation-direction"           : { multi: "normal | alternate", comma: true },
-    "-moz-animation-duration"            : { multi: "<time>", comma: true },
-    "-moz-animation-iteration-count"     : { multi: "<number> | infinite", comma: true },
-    "-moz-animation-name"                : { multi: "none | <ident>", comma: true },
-    "-moz-animation-play-state"          : { multi: "running | paused", comma: true },
+    "-moz-animation-delay"               : "<time>#",
+    "-moz-animation-direction"           : "[ normal | alternate ]#",
+    "-moz-animation-duration"            : "<time>#",
+    "-moz-animation-iteration-count"     : "[ <number> | infinite ]#",
+    "-moz-animation-name"                : "[ none | <single-animation-name> ]#",
+    "-moz-animation-play-state"          : "[ running | paused ]#",
 
-    "-ms-animation-delay"               : { multi: "<time>", comma: true },
-    "-ms-animation-direction"           : { multi: "normal | alternate", comma: true },
-    "-ms-animation-duration"            : { multi: "<time>", comma: true },
-    "-ms-animation-iteration-count"     : { multi: "<number> | infinite", comma: true },
-    "-ms-animation-name"                : { multi: "none | <ident>", comma: true },
-    "-ms-animation-play-state"          : { multi: "running | paused", comma: true },
+    "-ms-animation-delay"               : "<time>#",
+    "-ms-animation-direction"           : "[ normal | alternate ]#",
+    "-ms-animation-duration"            : "<time>#",
+    "-ms-animation-iteration-count"     : "[ <number> | infinite ]#",
+    "-ms-animation-name"                : "[ none | <single-animation-name> ]#",
+    "-ms-animation-play-state"          : "[ running | paused ]#",
 
-    "-webkit-animation-delay"               : { multi: "<time>", comma: true },
-    "-webkit-animation-direction"           : { multi: "normal | alternate", comma: true },
-    "-webkit-animation-duration"            : { multi: "<time>", comma: true },
-    "-webkit-animation-fill-mode"           : { multi: "none | forwards | backwards | both", comma: true },
-    "-webkit-animation-iteration-count"     : { multi: "<number> | infinite", comma: true },
-    "-webkit-animation-name"                : { multi: "none | <ident>", comma: true },
-    "-webkit-animation-play-state"          : { multi: "running | paused", comma: true },
+    "-webkit-animation-delay"               : "<time>#",
+    "-webkit-animation-direction"           : "[ normal | alternate ]#",
+    "-webkit-animation-duration"            : "<time>#",
+    "-webkit-animation-fill-mode"           : "[ none | forwards | backwards | both ]#",
+    "-webkit-animation-iteration-count"     : "[ <number> | infinite ]#",
+    "-webkit-animation-name"                : "[ none | <single-animation-name> ]#",
+    "-webkit-animation-play-state"          : "[ running | paused ]#",
 
-    "-o-animation-delay"               : { multi: "<time>", comma: true },
-    "-o-animation-direction"           : { multi: "normal | alternate", comma: true },
-    "-o-animation-duration"            : { multi: "<time>", comma: true },
-    "-o-animation-iteration-count"     : { multi: "<number> | infinite", comma: true },
-    "-o-animation-name"                : { multi: "none | <ident>", comma: true },
-    "-o-animation-play-state"          : { multi: "running | paused", comma: true },
+    "-o-animation-delay"               : "<time>#",
+    "-o-animation-direction"           : "[ normal | alternate ]#",
+    "-o-animation-duration"            : "<time>#",
+    "-o-animation-iteration-count"     : "[ <number> | infinite ]#",
+    "-o-animation-name"                : "[ none | <single-animation-name> ]#",
+    "-o-animation-play-state"          : "[ running | paused ]#",
 
-    "appearance"                    : "icon | window | desktop | workspace | document | tooltip | dialog | button | push-button | hyperlink | radio-button | checkbox | menu-item | tab | menu | menubar | pull-down-menu | pop-up-menu | list-menu | radio-group | checkbox-group | outline-tree | range | field | combo-box | signature | password | normal | none | inherit",
-    "azimuth"                       : function (expression) {
-        var simple      = "<angle> | leftwards | rightwards | inherit",
-            direction   = "left-side | far-left | left | center-left | center | center-right | right | far-right | right-side",
-            behind      = false,
-            valid       = false,
-            part;
-
-        if (!ValidationTypes.isAny(expression, simple)) {
-            if (ValidationTypes.isAny(expression, "behind")) {
-                behind = true;
-                valid = true;
-            }
-
-            if (ValidationTypes.isAny(expression, direction)) {
-                valid = true;
-                if (!behind) {
-                    ValidationTypes.isAny(expression, "behind");
-                }
-            }
-        }
-
-        if (expression.hasNext()) {
-            part = expression.next();
-            if (valid) {
-                throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
-            } else {
-                throw new ValidationError("Expected (<'azimuth'>) but found '" + part + "'.", part.line, part.col);
-            }
-        }
-    },
+    "appearance"                    : "icon | window | desktop | workspace | document | tooltip | dialog | button | push-button | hyperlink | radio | radio-button | checkbox | menu-item | tab | menu | menubar | pull-down-menu | pop-up-menu | list-menu | radio-group | checkbox-group | outline-tree | range | field | combo-box | signature | password | normal | none",
+    "azimuth"                       : "<azimuth>",
 
     //B
     "backface-visibility"           : "visible | hidden",
     "background"                    : 1,
-    "background-attachment"         : { multi: "<attachment>", comma: true },
-    "background-clip"               : { multi: "<box>", comma: true },
-    "background-color"              : "<color> | inherit",
-    "background-image"              : { multi: "<bg-image>", comma: true },
-    "background-origin"             : { multi: "<box>", comma: true },
-    "background-position"           : { multi: "<bg-position>", comma: true },
-    "background-repeat"             : { multi: "<repeat-style>" },
-    "background-size"               : { multi: "<bg-size>", comma: true },
+    "background-attachment"         : "<attachment>#",
+    "background-clip"               : "<box>#",
+    "background-color"              : "<color>",
+    "background-image"              : "<bg-image>#",
+    "background-origin"             : "<box>#",
+    "background-position"           : "<bg-position>",
+    "background-repeat"             : "<repeat-style>#",
+    "background-size"               : "<bg-size>#",
     "baseline-shift"                : "baseline | sub | super | <percentage> | <length>",
     "behavior"                      : 1,
     "binding"                       : 1,
@@ -3648,151 +3365,77 @@ var Properties = {
     "bookmark-target"               : "none | <uri> | <attr>",
     "border"                        : "<border-width> || <border-style> || <color>",
     "border-bottom"                 : "<border-width> || <border-style> || <color>",
-    "border-bottom-color"           : "<color> | inherit",
+    "border-bottom-color"           : "<color>",
     "border-bottom-left-radius"     :  "<x-one-radius>",
     "border-bottom-right-radius"    :  "<x-one-radius>",
     "border-bottom-style"           : "<border-style>",
     "border-bottom-width"           : "<border-width>",
-    "border-collapse"               : "collapse | separate | inherit",
-    "border-color"                  : { multi: "<color> | inherit", max: 4 },
+    "border-collapse"               : "collapse | separate",
+    "border-color"                  : "<color>{1,4}",
     "border-image"                  : 1,
-    "border-image-outset"           : { multi: "<length> | <number>", max: 4 },
-    "border-image-repeat"           : { multi: "stretch | repeat | round", max: 2 },
-    "border-image-slice"            : function(expression) {
-
-        var valid   = false,
-            numeric = "<number> | <percentage>",
-            fill    = false,
-            count   = 0,
-            max     = 4,
-            part;
-
-        if (ValidationTypes.isAny(expression, "fill")) {
-            fill = true;
-            valid = true;
-        }
-
-        while (expression.hasNext() && count < max) {
-            valid = ValidationTypes.isAny(expression, numeric);
-            if (!valid) {
-                break;
-            }
-            count++;
-        }
-
-
-        if (!fill) {
-            ValidationTypes.isAny(expression, "fill");
-        } else {
-            valid = true;
-        }
-
-        if (expression.hasNext()) {
-            part = expression.next();
-            if (valid) {
-                throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
-            } else {
-                throw new ValidationError("Expected ([<number> | <percentage>]{1,4} && fill?) but found '" + part + "'.", part.line, part.col);
-            }
-        }
-    },
+    "border-image-outset"           : "[ <length> | <number> ]{1,4}",
+    "border-image-repeat"           : "[ stretch | repeat | round ]{1,2}",
+    "border-image-slice"            : "<border-image-slice>",
     "border-image-source"           : "<image> | none",
-    "border-image-width"            : { multi: "<length> | <percentage> | <number> | auto", max: 4 },
+    "border-image-width"            : "[ <length> | <percentage> | <number> | auto ]{1,4}",
     "border-left"                   : "<border-width> || <border-style> || <color>",
-    "border-left-color"             : "<color> | inherit",
+    "border-left-color"             : "<color>",
     "border-left-style"             : "<border-style>",
     "border-left-width"             : "<border-width>",
-    "border-radius"                 : function(expression) {
-
-        var valid   = false,
-            simple = "<length> | <percentage> | inherit",
-            slash   = false,
-            fill    = false,
-            count   = 0,
-            max     = 8,
-            part;
-
-        while (expression.hasNext() && count < max) {
-            valid = ValidationTypes.isAny(expression, simple);
-            if (!valid) {
-
-                if (expression.peek() == "/" && count > 0 && !slash) {
-                    slash = true;
-                    max = count + 5;
-                    expression.next();
-                } else {
-                    break;
-                }
-            }
-            count++;
-        }
-
-        if (expression.hasNext()) {
-            part = expression.next();
-            if (valid) {
-                throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
-            } else {
-                throw new ValidationError("Expected (<'border-radius'>) but found '" + part + "'.", part.line, part.col);
-            }
-        }
-    },
+    "border-radius"                 : "<border-radius>",
     "border-right"                  : "<border-width> || <border-style> || <color>",
-    "border-right-color"            : "<color> | inherit",
+    "border-right-color"            : "<color>",
     "border-right-style"            : "<border-style>",
     "border-right-width"            : "<border-width>",
-    "border-spacing"                : { multi: "<length> | inherit", max: 2 },
-    "border-style"                  : { multi: "<border-style>", max: 4 },
+    "border-spacing"                : "<length>{1,2}",
+    "border-style"                  : "<border-style>{1,4}",
     "border-top"                    : "<border-width> || <border-style> || <color>",
-    "border-top-color"              : "<color> | inherit",
+    "border-top-color"              : "<color>",
     "border-top-left-radius"        : "<x-one-radius>",
     "border-top-right-radius"       : "<x-one-radius>",
     "border-top-style"              : "<border-style>",
     "border-top-width"              : "<border-width>",
-    "border-width"                  : { multi: "<border-width>", max: 4 },
-    "bottom"                        : "<margin-width> | inherit",
+    "border-width"                  : "<border-width>{1,4}",
+    "bottom"                        : "<margin-width>",
     "-moz-box-align"                : "start | end | center | baseline | stretch",
-    "-moz-box-decoration-break"     : "slice |clone",
-    "-moz-box-direction"            : "normal | reverse | inherit",
+    "-moz-box-decoration-break"     : "slice | clone",
+    "-moz-box-direction"            : "normal | reverse",
     "-moz-box-flex"                 : "<number>",
     "-moz-box-flex-group"           : "<integer>",
     "-moz-box-lines"                : "single | multiple",
     "-moz-box-ordinal-group"        : "<integer>",
-    "-moz-box-orient"               : "horizontal | vertical | inline-axis | block-axis | inherit",
+    "-moz-box-orient"               : "horizontal | vertical | inline-axis | block-axis",
     "-moz-box-pack"                 : "start | end | center | justify",
+    "-o-box-decoration-break"       : "slice | clone",
     "-webkit-box-align"             : "start | end | center | baseline | stretch",
-    "-webkit-box-decoration-break"  : "slice |clone",
-    "-webkit-box-direction"         : "normal | reverse | inherit",
+    "-webkit-box-decoration-break"  : "slice | clone",
+    "-webkit-box-direction"         : "normal | reverse",
     "-webkit-box-flex"              : "<number>",
     "-webkit-box-flex-group"        : "<integer>",
     "-webkit-box-lines"             : "single | multiple",
     "-webkit-box-ordinal-group"     : "<integer>",
-    "-webkit-box-orient"            : "horizontal | vertical | inline-axis | block-axis | inherit",
+    "-webkit-box-orient"            : "horizontal | vertical | inline-axis | block-axis",
     "-webkit-box-pack"              : "start | end | center | justify",
-    "box-shadow"                    : function (expression) {
-        var result      = false,
-            part;
-
-        if (!ValidationTypes.isAny(expression, "none")) {
-            Validation.multiProperty("<shadow>", expression, true, Infinity);
-        } else {
-            if (expression.hasNext()) {
-                part = expression.next();
-                throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
-            }
-        }
-    },
-    "box-sizing"                    : "content-box | border-box | inherit",
+    "box-decoration-break"          : "slice | clone",
+    "box-shadow"                    : "<box-shadow>",
+    "box-sizing"                    : "content-box | border-box",
     "break-after"                   : "auto | always | avoid | left | right | page | column | avoid-page | avoid-column",
     "break-before"                  : "auto | always | avoid | left | right | page | column | avoid-page | avoid-column",
     "break-inside"                  : "auto | avoid | avoid-page | avoid-column",
 
     //C
-    "caption-side"                  : "top | bottom | inherit",
-    "clear"                         : "none | right | left | both | inherit",
-    "clip"                          : 1,
-    "color"                         : "<color> | inherit",
+    "caption-side"                  : "top | bottom",
+    "clear"                         : "none | right | left | both",
+    "clip"                          : "<shape> | auto",
+    "-webkit-clip-path"             : "<clip-source> | <clip-path> | none",
+    "clip-path"                     : "<clip-source> | <clip-path> | none",
+    "clip-rule"                     : "nonzero | evenodd",
+    "color"                         : "<color>",
+    "color-interpolation"           : "auto | sRGB | linearRGB",
+    "color-interpolation-filters"   : "auto | sRGB | linearRGB",
     "color-profile"                 : 1,
-    "column-count"                  : "<integer> | auto",                      //http://www.w3.org/TR/css3-multicol/
+    "color-rendering"               : "auto | optimizeSpeed | optimizeQuality",
+    "column-count"                  : "<integer> | auto",                      //https://www.w3.org/TR/css3-multicol/
     "column-fill"                   : "auto | balance",
     "column-gap"                    : "<length> | normal",
     "column-rule"                   : "<border-width> || <border-style> || <color>",
@@ -3806,28 +3449,32 @@ var Properties = {
     "counter-increment"             : 1,
     "counter-reset"                 : 1,
     "crop"                          : "<shape> | auto",
-    "cue"                           : "cue-after | cue-before | inherit",
+    "cue"                           : "cue-after | cue-before",
     "cue-after"                     : 1,
     "cue-before"                    : 1,
     "cursor"                        : 1,
 
     //D
-    "direction"                     : "ltr | rtl | inherit",
-    "display"                       : "inline | block | list-item | inline-block | table | inline-table | table-row-group | table-header-group | table-footer-group | table-row | table-column-group | table-column | table-cell | table-caption | grid | inline-grid | none | inherit | -moz-box | -moz-inline-block | -moz-inline-box | -moz-inline-grid | -moz-inline-stack | -moz-inline-table | -moz-grid | -moz-grid-group | -moz-grid-line | -moz-groupbox | -moz-deck | -moz-popup | -moz-stack | -moz-marker | -webkit-box | -webkit-inline-box | -ms-flexbox | -ms-inline-flexbox | flex | -webkit-flex | inline-flex | -webkit-inline-flex",
-    "dominant-baseline"             : 1,
+    "direction"                     : "ltr | rtl",
+    "display"                       : "inline | block | list-item | inline-block | table | inline-table | table-row-group | table-header-group | table-footer-group | table-row | table-column-group | table-column | table-cell | table-caption | grid | inline-grid | run-in | ruby | ruby-base | ruby-text | ruby-base-container | ruby-text-container | contents | none | -moz-box | -moz-inline-block | -moz-inline-box | -moz-inline-grid | -moz-inline-stack | -moz-inline-table | -moz-grid | -moz-grid-group | -moz-grid-line | -moz-groupbox | -moz-deck | -moz-popup | -moz-stack | -moz-marker | -webkit-box | -webkit-inline-box | -ms-flexbox | -ms-inline-flexbox | flex | -webkit-flex | inline-flex | -webkit-inline-flex",
+    "dominant-baseline"             : "auto | use-script | no-change | reset-size | ideographic | alphabetic | hanging | mathematical | central | middle | text-after-edge | text-before-edge",
     "drop-initial-after-adjust"     : "central | middle | after-edge | text-after-edge | ideographic | alphabetic | mathematical | <percentage> | <length>",
     "drop-initial-after-align"      : "baseline | use-script | before-edge | text-before-edge | after-edge | text-after-edge | central | middle | ideographic | alphabetic | hanging | mathematical",
     "drop-initial-before-adjust"    : "before-edge | text-before-edge | central | middle | hanging | mathematical | <percentage> | <length>",
     "drop-initial-before-align"     : "caps-height | baseline | use-script | before-edge | text-before-edge | after-edge | text-after-edge | central | middle | ideographic | alphabetic | hanging | mathematical",
     "drop-initial-size"             : "auto | line | <length> | <percentage>",
-    "drop-initial-value"            : "initial | <integer>",
+    "drop-initial-value"            : "<integer>",
 
     //E
-    "elevation"                     : "<angle> | below | level | above | higher | lower | inherit",
-    "empty-cells"                   : "show | hide | inherit",
+    "elevation"                     : "<angle> | below | level | above | higher | lower",
+    "empty-cells"                   : "show | hide",
+    "enable-background"             : 1,
 
     //F
-    "filter"                        : 1,
+    "fill"                          : "<paint>",
+    "fill-opacity"                  : "<opacity-value>",
+    "fill-rule"                     : "nonzero | evenodd",
+    "filter"                        : "<filter-function-list> | none",
     "fit"                           : "fill | hidden | meet | slice",
     "fit-position"                  : 1,
     "flex"                          : "<flex>",
@@ -3846,39 +3493,65 @@ var Properties = {
     "-webkit-flex-wrap"             : "nowrap | wrap | wrap-reverse",
     "-ms-flex"                      : "<flex>",
     "-ms-flex-align"                : "start | end | center | stretch | baseline",
-    "-ms-flex-direction"            : "row | row-reverse | column | column-reverse | inherit",
+    "-ms-flex-direction"            : "row | row-reverse | column | column-reverse",
     "-ms-flex-order"                : "<number>",
     "-ms-flex-pack"                 : "start | end | center | justify",
     "-ms-flex-wrap"                 : "nowrap | wrap | wrap-reverse",
-    "float"                         : "left | right | none | inherit",
+    "float"                         : "left | right | none",
     "float-offset"                  : 1,
-    "font"                          : 1,
-    "font-family"                   : 1,
-    "font-size"                     : "<absolute-size> | <relative-size> | <length> | <percentage> | inherit",
-    "font-size-adjust"              : "<number> | none | inherit",
-    "font-stretch"                  : "normal | ultra-condensed | extra-condensed | condensed | semi-condensed | semi-expanded | expanded | extra-expanded | ultra-expanded | inherit",
-    "font-style"                    : "normal | italic | oblique | inherit",
-    "font-variant"                  : "normal | small-caps | inherit",
-    "font-weight"                   : "normal | bold | bolder | lighter | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | inherit",
+    "flood-color"                   : 1,
+    "flood-opacity"                 : "<opacity-value>",
+    "font"                          : "<font-shorthand> | caption | icon | menu | message-box | small-caption | status-bar",
+    "font-family"                   : "<font-family>",
+    "font-feature-settings"         : "<feature-tag-value> | normal",
+    "font-kerning"                  : "auto | normal | none",
+    "font-size"                     : "<font-size>",
+    "font-size-adjust"              : "<number> | none",
+    "font-stretch"                  : "<font-stretch>",
+    "font-style"                    : "<font-style>",
+    "font-variant"                  : "<font-variant> | normal | none",
+    "font-variant-alternates"       : "<font-variant-alternates> | normal",
+    "font-variant-caps"             : "<font-variant-caps> | normal",
+    "font-variant-east-asian"       : "<font-variant-east-asian> | normal",
+    "font-variant-ligatures"        : "<font-variant-ligatures> | normal | none",
+    "font-variant-numeric"          : "<font-variant-numeric> | normal",
+    "font-variant-position"         : "normal | sub | super",
+    "font-weight"                   : "<font-weight>",
 
     //G
+    "glyph-orientation-horizontal"  : "<glyph-angle>",
+    "glyph-orientation-vertical"    : "auto | <glyph-angle>",
+    "grid"                          : 1,
+    "grid-area"                     : 1,
+    "grid-auto-columns"             : 1,
+    "grid-auto-flow"                : 1,
+    "grid-auto-position"            : 1,
+    "grid-auto-rows"                : 1,
     "grid-cell-stacking"            : "columns | rows | layer",
     "grid-column"                   : 1,
     "grid-columns"                  : 1,
     "grid-column-align"             : "start | end | center | stretch",
     "grid-column-sizing"            : 1,
+    "grid-column-start"             : 1,
+    "grid-column-end"               : 1,
     "grid-column-span"              : "<integer>",
     "grid-flow"                     : "none | rows | columns",
     "grid-layer"                    : "<integer>",
     "grid-row"                      : 1,
     "grid-rows"                     : 1,
     "grid-row-align"                : "start | end | center | stretch",
+    "grid-row-start"                : 1,
+    "grid-row-end"                  : 1,
     "grid-row-span"                 : "<integer>",
     "grid-row-sizing"               : 1,
+    "grid-template"                 : 1,
+    "grid-template-areas"           : 1,
+    "grid-template-columns"         : 1,
+    "grid-template-rows"            : 1,
 
     //H
     "hanging-punctuation"           : 1,
-    "height"                        : "<margin-width> | <content-sizing> | inherit",
+    "height"                        : "<margin-width> | <content-sizing>",
     "hyphenate-after"               : "<integer> | auto",
     "hyphenate-before"              : "<integer> | auto",
     "hyphenate-character"           : "<string> | auto",
@@ -3889,46 +3562,55 @@ var Properties = {
     //I
     "icon"                          : 1,
     "image-orientation"             : "angle | auto",
-    "image-rendering"               : 1,
+    "image-rendering"               : "auto | optimizeSpeed | optimizeQuality",
     "image-resolution"              : 1,
-    "inline-box-align"              : "initial | last | <integer>",
+    "ime-mode"                      : "auto | normal | active | inactive | disabled",
+    "inline-box-align"              : "last | <integer>",
 
     //J
     "justify-content"               : "flex-start | flex-end | center | space-between | space-around",
     "-webkit-justify-content"       : "flex-start | flex-end | center | space-between | space-around",
 
+    //K
+    "kerning"                       : "auto | <length>",
+
     //L
-    "left"                          : "<margin-width> | inherit",
-    "letter-spacing"                : "<length> | normal | inherit",
-    "line-height"                   : "<number> | <length> | <percentage> | normal | inherit",
+    "left"                          : "<margin-width>",
+    "letter-spacing"                : "<length> | normal",
+    "line-height"                   : "<line-height>",
     "line-break"                    : "auto | loose | normal | strict",
     "line-stacking"                 : 1,
     "line-stacking-ruby"            : "exclude-ruby | include-ruby",
     "line-stacking-shift"           : "consider-shifts | disregard-shifts",
     "line-stacking-strategy"        : "inline-line-height | block-line-height | max-height | grid-height",
     "list-style"                    : 1,
-    "list-style-image"              : "<uri> | none | inherit",
-    "list-style-position"           : "inside | outside | inherit",
-    "list-style-type"               : "disc | circle | square | decimal | decimal-leading-zero | lower-roman | upper-roman | lower-greek | lower-latin | upper-latin | armenian | georgian | lower-alpha | upper-alpha | none | inherit",
+    "list-style-image"              : "<uri> | none",
+    "list-style-position"           : "inside | outside",
+    "list-style-type"               : "disc | circle | square | decimal | decimal-leading-zero | lower-roman | upper-roman | lower-greek | lower-latin | upper-latin | armenian | georgian | lower-alpha | upper-alpha | none",
 
     //M
-    "margin"                        : { multi: "<margin-width> | inherit", max: 4 },
-    "margin-bottom"                 : "<margin-width> | inherit",
-    "margin-left"                   : "<margin-width> | inherit",
-    "margin-right"                  : "<margin-width> | inherit",
-    "margin-top"                    : "<margin-width> | inherit",
+    "margin"                        : "<margin-width>{1,4}",
+    "margin-bottom"                 : "<margin-width>",
+    "margin-left"                   : "<margin-width>",
+    "margin-right"                  : "<margin-width>",
+    "margin-top"                    : "<margin-width>",
     "mark"                          : 1,
     "mark-after"                    : 1,
     "mark-before"                   : 1,
+    "marker"                        : 1,
+    "marker-end"                    : 1,
+    "marker-mid"                    : 1,
+    "marker-start"                  : 1,
     "marks"                         : 1,
     "marquee-direction"             : 1,
     "marquee-play-count"            : 1,
     "marquee-speed"                 : 1,
     "marquee-style"                 : 1,
-    "max-height"                    : "<length> | <percentage> | <content-sizing> | none | inherit",
-    "max-width"                     : "<length> | <percentage> | <content-sizing> | none | inherit",
-    "min-height"                    : "<length> | <percentage> | <content-sizing> | contain-floats | -moz-contain-floats | -webkit-contain-floats | inherit",
-    "min-width"                     : "<length> | <percentage> | <content-sizing> | contain-floats | -moz-contain-floats | -webkit-contain-floats | inherit",
+    "mask"                          : 1,
+    "max-height"                    : "<length> | <percentage> | <content-sizing> | none",
+    "max-width"                     : "<length> | <percentage> | <content-sizing> | none",
+    "min-height"                    : "<length> | <percentage> | <content-sizing> | contain-floats | -moz-contain-floats | -webkit-contain-floats",
+    "min-width"                     : "<length> | <percentage> | <content-sizing> | contain-floats | -moz-contain-floats | -webkit-contain-floats",
     "move-to"                       : 1,
 
     //N
@@ -3939,31 +3621,33 @@ var Properties = {
     "nav-up"                        : 1,
 
     //O
-    "opacity"                       : "<number> | inherit",
+    "object-fit"                    : "fill | contain | cover | none | scale-down",
+    "object-position"               : "<position>",
+    "opacity"                       : "<opacity-value>",
     "order"                         : "<integer>",
     "-webkit-order"                 : "<integer>",
-    "orphans"                       : "<integer> | inherit",
+    "orphans"                       : "<integer>",
     "outline"                       : 1,
-    "outline-color"                 : "<color> | invert | inherit",
+    "outline-color"                 : "<color> | invert",
     "outline-offset"                : 1,
-    "outline-style"                 : "<border-style> | inherit",
-    "outline-width"                 : "<border-width> | inherit",
-    "overflow"                      : "visible | hidden | scroll | auto | inherit",
+    "outline-style"                 : "<border-style>",
+    "outline-width"                 : "<border-width>",
+    "overflow"                      : "visible | hidden | scroll | auto",
     "overflow-style"                : 1,
     "overflow-wrap"                 : "normal | break-word",
     "overflow-x"                    : 1,
     "overflow-y"                    : 1,
 
     //P
-    "padding"                       : { multi: "<padding-width> | inherit", max: 4 },
-    "padding-bottom"                : "<padding-width> | inherit",
-    "padding-left"                  : "<padding-width> | inherit",
-    "padding-right"                 : "<padding-width> | inherit",
-    "padding-top"                   : "<padding-width> | inherit",
+    "padding"                       : "<padding-width>{1,4}",
+    "padding-bottom"                : "<padding-width>",
+    "padding-left"                  : "<padding-width>",
+    "padding-right"                 : "<padding-width>",
+    "padding-top"                   : "<padding-width>",
     "page"                          : 1,
-    "page-break-after"              : "auto | always | avoid | left | right | inherit",
-    "page-break-before"             : "auto | always | avoid | left | right | inherit",
-    "page-break-inside"             : "auto | avoid | inherit",
+    "page-break-after"              : "auto | always | avoid | left | right",
+    "page-break-before"             : "auto | always | avoid | left | right",
+    "page-break-inside"             : "auto | avoid",
     "page-policy"                   : 1,
     "pause"                         : 1,
     "pause-after"                   : 1,
@@ -3974,8 +3658,8 @@ var Properties = {
     "pitch"                         : 1,
     "pitch-range"                   : 1,
     "play-during"                   : 1,
-    "pointer-events"                : "auto | none | visiblePainted | visibleFill | visibleStroke | visible | painted | fill | stroke | all | inherit",
-    "position"                      : "static | relative | absolute | fixed | inherit",
+    "pointer-events"                : "auto | none | visiblePainted | visibleFill | visibleStroke | visible | painted | fill | stroke | all",
+    "position"                      : "static | relative | absolute | fixed",
     "presentation-level"            : 1,
     "punctuation-trim"              : 1,
 
@@ -3989,7 +3673,7 @@ var Properties = {
     "rest-after"                    : 1,
     "rest-before"                   : 1,
     "richness"                      : 1,
-    "right"                         : "<margin-width> | inherit",
+    "right"                         : "<margin-width>",
     "rotation"                      : 1,
     "rotation-point"                : 1,
     "ruby-align"                    : 1,
@@ -3998,38 +3682,50 @@ var Properties = {
     "ruby-span"                     : 1,
 
     //S
+    "shape-rendering"               : "auto | optimizeSpeed | crispEdges | geometricPrecision",
     "size"                          : 1,
-    "speak"                         : "normal | none | spell-out | inherit",
-    "speak-header"                  : "once | always | inherit",
-    "speak-numeral"                 : "digits | continuous | inherit",
-    "speak-punctuation"             : "code | none | inherit",
+    "speak"                         : "normal | none | spell-out",
+    "speak-header"                  : "once | always",
+    "speak-numeral"                 : "digits | continuous",
+    "speak-punctuation"             : "code | none",
     "speech-rate"                   : 1,
     "src"                           : 1,
+    "stop-color"                    : 1,
+    "stop-opacity"                  : "<opacity-value>",
     "stress"                        : 1,
     "string-set"                    : 1,
+    "stroke"                        : "<paint>",
+    "stroke-dasharray"              : "none | <dasharray>",
+    "stroke-dashoffset"             : "<percentage> | <length>",
+    "stroke-linecap"                : "butt | round | square",
+    "stroke-linejoin"               : "miter | round | bevel",
+    "stroke-miterlimit"             : "<miterlimit>",
+    "stroke-opacity"                : "<opacity-value>",
+    "stroke-width"                  : "<percentage> | <length>",
 
-    "table-layout"                  : "auto | fixed | inherit",
+    "table-layout"                  : "auto | fixed",
     "tab-size"                      : "<integer> | <length>",
     "target"                        : 1,
     "target-name"                   : 1,
     "target-new"                    : 1,
     "target-position"               : 1,
-    "text-align"                    : "left | right | center | justify | inherit" ,
+    "text-align"                    : "left | right | center | justify | match-parent | start | end",
     "text-align-last"               : 1,
-    "text-decoration"               : 1,
+    "text-anchor"                   : "start | middle | end",
+    "text-decoration"               : "<text-decoration>",
     "text-emphasis"                 : 1,
     "text-height"                   : 1,
-    "text-indent"                   : "<length> | <percentage> | inherit",
+    "text-indent"                   : "<length> | <percentage>",
     "text-justify"                  : "auto | none | inter-word | inter-ideograph | inter-cluster | distribute | kashida",
     "text-outline"                  : 1,
     "text-overflow"                 : 1,
-    "text-rendering"                : "auto | optimizeSpeed | optimizeLegibility | geometricPrecision | inherit",
+    "text-rendering"                : "auto | optimizeSpeed | optimizeLegibility | geometricPrecision",
     "text-shadow"                   : 1,
-    "text-transform"                : "capitalize | uppercase | lowercase | none | inherit",
+    "text-transform"                : "capitalize | uppercase | lowercase | none",
     "text-wrap"                     : "normal | none | avoid",
-    "top"                           : "<margin-width> | inherit",
-    "-ms-touch-action"              : "auto | none | pan-x | pan-y",
-    "touch-action"                  : "auto | none | pan-x | pan-y",
+    "top"                           : "<margin-width>",
+    "-ms-touch-action"              : "auto | none | pan-x | pan-y | pan-left | pan-right | pan-up | pan-down | manipulation",
+    "touch-action"                  : "auto | none | pan-x | pan-y | pan-left | pan-right | pan-up | pan-down | manipulation",
     "transform"                     : 1,
     "transform-origin"              : 1,
     "transform-style"               : 1,
@@ -4040,13 +3736,13 @@ var Properties = {
     "transition-timing-function"    : 1,
 
     //U
-    "unicode-bidi"                  : "normal | embed | isolate | bidi-override | isolate-override | plaintext | inherit",
-    "user-modify"                   : "read-only | read-write | write-only | inherit",
-    "user-select"                   : "none | text | toggle | element | elements | all | inherit",
+    "unicode-bidi"                  : "normal | embed | isolate | bidi-override | isolate-override | plaintext",
+    "user-modify"                   : "read-only | read-write | write-only",
+    "user-select"                   : "none | text | toggle | element | elements | all",
 
     //V
     "vertical-align"                : "auto | use-script | baseline | sub | super | top | text-top | central | middle | bottom | text-bottom | <percentage> | <length>",
-    "visibility"                    : "visible | hidden | collapse | inherit",
+    "visibility"                    : "visible | hidden | collapse",
     "voice-balance"                 : 1,
     "voice-duration"                : 1,
     "voice-family"                  : 1,
@@ -4058,20 +3754,30 @@ var Properties = {
     "volume"                        : 1,
 
     //W
-    "white-space"                   : "normal | pre | nowrap | pre-wrap | pre-line | inherit | -pre-wrap | -o-pre-wrap | -moz-pre-wrap | -hp-pre-wrap", //http://perishablepress.com/wrapping-content/
+    "white-space"                   : "normal | pre | nowrap | pre-wrap | pre-line | -pre-wrap | -o-pre-wrap | -moz-pre-wrap | -hp-pre-wrap",   // https://perishablepress.com/wrapping-content/
     "white-space-collapse"          : 1,
-    "widows"                        : "<integer> | inherit",
-    "width"                         : "<length> | <percentage> | <content-sizing> | auto | inherit",
+    "widows"                        : "<integer>",
+    "width"                         : "<length> | <percentage> | <content-sizing> | auto",
+    "will-change"                   : "<will-change>",
     "word-break"                    : "normal | keep-all | break-all",
-    "word-spacing"                  : "<length> | normal | inherit",
+    "word-spacing"                  : "<length> | normal",
     "word-wrap"                     : "normal | break-word",
-    "writing-mode"                  : "horizontal-tb | vertical-rl | vertical-lr | lr-tb | rl-tb | tb-rl | bt-rl | tb-lr | bt-lr | lr-bt | rl-bt | lr | rl | tb | inherit",
+    "writing-mode"                  : "horizontal-tb | vertical-rl | vertical-lr | lr-tb | rl-tb | tb-rl | bt-rl | tb-lr | bt-lr | lr-bt | rl-bt | lr | rl | tb",
 
     //Z
-    "z-index"                       : "<integer> | auto | inherit",
+    "z-index"                       : "<integer> | auto",
     "zoom"                          : "<number> | <percentage> | normal"
 };
-/*global SyntaxUnit, Parser*/
+
+},{}],8:[function(require,module,exports){
+"use strict";
+
+module.exports = PropertyName;
+
+var SyntaxUnit = require("../util/SyntaxUnit");
+
+var Parser = require("./Parser");
+
 /**
  * Represents a selector combinator (whitespace, +, >).
  * @namespace parserlib.css
@@ -4083,7 +3789,7 @@ var Properties = {
  * @param {int} line The line of text on which the unit resides.
  * @param {int} col The column of text on which the unit resides.
  */
-function PropertyName(text, hack, line, col){
+function PropertyName(text, hack, line, col) {
 
     SyntaxUnit.call(this, text, line, col, Parser.PROPERTY_NAME_TYPE);
 
@@ -4098,10 +3804,19 @@ function PropertyName(text, hack, line, col){
 
 PropertyName.prototype = new SyntaxUnit();
 PropertyName.prototype.constructor = PropertyName;
-PropertyName.prototype.toString = function(){
+PropertyName.prototype.toString = function() {
     return (this.hack ? this.hack : "") + this.text;
 };
-/*global SyntaxUnit, Parser*/
+
+},{"../util/SyntaxUnit":26,"./Parser":6}],9:[function(require,module,exports){
+"use strict";
+
+module.exports = PropertyValue;
+
+var SyntaxUnit = require("../util/SyntaxUnit");
+
+var Parser = require("./Parser");
+
 /**
  * Represents a single part of a CSS property value, meaning that it represents
  * just everything single part between ":" and ";". If there are multiple values
@@ -4114,7 +3829,7 @@ PropertyName.prototype.toString = function(){
  * @extends parserlib.util.SyntaxUnit
  * @constructor
  */
-function PropertyValue(parts, line, col){
+function PropertyValue(parts, line, col) {
 
     SyntaxUnit.call(this, parts.join(" "), line, col, Parser.PROPERTY_VALUE_TYPE);
 
@@ -4130,7 +3845,12 @@ function PropertyValue(parts, line, col){
 PropertyValue.prototype = new SyntaxUnit();
 PropertyValue.prototype.constructor = PropertyValue;
 
-/*global SyntaxUnit, Parser*/
+
+},{"../util/SyntaxUnit":26,"./Parser":6}],10:[function(require,module,exports){
+"use strict";
+
+module.exports = PropertyValueIterator;
+
 /**
  * A utility class that allows for easy iteration over the various parts of a
  * property value.
@@ -4139,7 +3859,7 @@ PropertyValue.prototype.constructor = PropertyValue;
  * @class PropertyValueIterator
  * @constructor
  */
-function PropertyValueIterator(value){
+function PropertyValueIterator(value) {
 
     /**
      * Iterator value
@@ -4179,7 +3899,7 @@ function PropertyValueIterator(value){
  * @return {int} The total number of parts in the value.
  * @method count
  */
-PropertyValueIterator.prototype.count = function(){
+PropertyValueIterator.prototype.count = function() {
     return this._parts.length;
 };
 
@@ -4188,7 +3908,7 @@ PropertyValueIterator.prototype.count = function(){
  * @return {Boolean} True if positioned at first item, false if not.
  * @method isFirst
  */
-PropertyValueIterator.prototype.isFirst = function(){
+PropertyValueIterator.prototype.isFirst = function() {
     return this._i === 0;
 };
 
@@ -4197,8 +3917,8 @@ PropertyValueIterator.prototype.isFirst = function(){
  * @return {Boolean} True if there are more parts, false if not.
  * @method hasNext
  */
-PropertyValueIterator.prototype.hasNext = function(){
-    return (this._i < this._parts.length);
+PropertyValueIterator.prototype.hasNext = function() {
+    return this._i < this._parts.length;
 };
 
 /**
@@ -4207,7 +3927,7 @@ PropertyValueIterator.prototype.hasNext = function(){
  * @return {void}
  * @method mark
  */
-PropertyValueIterator.prototype.mark = function(){
+PropertyValueIterator.prototype.mark = function() {
     this._marks.push(this._i);
 };
 
@@ -4218,7 +3938,7 @@ PropertyValueIterator.prototype.mark = function(){
  * part.
  * @method peek
  */
-PropertyValueIterator.prototype.peek = function(count){
+PropertyValueIterator.prototype.peek = function(count) {
     return this.hasNext() ? this._parts[this._i + (count || 0)] : null;
 };
 
@@ -4229,7 +3949,7 @@ PropertyValueIterator.prototype.peek = function(count){
  * part.
  * @method next
  */
-PropertyValueIterator.prototype.next = function(){
+PropertyValueIterator.prototype.next = function() {
     return this.hasNext() ? this._parts[this._i++] : null;
 };
 
@@ -4237,10 +3957,10 @@ PropertyValueIterator.prototype.next = function(){
  * Returns the previous part of the property value or null if there is no
  * previous part.
  * @return {parserlib.css.PropertyValuePart} The previous part of the
- * property value or null if there is no next part.
+ * property value or null if there is no previous part.
  * @method previous
  */
-PropertyValueIterator.prototype.previous = function(){
+PropertyValueIterator.prototype.previous = function() {
     return this._i > 0 ? this._parts[--this._i] : null;
 };
 
@@ -4249,13 +3969,32 @@ PropertyValueIterator.prototype.previous = function(){
  * @return {void}
  * @method restore
  */
-PropertyValueIterator.prototype.restore = function(){
-    if (this._marks.length){
+PropertyValueIterator.prototype.restore = function() {
+    if (this._marks.length) {
         this._i = this._marks.pop();
     }
 };
 
-/*global SyntaxUnit, Parser, Colors*/
+/**
+ * Drops the last saved bookmark.
+ * @return {void}
+ * @method drop
+ */
+PropertyValueIterator.prototype.drop = function() {
+    this._marks.pop();
+};
+
+},{}],11:[function(require,module,exports){
+"use strict";
+
+module.exports = PropertyValuePart;
+
+var SyntaxUnit = require("../util/SyntaxUnit");
+
+var Colors = require("./Colors");
+var Parser = require("./Parser");
+var Tokens = require("./Tokens");
+
 /**
  * Represents a single part of a CSS property value, meaning that it represents
  * just one part of the data between ":" and ";".
@@ -4267,7 +4006,8 @@ PropertyValueIterator.prototype.restore = function(){
  * @extends parserlib.util.SyntaxUnit
  * @constructor
  */
-function PropertyValuePart(text, line, col){
+function PropertyValuePart(text, line, col, optionalHint) {
+    var hint = optionalHint || {};
 
     SyntaxUnit.call(this, text, line, col, Parser.PROPERTY_VALUE_PART_TYPE);
 
@@ -4283,13 +4023,13 @@ function PropertyValuePart(text, line, col){
     var temp;
 
     //it is a measurement?
-    if (/^([+\-]?[\d\.]+)([a-z]+)$/i.test(text)){  //dimension
+    if (/^([+\-]?[\d\.]+)([a-z]+)$/i.test(text)) {  //dimension
         this.type = "dimension";
         this.value = +RegExp.$1;
         this.units = RegExp.$2;
 
         //try to narrow down
-        switch(this.units.toLowerCase()){
+        switch (this.units.toLowerCase()) {
 
             case "em":
             case "rem":
@@ -4306,6 +4046,10 @@ function PropertyValuePart(text, line, col){
             case "vmax":
             case "vmin":
                 this.type = "length";
+                break;
+
+            case "fr":
+                this.type = "grid";
                 break;
 
             case "deg":
@@ -4333,89 +4077,141 @@ function PropertyValuePart(text, line, col){
 
         }
 
-    } else if (/^([+\-]?[\d\.]+)%$/i.test(text)){  //percentage
+    } else if (/^([+\-]?[\d\.]+)%$/i.test(text)) {  //percentage
         this.type = "percentage";
         this.value = +RegExp.$1;
-    } else if (/^([+\-]?\d+)$/i.test(text)){  //integer
+    } else if (/^([+\-]?\d+)$/i.test(text)) {  //integer
         this.type = "integer";
         this.value = +RegExp.$1;
-    } else if (/^([+\-]?[\d\.]+)$/i.test(text)){  //number
+    } else if (/^([+\-]?[\d\.]+)$/i.test(text)) {  //number
         this.type = "number";
         this.value = +RegExp.$1;
 
-    } else if (/^#([a-f0-9]{3,6})/i.test(text)){  //hexcolor
+    } else if (/^#([a-f0-9]{3,6})/i.test(text)) {  //hexcolor
         this.type = "color";
         temp = RegExp.$1;
-        if (temp.length == 3){
-            this.red    = parseInt(temp.charAt(0)+temp.charAt(0),16);
-            this.green  = parseInt(temp.charAt(1)+temp.charAt(1),16);
-            this.blue   = parseInt(temp.charAt(2)+temp.charAt(2),16);
+        if (temp.length === 3) {
+            this.red    = parseInt(temp.charAt(0)+temp.charAt(0), 16);
+            this.green  = parseInt(temp.charAt(1)+temp.charAt(1), 16);
+            this.blue   = parseInt(temp.charAt(2)+temp.charAt(2), 16);
         } else {
-            this.red    = parseInt(temp.substring(0,2),16);
-            this.green  = parseInt(temp.substring(2,4),16);
-            this.blue   = parseInt(temp.substring(4,6),16);
+            this.red    = parseInt(temp.substring(0, 2), 16);
+            this.green  = parseInt(temp.substring(2, 4), 16);
+            this.blue   = parseInt(temp.substring(4, 6), 16);
         }
-    } else if (/^rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/i.test(text)){ //rgb() color with absolute numbers
+    } else if (/^rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/i.test(text)) { //rgb() color with absolute numbers
         this.type   = "color";
         this.red    = +RegExp.$1;
         this.green  = +RegExp.$2;
         this.blue   = +RegExp.$3;
-    } else if (/^rgb\(\s*(\d+)%\s*,\s*(\d+)%\s*,\s*(\d+)%\s*\)/i.test(text)){ //rgb() color with percentages
+    } else if (/^rgb\(\s*(\d+)%\s*,\s*(\d+)%\s*,\s*(\d+)%\s*\)/i.test(text)) { //rgb() color with percentages
         this.type   = "color";
         this.red    = +RegExp.$1 * 255 / 100;
         this.green  = +RegExp.$2 * 255 / 100;
         this.blue   = +RegExp.$3 * 255 / 100;
-    } else if (/^rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([\d\.]+)\s*\)/i.test(text)){ //rgba() color with absolute numbers
+    } else if (/^rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([\d\.]+)\s*\)/i.test(text)) { //rgba() color with absolute numbers
         this.type   = "color";
         this.red    = +RegExp.$1;
         this.green  = +RegExp.$2;
         this.blue   = +RegExp.$3;
         this.alpha  = +RegExp.$4;
-    } else if (/^rgba\(\s*(\d+)%\s*,\s*(\d+)%\s*,\s*(\d+)%\s*,\s*([\d\.]+)\s*\)/i.test(text)){ //rgba() color with percentages
+    } else if (/^rgba\(\s*(\d+)%\s*,\s*(\d+)%\s*,\s*(\d+)%\s*,\s*([\d\.]+)\s*\)/i.test(text)) { //rgba() color with percentages
         this.type   = "color";
         this.red    = +RegExp.$1 * 255 / 100;
         this.green  = +RegExp.$2 * 255 / 100;
         this.blue   = +RegExp.$3 * 255 / 100;
         this.alpha  = +RegExp.$4;
-    } else if (/^hsl\(\s*(\d+)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*\)/i.test(text)){ //hsl()
+    } else if (/^hsl\(\s*(\d+)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*\)/i.test(text)) { //hsl()
         this.type   = "color";
         this.hue    = +RegExp.$1;
         this.saturation = +RegExp.$2 / 100;
         this.lightness  = +RegExp.$3 / 100;
-    } else if (/^hsla\(\s*(\d+)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*,\s*([\d\.]+)\s*\)/i.test(text)){ //hsla() color with percentages
+    } else if (/^hsla\(\s*(\d+)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*,\s*([\d\.]+)\s*\)/i.test(text)) { //hsla() color with percentages
         this.type   = "color";
         this.hue    = +RegExp.$1;
         this.saturation = +RegExp.$2 / 100;
         this.lightness  = +RegExp.$3 / 100;
         this.alpha  = +RegExp.$4;
-    } else if (/^url\(["']?([^\)"']+)["']?\)/i.test(text)){ //URI
+    } else if (/^url\(("([^\\"]|\\.)*")\)/i.test(text)) { //URI
+        // generated by TokenStream.readURI, so always double-quoted.
         this.type   = "uri";
-        this.uri    = RegExp.$1;
-    } else if (/^([^\(]+)\(/i.test(text)){
+        this.uri    = PropertyValuePart.parseString(RegExp.$1);
+    } else if (/^([^\(]+)\(/i.test(text)) {
         this.type   = "function";
         this.name   = RegExp.$1;
         this.value  = text;
-    } else if (/^["'][^"']*["']/.test(text)){    //string
+    } else if (/^"([^\n\r\f\\"]|\\\r\n|\\[^\r0-9a-f]|\\[0-9a-f]{1,6}(\r\n|[ \n\r\t\f])?)*"/i.test(text)) {    //double-quoted string
         this.type   = "string";
-        this.value  = eval(text);
-    } else if (Colors[text.toLowerCase()]){  //named color
+        this.value  = PropertyValuePart.parseString(text);
+    } else if (/^'([^\n\r\f\\']|\\\r\n|\\[^\r0-9a-f]|\\[0-9a-f]{1,6}(\r\n|[ \n\r\t\f])?)*'/i.test(text)) {    //single-quoted string
+        this.type   = "string";
+        this.value  = PropertyValuePart.parseString(text);
+    } else if (Colors[text.toLowerCase()]) {  //named color
         this.type   = "color";
         temp        = Colors[text.toLowerCase()].substring(1);
-        this.red    = parseInt(temp.substring(0,2),16);
-        this.green  = parseInt(temp.substring(2,4),16);
-        this.blue   = parseInt(temp.substring(4,6),16);
-    } else if (/^[\,\/]$/.test(text)){
+        this.red    = parseInt(temp.substring(0, 2), 16);
+        this.green  = parseInt(temp.substring(2, 4), 16);
+        this.blue   = parseInt(temp.substring(4, 6), 16);
+    } else if (/^[,\/]$/.test(text)) {
         this.type   = "operator";
         this.value  = text;
-    } else if (/^[a-z\-_\u0080-\uFFFF][a-z0-9\-_\u0080-\uFFFF]*$/i.test(text)){
+    } else if (/^-?[a-z_\u00A0-\uFFFF][a-z0-9\-_\u00A0-\uFFFF]*$/i.test(text)) {
         this.type   = "identifier";
         this.value  = text;
     }
+
+    // There can be ambiguity with escape sequences in identifiers, as
+    // well as with "color" parts which are also "identifiers", so record
+    // an explicit hint when the token generating this PropertyValuePart
+    // was an identifier.
+    this.wasIdent = Boolean(hint.ident);
 
 }
 
 PropertyValuePart.prototype = new SyntaxUnit();
 PropertyValuePart.prototype.constructor = PropertyValuePart;
+
+/**
+ * Helper method to parse a CSS string.
+ */
+PropertyValuePart.parseString = function(str) {
+    str = str.slice(1, -1); // Strip surrounding single/double quotes
+    var replacer = function(match, esc) {
+        if (/^(\n|\r\n|\r|\f)$/.test(esc)) {
+            return "";
+        }
+        var m = /^[0-9a-f]{1,6}/i.exec(esc);
+        if (m) {
+            var codePoint = parseInt(m[0], 16);
+            if (String.fromCodePoint) {
+                return String.fromCodePoint(codePoint);
+            } else {
+                // XXX No support for surrogates on old JavaScript engines.
+                return String.fromCharCode(codePoint);
+            }
+        }
+        return esc;
+    };
+    return str.replace(/\\(\r\n|[^\r0-9a-f]|[0-9a-f]{1,6}(\r\n|[ \n\r\t\f])?)/ig,
+                       replacer);
+};
+
+/**
+ * Helper method to serialize a CSS string.
+ */
+PropertyValuePart.serializeString = function(value) {
+    var replacer = function(match, c) {
+        if (c === "\"") {
+            return "\\" + c;
+        }
+        var cp = String.codePointAt ? String.codePointAt(0) :
+            // We only escape non-surrogate chars, so using charCodeAt
+            // is harmless here.
+            String.charCodeAt(0);
+        return "\\" + cp.toString(16) + " ";
+    };
+    return "\"" + value.replace(/["\r\n\f]/g, replacer) + "\"";
+};
 
 /**
  * Create a new syntax unit based solely on the given token.
@@ -4426,10 +4222,21 @@ PropertyValuePart.prototype.constructor = PropertyValuePart;
  * @static
  * @method fromToken
  */
-PropertyValuePart.fromToken = function(token){
-    return new PropertyValuePart(token.value, token.startLine, token.startCol);
+PropertyValuePart.fromToken = function(token) {
+    var part = new PropertyValuePart(token.value, token.startLine, token.startCol, {
+        // Tokens can have escaped characters that would fool the type
+        // identification in the PropertyValuePart constructor, so pass
+        // in a hint if this was an identifier.
+        ident: token.type === Tokens.IDENT
+    });
+    return part;
 };
-var Pseudos = {
+
+},{"../util/SyntaxUnit":26,"./Colors":1,"./Parser":6,"./Tokens":18}],12:[function(require,module,exports){
+"use strict";
+
+var Pseudos = module.exports = {
+    __proto__:       null,
     ":first-letter": 1,
     ":first-line":   1,
     ":before":       1,
@@ -4439,10 +4246,20 @@ var Pseudos = {
 Pseudos.ELEMENT = 1;
 Pseudos.CLASS = 2;
 
-Pseudos.isElement = function(pseudo){
-    return pseudo.indexOf("::") === 0 || Pseudos[pseudo.toLowerCase()] == Pseudos.ELEMENT;
+Pseudos.isElement = function(pseudo) {
+    return pseudo.indexOf("::") === 0 || Pseudos[pseudo.toLowerCase()] === Pseudos.ELEMENT;
 };
-/*global SyntaxUnit, Parser, Specificity*/
+
+},{}],13:[function(require,module,exports){
+"use strict";
+
+module.exports = Selector;
+
+var SyntaxUnit = require("../util/SyntaxUnit");
+
+var Parser = require("./Parser");
+var Specificity = require("./Specificity");
+
 /**
  * Represents an entire single selector, including all parts but not
  * including multiple selectors (those separated by commas).
@@ -4454,7 +4271,7 @@ Pseudos.isElement = function(pseudo){
  * @param {int} line The line of text on which the unit resides.
  * @param {int} col The column of text on which the unit resides.
  */
-function Selector(parts, line, col){
+function Selector(parts, line, col) {
 
     SyntaxUnit.call(this, parts.join(" "), line, col, Parser.SELECTOR_TYPE);
 
@@ -4477,7 +4294,16 @@ function Selector(parts, line, col){
 Selector.prototype = new SyntaxUnit();
 Selector.prototype.constructor = Selector;
 
-/*global SyntaxUnit, Parser*/
+
+},{"../util/SyntaxUnit":26,"./Parser":6,"./Specificity":16}],14:[function(require,module,exports){
+"use strict";
+
+module.exports = SelectorPart;
+
+var SyntaxUnit = require("../util/SyntaxUnit");
+
+var Parser = require("./Parser");
+
 /**
  * Represents a single part of a selector string, meaning a single set of
  * element name and modifiers. This does not include combinators such as
@@ -4494,7 +4320,7 @@ Selector.prototype.constructor = Selector;
  * @param {int} line The line of text on which the unit resides.
  * @param {int} col The column of text on which the unit resides.
  */
-function SelectorPart(elementName, modifiers, text, line, col){
+function SelectorPart(elementName, modifiers, text, line, col) {
 
     SyntaxUnit.call(this, text, line, col, Parser.SELECTOR_PART_TYPE);
 
@@ -4519,7 +4345,16 @@ function SelectorPart(elementName, modifiers, text, line, col){
 SelectorPart.prototype = new SyntaxUnit();
 SelectorPart.prototype.constructor = SelectorPart;
 
-/*global SyntaxUnit, Parser*/
+
+},{"../util/SyntaxUnit":26,"./Parser":6}],15:[function(require,module,exports){
+"use strict";
+
+module.exports = SelectorSubPart;
+
+var SyntaxUnit = require("../util/SyntaxUnit");
+
+var Parser = require("./Parser");
+
 /**
  * Represents a selector modifier string, meaning a class name, element name,
  * element ID, pseudo rule, etc.
@@ -4532,7 +4367,7 @@ SelectorPart.prototype.constructor = SelectorPart;
  * @param {int} line The line of text on which the unit resides.
  * @param {int} col The column of text on which the unit resides.
  */
-function SelectorSubPart(text, type, line, col){
+function SelectorSubPart(text, type, line, col) {
 
     SyntaxUnit.call(this, text, line, col, Parser.SELECTOR_SUB_PART_TYPE);
 
@@ -4555,7 +4390,15 @@ function SelectorSubPart(text, type, line, col){
 SelectorSubPart.prototype = new SyntaxUnit();
 SelectorSubPart.prototype.constructor = SelectorSubPart;
 
-/*global Pseudos, SelectorPart*/
+
+},{"../util/SyntaxUnit":26,"./Parser":6}],16:[function(require,module,exports){
+"use strict";
+
+module.exports = Specificity;
+
+var Pseudos = require("./Pseudos");
+var SelectorPart = require("./SelectorPart");
+
 /**
  * Represents a selector's specificity.
  * @namespace parserlib.css
@@ -4566,7 +4409,7 @@ SelectorSubPart.prototype.constructor = SelectorSubPart;
  * @param {int} c Number of classes and pseudo classes
  * @param {int} d Number of element names and pseudo elements
  */
-function Specificity(a, b, c, d){
+function Specificity(a, b, c, d) {
     this.a = a;
     this.b = b;
     this.c = c;
@@ -4582,14 +4425,14 @@ Specificity.prototype = {
      * @return {int} -1 if the other specificity is larger, 1 if smaller, 0 if equal.
      * @method compare
      */
-    compare: function(other){
+    compare: function(other) {
         var comps = ["a", "b", "c", "d"],
             i, len;
 
-        for (i=0, len=comps.length; i < len; i++){
-            if (this[comps[i]] < other[comps[i]]){
+        for (i=0, len=comps.length; i < len; i++) {
+            if (this[comps[i]] < other[comps[i]]) {
                 return -1;
-            } else if (this[comps[i]] > other[comps[i]]){
+            } else if (this[comps[i]] > other[comps[i]]) {
                 return 1;
             }
         }
@@ -4602,7 +4445,7 @@ Specificity.prototype = {
      * @return {int} The numeric value for the specificity.
      * @method valueOf
      */
-    valueOf: function(){
+    valueOf: function() {
         return (this.a * 1000) + (this.b * 100) + (this.c * 10) + this.d;
     },
 
@@ -4611,7 +4454,7 @@ Specificity.prototype = {
      * @return {String} The string representation of specificity.
      * @method toString
      */
-    toString: function(){
+    toString: function() {
         return this.a + "," + this.b + "," + this.c + "," + this.d;
     }
 
@@ -4624,25 +4467,25 @@ Specificity.prototype = {
  * @static
  * @method calculate
  */
-Specificity.calculate = function(selector){
+Specificity.calculate = function(selector) {
 
     var i, len,
         part,
         b=0, c=0, d=0;
 
-    function updateValues(part){
+    function updateValues(part) {
 
         var i, j, len, num,
             elementName = part.elementName ? part.elementName.text : "",
             modifier;
 
-        if (elementName && elementName.charAt(elementName.length-1) != "*") {
+        if (elementName && elementName.charAt(elementName.length-1) !== "*") {
             d++;
         }
 
-        for (i=0, len=part.modifiers.length; i < len; i++){
+        for (i=0, len=part.modifiers.length; i < len; i++) {
             modifier = part.modifiers[i];
-            switch(modifier.type){
+            switch (modifier.type) {
                 case "class":
                 case "attribute":
                     c++;
@@ -4653,7 +4496,7 @@ Specificity.calculate = function(selector){
                     break;
 
                 case "pseudo":
-                    if (Pseudos.isElement(modifier.text)){
+                    if (Pseudos.isElement(modifier.text)) {
                         d++;
                     } else {
                         c++;
@@ -4661,69 +4504,79 @@ Specificity.calculate = function(selector){
                     break;
 
                 case "not":
-                    for (j=0, num=modifier.args.length; j < num; j++){
+                    for (j=0, num=modifier.args.length; j < num; j++) {
                         updateValues(modifier.args[j]);
                     }
             }
-         }
+        }
     }
 
-    for (i=0, len=selector.parts.length; i < len; i++){
+    for (i=0, len=selector.parts.length; i < len; i++) {
         part = selector.parts[i];
 
-        if (part instanceof SelectorPart){
+        if (part instanceof SelectorPart) {
             updateValues(part);
         }
     }
 
     return new Specificity(0, b, c, d);
 };
-/*global Tokens, TokenStreamBase*/
+
+},{"./Pseudos":12,"./SelectorPart":14}],17:[function(require,module,exports){
+"use strict";
+
+module.exports = TokenStream;
+
+var TokenStreamBase = require("../util/TokenStreamBase");
+
+var PropertyValuePart = require("./PropertyValuePart");
+var Tokens = require("./Tokens");
 
 var h = /^[0-9a-fA-F]$/,
-    nonascii = /^[\u0080-\uFFFF]$/,
-    nl = /\n|\r\n|\r|\f/;
+    nonascii = /^[\u00A0-\uFFFF]$/,
+    nl = /\n|\r\n|\r|\f/,
+    whitespace = /\u0009|\u000a|\u000c|\u000d|\u0020/;
 
 //-----------------------------------------------------------------------------
 // Helper functions
 //-----------------------------------------------------------------------------
 
 
-function isHexDigit(c){
+function isHexDigit(c) {
     return c !== null && h.test(c);
 }
 
-function isDigit(c){
+function isDigit(c) {
     return c !== null && /\d/.test(c);
 }
 
-function isWhitespace(c){
-    return c !== null && /\s/.test(c);
+function isWhitespace(c) {
+    return c !== null && whitespace.test(c);
 }
 
-function isNewLine(c){
+function isNewLine(c) {
     return c !== null && nl.test(c);
 }
 
-function isNameStart(c){
-    return c !== null && (/[a-z_\u0080-\uFFFF\\]/i.test(c));
+function isNameStart(c) {
+    return c !== null && /[a-z_\u00A0-\uFFFF\\]/i.test(c);
 }
 
-function isNameChar(c){
+function isNameChar(c) {
     return c !== null && (isNameStart(c) || /[0-9\-\\]/.test(c));
 }
 
-function isIdentStart(c){
+function isIdentStart(c) {
     return c !== null && (isNameStart(c) || /\-\\/.test(c));
 }
 
-function mix(receiver, supplier){
-	for (var prop in supplier){
-		if (supplier.hasOwnProperty(prop)){
-			receiver[prop] = supplier[prop];
-		}
-	}
-	return receiver;
+function mix(receiver, supplier) {
+    for (var prop in supplier) {
+        if (Object.prototype.hasOwnProperty.call(supplier, prop)) {
+            receiver[prop] = supplier[prop];
+        }
+    }
+    return receiver;
 }
 
 //-----------------------------------------------------------------------------
@@ -4738,8 +4591,8 @@ function mix(receiver, supplier){
  * @class TokenStream
  * @namespace parserlib.css
  */
-function TokenStream(input){
-	TokenStreamBase.call(this, input, Tokens);
+function TokenStream(input) {
+    TokenStreamBase.call(this, input, Tokens);
 }
 
 TokenStream.prototype = mix(new TokenStreamBase(), {
@@ -4747,13 +4600,11 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
     /**
      * Overrides the TokenStreamBase method of the same name
      * to produce CSS tokens.
-     * @param {variant} channel The name of the channel to use
-     *      for the next token.
      * @return {Object} A token object representing the next token.
      * @method _getToken
      * @private
      */
-    _getToken: function(channel){
+    _getToken: function() {
 
         var c,
             reader = this._reader,
@@ -4764,8 +4615,8 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
         c = reader.read();
 
 
-        while(c){
-            switch(c){
+        while (c) {
+            switch (c) {
 
                 /*
                  * Potential tokens:
@@ -4775,7 +4626,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
                  */
                 case "/":
 
-                    if(reader.peek() == "*"){
+                    if (reader.peek() === "*") {
                         token = this.commentToken(c, startLine, startCol);
                     } else {
                         token = this.charToken(c, startLine, startCol);
@@ -4796,7 +4647,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
                 case "^":
                 case "$":
                 case "*":
-                    if(reader.peek() == "="){
+                    if (reader.peek() === "=") {
                         token = this.comparisonToken(c, startLine, startCol);
                     } else {
                         token = this.charToken(c, startLine, startCol);
@@ -4819,7 +4670,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
                  * - CHAR
                  */
                 case "#":
-                    if (isNameChar(reader.peek())){
+                    if (isNameChar(reader.peek())) {
                         token = this.hashToken(c, startLine, startCol);
                     } else {
                         token = this.charToken(c, startLine, startCol);
@@ -4834,7 +4685,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
                  * - PERCENTAGE
                  */
                 case ".":
-                    if (isDigit(reader.peek())){
+                    if (isDigit(reader.peek())) {
                         token = this.numberToken(c, startLine, startCol);
                     } else {
                         token = this.charToken(c, startLine, startCol);
@@ -4850,9 +4701,9 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
                  * - PERCENTAGE
                  */
                 case "-":
-                    if (reader.peek() == "-"){  //could be closing HTML-style comment
+                    if (reader.peek() === "-") {  //could be closing HTML-style comment
                         token = this.htmlCommentEndToken(c, startLine, startCol);
-                    } else if (isNameStart(reader.peek())){
+                    } else if (isNameStart(reader.peek())) {
                         token = this.identOrFunctionToken(c, startLine, startCol);
                     } else {
                         token = this.charToken(c, startLine, startCol);
@@ -4895,13 +4746,26 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
 
                 /*
                  * Potential tokens:
+                 * - IDENT
+                 * - CHAR
+                 */
+                case "\\":
+                    if (/[^\r\n\f]/.test(reader.peek())) {
+                        token = this.identOrFunctionToken(this.readEscape(c, true), startLine, startCol);
+                    } else {
+                        token = this.charToken(c, startLine, startCol);
+                    }
+                    break;
+
+                /*
+                 * Potential tokens:
                  * - UNICODE_RANGE
                  * - URL
                  * - CHAR
                  */
                 case "U":
                 case "u":
-                    if (reader.peek() == "+"){
+                    if (reader.peek() === "+") {
                         token = this.unicodeRangeToken(c, startLine, startCol);
                         break;
                     }
@@ -4919,7 +4783,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
                      * - EXS
                      * - ANGLE
                      */
-                    if (isDigit(c)){
+                    if (isDigit(c)) {
                         token = this.numberToken(c, startLine, startCol);
                     } else
 
@@ -4927,7 +4791,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
                      * Potential tokens:
                      * - S
                      */
-                    if (isWhitespace(c)){
+                    if (isWhitespace(c)) {
                         token = this.whitespaceToken(c, startLine, startCol);
                     } else
 
@@ -4935,23 +4799,16 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
                      * Potential tokens:
                      * - IDENT
                      */
-                    if (isIdentStart(c)){
+                    if (isIdentStart(c)) {
                         token = this.identOrFunctionToken(c, startLine, startCol);
-                    } else
-
-                    /*
-                     * Potential tokens:
-                     * - CHAR
-                     * - PLUS
-                     */
-                    {
+                    } else {
+                       /*
+                        * Potential tokens:
+                        * - CHAR
+                        * - PLUS
+                        */
                         token = this.charToken(c, startLine, startCol);
                     }
-
-
-
-
-
 
             }
 
@@ -4960,8 +4817,8 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
             break;
         }
 
-        if (!token && c === null){
-            token = this.createToken(Tokens.EOF,null,startLine,startCol);
+        if (!token && c === null) {
+            token = this.createToken(Tokens.EOF, null, startLine, startCol);
         }
 
         return token;
@@ -4986,7 +4843,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
      * @return {Object} A token object.
      * @method createToken
      */
-    createToken: function(tt, value, startLine, startCol, options){
+    createToken: function(tt, value, startLine, startCol, options) {
         var reader = this._reader;
         options = options || {};
 
@@ -5016,13 +4873,11 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
      * @return {Object} A token object.
      * @method atRuleToken
      */
-    atRuleToken: function(first, startLine, startCol){
+    atRuleToken: function(first, startLine, startCol) {
         var rule    = first,
             reader  = this._reader,
             tt      = Tokens.CHAR,
-            valid   = false,
-            ident,
-            c;
+            ident;
 
         /*
          * First, mark where we are. There are only four @ rules,
@@ -5039,8 +4894,8 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
         tt = Tokens.type(rule.toLowerCase());
 
         //if it's not valid, use the first character only and reset the reader
-        if (tt == Tokens.CHAR || tt == Tokens.UNKNOWN){
-            if (rule.length > 1){
+        if (tt === Tokens.CHAR || tt === Tokens.UNKNOWN) {
+            if (rule.length > 1) {
                 tt = Tokens.UNKNOWN_SYM;
             } else {
                 tt = Tokens.CHAR;
@@ -5062,11 +4917,11 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
      * @return {Object} A token object.
      * @method charToken
      */
-    charToken: function(c, startLine, startCol){
+    charToken: function(c, startLine, startCol) {
         var tt = Tokens.type(c);
         var opts = {};
 
-        if (tt == -1){
+        if (tt === -1) {
             tt = Tokens.CHAR;
         } else {
             opts.endChar = Tokens[tt].endChar;
@@ -5085,9 +4940,8 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
      * @return {Object} A token object.
      * @method commentToken
      */
-    commentToken: function(first, startLine, startCol){
-        var reader  = this._reader,
-            comment = this.readComment(first);
+    commentToken: function(first, startLine, startCol) {
+        var comment = this.readComment(first);
 
         return this.createToken(Tokens.COMMENT, comment, startLine, startCol);
     },
@@ -5102,7 +4956,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
      * @return {Object} A token object.
      * @method comparisonToken
      */
-    comparisonToken: function(c, startLine, startCol){
+    comparisonToken: function(c, startLine, startCol) {
         var reader  = this._reader,
             comparison  = c + reader.read(),
             tt      = Tokens.type(comparison) || Tokens.CHAR;
@@ -5120,9 +4974,8 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
      * @return {Object} A token object.
      * @method hashToken
      */
-    hashToken: function(first, startLine, startCol){
-        var reader  = this._reader,
-            name    = this.readName(first);
+    hashToken: function(first, startLine, startCol) {
+        var name    = this.readName(first);
 
         return this.createToken(Tokens.HASH, name, startLine, startCol);
     },
@@ -5137,14 +4990,14 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
      * @return {Object} A token object.
      * @method htmlCommentStartToken
      */
-    htmlCommentStartToken: function(first, startLine, startCol){
+    htmlCommentStartToken: function(first, startLine, startCol) {
         var reader      = this._reader,
             text        = first;
 
         reader.mark();
         text += reader.readCount(3);
 
-        if (text == "<!--"){
+        if (text === "<!--") {
             return this.createToken(Tokens.CDO, text, startLine, startCol);
         } else {
             reader.reset();
@@ -5162,14 +5015,14 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
      * @return {Object} A token object.
      * @method htmlCommentEndToken
      */
-    htmlCommentEndToken: function(first, startLine, startCol){
+    htmlCommentEndToken: function(first, startLine, startCol) {
         var reader      = this._reader,
             text        = first;
 
         reader.mark();
         text += reader.readCount(2);
 
-        if (text == "-->"){
+        if (text === "-->") {
             return this.createToken(Tokens.CDC, text, startLine, startCol);
         } else {
             reader.reset();
@@ -5187,29 +5040,34 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
      * @return {Object} A token object.
      * @method identOrFunctionToken
      */
-    identOrFunctionToken: function(first, startLine, startCol){
+    identOrFunctionToken: function(first, startLine, startCol) {
         var reader  = this._reader,
             ident   = this.readName(first),
-            tt      = Tokens.IDENT;
+            tt      = Tokens.IDENT,
+            uriFns  = ["url(", "url-prefix(", "domain("],
+            uri;
 
         //if there's a left paren immediately after, it's a URI or function
-        if (reader.peek() == "("){
+        if (reader.peek() === "(") {
             ident += reader.read();
-            if (ident.toLowerCase() == "url("){
-                tt = Tokens.URI;
-                ident = this.readURI(ident);
-
-                //didn't find a valid URL or there's no closing paren
-                if (ident.toLowerCase() == "url("){
+            if (uriFns.indexOf(ident.toLowerCase()) > -1) {
+                reader.mark();
+                uri = this.readURI(ident);
+                if (uri === null) {
+                    //didn't find a valid URL or there's no closing paren
+                    reader.reset();
                     tt = Tokens.FUNCTION;
+                } else {
+                    tt = Tokens.URI;
+                    ident = uri;
                 }
             } else {
                 tt = Tokens.FUNCTION;
             }
-        } else if (reader.peek() == ":"){  //might be an IE function
+        } else if (reader.peek() === ":") {  //might be an IE function
 
             //IE-specific functions always being with progid:
-            if (ident.toLowerCase() == "progid"){
+            if (ident.toLowerCase() === "progid") {
                 ident += reader.readTo("(");
                 tt = Tokens.IE_FUNCTION;
             }
@@ -5228,7 +5086,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
      * @return {Object} A token object.
      * @method importantToken
      */
-    importantToken: function(first, startLine, startCol){
+    importantToken: function(first, startLine, startCol) {
         var reader      = this._reader,
             important   = first,
             tt          = Tokens.CHAR,
@@ -5238,25 +5096,25 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
         reader.mark();
         c = reader.read();
 
-        while(c){
+        while (c) {
 
             //there can be a comment in here
-            if (c == "/"){
+            if (c === "/") {
 
                 //if the next character isn't a star, then this isn't a valid !important token
-                if (reader.peek() != "*"){
+                if (reader.peek() !== "*") {
                     break;
                 } else {
                     temp = this.readComment(c);
-                    if (temp === ""){    //broken!
+                    if (temp === "") {    //broken!
                         break;
                     }
                 }
-            } else if (isWhitespace(c)){
+            } else if (isWhitespace(c)) {
                 important += c + this.readWhitespace();
-            } else if (/i/i.test(c)){
+            } else if (/i/i.test(c)) {
                 temp = reader.readCount(8);
-                if (/mportant/i.test(temp)){
+                if (/mportant/i.test(temp)) {
                     important += c + temp;
                     tt = Tokens.IMPORTANT_SYM;
 
@@ -5269,7 +5127,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
             c = reader.read();
         }
 
-        if (tt == Tokens.CHAR){
+        if (tt === Tokens.CHAR) {
             reader.reset();
             return this.charToken(first, startLine, startCol);
         } else {
@@ -5289,14 +5147,14 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
      * @return {Object} A token object.
      * @method notToken
      */
-    notToken: function(first, startLine, startCol){
+    notToken: function(first, startLine, startCol) {
         var reader      = this._reader,
             text        = first;
 
         reader.mark();
         text += reader.readCount(4);
 
-        if (text.toLowerCase() == ":not("){
+        if (text.toLowerCase() === ":not(") {
             return this.createToken(Tokens.NOT, text, startLine, startCol);
         } else {
             reader.reset();
@@ -5315,32 +5173,32 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
      * @return {Object} A token object.
      * @method numberToken
      */
-    numberToken: function(first, startLine, startCol){
+    numberToken: function(first, startLine, startCol) {
         var reader  = this._reader,
             value   = this.readNumber(first),
             ident,
             tt      = Tokens.NUMBER,
             c       = reader.peek();
 
-        if (isIdentStart(c)){
+        if (isIdentStart(c)) {
             ident = this.readName(reader.read());
             value += ident;
 
-            if (/^em$|^ex$|^px$|^gd$|^rem$|^vw$|^vh$|^vmax$|^vmin$|^ch$|^cm$|^mm$|^in$|^pt$|^pc$/i.test(ident)){
+            if (/^em$|^ex$|^px$|^gd$|^rem$|^vw$|^vh$|^vmax$|^vmin$|^ch$|^cm$|^mm$|^in$|^pt$|^pc$/i.test(ident)) {
                 tt = Tokens.LENGTH;
-            } else if (/^deg|^rad$|^grad$/i.test(ident)){
+            } else if (/^deg|^rad$|^grad$/i.test(ident)) {
                 tt = Tokens.ANGLE;
-            } else if (/^ms$|^s$/i.test(ident)){
+            } else if (/^ms$|^s$/i.test(ident)) {
                 tt = Tokens.TIME;
-            } else if (/^hz$|^khz$/i.test(ident)){
+            } else if (/^hz$|^khz$/i.test(ident)) {
                 tt = Tokens.FREQ;
-            } else if (/^dpi$|^dpcm$/i.test(ident)){
+            } else if (/^dpi$|^dpcm$/i.test(ident)) {
                 tt = Tokens.RESOLUTION;
             } else {
                 tt = Tokens.DIMENSION;
             }
 
-        } else if (c == "%"){
+        } else if (c === "%") {
             value += reader.read();
             tt = Tokens.PERCENTAGE;
         }
@@ -5361,70 +5219,90 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
      * @return {Object} A token object.
      * @method stringToken
      */
-    stringToken: function(first, startLine, startCol){
+    stringToken: function(first, startLine, startCol) {
         var delim   = first,
             string  = first,
             reader  = this._reader,
-            prev    = first,
             tt      = Tokens.STRING,
-            c       = reader.read();
+            c       = reader.read(),
+            i;
 
-        while(c){
+        while (c) {
             string += c;
 
-            //if the delimiter is found with an escapement, we're done.
-            if (c == delim && prev != "\\"){
-                break;
-            }
-
-            //if there's a newline without an escapement, it's an invalid string
-            if (isNewLine(reader.peek()) && c != "\\"){
+            if (c === "\\") {
+                c = reader.read();
+                if (c === null) {
+                    break; // premature EOF after backslash
+                } else if (/[^\r\n\f0-9a-f]/i.test(c)) {
+                    // single-character escape
+                    string += c;
+                } else {
+                    // read up to six hex digits
+                    for (i=0; isHexDigit(c) && i<6; i++) {
+                        string += c;
+                        c = reader.read();
+                    }
+                    // swallow trailing newline or space
+                    if (c === "\r" && reader.peek() === "\n") {
+                        string += c;
+                        c = reader.read();
+                    }
+                    if (isWhitespace(c)) {
+                        string += c;
+                    } else {
+                        // This character is null or not part of the escape;
+                        // jump back to the top to process it.
+                        continue;
+                    }
+                }
+            } else if (c === delim) {
+                break; // delimiter found.
+            } else if (isNewLine(reader.peek())) {
+                // newline without an escapement: it's an invalid string
                 tt = Tokens.INVALID;
                 break;
             }
-
-            //save previous and get next
-            prev = c;
             c = reader.read();
         }
 
         //if c is null, that means we're out of input and the string was never closed
-        if (c === null){
+        if (c === null) {
             tt = Tokens.INVALID;
         }
 
         return this.createToken(tt, string, startLine, startCol);
     },
 
-    unicodeRangeToken: function(first, startLine, startCol){
+    unicodeRangeToken: function(first, startLine, startCol) {
         var reader  = this._reader,
             value   = first,
             temp,
             tt      = Tokens.CHAR;
 
         //then it should be a unicode range
-        if (reader.peek() == "+"){
+        if (reader.peek() === "+") {
             reader.mark();
             value += reader.read();
             value += this.readUnicodeRangePart(true);
 
             //ensure there's an actual unicode range here
-            if (value.length == 2){
+            if (value.length === 2) {
                 reader.reset();
             } else {
 
                 tt = Tokens.UNICODE_RANGE;
 
                 //if there's a ? in the first part, there can't be a second part
-                if (value.indexOf("?") == -1){
+                if (value.indexOf("?") === -1) {
 
-                    if (reader.peek() == "-"){
+                    if (reader.peek() === "-") {
                         reader.mark();
                         temp = reader.read();
                         temp += this.readUnicodeRangePart(false);
 
                         //if there's not another value, back up and just take the first
-                        if (temp.length == 1){
+                        if (temp.length === 1) {
                             reader.reset();
                         } else {
                             value += temp;
@@ -5448,34 +5326,31 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
      * @return {Object} A token object.
      * @method whitespaceToken
      */
-    whitespaceToken: function(first, startLine, startCol){
-        var reader  = this._reader,
-            value   = first + this.readWhitespace();
+    whitespaceToken: function(first, startLine, startCol) {
+        var value   = first + this.readWhitespace();
         return this.createToken(Tokens.S, value, startLine, startCol);
     },
-
-
 
 
     //-------------------------------------------------------------------------
     // Methods to read values from the string stream
     //-------------------------------------------------------------------------
 
-    readUnicodeRangePart: function(allowQuestionMark){
+    readUnicodeRangePart: function(allowQuestionMark) {
         var reader  = this._reader,
             part = "",
             c       = reader.peek();
 
         //first read hex digits
-        while(isHexDigit(c) && part.length < 6){
+        while (isHexDigit(c) && part.length < 6) {
             reader.read();
             part += c;
             c = reader.peek();
         }
 
         //then read question marks if allowed
-        if (allowQuestionMark){
-            while(c == "?" && part.length < 6){
+        if (allowQuestionMark) {
+            while (c === "?" && part.length < 6) {
                 reader.read();
                 part += c;
                 c = reader.peek();
@@ -5487,12 +5362,12 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
         return part;
     },
 
-    readWhitespace: function(){
+    readWhitespace: function() {
         var reader  = this._reader,
             whitespace = "",
             c       = reader.peek();
 
-        while(isWhitespace(c)){
+        while (isWhitespace(c)) {
             reader.read();
             whitespace += c;
             c = reader.peek();
@@ -5500,18 +5375,18 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
 
         return whitespace;
     },
-    readNumber: function(first){
+    readNumber: function(first) {
         var reader  = this._reader,
             number  = first,
-            hasDot  = (first == "."),
+            hasDot  = (first === "."),
             c       = reader.peek();
 
 
-        while(c){
-            if (isDigit(c)){
+        while (c) {
+            if (isDigit(c)) {
                 number += reader.read();
-            } else if (c == "."){
-                if (hasDot){
+            } else if (c === ".") {
+                if (hasDot) {
                     break;
                 } else {
                     hasDot = true;
@@ -5526,105 +5401,99 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
 
         return number;
     },
-    readString: function(){
-        var reader  = this._reader,
-            delim   = reader.read(),
-            string  = delim,
-            prev    = delim,
-            c       = reader.peek();
 
-        while(c){
-            c = reader.read();
-            string += c;
-
-            //if the delimiter is found with an escapement, we're done.
-            if (c == delim && prev != "\\"){
-                break;
-            }
-
-            //if there's a newline without an escapement, it's an invalid string
-            if (isNewLine(reader.peek()) && c != "\\"){
-                string = "";
-                break;
-            }
-
-            //save previous and get next
-            prev = c;
-            c = reader.peek();
-        }
-
-        //if c is null, that means we're out of input and the string was never closed
-        if (c === null){
-            string = "";
-        }
-
-        return string;
+    // returns null w/o resetting reader if string is invalid.
+    readString: function() {
+        var token = this.stringToken(this._reader.read(), 0, 0);
+        return token.type === Tokens.INVALID ? null : token.value;
     },
-    readURI: function(first){
+
+    // returns null w/o resetting reader if URI is invalid.
+    readURI: function(first) {
         var reader  = this._reader,
             uri     = first,
             inner   = "",
             c       = reader.peek();
 
-        reader.mark();
-
         //skip whitespace before
-        while(c && isWhitespace(c)){
+        while (c && isWhitespace(c)) {
             reader.read();
             c = reader.peek();
         }
 
         //it's a string
-        if (c == "'" || c == "\""){
+        if (c === "'" || c === "\"") {
             inner = this.readString();
+            if (inner !== null) {
+                inner = PropertyValuePart.parseString(inner);
+            }
         } else {
-            inner = this.readURL();
+            inner = this.readUnquotedURL();
         }
 
         c = reader.peek();
 
         //skip whitespace after
-        while(c && isWhitespace(c)){
+        while (c && isWhitespace(c)) {
             reader.read();
             c = reader.peek();
         }
 
         //if there was no inner value or the next character isn't closing paren, it's not a URI
-        if (inner === "" || c != ")"){
-            uri = first;
-            reader.reset();
+        if (inner === null || c !== ")") {
+            uri = null;
         } else {
-            uri += inner + reader.read();
+            // Ensure argument to URL is always double-quoted
+            // (This simplifies later processing in PropertyValuePart.)
+            uri += PropertyValuePart.serializeString(inner) + reader.read();
         }
 
         return uri;
     },
-    readURL: function(){
+    // This method never fails, although it may return an empty string.
+    readUnquotedURL: function(first) {
         var reader  = this._reader,
-            url     = "",
-            c       = reader.peek();
+            url     = first || "",
+            c;
 
-        //TODO: Check for escape and nonascii
-        while (/^[!#$%&\\*-~]$/.test(c)){
-            url += reader.read();
-            c = reader.peek();
+        for (c = reader.peek(); c; c = reader.peek()) {
+            // Note that the grammar at
+            // https://www.w3.org/TR/CSS2/grammar.html#scanner
+            // incorrectly includes the backslash character in the
+            // `url` production, although it is correctly omitted in
+            // the `baduri1` production.
+            if (nonascii.test(c) || /^[\-!#$%&*-\[\]-~]$/.test(c)) {
+                url += c;
+                reader.read();
+            } else if (c === "\\") {
+                if (/^[^\r\n\f]$/.test(reader.peek(2))) {
+                    url += this.readEscape(reader.read(), true);
+                } else {
+                    break; // bad escape sequence.
+                }
+            } else {
+                break; // bad character
+            }
         }
 
         return url;
-
     },
-    readName: function(first){
+
+    readName: function(first) {
         var reader  = this._reader,
             ident   = first || "",
-            c       = reader.peek();
+            c;
 
-        while(true){
-            if (c == "\\"){
-                ident += this.readEscape(reader.read());
-                c = reader.peek();
-            } else if(c && isNameChar(c)){
+        for (c = reader.peek(); c; c = reader.peek()) {
+            if (c === "\\") {
+                if (/^[^\r\n\f]$/.test(reader.peek(2))) {
+                    ident += this.readEscape(reader.read(), true);
+                } else {
+                    // Bad escape sequence.
+                    break;
+                }
+            } else if (isNameChar(c)) {
                 ident += reader.read();
-                c = reader.peek();
             } else {
                 break;
             }
@@ -5633,40 +5502,60 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
         return ident;
     },
 
-    readEscape: function(first){
+    readEscape: function(first, unescape) {
         var reader  = this._reader,
             cssEscape = first || "",
             i       = 0,
             c       = reader.peek();
 
-        if (isHexDigit(c)){
+        if (isHexDigit(c)) {
             do {
                 cssEscape += reader.read();
                 c = reader.peek();
-            } while(c && isHexDigit(c) && ++i < 6);
+            } while (c && isHexDigit(c) && ++i < 6);
         }
 
-        if (cssEscape.length == 3 && /\s/.test(c) ||
-            cssEscape.length == 7 || cssEscape.length == 1){
+        if (cssEscape.length === 1) {
+            if (/^[^\r\n\f0-9a-f]$/.test(c)) {
                 reader.read();
+                if (unescape) {
+                    return c;
+                }
+            } else {
+                // We should never get here (readName won't call readEscape
+                // if the escape sequence is bad).
+                throw new Error("Bad escape sequence.");
+            }
+        } else if (c === "\r") {
+            reader.read();
+            if (reader.peek() === "\n") {
+                c += reader.read();
+            }
+        } else if (/^[ \t\n\f]$/.test(c)) {
+            reader.read();
         } else {
             c = "";
         }
 
+        if (unescape) {
+            var cp = parseInt(cssEscape.slice(first.length), 16);
+            return String.fromCodePoint ? String.fromCodePoint(cp) :
+                String.fromCharCode(cp);
+        }
         return cssEscape + c;
     },
 
-    readComment: function(first){
+    readComment: function(first) {
         var reader  = this._reader,
             comment = first || "",
             c       = reader.read();
 
-        if (c == "*"){
-            while(c){
+        if (c === "*") {
+            while (c) {
                 comment += c;
 
                 //look for end of comment
-                if (comment.length > 2 && c == "*" && reader.peek() == "/"){
+                if (comment.length > 2 && c === "*" && reader.peek() === "/") {
                     comment += reader.read();
                     break;
                 }
@@ -5682,121 +5571,127 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
     }
 });
 
-var Tokens  = [
+
+},{"../util/TokenStreamBase":27,"./PropertyValuePart":11,"./Tokens":18}],18:[function(require,module,exports){
+"use strict";
+
+var Tokens = module.exports = [
 
     /*
-     * The following token names are defined in CSS3 Grammar: http://www.w3.org/TR/css3-syntax/#lexical
+     * The following token names are defined in CSS3 Grammar: https://www.w3.org/TR/css3-syntax/#lexical
      */
 
-    //HTML-style comments
-    { name: "CDO"},
-    { name: "CDC"},
+    // HTML-style comments
+    { name: "CDO" },
+    { name: "CDC" },
 
-    //ignorables
-    { name: "S", whitespace: true/*, channel: "ws"*/},
+    // ignorables
+    { name: "S", whitespace: true/*, channel: "ws"*/ },
     { name: "COMMENT", comment: true, hide: true, channel: "comment" },
 
-    //attribute equality
-    { name: "INCLUDES", text: "~="},
-    { name: "DASHMATCH", text: "|="},
-    { name: "PREFIXMATCH", text: "^="},
-    { name: "SUFFIXMATCH", text: "$="},
-    { name: "SUBSTRINGMATCH", text: "*="},
+    // attribute equality
+    { name: "INCLUDES", text: "~=" },
+    { name: "DASHMATCH", text: "|=" },
+    { name: "PREFIXMATCH", text: "^=" },
+    { name: "SUFFIXMATCH", text: "$=" },
+    { name: "SUBSTRINGMATCH", text: "*=" },
 
-    //identifier types
-    { name: "STRING"},
-    { name: "IDENT"},
-    { name: "HASH"},
+    // identifier types
+    { name: "STRING" },
+    { name: "IDENT" },
+    { name: "HASH" },
 
-    //at-keywords
-    { name: "IMPORT_SYM", text: "@import"},
-    { name: "PAGE_SYM", text: "@page"},
-    { name: "MEDIA_SYM", text: "@media"},
-    { name: "FONT_FACE_SYM", text: "@font-face"},
-    { name: "CHARSET_SYM", text: "@charset"},
-    { name: "NAMESPACE_SYM", text: "@namespace"},
-    { name: "VIEWPORT_SYM", text: ["@viewport", "@-ms-viewport"]},
+    // at-keywords
+    { name: "IMPORT_SYM", text: "@import" },
+    { name: "PAGE_SYM", text: "@page" },
+    { name: "MEDIA_SYM", text: "@media" },
+    { name: "FONT_FACE_SYM", text: "@font-face" },
+    { name: "CHARSET_SYM", text: "@charset" },
+    { name: "NAMESPACE_SYM", text: "@namespace" },
+    { name: "SUPPORTS_SYM", text: "@supports" },
+    { name: "VIEWPORT_SYM", text: ["@viewport", "@-ms-viewport", "@-o-viewport"] },
+    { name: "DOCUMENT_SYM", text: ["@document", "@-moz-document"] },
     { name: "UNKNOWN_SYM" },
     //{ name: "ATKEYWORD"},
 
-    //CSS3 animations
+    // CSS3 animations
     { name: "KEYFRAMES_SYM", text: [ "@keyframes", "@-webkit-keyframes", "@-moz-keyframes", "@-o-keyframes" ] },
 
-    //important symbol
-    { name: "IMPORTANT_SYM"},
+    // important symbol
+    { name: "IMPORTANT_SYM" },
 
-    //measurements
-    { name: "LENGTH"},
-    { name: "ANGLE"},
-    { name: "TIME"},
-    { name: "FREQ"},
-    { name: "DIMENSION"},
-    { name: "PERCENTAGE"},
-    { name: "NUMBER"},
+    // measurements
+    { name: "LENGTH" },
+    { name: "ANGLE" },
+    { name: "TIME" },
+    { name: "FREQ" },
+    { name: "DIMENSION" },
+    { name: "PERCENTAGE" },
+    { name: "NUMBER" },
 
-    //functions
-    { name: "URI"},
-    { name: "FUNCTION"},
+    // functions
+    { name: "URI" },
+    { name: "FUNCTION" },
 
-    //Unicode ranges
-    { name: "UNICODE_RANGE"},
+    // Unicode ranges
+    { name: "UNICODE_RANGE" },
 
     /*
-     * The following token names are defined in CSS3 Selectors: http://www.w3.org/TR/css3-selectors/#selector-syntax
+     * The following token names are defined in CSS3 Selectors: https://www.w3.org/TR/css3-selectors/#selector-syntax
      */
 
-    //invalid string
-    { name: "INVALID"},
+    // invalid string
+    { name: "INVALID" },
 
-    //combinators
+    // combinators
     { name: "PLUS", text: "+" },
-    { name: "GREATER", text: ">"},
-    { name: "COMMA", text: ","},
-    { name: "TILDE", text: "~"},
+    { name: "GREATER", text: ">" },
+    { name: "COMMA", text: "," },
+    { name: "TILDE", text: "~" },
 
-    //modifier
-    { name: "NOT"},
+    // modifier
+    { name: "NOT" },
 
     /*
      * Defined in CSS3 Paged Media
      */
-    { name: "TOPLEFTCORNER_SYM", text: "@top-left-corner"},
-    { name: "TOPLEFT_SYM", text: "@top-left"},
-    { name: "TOPCENTER_SYM", text: "@top-center"},
-    { name: "TOPRIGHT_SYM", text: "@top-right"},
-    { name: "TOPRIGHTCORNER_SYM", text: "@top-right-corner"},
-    { name: "BOTTOMLEFTCORNER_SYM", text: "@bottom-left-corner"},
-    { name: "BOTTOMLEFT_SYM", text: "@bottom-left"},
-    { name: "BOTTOMCENTER_SYM", text: "@bottom-center"},
-    { name: "BOTTOMRIGHT_SYM", text: "@bottom-right"},
-    { name: "BOTTOMRIGHTCORNER_SYM", text: "@bottom-right-corner"},
-    { name: "LEFTTOP_SYM", text: "@left-top"},
-    { name: "LEFTMIDDLE_SYM", text: "@left-middle"},
-    { name: "LEFTBOTTOM_SYM", text: "@left-bottom"},
-    { name: "RIGHTTOP_SYM", text: "@right-top"},
-    { name: "RIGHTMIDDLE_SYM", text: "@right-middle"},
-    { name: "RIGHTBOTTOM_SYM", text: "@right-bottom"},
+    { name: "TOPLEFTCORNER_SYM", text: "@top-left-corner" },
+    { name: "TOPLEFT_SYM", text: "@top-left" },
+    { name: "TOPCENTER_SYM", text: "@top-center" },
+    { name: "TOPRIGHT_SYM", text: "@top-right" },
+    { name: "TOPRIGHTCORNER_SYM", text: "@top-right-corner" },
+    { name: "BOTTOMLEFTCORNER_SYM", text: "@bottom-left-corner" },
+    { name: "BOTTOMLEFT_SYM", text: "@bottom-left" },
+    { name: "BOTTOMCENTER_SYM", text: "@bottom-center" },
+    { name: "BOTTOMRIGHT_SYM", text: "@bottom-right" },
+    { name: "BOTTOMRIGHTCORNER_SYM", text: "@bottom-right-corner" },
+    { name: "LEFTTOP_SYM", text: "@left-top" },
+    { name: "LEFTMIDDLE_SYM", text: "@left-middle" },
+    { name: "LEFTBOTTOM_SYM", text: "@left-bottom" },
+    { name: "RIGHTTOP_SYM", text: "@right-top" },
+    { name: "RIGHTMIDDLE_SYM", text: "@right-middle" },
+    { name: "RIGHTBOTTOM_SYM", text: "@right-bottom" },
 
     /*
-     * The following token names are defined in CSS3 Media Queries: http://www.w3.org/TR/css3-mediaqueries/#syntax
+     * The following token names are defined in CSS3 Media Queries: https://www.w3.org/TR/css3-mediaqueries/#syntax
      */
     /*{ name: "MEDIA_ONLY", state: "media"},
     { name: "MEDIA_NOT", state: "media"},
     { name: "MEDIA_AND", state: "media"},*/
-    { name: "RESOLUTION", state: "media"},
+    { name: "RESOLUTION", state: "media" },
 
     /*
      * The following token names are not defined in any CSS specification but are used by the lexer.
      */
 
-    //not a real token, but useful for stupid IE filters
+    // not a real token, but useful for stupid IE filters
     { name: "IE_FUNCTION" },
 
-    //part of CSS3 grammar but not the Flex code
+    // part of CSS3 grammar but not the Flex code
     { name: "CHAR" },
 
-    //TODO: Needed?
-    //Not defined as tokens, but might as well be
+    // TODO: Needed?
+    // Not defined as tokens, but might as well be
     {
         name: "PIPE",
         text: "|"
@@ -5844,7 +5739,6 @@ var Tokens  = [
         name: "SEMICOLON",
         text: ";"
     },
-
     {
         name: "LPAREN",
         endChar: ")",
@@ -5860,19 +5754,18 @@ var Tokens  = [
     }
 ];
 
-(function(){
-
+(function() {
     var nameMap = [],
-        typeMap = {};
+        typeMap = Object.create(null);
 
     Tokens.UNKNOWN = -1;
-    Tokens.unshift({name:"EOF"});
-    for (var i=0, len = Tokens.length; i < len; i++){
+    Tokens.unshift({ name:"EOF" });
+    for (var i=0, len = Tokens.length; i < len; i++) {
         nameMap.push(Tokens[i].name);
         Tokens[Tokens[i].name] = i;
-        if (Tokens[i].text){
-            if (Tokens[i].text instanceof Array){
-                for (var j=0; j < Tokens[i].text.length; j++){
+        if (Tokens[i].text) {
+            if (Tokens[i].text instanceof Array) {
+                for (var j=0; j < Tokens[i].text.length; j++) {
                     typeMap[Tokens[i].text[j]] = i;
                 }
             } else {
@@ -5881,185 +5774,88 @@ var Tokens  = [
         }
     }
 
-    Tokens.name = function(tt){
+    Tokens.name = function(tt) {
         return nameMap[tt];
     };
 
-    Tokens.type = function(c){
+    Tokens.type = function(c) {
         return typeMap[c] || -1;
     };
-
 })();
 
+},{}],19:[function(require,module,exports){
+"use strict";
 
+/* exported Validation */
 
-//This file will likely change a lot! Very experimental!
-/*global Properties, ValidationTypes, ValidationError, PropertyValueIterator */
-var Validation = {
+var Matcher = require("./Matcher");
+var Properties = require("./Properties");
+var ValidationTypes = require("./ValidationTypes");
+var ValidationError = require("./ValidationError");
+var PropertyValueIterator = require("./PropertyValueIterator");
 
-    validate: function(property, value){
+var Validation = module.exports = {
+
+    validate: function(property, value) {
 
         //normalize name
         var name        = property.toString().toLowerCase(),
-            parts       = value.parts,
             expression  = new PropertyValueIterator(value),
             spec        = Properties[name],
-            part,
-            valid,
-            j, count,
-            msg,
-            types,
-            last,
-            literals,
-            max, multi, group;
+            part;
 
         if (!spec) {
-            if (name.indexOf("-") !== 0){    //vendor prefixed are ok
+            if (name.indexOf("-") !== 0) {    //vendor prefixed are ok
                 throw new ValidationError("Unknown property '" + property + "'.", property.line, property.col);
             }
-        } else if (typeof spec != "number"){
+        } else if (typeof spec !== "number") {
 
-            //initialization
-            if (typeof spec == "string"){
-                if (spec.indexOf("||") > -1) {
-                    this.groupProperty(spec, expression);
-                } else {
-                    this.singleProperty(spec, expression, 1);
+            // All properties accept some CSS-wide values.
+            // https://drafts.csswg.org/css-values-3/#common-keywords
+            if (ValidationTypes.isAny(expression, "inherit | initial | unset")) {
+                if (expression.hasNext()) {
+                    part = expression.next();
+                    throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
                 }
-
-            } else if (spec.multi) {
-                this.multiProperty(spec.multi, expression, spec.comma, spec.max || Infinity);
-            } else if (typeof spec == "function") {
-                spec(expression);
+                return;
             }
+
+            // Property-specific validation.
+            this.singleProperty(spec, expression);
 
         }
 
     },
 
-    singleProperty: function(types, expression, max, partial) {
+    singleProperty: function(types, expression) {
 
         var result      = false,
             value       = expression.value,
-            count       = 0,
             part;
 
-        while (expression.hasNext() && count < max) {
-            result = ValidationTypes.isAny(expression, types);
-            if (!result) {
-                break;
-            }
-            count++;
-        }
+        result = Matcher.parse(types).match(expression);
 
         if (!result) {
             if (expression.hasNext() && !expression.isFirst()) {
                 part = expression.peek();
                 throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
             } else {
-                 throw new ValidationError("Expected (" + types + ") but found '" + value + "'.", value.line, value.col);
+                throw new ValidationError("Expected (" + ValidationTypes.describe(types) + ") but found '" + value + "'.", value.line, value.col);
             }
         } else if (expression.hasNext()) {
             part = expression.next();
             throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
         }
 
-    },
-
-    multiProperty: function (types, expression, comma, max) {
-
-        var result      = false,
-            value       = expression.value,
-            count       = 0,
-            sep         = false,
-            part;
-
-        while(expression.hasNext() && !result && count < max) {
-            if (ValidationTypes.isAny(expression, types)) {
-                count++;
-                if (!expression.hasNext()) {
-                    result = true;
-
-                } else if (comma) {
-                    if (expression.peek() == ",") {
-                        part = expression.next();
-                    } else {
-                        break;
-                    }
-                }
-            } else {
-                break;
-
-            }
-        }
-
-        if (!result) {
-            if (expression.hasNext() && !expression.isFirst()) {
-                part = expression.peek();
-                throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
-            } else {
-                part = expression.previous();
-                if (comma && part == ",") {
-                    throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
-                } else {
-                    throw new ValidationError("Expected (" + types + ") but found '" + value + "'.", value.line, value.col);
-                }
-            }
-
-        } else if (expression.hasNext()) {
-            part = expression.next();
-            throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
-        }
-
-    },
-
-    groupProperty: function (types, expression, comma) {
-
-        var result      = false,
-            value       = expression.value,
-            typeCount   = types.split("||").length,
-            groups      = { count: 0 },
-            partial     = false,
-            name,
-            part;
-
-        while(expression.hasNext() && !result) {
-            name = ValidationTypes.isAnyOfGroup(expression, types);
-            if (name) {
-
-                //no dupes
-                if (groups[name]) {
-                    break;
-                } else {
-                    groups[name] = 1;
-                    groups.count++;
-                    partial = true;
-
-                    if (groups.count == typeCount || !expression.hasNext()) {
-                        result = true;
-                    }
-                }
-            } else {
-                break;
-            }
-        }
-
-        if (!result) {
-            if (partial && expression.hasNext()) {
-                    part = expression.peek();
-                    throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
-            } else {
-                throw new ValidationError("Expected (" + types + ") but found '" + value + "'.", value.line, value.col);
-            }
-        } else if (expression.hasNext()) {
-            part = expression.next();
-            throw new ValidationError("Expected end of value but found '" + part + "'.", part.line, part.col);
-        }
     }
 
-
-
 };
+
+},{"./Matcher":3,"./Properties":7,"./PropertyValueIterator":10,"./ValidationError":20,"./ValidationTypes":21}],20:[function(require,module,exports){
+"use strict";
+
+module.exports = ValidationError;
+
 /**
  * Type to use when a validation error occurs.
  * @class ValidationError
@@ -6069,7 +5865,7 @@ var Validation = {
  * @param {int} line The line at which the error occurred.
  * @param {int} col The column at which the error occurred.
  */
-function ValidationError(message, line, col){
+function ValidationError(message, line, col) {
 
     /**
      * The column at which the error occurred.
@@ -6096,17 +5892,33 @@ function ValidationError(message, line, col){
 
 //inherit from Error
 ValidationError.prototype = new Error();
-//This file will likely change a lot! Very experimental!
-/*global Properties, Validation, ValidationError, PropertyValueIterator, console*/
-var ValidationTypes = {
+
+},{}],21:[function(require,module,exports){
+"use strict";
+
+var ValidationTypes = module.exports;
+
+var Matcher = require("./Matcher");
+
+function copy(to, from) {
+    Object.keys(from).forEach(function(prop) {
+        to[prop] = from[prop];
+    });
+}
+copy(ValidationTypes, {
 
     isLiteral: function (part, literals) {
         var text = part.text.toString().toLowerCase(),
             args = literals.split(" | "),
             i, len, found = false;
 
-        for (i=0,len=args.length; i < len && !found; i++){
-            if (text == args[i].toLowerCase()){
+        for (i=0, len=args.length; i < len && !found; i++) {
+            if (args[i].charAt(0) === "<") {
+                found = this.simple[args[i]](part);
+            } else if (args[i].slice(-2) === "()") {
+                found = (part.type === "function" &&
+                         part.name === args[i].slice(0, -2));
+            } else if (text === args[i].toLowerCase()) {
                 found = true;
             }
         }
@@ -6115,11 +5927,18 @@ var ValidationTypes = {
     },
 
     isSimple: function(type) {
-        return !!this.simple[type];
+        return Boolean(this.simple[type]);
     },
 
     isComplex: function(type) {
-        return !!this.complex[type];
+        return Boolean(this.complex[type]);
+    },
+
+    describe: function(type) {
+        if (this.complex[type] instanceof Matcher) {
+            return this.complex[type].toString(0);
+        }
+        return type;
     },
 
     /**
@@ -6130,7 +5949,7 @@ var ValidationTypes = {
         var args = types.split(" | "),
             i, len, found = false;
 
-        for (i=0,len=args.length; i < len && !found && expression.hasNext(); i++){
+        for (i=0, len=args.length; i < len && !found && expression.hasNext(); i++) {
             found = this.isType(expression, args[i]);
         }
 
@@ -6145,7 +5964,7 @@ var ValidationTypes = {
         var args = types.split(" || "),
             i, len, found = false;
 
-        for (i=0,len=args.length; i < len && !found; i++){
+        for (i=0, len=args.length; i < len && !found; i++) {
             found = this.isType(expression, args[i]);
         }
 
@@ -6160,7 +5979,7 @@ var ValidationTypes = {
         var part = expression.peek(),
             result = false;
 
-        if (type.charAt(0) != "<") {
+        if (type.charAt(0) !== "<") {
             result = this.isLiteral(part, type);
             if (result) {
                 expression.next();
@@ -6170,6 +5989,8 @@ var ValidationTypes = {
             if (result) {
                 expression.next();
             }
+        } else if (this.complex[type] instanceof Matcher) {
+            result = this.complex[type].match(expression);
         } else {
             result = this.complex[type](expression);
         }
@@ -6178,379 +5999,1316 @@ var ValidationTypes = {
     },
 
 
-
     simple: {
+        __proto__: null,
 
-        "<absolute-size>": function(part){
-            return ValidationTypes.isLiteral(part, "xx-small | x-small | small | medium | large | x-large | xx-large");
+        "<absolute-size>":
+            "xx-small | x-small | small | medium | large | x-large | xx-large",
+
+        "<animateable-feature>":
+            "scroll-position | contents | <animateable-feature-name>",
+
+        "<animateable-feature-name>": function(part) {
+            return this["<ident>"](part) &&
+                !/^(unset|initial|inherit|will-change|auto|scroll-position|contents)$/i.test(part);
         },
 
-        "<attachment>": function(part){
-            return ValidationTypes.isLiteral(part, "scroll | fixed | local");
+        "<angle>": function(part) {
+            return part.type === "angle";
         },
 
-        "<attr>": function(part){
-            return part.type == "function" && part.name == "attr";
+        "<attachment>": "scroll | fixed | local",
+
+        "<attr>": "attr()",
+
+        // inset() = inset( <shape-arg>{1,4} [round <border-radius>]? )
+        // circle() = circle( [<shape-radius>]? [at <position>]? )
+        // ellipse() = ellipse( [<shape-radius>{2}]? [at <position>]? )
+        // polygon() = polygon( [<fill-rule>,]? [<shape-arg> <shape-arg>]# )
+        "<basic-shape>": "inset() | circle() | ellipse() | polygon()",
+
+        "<bg-image>": "<image> | <gradient> | none",
+
+        "<border-style>":
+            "none | hidden | dotted | dashed | solid | double | groove | " +
+            "ridge | inset | outset",
+
+        "<border-width>": "<length> | thin | medium | thick",
+
+        "<box>": "padding-box | border-box | content-box",
+
+        "<clip-source>": "<uri>",
+
+        "<color>": function(part) {
+            return part.type === "color" || String(part) === "transparent" || String(part) === "currentColor";
         },
 
-        "<bg-image>": function(part){
-            return this["<image>"](part) || this["<gradient>"](part) ||  part == "none";
+        // The SVG <color> spec doesn't include "currentColor" or "transparent" as a color.
+        "<color-svg>": function(part) {
+            return part.type === "color";
+        },
+
+        "<content>": "content()",
+
+        // https://www.w3.org/TR/css3-sizing/#width-height-keywords
+        "<content-sizing>":
+            "fill-available | -moz-available | -webkit-fill-available | " +
+            "max-content | -moz-max-content | -webkit-max-content | " +
+            "min-content | -moz-min-content | -webkit-min-content | " +
+            "fit-content | -moz-fit-content | -webkit-fit-content",
+
+        "<feature-tag-value>": function(part) {
+            return part.type === "function" && /^[A-Z0-9]{4}$/i.test(part);
+        },
+
+        // custom() isn't actually in the spec
+        "<filter-function>":
+            "blur() | brightness() | contrast() | custom() | " +
+            "drop-shadow() | grayscale() | hue-rotate() | invert() | " +
+            "opacity() | saturate() | sepia()",
+
+        "<flex-basis>": "<width>",
+
+        "<flex-direction>": "row | row-reverse | column | column-reverse",
+
+        "<flex-grow>": "<number>",
+
+        "<flex-shrink>": "<number>",
+
+        "<flex-wrap>": "nowrap | wrap | wrap-reverse",
+
+        "<font-size>":
+            "<absolute-size> | <relative-size> | <length> | <percentage>",
+
+        "<font-stretch>":
+            "normal | ultra-condensed | extra-condensed | condensed | " +
+            "semi-condensed | semi-expanded | expanded | extra-expanded | " +
+            "ultra-expanded",
+
+        "<font-style>": "normal | italic | oblique",
+
+        "<font-variant-caps>":
+            "small-caps | all-small-caps | petite-caps | all-petite-caps | " +
+            "unicase | titling-caps",
+
+        "<font-variant-css21>": "normal | small-caps",
+
+        "<font-weight>":
+            "normal | bold | bolder | lighter | " +
+            "100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900",
+
+        "<generic-family>":
+            "serif | sans-serif | cursive | fantasy | monospace",
+
+        "<geometry-box>": "<shape-box> | fill-box | stroke-box | view-box",
+
+        "<glyph-angle>": function(part) {
+            return part.type === "angle" && part.units === "deg";
         },
 
         "<gradient>": function(part) {
-            return part.type == "function" && /^(?:\-(?:ms|moz|o|webkit)\-)?(?:repeating\-)?(?:radial\-|linear\-)?gradient/i.test(part);
+            return part.type === "function" && /^(?:\-(?:ms|moz|o|webkit)\-)?(?:repeating\-)?(?:radial\-|linear\-)?gradient/i.test(part);
         },
 
-        "<box>": function(part){
-            return ValidationTypes.isLiteral(part, "padding-box | border-box | content-box");
-        },
-
-        "<content>": function(part){
-            return part.type == "function" && part.name == "content";
-        },
-
-        "<relative-size>": function(part){
-            return ValidationTypes.isLiteral(part, "smaller | larger");
-        },
+        "<icccolor>":
+            "cielab() | cielch() | cielchab() | " +
+            "icc-color() | icc-named-color()",
 
         //any identifier
-        "<ident>": function(part){
-            return part.type == "identifier";
+        "<ident>": function(part) {
+            return part.type === "identifier" || part.wasIdent;
         },
 
-        "<length>": function(part){
-            if (part.type == "function" && /^(?:\-(?:ms|moz|o|webkit)\-)?calc/i.test(part)){
+        "<ident-not-generic-family>": function(part) {
+            return this["<ident>"](part) && !this["<generic-family>"](part);
+        },
+
+        "<image>": "<uri>",
+
+        "<integer>": function(part) {
+            return part.type === "integer";
+        },
+
+        "<length>": function(part) {
+            if (part.type === "function" && /^(?:\-(?:ms|moz|o|webkit)\-)?calc/i.test(part)) {
                 return true;
-            }else{
-                return part.type == "length" || part.type == "number" || part.type == "integer" || part == "0";
+            } else {
+                return part.type === "length" || part.type === "number" || part.type === "integer" || String(part) === "0";
             }
         },
 
-        "<color>": function(part){
-            return part.type == "color" || part == "transparent";
+        "<line>": function(part) {
+            return part.type === "integer";
         },
 
-        "<number>": function(part){
-            return part.type == "number" || this["<integer>"](part);
+        "<line-height>": "<number> | <length> | <percentage> | normal",
+
+        "<margin-width>": "<length> | <percentage> | auto",
+
+        "<miterlimit>": function(part) {
+            return this["<number>"](part) && part.value >= 1;
         },
 
-        "<integer>": function(part){
-            return part.type == "integer";
+        "<nonnegative-length-or-percentage>": function(part) {
+            return (this["<length>"](part) || this["<percentage>"](part)) &&
+                (String(part) === "0" || part.type === "function" || (part.value) >= 0);
         },
 
-        "<line>": function(part){
-            return part.type == "integer";
+        "<nonnegative-number-or-percentage>": function(part) {
+            return (this["<number>"](part) || this["<percentage>"](part)) &&
+                (String(part) === "0" || part.type === "function" || (part.value) >= 0);
         },
 
-        "<angle>": function(part){
-            return part.type == "angle";
+        "<number>": function(part) {
+            return part.type === "number" || this["<integer>"](part);
         },
 
-        "<uri>": function(part){
-            return part.type == "uri";
+        "<opacity-value>": function(part) {
+            return this["<number>"](part) && part.value >= 0 && part.value <= 1;
         },
 
-        "<image>": function(part){
-            return this["<uri>"](part);
+        "<padding-width>": "<nonnegative-length-or-percentage>",
+
+        "<percentage>": function(part) {
+            return part.type === "percentage" || String(part) === "0";
         },
 
-        "<percentage>": function(part){
-            return part.type == "percentage" || part == "0";
+        "<relative-size>": "smaller | larger",
+
+        "<shape>": "rect() | inset-rect()",
+
+        "<shape-box>": "<box> | margin-box",
+
+        "<single-animation-direction>":
+            "normal | reverse | alternate | alternate-reverse",
+
+        "<single-animation-name>": function(part) {
+            return this["<ident>"](part) &&
+                /^-?[a-z_][-a-z0-9_]+$/i.test(part) &&
+                !/^(none|unset|initial|inherit)$/i.test(part);
         },
 
-        "<border-width>": function(part){
-            return this["<length>"](part) || ValidationTypes.isLiteral(part, "thin | medium | thick");
-        },
-
-        "<border-style>": function(part){
-            return ValidationTypes.isLiteral(part, "none | hidden | dotted | dashed | solid | double | groove | ridge | inset | outset");
-        },
-
-        "<content-sizing>": function(part){ // http://www.w3.org/TR/css3-sizing/#width-height-keywords
-            return ValidationTypes.isLiteral(part, "fill-available | -moz-available | -webkit-fill-available | max-content | -moz-max-content | -webkit-max-content | min-content | -moz-min-content | -webkit-min-content | fit-content | -moz-fit-content | -webkit-fit-content");
-        },
-
-        "<margin-width>": function(part){
-            return this["<length>"](part) || this["<percentage>"](part) || ValidationTypes.isLiteral(part, "auto");
-        },
-
-        "<padding-width>": function(part){
-            return this["<length>"](part) || this["<percentage>"](part);
-        },
-
-        "<shape>": function(part){
-            return part.type == "function" && (part.name == "rect" || part.name == "inset-rect");
+        "<string>": function(part) {
+            return part.type === "string";
         },
 
         "<time>": function(part) {
-            return part.type == "time";
+            return part.type === "time";
         },
 
-        "<flex-grow>": function(part){
-            return this["<number>"](part);
+        "<uri>": function(part) {
+            return part.type === "uri";
         },
 
-        "<flex-shrink>": function(part){
-            return this["<number>"](part);
-        },
-
-        "<width>": function(part){
-            return this["<margin-width>"](part);
-        },
-
-        "<flex-basis>": function(part){
-            return this["<width>"](part);
-        },
-
-        "<flex-direction>": function(part){
-            return ValidationTypes.isLiteral(part, "row | row-reverse | column | column-reverse");
-        },
-
-        "<flex-wrap>": function(part){
-            return ValidationTypes.isLiteral(part, "nowrap | wrap | wrap-reverse");
-        }
+        "<width>": "<margin-width>"
     },
 
     complex: {
+        __proto__: null,
 
-        "<bg-position>": function(expression){
-            var types   = this,
-                result  = false,
-                numeric = "<percentage> | <length>",
-                xDir    = "left | right",
-                yDir    = "top | bottom",
-                count = 0,
-                hasNext = function() {
-                    return expression.hasNext() && expression.peek() != ",";
-                };
+        "<azimuth>":
+            "<angle>" +
+            " | " +
+            "[ [ left-side | far-left | left | center-left | center | " +
+            "center-right | right | far-right | right-side ] || behind ]" +
+            " | "+
+            "leftwards | rightwards",
 
-            while (expression.peek(count) && expression.peek(count) != ",") {
-                count++;
-            }
+        "<bg-position>": "<position>#",
 
-/*
-<position> = [
-  [ left | center | right | top | bottom | <percentage> | <length> ]
-|
-  [ left | center | right | <percentage> | <length> ]
-  [ top | center | bottom | <percentage> | <length> ]
-|
-  [ center | [ left | right ] [ <percentage> | <length> ]? ] &&
-  [ center | [ top | bottom ] [ <percentage> | <length> ]? ]
-]
-*/
+        "<bg-size>":
+            "[ <length> | <percentage> | auto ]{1,2} | cover | contain",
 
-            if (count < 3) {
-                if (ValidationTypes.isAny(expression, xDir + " | center | " + numeric)) {
-                        result = true;
-                        ValidationTypes.isAny(expression, yDir + " | center | " + numeric);
-                } else if (ValidationTypes.isAny(expression, yDir)) {
-                        result = true;
-                        ValidationTypes.isAny(expression, xDir + " | center");
-                }
-            } else {
-                if (ValidationTypes.isAny(expression, xDir)) {
-                    if (ValidationTypes.isAny(expression, yDir)) {
-                        result = true;
-                        ValidationTypes.isAny(expression, numeric);
-                    } else if (ValidationTypes.isAny(expression, numeric)) {
-                        if (ValidationTypes.isAny(expression, yDir)) {
-                            result = true;
-                            ValidationTypes.isAny(expression, numeric);
-                        } else if (ValidationTypes.isAny(expression, "center")) {
-                            result = true;
-                        }
-                    }
-                } else if (ValidationTypes.isAny(expression, yDir)) {
-                    if (ValidationTypes.isAny(expression, xDir)) {
-                        result = true;
-                        ValidationTypes.isAny(expression, numeric);
-                    } else if (ValidationTypes.isAny(expression, numeric)) {
-                        if (ValidationTypes.isAny(expression, xDir)) {
-                                result = true;
-                                ValidationTypes.isAny(expression, numeric);
-                        } else if (ValidationTypes.isAny(expression, "center")) {
-                            result = true;
-                        }
-                    }
-                } else if (ValidationTypes.isAny(expression, "center")) {
-                    if (ValidationTypes.isAny(expression, xDir + " | " + yDir)) {
-                        result = true;
-                        ValidationTypes.isAny(expression, numeric);
-                    }
-                }
-            }
+        "<border-image-slice>":
+        // [<number> | <percentage>]{1,4} && fill?
+        // *but* fill can appear between any of the numbers
+        Matcher.many([true /* first element is required */],
+                     Matcher.cast("<nonnegative-number-or-percentage>"),
+                     Matcher.cast("<nonnegative-number-or-percentage>"),
+                     Matcher.cast("<nonnegative-number-or-percentage>"),
+                     Matcher.cast("<nonnegative-number-or-percentage>"),
+                     "fill"),
 
-            return result;
-        },
+        "<border-radius>":
+            "<nonnegative-length-or-percentage>{1,4} " +
+            "[ / <nonnegative-length-or-percentage>{1,4} ]?",
 
-        "<bg-size>": function(expression){
-            //<bg-size> = [ <length> | <percentage> | auto ]{1,2} | cover | contain
-            var types   = this,
-                result  = false,
-                numeric = "<percentage> | <length> | auto",
-                part,
-                i, len;
+        "<box-shadow>": "none | <shadow>#",
 
-            if (ValidationTypes.isAny(expression, "cover | contain")) {
-                result = true;
-            } else if (ValidationTypes.isAny(expression, numeric)) {
-                result = true;
-                ValidationTypes.isAny(expression, numeric);
-            }
+        "<clip-path>": "<basic-shape> || <geometry-box>",
 
-            return result;
-        },
+        "<dasharray>":
+        // "list of comma and/or white space separated <length>s and
+        // <percentage>s".  There is a non-negative constraint.
+        Matcher.cast("<nonnegative-length-or-percentage>")
+            .braces(1, Infinity, "#", Matcher.cast(",").question()),
 
-        "<repeat-style>": function(expression){
-            //repeat-x | repeat-y | [repeat | space | round | no-repeat]{1,2}
-            var result  = false,
-                values  = "repeat | space | round | no-repeat",
-                part;
+        "<family-name>":
+            // <string> | <IDENT>+
+            "<string> | <ident-not-generic-family> <ident>*",
 
-            if (expression.hasNext()){
-                part = expression.next();
+        "<filter-function-list>": "[ <filter-function> | <uri> ]+",
 
-                if (ValidationTypes.isLiteral(part, "repeat-x | repeat-y")) {
-                    result = true;
-                } else if (ValidationTypes.isLiteral(part, values)) {
-                    result = true;
+        // https://www.w3.org/TR/2014/WD-css-flexbox-1-20140325/#flex-property
+        "<flex>":
+            "none | [ <flex-grow> <flex-shrink>? || <flex-basis> ]",
 
-                    if (expression.hasNext() && ValidationTypes.isLiteral(expression.peek(), values)) {
-                        expression.next();
-                    }
-                }
-            }
+        "<font-family>": "[ <generic-family> | <family-name> ]#",
 
-            return result;
+        "<font-shorthand>":
+            "[ <font-style> || <font-variant-css21> || " +
+            "<font-weight> || <font-stretch> ]? <font-size> " +
+            "[ / <line-height> ]? <font-family>",
 
-        },
+        "<font-variant-alternates>":
+            // stylistic(<feature-value-name>)
+            "stylistic() || " +
+            "historical-forms || " +
+            // styleset(<feature-value-name> #)
+            "styleset() || " +
+            // character-variant(<feature-value-name> #)
+            "character-variant() || " +
+            // swash(<feature-value-name>)
+            "swash() || " +
+            // ornaments(<feature-value-name>)
+            "ornaments() || " +
+            // annotation(<feature-value-name>)
+            "annotation()",
 
-        "<shadow>": function(expression) {
-            //inset? && [ <length>{2,4} && <color>? ]
-            var result  = false,
-                count   = 0,
-                inset   = false,
-                color   = false,
-                part;
+        "<font-variant-ligatures>":
+            // <common-lig-values>
+            "[ common-ligatures | no-common-ligatures ] || " +
+            // <discretionary-lig-values>
+            "[ discretionary-ligatures | no-discretionary-ligatures ] || " +
+            // <historical-lig-values>
+            "[ historical-ligatures | no-historical-ligatures ] || " +
+            // <contextual-alt-values>
+            "[ contextual | no-contextual ]",
 
-            if (expression.hasNext()) {
+        "<font-variant-numeric>":
+            // <numeric-figure-values>
+            "[ lining-nums | oldstyle-nums ] || " +
+            // <numeric-spacing-values>
+            "[ proportional-nums | tabular-nums ] || " +
+            // <numeric-fraction-values>
+            "[ diagonal-fractions | stacked-fractions ] || " +
+            "ordinal || slashed-zero",
 
-                if (ValidationTypes.isAny(expression, "inset")){
-                    inset = true;
-                }
+        "<font-variant-east-asian>":
+            // <east-asian-variant-values>
+            "[ jis78 | jis83 | jis90 | jis04 | simplified | traditional ] || " +
+            // <east-asian-width-values>
+            "[ full-width | proportional-width ] || " +
+            "ruby",
 
-                if (ValidationTypes.isAny(expression, "<color>")) {
-                    color = true;
-                }
+        // Note that <color> here is "as defined in the SVG spec", which
+        // is more restrictive that the <color> defined in the CSS spec.
+        // none | currentColor | <color> [<icccolor>]? |
+        // <funciri> [ none | currentColor | <color> [<icccolor>]? ]?
+        "<paint>": "<paint-basic> | <uri> <paint-basic>?",
 
-                while (ValidationTypes.isAny(expression, "<length>") && count < 4) {
-                    count++;
-                }
+        // Helper definition for <paint> above.
+        "<paint-basic>": "none | currentColor | <color-svg> <icccolor>?",
 
+        "<position>":
+            // Because our `alt` combinator is ordered, we need to test these
+            // in order from longest possible match to shortest.
+            "[ center | [ left | right ] [ <percentage> | <length> ]? ] && " +
+            "[ center | [ top | bottom ] [ <percentage> | <length> ]? ]" +
+            " | " +
+            "[ left | center | right | <percentage> | <length> ] " +
+            "[ top | center | bottom | <percentage> | <length> ]" +
+            " | " +
+            "[ left | center | right | top | bottom | <percentage> | <length> ]",
 
-                if (expression.hasNext()) {
-                    if (!color) {
-                        ValidationTypes.isAny(expression, "<color>");
-                    }
+        "<repeat-style>":
+            "repeat-x | repeat-y | [ repeat | space | round | no-repeat ]{1,2}",
 
-                    if (!inset) {
-                        ValidationTypes.isAny(expression, "inset");
-                    }
+        "<shadow>":
+        //inset? && [ <length>{2,4} && <color>? ]
+        Matcher.many([true /* length is required */],
+                     Matcher.cast("<length>").braces(2, 4), "inset", "<color>"),
 
-                }
+        "<text-decoration>":
+            "none | [ underline || overline || line-through || blink ]",
 
-                result = (count >= 2 && count <= 4);
+        "<will-change>":
+            "auto | <animateable-feature>#",
 
-            }
-
-            return result;
-        },
-
-        "<x-one-radius>": function(expression) {
+        "<x-one-radius>":
             //[ <length> | <percentage> ] [ <length> | <percentage> ]?
-            var result  = false,
-                simple = "<length> | <percentage> | inherit";
+            "[ <length> | <percentage> ]{1,2}"
+    }
+});
 
-            if (ValidationTypes.isAny(expression, simple)){
-                result = true;
-                ValidationTypes.isAny(expression, simple);
+Object.keys(ValidationTypes.simple).forEach(function(nt) {
+    var rule = ValidationTypes.simple[nt];
+    if (typeof rule === "string") {
+        ValidationTypes.simple[nt] = function(part) {
+            return ValidationTypes.isLiteral(part, rule);
+        };
+    }
+});
+
+Object.keys(ValidationTypes.complex).forEach(function(nt) {
+    var rule = ValidationTypes.complex[nt];
+    if (typeof rule === "string") {
+        ValidationTypes.complex[nt] = Matcher.parse(rule);
+    }
+});
+
+// Because this is defined relative to other complex validation types,
+// we need to define it *after* the rest of the types are initialized.
+ValidationTypes.complex["<font-variant>"] =
+    Matcher.oror({ expand: "<font-variant-ligatures>" },
+                 { expand: "<font-variant-alternates>" },
+                 "<font-variant-caps>",
+                 { expand: "<font-variant-numeric>" },
+                 { expand: "<font-variant-east-asian>" });
+
+},{"./Matcher":3}],22:[function(require,module,exports){
+"use strict";
+
+module.exports = {
+    Colors            : require("./Colors"),
+    Combinator        : require("./Combinator"),
+    Parser            : require("./Parser"),
+    PropertyName      : require("./PropertyName"),
+    PropertyValue     : require("./PropertyValue"),
+    PropertyValuePart : require("./PropertyValuePart"),
+    Matcher           : require("./Matcher"),
+    MediaFeature      : require("./MediaFeature"),
+    MediaQuery        : require("./MediaQuery"),
+    Selector          : require("./Selector"),
+    SelectorPart      : require("./SelectorPart"),
+    SelectorSubPart   : require("./SelectorSubPart"),
+    Specificity       : require("./Specificity"),
+    TokenStream       : require("./TokenStream"),
+    Tokens            : require("./Tokens"),
+    ValidationError   : require("./ValidationError")
+};
+
+},{"./Colors":1,"./Combinator":2,"./Matcher":3,"./MediaFeature":4,"./MediaQuery":5,"./Parser":6,"./PropertyName":8,"./PropertyValue":9,"./PropertyValuePart":11,"./Selector":13,"./SelectorPart":14,"./SelectorSubPart":15,"./Specificity":16,"./TokenStream":17,"./Tokens":18,"./ValidationError":20}],23:[function(require,module,exports){
+"use strict";
+
+module.exports = EventTarget;
+
+/**
+ * A generic base to inherit from for any object
+ * that needs event handling.
+ * @class EventTarget
+ * @constructor
+ */
+function EventTarget() {
+
+    /**
+     * The array of listeners for various events.
+     * @type Object
+     * @property _listeners
+     * @private
+     */
+    this._listeners = Object.create(null);
+}
+
+EventTarget.prototype = {
+
+    //restore constructor
+    constructor: EventTarget,
+
+    /**
+     * Adds a listener for a given event type.
+     * @param {String} type The type of event to add a listener for.
+     * @param {Function} listener The function to call when the event occurs.
+     * @return {void}
+     * @method addListener
+     */
+    addListener: function(type, listener) {
+        if (!this._listeners[type]) {
+            this._listeners[type] = [];
+        }
+
+        this._listeners[type].push(listener);
+    },
+
+    /**
+     * Fires an event based on the passed-in object.
+     * @param {Object|String} event An object with at least a 'type' attribute
+     *      or a string indicating the event name.
+     * @return {void}
+     * @method fire
+     */
+    fire: function(event) {
+        if (typeof event === "string") {
+            event = { type: event };
+        }
+        if (typeof event.target !== "undefined") {
+            event.target = this;
+        }
+
+        if (typeof event.type === "undefined") {
+            throw new Error("Event object missing 'type' property.");
+        }
+
+        if (this._listeners[event.type]) {
+
+            //create a copy of the array and use that so listeners can't chane
+            var listeners = this._listeners[event.type].concat();
+            for (var i=0, len=listeners.length; i < len; i++) {
+                listeners[i].call(this, event);
             }
+        }
+    },
 
-            return result;
-        },
-
-        "<flex>": function(expression) {
-            // http://www.w3.org/TR/2014/WD-css-flexbox-1-20140325/#flex-property
-            // none | [ <flex-grow> <flex-shrink>? || <flex-basis> ]
-            // Valid syntaxes, according to https://developer.mozilla.org/en-US/docs/Web/CSS/flex#Syntax
-            // * none
-            // * <flex-grow>
-            // * <flex-basis>
-            // * <flex-grow> <flex-basis>
-            // * <flex-grow> <flex-shrink>
-            // * <flex-grow> <flex-shrink> <flex-basis>
-            // * inherit
-            var part,
-                result = false;
-            if (ValidationTypes.isAny(expression, "none | inherit")) {
-                result = true;
-            } else {
-                if (ValidationTypes.isType(expression, "<flex-grow>")) {
-                    if (expression.peek()) {
-                        if (ValidationTypes.isType(expression, "<flex-shrink>")) {
-                            if (expression.peek()) {
-                                result = ValidationTypes.isType(expression, "<flex-basis>");
-                            } else {
-                                result = true;
-                            }
-                        } else if (ValidationTypes.isType(expression, "<flex-basis>")) {
-                            result = expression.peek() === null;
-                        }
-                    } else {
-                        result = true;
-                    }
-                } else if (ValidationTypes.isType(expression, "<flex-basis>")) {
-                    result = true;
+    /**
+     * Removes a listener for a given event type.
+     * @param {String} type The type of event to remove a listener from.
+     * @param {Function} listener The function to remove from the event.
+     * @return {void}
+     * @method removeListener
+     */
+    removeListener: function(type, listener) {
+        if (this._listeners[type]) {
+            var listeners = this._listeners[type];
+            for (var i=0, len=listeners.length; i < len; i++) {
+                if (listeners[i] === listener) {
+                    listeners.splice(i, 1);
+                    break;
                 }
             }
 
-            if (!result) {
-                // Generate a more verbose error than "Expected <flex>..."
-                part = expression.peek();
-                throw new ValidationError("Expected (none | [ <flex-grow> <flex-shrink>? || <flex-basis> ]) but found '" + expression.value.text + "'.", part.line, part.col);
-            }
 
-            return result;
         }
     }
 };
 
-parserlib.css = {
-Colors              :Colors,
-Combinator          :Combinator,
-Parser              :Parser,
-PropertyName        :PropertyName,
-PropertyValue       :PropertyValue,
-PropertyValuePart   :PropertyValuePart,
-MediaFeature        :MediaFeature,
-MediaQuery          :MediaQuery,
-Selector            :Selector,
-SelectorPart        :SelectorPart,
-SelectorSubPart     :SelectorSubPart,
-Specificity         :Specificity,
-TokenStream         :TokenStream,
-Tokens              :Tokens,
-ValidationError     :ValidationError
-};
-})();
+},{}],24:[function(require,module,exports){
+"use strict";
 
-(function(){
-for(var prop in parserlib){
-exports[prop] = parserlib[prop];
+module.exports = StringReader;
+
+/**
+ * Convenient way to read through strings.
+ * @namespace parserlib.util
+ * @class StringReader
+ * @constructor
+ * @param {String} text The text to read.
+ */
+function StringReader(text) {
+
+    /**
+     * The input text with line endings normalized.
+     * @property _input
+     * @type String
+     * @private
+     */
+    this._input = text.replace(/(\r\n?|\n)/g, "\n");
+
+
+    /**
+     * The row for the character to be read next.
+     * @property _line
+     * @type int
+     * @private
+     */
+    this._line = 1;
+
+
+    /**
+     * The column for the character to be read next.
+     * @property _col
+     * @type int
+     * @private
+     */
+    this._col = 1;
+
+    /**
+     * The index of the character in the input to be read next.
+     * @property _cursor
+     * @type int
+     * @private
+     */
+    this._cursor = 0;
 }
-})();
 
+StringReader.prototype = {
+
+    // restore constructor
+    constructor: StringReader,
+
+    //-------------------------------------------------------------------------
+    // Position info
+    //-------------------------------------------------------------------------
+
+    /**
+     * Returns the column of the character to be read next.
+     * @return {int} The column of the character to be read next.
+     * @method getCol
+     */
+    getCol: function() {
+        return this._col;
+    },
+
+    /**
+     * Returns the row of the character to be read next.
+     * @return {int} The row of the character to be read next.
+     * @method getLine
+     */
+    getLine: function() {
+        return this._line;
+    },
+
+    /**
+     * Determines if you're at the end of the input.
+     * @return {Boolean} True if there's no more input, false otherwise.
+     * @method eof
+     */
+    eof: function() {
+        return this._cursor === this._input.length;
+    },
+
+    //-------------------------------------------------------------------------
+    // Basic reading
+    //-------------------------------------------------------------------------
+
+    /**
+     * Reads the next character without advancing the cursor.
+     * @param {int} count How many characters to look ahead (default is 1).
+     * @return {String} The next character or null if there is no next character.
+     * @method peek
+     */
+    peek: function(count) {
+        var c = null;
+        count = typeof count === "undefined" ? 1 : count;
+
+        // if we're not at the end of the input...
+        if (this._cursor < this._input.length) {
+
+            // get character and increment cursor and column
+            c = this._input.charAt(this._cursor + count - 1);
+        }
+
+        return c;
+    },
+
+    /**
+     * Reads the next character from the input and adjusts the row and column
+     * accordingly.
+     * @return {String} The next character or null if there is no next character.
+     * @method read
+     */
+    read: function() {
+        var c = null;
+
+        // if we're not at the end of the input...
+        if (this._cursor < this._input.length) {
+
+            // if the last character was a newline, increment row count
+            // and reset column count
+            if (this._input.charAt(this._cursor) === "\n") {
+                this._line++;
+                this._col=1;
+            } else {
+                this._col++;
+            }
+
+            // get character and increment cursor and column
+            c = this._input.charAt(this._cursor++);
+        }
+
+        return c;
+    },
+
+    //-------------------------------------------------------------------------
+    // Misc
+    //-------------------------------------------------------------------------
+
+    /**
+     * Saves the current location so it can be returned to later.
+     * @method mark
+     * @return {void}
+     */
+    mark: function() {
+        this._bookmark = {
+            cursor: this._cursor,
+            line:   this._line,
+            col:    this._col
+        };
+    },
+
+    reset: function() {
+        if (this._bookmark) {
+            this._cursor = this._bookmark.cursor;
+            this._line = this._bookmark.line;
+            this._col = this._bookmark.col;
+            delete this._bookmark;
+        }
+    },
+
+    //-------------------------------------------------------------------------
+    // Advanced reading
+    //-------------------------------------------------------------------------
+
+    /**
+     * Reads up to and including the given string. Throws an error if that
+     * string is not found.
+     * @param {String} pattern The string to read.
+     * @return {String} The string when it is found.
+     * @throws Error when the string pattern is not found.
+     * @method readTo
+     */
+    readTo: function(pattern) {
+
+        var buffer = "",
+            c;
+
+        /*
+         * First, buffer must be the same length as the pattern.
+         * Then, buffer must end with the pattern or else reach the
+         * end of the input.
+         */
+        while (buffer.length < pattern.length || buffer.lastIndexOf(pattern) !== buffer.length - pattern.length) {
+            c = this.read();
+            if (c) {
+                buffer += c;
+            } else {
+                throw new Error("Expected \"" + pattern + "\" at line " + this._line  + ", col " + this._col + ".");
+            }
+        }
+
+        return buffer;
+
+    },
+
+    /**
+     * Reads characters while each character causes the given
+     * filter function to return true. The function is passed
+     * in each character and either returns true to continue
+     * reading or false to stop.
+     * @param {Function} filter The function to read on each character.
+     * @return {String} The string made up of all characters that passed the
+     *      filter check.
+     * @method readWhile
+     */
+    readWhile: function(filter) {
+
+        var buffer = "",
+            c = this.peek();
+
+        while (c !== null && filter(c)) {
+            buffer += this.read();
+            c = this.peek();
+        }
+
+        return buffer;
+
+    },
+
+    /**
+     * Reads characters that match either text or a regular expression and
+     * returns those characters. If a match is found, the row and column
+     * are adjusted; if no match is found, the reader's state is unchanged.
+     * reading or false to stop.
+     * @param {String|RegExp} matcher If a string, then the literal string
+     *      value is searched for. If a regular expression, then any string
+     *      matching the pattern is search for.
+     * @return {String} The string made up of all characters that matched or
+     *      null if there was no match.
+     * @method readMatch
+     */
+    readMatch: function(matcher) {
+
+        var source = this._input.substring(this._cursor),
+            value = null;
+
+        // if it's a string, just do a straight match
+        if (typeof matcher === "string") {
+            if (source.slice(0, matcher.length) === matcher) {
+                value = this.readCount(matcher.length);
+            }
+        } else if (matcher instanceof RegExp) {
+            if (matcher.test(source)) {
+                value = this.readCount(RegExp.lastMatch.length);
+            }
+        }
+
+        return value;
+    },
+
+
+    /**
+     * Reads a given number of characters. If the end of the input is reached,
+     * it reads only the remaining characters and does not throw an error.
+     * @param {int} count The number of characters to read.
+     * @return {String} The string made up the read characters.
+     * @method readCount
+     */
+    readCount: function(count) {
+        var buffer = "";
+
+        while (count--) {
+            buffer += this.read();
+        }
+
+        return buffer;
+    }
+
+};
+
+},{}],25:[function(require,module,exports){
+"use strict";
+
+module.exports = SyntaxError;
+
+/**
+ * Type to use when a syntax error occurs.
+ * @class SyntaxError
+ * @namespace parserlib.util
+ * @constructor
+ * @param {String} message The error message.
+ * @param {int} line The line at which the error occurred.
+ * @param {int} col The column at which the error occurred.
+ */
+function SyntaxError(message, line, col) {
+    Error.call(this);
+    this.name = this.constructor.name;
+
+    /**
+     * The column at which the error occurred.
+     * @type int
+     * @property col
+     */
+    this.col = col;
+
+    /**
+     * The line at which the error occurred.
+     * @type int
+     * @property line
+     */
+    this.line = line;
+
+    /**
+     * The text representation of the unit.
+     * @type String
+     * @property text
+     */
+    this.message = message;
+
+}
+
+//inherit from Error
+SyntaxError.prototype = Object.create(Error.prototype); // jshint ignore:line
+SyntaxError.prototype.constructor = SyntaxError; // jshint ignore:line
+
+},{}],26:[function(require,module,exports){
+"use strict";
+
+module.exports = SyntaxUnit;
+
+/**
+ * Base type to represent a single syntactic unit.
+ * @class SyntaxUnit
+ * @namespace parserlib.util
+ * @constructor
+ * @param {String} text The text of the unit.
+ * @param {int} line The line of text on which the unit resides.
+ * @param {int} col The column of text on which the unit resides.
+ */
+function SyntaxUnit(text, line, col, type) {
+
+
+    /**
+     * The column of text on which the unit resides.
+     * @type int
+     * @property col
+     */
+    this.col = col;
+
+    /**
+     * The line of text on which the unit resides.
+     * @type int
+     * @property line
+     */
+    this.line = line;
+
+    /**
+     * The text representation of the unit.
+     * @type String
+     * @property text
+     */
+    this.text = text;
+
+    /**
+     * The type of syntax unit.
+     * @type int
+     * @property type
+     */
+    this.type = type;
+}
+
+/**
+ * Create a new syntax unit based solely on the given token.
+ * Convenience method for creating a new syntax unit when
+ * it represents a single token instead of multiple.
+ * @param {Object} token The token object to represent.
+ * @return {parserlib.util.SyntaxUnit} The object representing the token.
+ * @static
+ * @method fromToken
+ */
+SyntaxUnit.fromToken = function(token) {
+    return new SyntaxUnit(token.value, token.startLine, token.startCol);
+};
+
+SyntaxUnit.prototype = {
+
+    //restore constructor
+    constructor: SyntaxUnit,
+
+    /**
+     * Returns the text representation of the unit.
+     * @return {String} The text representation of the unit.
+     * @method valueOf
+     */
+    valueOf: function() {
+        return this.toString();
+    },
+
+    /**
+     * Returns the text representation of the unit.
+     * @return {String} The text representation of the unit.
+     * @method toString
+     */
+    toString: function() {
+        return this.text;
+    }
+
+};
+
+},{}],27:[function(require,module,exports){
+"use strict";
+
+module.exports = TokenStreamBase;
+
+var StringReader = require("./StringReader");
+var SyntaxError = require("./SyntaxError");
+
+/**
+ * Generic TokenStream providing base functionality.
+ * @class TokenStreamBase
+ * @namespace parserlib.util
+ * @constructor
+ * @param {String|StringReader} input The text to tokenize or a reader from
+ *      which to read the input.
+ */
+function TokenStreamBase(input, tokenData) {
+
+    /**
+     * The string reader for easy access to the text.
+     * @type StringReader
+     * @property _reader
+     * @private
+     */
+    this._reader = new StringReader(input ? input.toString() : "");
+
+    /**
+     * Token object for the last consumed token.
+     * @type Token
+     * @property _token
+     * @private
+     */
+    this._token = null;
+
+    /**
+     * The array of token information.
+     * @type Array
+     * @property _tokenData
+     * @private
+     */
+    this._tokenData = tokenData;
+
+    /**
+     * Lookahead token buffer.
+     * @type Array
+     * @property _lt
+     * @private
+     */
+    this._lt = [];
+
+    /**
+     * Lookahead token buffer index.
+     * @type int
+     * @property _ltIndex
+     * @private
+     */
+    this._ltIndex = 0;
+
+    this._ltIndexCache = [];
+}
+
+/**
+ * Accepts an array of token information and outputs
+ * an array of token data containing key-value mappings
+ * and matching functions that the TokenStream needs.
+ * @param {Array} tokens An array of token descriptors.
+ * @return {Array} An array of processed token data.
+ * @method createTokenData
+ * @static
+ */
+TokenStreamBase.createTokenData = function(tokens) {
+
+    var nameMap     = [],
+        typeMap     = Object.create(null),
+        tokenData     = tokens.concat([]),
+        i            = 0,
+        len            = tokenData.length+1;
+
+    tokenData.UNKNOWN = -1;
+    tokenData.unshift({ name:"EOF" });
+
+    for (; i < len; i++) {
+        nameMap.push(tokenData[i].name);
+        tokenData[tokenData[i].name] = i;
+        if (tokenData[i].text) {
+            typeMap[tokenData[i].text] = i;
+        }
+    }
+
+    tokenData.name = function(tt) {
+        return nameMap[tt];
+    };
+
+    tokenData.type = function(c) {
+        return typeMap[c];
+    };
+
+    return tokenData;
+};
+
+TokenStreamBase.prototype = {
+
+    //restore constructor
+    constructor: TokenStreamBase,
+
+    //-------------------------------------------------------------------------
+    // Matching methods
+    //-------------------------------------------------------------------------
+
+    /**
+     * Determines if the next token matches the given token type.
+     * If so, that token is consumed; if not, the token is placed
+     * back onto the token stream. You can pass in any number of
+     * token types and this will return true if any of the token
+     * types is found.
+     * @param {int|int[]} tokenTypes Either a single token type or an array of
+     *      token types that the next token might be. If an array is passed,
+     *      it's assumed that the token can be any of these.
+     * @param {variant} channel (Optional) The channel to read from. If not
+     *      provided, reads from the default (unnamed) channel.
+     * @return {Boolean} True if the token type matches, false if not.
+     * @method match
+     */
+    match: function(tokenTypes, channel) {
+
+        //always convert to an array, makes things easier
+        if (!(tokenTypes instanceof Array)) {
+            tokenTypes = [tokenTypes];
+        }
+
+        var tt  = this.get(channel),
+            i   = 0,
+            len = tokenTypes.length;
+
+        while (i < len) {
+            if (tt === tokenTypes[i++]) {
+                return true;
+            }
+        }
+
+        //no match found, put the token back
+        this.unget();
+        return false;
+    },
+
+    /**
+     * Determines if the next token matches the given token type.
+     * If so, that token is consumed; if not, an error is thrown.
+     * @param {int|int[]} tokenTypes Either a single token type or an array of
+     *      token types that the next token should be. If an array is passed,
+     *      it's assumed that the token must be one of these.
+     * @return {void}
+     * @method mustMatch
+     */
+    mustMatch: function(tokenTypes) {
+
+        var token;
+
+        //always convert to an array, makes things easier
+        if (!(tokenTypes instanceof Array)) {
+            tokenTypes = [tokenTypes];
+        }
+
+        if (!this.match.apply(this, arguments)) {
+            token = this.LT(1);
+            throw new SyntaxError("Expected " + this._tokenData[tokenTypes[0]].name +
+                " at line " + token.startLine + ", col " + token.startCol + ".", token.startLine, token.startCol);
+        }
+    },
+
+    //-------------------------------------------------------------------------
+    // Consuming methods
+    //-------------------------------------------------------------------------
+
+    /**
+     * Keeps reading from the token stream until either one of the specified
+     * token types is found or until the end of the input is reached.
+     * @param {int|int[]} tokenTypes Either a single token type or an array of
+     *      token types that the next token should be. If an array is passed,
+     *      it's assumed that the token must be one of these.
+     * @param {variant} channel (Optional) The channel to read from. If not
+     *      provided, reads from the default (unnamed) channel.
+     * @return {void}
+     * @method advance
+     */
+    advance: function(tokenTypes, channel) {
+
+        while (this.LA(0) !== 0 && !this.match(tokenTypes, channel)) {
+            this.get();
+        }
+
+        return this.LA(0);
+    },
+
+    /**
+     * Consumes the next token from the token stream.
+     * @return {int} The token type of the token that was just consumed.
+     * @method get
+     */
+    get: function(channel) {
+
+        var tokenInfo   = this._tokenData,
+            i           =0,
+            token,
+            info;
+
+        //check the lookahead buffer first
+        if (this._lt.length && this._ltIndex >= 0 && this._ltIndex < this._lt.length) {
+
+            i++;
+            this._token = this._lt[this._ltIndex++];
+            info = tokenInfo[this._token.type];
+
+            //obey channels logic
+            while ((info.channel !== undefined && channel !== info.channel) &&
+                    this._ltIndex < this._lt.length) {
+                this._token = this._lt[this._ltIndex++];
+                info = tokenInfo[this._token.type];
+                i++;
+            }
+
+            //here be dragons
+            if ((info.channel === undefined || channel === info.channel) &&
+                    this._ltIndex <= this._lt.length) {
+                this._ltIndexCache.push(i);
+                return this._token.type;
+            }
+        }
+
+        //call token retriever method
+        token = this._getToken();
+
+        //if it should be hidden, don't save a token
+        if (token.type > -1 && !tokenInfo[token.type].hide) {
+
+            //apply token channel
+            token.channel = tokenInfo[token.type].channel;
+
+            //save for later
+            this._token = token;
+            this._lt.push(token);
+
+            //save space that will be moved (must be done before array is truncated)
+            this._ltIndexCache.push(this._lt.length - this._ltIndex + i);
+
+            //keep the buffer under 5 items
+            if (this._lt.length > 5) {
+                this._lt.shift();
+            }
+
+            //also keep the shift buffer under 5 items
+            if (this._ltIndexCache.length > 5) {
+                this._ltIndexCache.shift();
+            }
+
+            //update lookahead index
+            this._ltIndex = this._lt.length;
+        }
+
+        /*
+         * Skip to the next token if:
+         * 1. The token type is marked as hidden.
+         * 2. The token type has a channel specified and it isn't the current channel.
+         */
+        info = tokenInfo[token.type];
+        if (info &&
+                (info.hide ||
+                (info.channel !== undefined && channel !== info.channel))) {
+            return this.get(channel);
+        } else {
+            //return just the type
+            return token.type;
+        }
+    },
+
+    /**
+     * Looks ahead a certain number of tokens and returns the token type at
+     * that position. This will throw an error if you lookahead past the
+     * end of input, past the size of the lookahead buffer, or back past
+     * the first token in the lookahead buffer.
+     * @param {int} The index of the token type to retrieve. 0 for the
+     *      current token, 1 for the next, -1 for the previous, etc.
+     * @return {int} The token type of the token in the given position.
+     * @method LA
+     */
+    LA: function(index) {
+        var total = index,
+            tt;
+        if (index > 0) {
+            //TODO: Store 5 somewhere
+            if (index > 5) {
+                throw new Error("Too much lookahead.");
+            }
+
+            //get all those tokens
+            while (total) {
+                tt = this.get();
+                total--;
+            }
+
+            //unget all those tokens
+            while (total < index) {
+                this.unget();
+                total++;
+            }
+        } else if (index < 0) {
+
+            if (this._lt[this._ltIndex+index]) {
+                tt = this._lt[this._ltIndex+index].type;
+            } else {
+                throw new Error("Too much lookbehind.");
+            }
+
+        } else {
+            tt = this._token.type;
+        }
+
+        return tt;
+
+    },
+
+    /**
+     * Looks ahead a certain number of tokens and returns the token at
+     * that position. This will throw an error if you lookahead past the
+     * end of input, past the size of the lookahead buffer, or back past
+     * the first token in the lookahead buffer.
+     * @param {int} The index of the token type to retrieve. 0 for the
+     *      current token, 1 for the next, -1 for the previous, etc.
+     * @return {Object} The token of the token in the given position.
+     * @method LA
+     */
+    LT: function(index) {
+
+        //lookahead first to prime the token buffer
+        this.LA(index);
+
+        //now find the token, subtract one because _ltIndex is already at the next index
+        return this._lt[this._ltIndex+index-1];
+    },
+
+    /**
+     * Returns the token type for the next token in the stream without
+     * consuming it.
+     * @return {int} The token type of the next token in the stream.
+     * @method peek
+     */
+    peek: function() {
+        return this.LA(1);
+    },
+
+    /**
+     * Returns the actual token object for the last consumed token.
+     * @return {Token} The token object for the last consumed token.
+     * @method token
+     */
+    token: function() {
+        return this._token;
+    },
+
+    /**
+     * Returns the name of the token for the given token type.
+     * @param {int} tokenType The type of token to get the name of.
+     * @return {String} The name of the token or "UNKNOWN_TOKEN" for any
+     *      invalid token type.
+     * @method tokenName
+     */
+    tokenName: function(tokenType) {
+        if (tokenType < 0 || tokenType > this._tokenData.length) {
+            return "UNKNOWN_TOKEN";
+        } else {
+            return this._tokenData[tokenType].name;
+        }
+    },
+
+    /**
+     * Returns the token type value for the given token name.
+     * @param {String} tokenName The name of the token whose value should be returned.
+     * @return {int} The token type value for the given token name or -1
+     *      for an unknown token.
+     * @method tokenName
+     */
+    tokenType: function(tokenName) {
+        return this._tokenData[tokenName] || -1;
+    },
+
+    /**
+     * Returns the last consumed token to the token stream.
+     * @method unget
+     */
+    unget: function() {
+        //if (this._ltIndex > -1) {
+        if (this._ltIndexCache.length) {
+            this._ltIndex -= this._ltIndexCache.pop();//--;
+            this._token = this._lt[this._ltIndex - 1];
+        } else {
+            throw new Error("Too much lookahead.");
+        }
+    }
+
+};
+
+
+},{"./StringReader":24,"./SyntaxError":25}],28:[function(require,module,exports){
+"use strict";
+
+module.exports = {
+    StringReader    : require("./StringReader"),
+    SyntaxError     : require("./SyntaxError"),
+    SyntaxUnit      : require("./SyntaxUnit"),
+    EventTarget     : require("./EventTarget"),
+    TokenStreamBase : require("./TokenStreamBase")
+};
+
+},{"./EventTarget":23,"./StringReader":24,"./SyntaxError":25,"./SyntaxUnit":26,"./TokenStreamBase":27}],"parserlib":[function(require,module,exports){
+"use strict";
+
+module.exports = {
+    css  : require("./css"),
+    util : require("./util")
+};
+
+},{"./css":22,"./util":28}]},{},[]);
+
+return require('parserlib');
+})();
+module.exports = parserlib;
 var clone = (function() {
 'use strict';
 
