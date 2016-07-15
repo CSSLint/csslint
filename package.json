@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "clone": "~1.0.0",
-    "parserlib": "~0.2.5"
+    "parserlib": "~1.0.0"
   },
   "devDependencies": {
     "grunt": "~1.0.1",

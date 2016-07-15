@@ -35,7 +35,7 @@ module.exports = function(grunt) {
                 "*/\n",
         build_dir: "dist",
         // Parser lib copy for versions that can't use requirejs
-        parserlib: "node_modules/parserlib/lib/node-parserlib.js",
+        parserlib: "node_modules/parserlib/dist/node-parserlib.js",
         // clone copy for versions that can't use requirejs
         clone: "node_modules/clone/clone.js",
         // Core CSSLint files used by most versions
