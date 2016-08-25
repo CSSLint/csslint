@@ -65,10 +65,10 @@ module.exports = function(grunt) {
             core: {
                 options: {
                     banner: "<%= banner %>\n" +
+                            "var CSSLint = (function(){\n" +
                             // Hack for using the node version of parserlib and clone
-                            "var module = module || {},\n" +
-                            "    exports = exports || {};\n\n" +
-                            "var CSSLint = (function(){\n",
+                            "  var module = module || {},\n" +
+                            "      exports = exports || {};\n\n",
                     footer: "\nreturn CSSLint;\n})();"
                 },
                 src: [
