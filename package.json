@@ -43,6 +43,7 @@
   "files": [
     "dist/cli.js",
     "dist/csslint-node.js",
+    "dist/csslint.js",
     "CHANGELOG",
     "LICENSE"
   ]
