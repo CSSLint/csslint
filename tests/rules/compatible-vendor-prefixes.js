@@ -11,24 +11,16 @@
             Assert.areEqual(0, result.messages.length);
         },
 
-        "Using -webkit-transition and -moz-transition should warn to also include -o-transition.": function() {
+        "Using -webkit-transition and -moz-transition should not warn to also include -o-transition.": function() {
             var result = CSSLint.verify("h1 { -webkit-transition: height 20px 1s; -moz-transition: height 20px 1s; }", { "compatible-vendor-prefixes": 1 });
-            Assert.areEqual(1, result.messages.length);
-            Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("The property -o-transition is compatible with -webkit-transition and -moz-transition and should be included as well.", result.messages[0].message);
-            Assert.areEqual(6, result.messages[0].col);
-            Assert.areEqual(1, result.messages[0].line);
+            Assert.areEqual(0, result.messages.length);
         },
 
-        "Using -webkit-transform should warn to also include -moz-transform, -ms-transform, and -o-transform.": function() {
+        "Using -webkit-transform should warn to also include -ms-transform.": function() {
             var result = CSSLint.verify("div.box { -webkit-transform: translate(50px, 100px); }", { "compatible-vendor-prefixes": 3 });
-            Assert.areEqual(3, result.messages.length);
+            Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
-            Assert.areEqual("The property -moz-transform is compatible with -webkit-transform and should be included as well.", result.messages[0].message);
-            Assert.areEqual("warning", result.messages[1].type);
-            Assert.areEqual("The property -ms-transform is compatible with -webkit-transform and should be included as well.", result.messages[1].message);
-            Assert.areEqual("warning", result.messages[2].type);
-            Assert.areEqual("The property -o-transform is compatible with -webkit-transform and should be included as well.", result.messages[2].message);
+            Assert.areEqual("The property -ms-transform is compatible with -webkit-transform and should be included as well.", result.messages[0].message);
         },
 
         "Using -webkit-transform inside of an @-webkit- block shouldn't cause a warning": function() {
