@@ -34,8 +34,8 @@ CSSLint.addRule({
                             if (modifier.type === "class") {
                                 classCount++;
                             }
-                            if (classCount > 1) {
-                                reporter.report("Don't use adjoining classes.", part.line, part.col, rule);
+                            if (classCount > 1){
+                                reporter.report("Adjoining classes: "+selectors[i].text, part.line, part.col, rule);
                             }
                         }
                     }
