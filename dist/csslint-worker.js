@@ -8065,8 +8065,8 @@ CSSLint.addRule({
                             if (modifier.type === "class") {
                                 classCount++;
                             }
-                            if (classCount > 1) {
-                                reporter.report("Don't use adjoining classes.", part.line, part.col, rule);
+                            if (classCount > 1){
+                                reporter.report("Adjoining classes: "+selectors[i].text, part.line, part.col, rule);
                             }
                         }
                     }
@@ -8314,15 +8314,15 @@ CSSLint.addRule({
 
         // See http://peter.sh/experiments/vendor-prefixed-css-property-overview/ for details
         compatiblePrefixes = {
-            "animation"                  : "webkit moz",
-            "animation-delay"            : "webkit moz",
-            "animation-direction"        : "webkit moz",
-            "animation-duration"         : "webkit moz",
-            "animation-fill-mode"        : "webkit moz",
-            "animation-iteration-count"  : "webkit moz",
-            "animation-name"             : "webkit moz",
-            "animation-play-state"       : "webkit moz",
-            "animation-timing-function"  : "webkit moz",
+            "animation"                  : "webkit",
+            "animation-delay"            : "webkit",
+            "animation-direction"        : "webkit",
+            "animation-duration"         : "webkit",
+            "animation-fill-mode"        : "webkit",
+            "animation-iteration-count"  : "webkit",
+            "animation-name"             : "webkit",
+            "animation-play-state"       : "webkit",
+            "animation-timing-function"  : "webkit",
             "appearance"                 : "webkit moz",
             "border-end"                 : "webkit moz",
             "border-end-color"           : "webkit moz",
@@ -8341,8 +8341,8 @@ CSSLint.addRule({
             "box-ordinal-group"          : "webkit moz ms",
             "box-orient"                 : "webkit moz ms",
             "box-pack"                   : "webkit moz ms",
-            "box-sizing"                 : "webkit moz",
-            "box-shadow"                 : "webkit moz",
+            "box-sizing"                 : "",
+            "box-shadow"                 : "",
             "column-count"               : "webkit moz ms",
             "column-gap"                 : "webkit moz ms",
             "column-rule"                : "webkit moz ms",
@@ -8360,13 +8360,13 @@ CSSLint.addRule({
             "padding-start"              : "webkit moz",
             "tab-size"                   : "moz o",
             "text-size-adjust"           : "webkit ms",
-            "transform"                  : "webkit moz ms o",
-            "transform-origin"           : "webkit moz ms o",
-            "transition"                 : "webkit moz o",
-            "transition-delay"           : "webkit moz o",
-            "transition-duration"        : "webkit moz o",
-            "transition-property"        : "webkit moz o",
-            "transition-timing-function" : "webkit moz o",
+            "transform"                  : "webkit ms",
+            "transform-origin"           : "webkit ms",
+            "transition"                 : "",
+            "transition-delay"           : "",
+            "transition-duration"        : "",
+            "transition-property"        : "",
+            "transition-timing-function" : "",
             "user-modify"                : "webkit moz",
             "user-select"                : "webkit moz ms",
             "word-break"                 : "epub ms",
