@@ -23,7 +23,7 @@
     "test": "grunt test"
   },
   "dependencies": {
-    "clone": "~1.0.0",
+    "clone": "~2.0.0",
     "parserlib": "~1.0.0"
   },
   "devDependencies": {
