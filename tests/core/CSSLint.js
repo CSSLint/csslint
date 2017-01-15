@@ -98,6 +98,11 @@
             var report = CSSLint.verify("/* csslint ignore:start */\n/* csslint ignore:start */\n");
             Assert.areEqual(1, report.ignore.length);
             Assert.areEqual(0, report.ignore[0][0]);
+        },
+
+        "Ignore should remove warning messages": function() {
+            var report = CSSLint.verify("/* csslint ignore:start */\nh1 {}\nh1 {}/* csslint ignore:end */\n");
+            Assert.areEqual(0, report.messages.length);
         }
 
     }));
