@@ -1,6 +1,6 @@
 /*!
-CSSLint v1.0.4
-Copyright (c) 2016 Nicole Sullivan and Nicholas C. Zakas. All rights reserved.
+CSSLint v1.0.5
+Copyright (c) 2017 Nicole Sullivan and Nicholas C. Zakas. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the 'Software'), to deal
@@ -41,7 +41,7 @@ var CSSLint = (function() {
         embeddedRuleset = /\/\*\s*csslint([^\*]*)\*\//,
         api             = new parserlib.util.EventTarget();
 
-    api.version = "1.0.4";
+    api.version = "1.0.5";
 
     //-------------------------------------------------------------------------
     // Rule Management
@@ -1744,6 +1744,38 @@ CSSLint.addRule({
                 reporter.report(event.invalid.message, event.line, event.col, rule);
             }
 
+        });
+    }
+
+});
+
+/*
+ * Rule: Don't use tabs, use space
+ *
+ */
+
+CSSLint.addRule({
+
+    // rule information
+    id: "no-tabs",
+    name: "Disallow tabs",
+    desc: "Checks for tab",
+    browsers: "All",
+
+    // initialization
+    init: function(parser, reporter) {
+        "use strict";
+        var rule = this,
+            sheet;
+
+        parser.addListener("startstylesheet", function() {
+            sheet = this._tokenStream._reader._input.split(/\n/);
+        });
+
+        parser.addListener("property", function(event) {
+            if (/\t/.test(sheet[event.line - 1])) {
+                reporter.report("The TAB character is not allowed.", event.line, event.col, rule);
+            }
         });
     }
 
