@@ -3051,6 +3051,26 @@ background: -o-linear-gradient(top, #1e5799 ,#2989d8 ,#207cca ,#7db9e8 );
 
     YUITest.TestRunner.add(new YUITest.TestCase({
 
+        name: "no-tabs rule errors",
+
+        "tabs in a stylesheet": function() {
+            var result = CSSLint.verify(".foo{\ttext-indent: -100px;}", { "no-tabs": 1 });
+
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("The TAB character is not allowed.", result.messages[0].message);
+        }
+
+    }));
+
+})();
+
+(function() {
+    "use strict";
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
         name: "Alphabetical order Errors",
 
         "Rules with properties not in alphabetical order should result in a warning": function() {
