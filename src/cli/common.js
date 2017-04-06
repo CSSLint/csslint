@@ -19,7 +19,8 @@ function cli(api) {
         "ignore"      : { "format" : "<rule[,rule]+>",         "description" : "Indicate which rules to ignore completely." },
         "exclude-list": { "format" : "<file|dir[,file|dir]+>", "description" : "Indicate which files/directories to exclude from being linted." },
         "config"      : { "format" : "<file>",                 "description" : "Reads csslint options from specified file." },
-        "version"     : { "format" : "",                       "description" : "Outputs the current version number." }
+        "version"     : { "format" : "",                       "description" : "Outputs the current version number." },
+        "name-pattern": { "format" : "<pattern>",              "description" : "Indicate which pattern naming should follow." }
     };
 
     //-------------------------------------------------------------------------
@@ -140,7 +141,7 @@ function cli(api) {
     function processFile(relativeFilePath, options) {
         var input = api.readFile(relativeFilePath),
             ruleset = filterRules(options),
-            result = CSSLint.verify(input, gatherRules(options, ruleset)),
+            result = CSSLint.verify(input, gatherRules(options, ruleset), options),
             formatter = CSSLint.getFormatter(options.format || "text"),
             messages = result.messages || [],
             output,

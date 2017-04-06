@@ -133,7 +133,7 @@ Reporter.prototype = {
             line    : line,
             col     : col,
             message : message,
-            evidence: this.lines[line-1],
+            evidence: this.lines[line-1] || "",
             rule    : rule
         });
     },

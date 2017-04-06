@@ -169,10 +169,11 @@ var CSSLint = (function() {
      * @param {Object} ruleset (Optional) List of rules to apply. If null, then
      *      all rules are used. If a rule has a value of 1 then it's a warning,
      *      a value of 2 means it's an error.
+     * @param {Object} options (Optional) options for processing
      * @return {Object} Results of the verification.
      * @method verify
      */
-    api.verify = function(text, ruleset) {
+    api.verify = function(text, ruleset, options) {
 
         var i = 0,
             reporter,
@@ -245,7 +246,7 @@ var CSSLint = (function() {
         for (i in ruleset) {
             if (ruleset.hasOwnProperty(i) && ruleset[i]) {
                 if (rules[i]) {
-                    rules[i].init(parser, reporter);
+                    rules[i].init(parser, reporter, options);
                 }
             }
         }
