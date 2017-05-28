@@ -21,9 +21,11 @@ CSSLint.addRule({
 
         // warn that important is used and increment the declaration counter
         parser.addListener("property", function(event) {
-            if (event.important === true) {
-                count++;
-                reporter.report("Use of !important", event.line, event.col, rule);
+            if (!reporter.isIgnored(event.line)) {
+                if (event.important === true) {
+                    count++;
+                    reporter.report("Use of !important", event.line, event.col, rule);
+                }
             }
         });
 

@@ -19,6 +19,11 @@
             Assert.areEqual(11, result.messages.length);
             Assert.areEqual("warning", result.messages[10].type);
             Assert.areEqual("Too many !important declarations (10), try to use less than 10 to avoid specificity issues.", result.messages[10].message);
+        },
+
+        "Ignore should remove rollup warning message for important": function() {
+            var report = CSSLint.verify("/* csslint ignore:start */\n.test1 {color:#fff !important;}\n.test2 {color:#fff !important;}\n.test3 {color:#fff !important;}\n.test4 {color:#fff !important;}\n.test5 {color:#fff !important;}\n.test6 {color:#fff !important;}\n.test7 {color:#fff !important;}\n.test8 {color:#fff !important;}\n.test9 {color:#fff !important;}\n.test10 {color:#fff !important;}\n.test11 {color:#fff !important;}\n/* csslint ignore:end */h2 {color: #fff}\n");
+            Assert.areEqual(0, report.messages.length);
         }
 
     }));
