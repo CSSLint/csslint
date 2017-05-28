@@ -50,6 +50,11 @@
             "Using a regular rule should not result in an error": function() {
                 var result = CSSLint.verify("body { margin: 0; }", this.options);
                 Assert.areEqual(0, result.messages.length);
+            },
+
+            "Using an unclosed function should not result in a system crash": function() {
+                CSSLint.verify("#test{width:calc(100% =", this.options);
+                Assert.pass();
             }
 
         }));
@@ -63,4 +68,3 @@
     YUITest.TestRunner.add(suite);
 
 })();
-
