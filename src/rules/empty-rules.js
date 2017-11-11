@@ -28,12 +28,6 @@ CSSLint.addRule({
         parser.addListener("endrule", function(event) {
             var selectors = event.selectors;
 
-            // If we ignore lines, we end up without rules.
-            // this prevents the triggering of the empty rule. The question is if this is wanted behavior.
-            if (reporter.ignore.length) {
-              return;
-            }
-
             if (count === 0) {
                 reporter.report("Rule is empty.", selectors[0].line, selectors[0].col, rule);
             }

@@ -42,7 +42,7 @@
         },
 
         "Ignore should remove rollup warning messages for unique headings": function() {
-            var report = CSSLint.verify("/* csslint ignore:start */\nh1 {}\nh1 {}/* csslint ignore:end */h2 {color: #fff}\n");
+            var report = CSSLint.verify("/* csslint ignore:start */\nh1 {color: #f0f}\nh1 {color: #ff0}/* csslint ignore:end */h2 {color: #fff}\n");
             Assert.areEqual(0, report.messages.length);
         }
 
