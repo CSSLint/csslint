@@ -7720,7 +7720,7 @@ var CSSLint = (function() {
      * @method format
      */
     api.format = function(results, filename, formatId, options) {
-        var formatter = this.getFormatter(formatId),
+        var formatter = api.getFormatter(formatId),
             result = null;
 
         if (formatter) {
@@ -7813,7 +7813,7 @@ var CSSLint = (function() {
         }
 
         if (!ruleset) {
-            ruleset = this.getRuleset();
+            ruleset = api.getRuleset();
         }
 
         if (embeddedRuleset.test(text)) {
