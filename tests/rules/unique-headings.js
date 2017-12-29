@@ -39,6 +39,11 @@
         "Defining multiple rules that contain h1 should not result in a warning": function() {
             var result = CSSLint.verify("h2 a, h2 a:active, h2 a:hover, h2 a:visited, h2 a:link { color: red;}", { "unique-headings": 1 });
             Assert.areEqual(0, result.messages.length);
+        },
+
+        "Ignore should remove rollup warning messages for unique headings": function() {
+            var report = CSSLint.verify("/* csslint ignore:start */\nh1 {color: #f0f}\nh1 {color: #ff0}/* csslint ignore:end */h2 {color: #fff}\n");
+            Assert.areEqual(0, report.messages.length);
         }
 
     }));

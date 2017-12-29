@@ -18,8 +18,10 @@ CSSLint.addRule({
             count = 0;
 
 
-        parser.addListener("startfontface", function() {
-            count++;
+        parser.addListener("startfontface", function(event) {
+            if (!reporter.isIgnored(event.line)) {
+                count++;
+            }
         });
 
         parser.addListener("endstylesheet", function() {

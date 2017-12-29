@@ -19,8 +19,10 @@ CSSLint.addRule({
 
         // check for use of "font-size"
         parser.addListener("property", function(event) {
-            if (event.property.toString() === "font-size") {
-                count++;
+            if (!reporter.isIgnored(event.property.line)) {
+                if (event.property.toString() === "font-size") {
+                    count++;
+                }
             }
         });
 

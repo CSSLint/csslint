@@ -7,7 +7,7 @@
  * @param {Object} ruleset The set of rules to work with, including if
  *      they are errors or warnings.
  * @param {Object} explicitly allowed lines
- * @param {[][]} ingore list of line ranges to be ignored
+ * @param {[][]} ignore list of line ranges to be ignored
  */
 function Reporter(lines, ruleset, allow, ignore) {
     "use strict";
@@ -118,13 +118,7 @@ Reporter.prototype = {
             return;
         }
 
-        var ignore = false;
-        CSSLint.Util.forEach(this.ignore, function (range) {
-            if (range[0] <= line && line <= range[1]) {
-                ignore = true;
-            }
-        });
-        if (ignore) {
+        if (this.isIgnored(line)) {
             return;
         }
 
@@ -199,6 +193,23 @@ Reporter.prototype = {
     stat: function(name, value) {
         "use strict";
         this.stats[name] = value;
+    },
+
+    /**
+     * Helper function to check if a line is ignored
+     * @param {int} line Line to check for ignore-status
+     * @method isIgnored
+     * @return {Boolean} True if the line is ignored, else false
+    */
+    isIgnored: function(line) {
+        "use strict";
+        var ignore = false;
+        CSSLint.Util.forEach(this.ignore, function (range) {
+            if (range[0] <= line && line <= range[1]) {
+                ignore = true;
+            }
+        });
+        return ignore;
     }
 };
 

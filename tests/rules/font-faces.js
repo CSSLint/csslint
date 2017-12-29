@@ -21,6 +21,11 @@
             Assert.areEqual(1, result.messages.length);
             Assert.areEqual("warning", result.messages[0].type);
             Assert.areEqual("Too many @font-face declarations (6).", result.messages[0].message);
+        },
+
+        "Ignore should remove rollup warning message for font-face": function() {
+            var report = CSSLint.verify("/* csslint ignore:start */\n@font-face{} @font-face{} @font-face{} @font-face{} @font-face{} @font-face{}\n/* csslint ignore:end */@font-face{}\n");
+            Assert.areEqual(0, report.messages.length);
         }
     }));
 

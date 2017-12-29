@@ -36,6 +36,10 @@ CSSLint.addRule({
                 selector = selectors[i];
                 part = selector.parts[selector.parts.length-1];
 
+                if (reporter.isIgnored(part.line)) {
+                    continue;
+                }
+
                 if (part.elementName && /(h[1-6])/i.test(part.elementName.toString())) {
 
                     for (j=0; j < part.modifiers.length; j++) {
