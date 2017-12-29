@@ -13,6 +13,13 @@
             Assert.areEqual("Outlines should only be modified using :focus.", result.messages[0].message);
         },
 
+        "Using outline: transparent should result in a warning": function() {
+            var result = CSSLint.verify(".foo { outline: transparent}", { "outline-none": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Outlines should only be modified using :focus.", result.messages[0].message);
+        },
+
         "Using outline: 0 should result in a warning": function() {
             var result = CSSLint.verify(".foo { outline: 0; }", { "outline-none": 1 });
             Assert.areEqual(1, result.messages.length);
@@ -34,16 +41,55 @@
             Assert.areEqual("Outlines shouldn't be hidden unless other visual changes are made.", result.messages[0].message);
         },
 
-        "Using outline: none with :focus and another property should not result in a warning": function() {
+        "Using outline: transparent alone with :focus should result in a warning": function() {
+            var result = CSSLint.verify(".foo:focus { outline: transparent; }", { "outline-none": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Outlines shouldn't be hidden unless other visual changes are made.", result.messages[0].message);
+        },
+
+        "Using outline: none with :focus and another visible property should not result in a warning": function() {
             var result = CSSLint.verify(".foo:focus { outline: none; border: 1px solid black; }", { "outline-none": 1 });
             Assert.areEqual(0, result.messages.length);
         },
 
-        "Using outline: 0 with :focus and another property should not result in a warning": function() {
+        "Using outline: 0 with :focus and another visible property should not result in a warning": function() {
             var result = CSSLint.verify(".foo:focus { outline: 0; border: 1px solid black;}", { "outline-none": 1 });
             Assert.areEqual(0, result.messages.length);
-        }
+        },
 
+        "Using outline: 1px solid transparent; with :focus should result in a warning": function() {
+            var result = CSSLint.verify(".foo:focus { outline: 1px solid transparent;}", { "outline-none": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Outlines shouldn't be hidden unless other visual changes are made.", result.messages[0].message);
+        },
+
+        "Using outline: 0 with :focus and another transparent property should result in a warning": function() {
+            var result = CSSLint.verify(".foo:focus { outline: 0; border: 1px solid transparent;}", { "outline-none": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Outlines shouldn't be hidden unless other visual changes are made.", result.messages[0].message);
+        },
+
+        "Using outline: 0 with :focus and another zeroed property should result in a warning": function() {
+            var result = CSSLint.verify(".foo:focus { outline: 0; border: 0 solid black;}", { "outline-none": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Outlines shouldn't be hidden unless other visual changes are made.", result.messages[0].message);
+        },
+
+        "Using outline: 0 red; with :focus should result in a warning": function() {
+            var result = CSSLint.verify(".foo:focus { outline: 0 red;}", { "outline-none": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Outlines shouldn't be hidden unless other visual changes are made.", result.messages[0].message);
+        },
+
+        "Using outline: 0 with :focus and another zeroed property that does not affect rendering should not result in a warning": function() {
+            var result = CSSLint.verify(".foo:focus { outline: 0; margin: 0;}", { "outline-none": 1 });
+            Assert.areEqual(0, result.messages.length);
+        }
     }));
 
 })();
