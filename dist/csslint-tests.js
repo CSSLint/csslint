@@ -1847,6 +1847,42 @@ function include(path, sandbox) {
 
     YUITest.TestRunner.add(new YUITest.TestCase({
 
+        name: "multi-rules-newline",
+
+        "Multi rules must declear in multi lines": function() {
+            var result = CSSLint.verify(".foo.bar, .hehe { }", { "multi-rules-newline": 1 });
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Multi rules must declear in multi lines.", result.messages[0].message);
+        }
+
+    }));
+
+})();
+
+(function() {
+    "use strict";
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
+        name: "rule-name",
+
+        "Rule name must be concat with -, not _": function() {
+            var result = CSSLint.verify(".foo_name { }", { "rule-name": 1 });
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Rule name must concat with -.", result.messages[0].message);
+        }
+
+    }));
+
+})();
+
+(function() {
+    "use strict";
+    var Assert = YUITest.Assert;
+
+    YUITest.TestRunner.add(new YUITest.TestCase({
+
         name: "Fallback Colors Rule Errors",
 
         "Using only a named color should not result in a warning": function() {
