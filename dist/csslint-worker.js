@@ -9374,7 +9374,7 @@ CSSLint.addRule({
     // rule information
     id: "outline-none",
     name: "Disallow outline: none",
-    desc: "Use of outline: none or outline: 0 should be limited to :focus rules.",
+    desc: "Use of outline: none | 0 | transparent should be limited to :focus rules and resulting elements should be visible.",
     url: "https://github.com/CSSLint/csslint/wiki/Disallow-outline%3Anone",
     browsers: "All",
     tags: ["Accessibility"],
@@ -9392,7 +9392,8 @@ CSSLint.addRule({
                     col: event.col,
                     selectors: event.selectors,
                     propCount: 0,
-                    outline: false
+                    outline: false,
+                    potentiallyInvisibleElement: false
                 };
             } else {
                 lastRule = null;
@@ -9404,7 +9405,7 @@ CSSLint.addRule({
                 if (lastRule.outline) {
                     if (lastRule.selectors.toString().toLowerCase().indexOf(":focus") === -1) {
                         reporter.report("Outlines should only be modified using :focus.", lastRule.line, lastRule.col, rule);
-                    } else if (lastRule.propCount === 1) {
+                    } else if (lastRule.propCount === 1 || lastRule.potentiallyInvisibleElement === true) {
                         reporter.report("Outlines shouldn't be hidden unless other visual changes are made.", lastRule.line, lastRule.col, rule);
                     }
                 }
@@ -9419,13 +9420,23 @@ CSSLint.addRule({
         parser.addListener("startviewport", startRule);
 
         parser.addListener("property", function(event) {
+
             var name = event.property.text.toLowerCase(),
-                value = event.value;
+                valueString = event.value.toString().toLowerCase();
 
             if (lastRule) {
                 lastRule.propCount++;
-                if (name === "outline" && (value.toString() === "none" || value.toString() === "0")) {
-                    lastRule.outline = true;
+
+                if (valueString.indexOf("none") !== -1 || valueString.indexOf("0") !== -1 || valueString.indexOf("transparent") !== -1) {
+                    if (name === "outline") {
+                        lastRule.outline = true;
+                    }
+                    else {
+                        // these properties must not be 0, none, or transparent when outline is already one of those values
+                        if (name.indexOf("border") >= 0) {
+                            lastRule.potentiallyInvisibleElement = true;
+                        }
+                    }
                 }
             }
 
