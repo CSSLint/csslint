@@ -140,7 +140,7 @@ function cli(api) {
     function processFile(relativeFilePath, options) {
         var input = api.readFile(relativeFilePath),
             ruleset = filterRules(options),
-            result = CSSLint.verify(input, gatherRules(options, ruleset)),
+            result = CSSLint.verify(input, gatherRules(options, ruleset), options),
             formatter = CSSLint.getFormatter(options.format || "text"),
             messages = result.messages || [],
             output,
