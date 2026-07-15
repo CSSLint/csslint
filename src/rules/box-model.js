@@ -31,11 +31,31 @@ CSSLint.addRule({
                 "padding-top": 1
             },
             properties,
-            boxSizing = false;
+            boxSizing = false,
+            selectors,
+            universalBoxSizing = false,
+            warnings = [];
 
-        function startRule() {
+        // the universal selector (*) applies to all elements,
+        // so a box-sizing declared there makes the warnings unnecessary
+        function hasUniversalSelector() {
+            var i, part;
+
+            for (i = 0; i < selectors.length; i++) {
+                if (selectors[i].parts.length === 1) {
+                    part = selectors[i].parts[0];
+                    if (part.elementName === "*" && part.modifiers.length === 0) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function startRule(event) {
             properties = {};
             boxSizing = false;
+            selectors = event.selectors;
         }
 
         function endRule() {
@@ -48,7 +68,7 @@ CSSLint.addRule({
                             value = properties[prop].value;
                             // special case for padding
                             if (!(prop === "padding" && value.parts.length === 2 && value.parts[0].value === 0)) {
-                                reporter.report("Using height with " + prop + " can sometimes make elements larger than you expect.", properties[prop].line, properties[prop].col, rule);
+                                warnings.push({ message: "Using height with " + prop + " can sometimes make elements larger than you expect.", line: properties[prop].line, col: properties[prop].col });
                             }
                         }
                     }
@@ -60,7 +80,7 @@ CSSLint.addRule({
                             value = properties[prop].value;
 
                             if (!(prop === "padding" && value.parts.length === 2 && value.parts[1].value === 0)) {
-                                reporter.report("Using width with " + prop + " can sometimes make elements larger than you expect.", properties[prop].line, properties[prop].col, rule);
+                                warnings.push({ message: "Using width with " + prop + " can sometimes make elements larger than you expect.", line: properties[prop].line, col: properties[prop].col });
                             }
                         }
                     }
@@ -91,6 +111,9 @@ CSSLint.addRule({
                     properties[name] = 1;
                 } else if (name === "box-sizing") {
                     boxSizing = true;
+                    if (selectors && hasUniversalSelector()) {
+                        universalBoxSizing = true;
+                    }
                 }
             }
 
@@ -102,6 +125,17 @@ CSSLint.addRule({
         parser.addListener("endpagemargin", endRule);
         parser.addListener("endkeyframerule", endRule);
         parser.addListener("endviewport", endRule);
+
+        parser.addListener("endstylesheet", function() {
+            var i;
+
+            if (universalBoxSizing) {
+                return;
+            }
+            for (i = 0; i < warnings.length; i++) {
+                reporter.report(warnings[i].message, warnings[i].line, warnings[i].col, rule);
+            }
+        });
     }
 
 });
