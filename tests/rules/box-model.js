@@ -13,6 +13,42 @@
             Assert.areEqual("Using width with padding can sometimes make elements larger than you expect.", result.messages[0].message);
         },
 
+        "Using width and padding when the universal selector declares box-sizing should not result in a warning": function() {
+            var result = CSSLint.verify("* { box-sizing: border-box; } .foo { width: 100px; padding: 10px; }", { "box-model": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using width and padding when a universal selector group declares box-sizing should not result in a warning": function() {
+            var result = CSSLint.verify("*, *:before, *:after { box-sizing: border-box; } .foo { width: 100px; padding: 10px; }", { "box-model": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using width and padding before the universal selector declares box-sizing should not result in a warning": function() {
+            var result = CSSLint.verify(".foo { width: 100px; padding: 10px; } * { box-sizing: border-box; }", { "box-model": 1 });
+            Assert.areEqual(0, result.messages.length);
+        },
+
+        "Using width and padding when another selector declares box-sizing should result in a warning": function() {
+            var result = CSSLint.verify(".bar { box-sizing: border-box; } .foo { width: 100px; padding: 10px; }", { "box-model": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Using width with padding can sometimes make elements larger than you expect.", result.messages[0].message);
+        },
+
+        "Using width and padding when a qualified universal selector declares box-sizing should result in a warning": function() {
+            var result = CSSLint.verify("*.bar { box-sizing: border-box; } .foo { width: 100px; padding: 10px; }", { "box-model": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Using width with padding can sometimes make elements larger than you expect.", result.messages[0].message);
+        },
+
+        "Using width and padding when a descendant universal selector declares box-sizing should result in a warning": function() {
+            var result = CSSLint.verify("div * { box-sizing: border-box; } .foo { width: 100px; padding: 10px; }", { "box-model": 1 });
+            Assert.areEqual(1, result.messages.length);
+            Assert.areEqual("warning", result.messages[0].type);
+            Assert.areEqual("Using width with padding can sometimes make elements larger than you expect.", result.messages[0].message);
+        },
+
         "Using width when padding is zero should not result in a warning": function() {
             var result = CSSLint.verify(".foo { width: 100px; padding: 0; }", { "box-model": 1 });
             Assert.areEqual(0, result.messages.length);
